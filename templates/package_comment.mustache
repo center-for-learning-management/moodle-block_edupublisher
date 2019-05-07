@@ -1,0 +1,52 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+
+<div style="border-radius: 15px; border: 2px solid darkblue; margin-bottom: 10px; overflow: hidden;">
+    <table border="0">
+        <tr>
+            {{!
+            { {#ispublic} }
+            <td width="20" style="background-color: darkgreen; color: white; font-weight: bold; padding: 0px;">
+                <p style="transform: rotate(-90deg); margin: 0;">Public</p>
+            </td>
+            { {/ispublic} }
+            }}
+            {{^ispublic}}
+            <td width="20" style="background-color: darkred; color: white; font-weight: bold; padding: 0px;">
+                <p style="transform: rotate(-90deg); margin: 0;">Private</p>
+            </td>
+            {{/ispublic}}
+            <td valign="top" width="150" style="padding-left: 10px;">
+                <center>
+                    {{userfullname}}<br />
+                    <a href="{{wwwroot}}/user/profile.php?id={{userid}}">
+                        <img src="{{userpictureurl}}" alt="{{userfullname}}" width="50" style="border-radius: 50%;" />
+                    </a>
+                    <br /><br />
+                    <small>{{#userdate}} {{created}}, %Y-%m-%d, %H:%M {{/userdate}}</small>
+                    <br />
+                    <a href="{{wwwroot}}/blocks/edupublisher/pages/comment.php?perma={{permahash}}" target="_blank">
+                        {{#str}} permalink, block_edupublisher {{/str}}
+                    </a>
+                </center>
+            </td>
+            <td valign="top">
+                {{{content}}}
+            </td>
+        </tr>
+    </table>
+</div>

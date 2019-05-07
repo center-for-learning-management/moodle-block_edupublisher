@@ -1,0 +1,69 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+
+<div class="ui-edupublisher"><div>
+<a href="{{wwwroot}}/blocks/edupublisher/pages/channels.php">{{#str}} overview, block_edupublisher {{/str}}</a>
+<h3>{{title}}</h3>
+<form action="{{wwwroot}}/blocks/edupublisher/pages/channels.php" method="POST" enctype="multipart/form-data">
+    <input type="hidden" name="action" value="store" />
+    <input type="hidden" name="id" value="{{id}}" />
+    <input type="text" name="title" value="{{title}}" />
+    <table border="0" width="100%">
+        <thead>
+            <tr>
+                <th>{{#str}} title, block_edupublisher {{/str}}</th>
+                <th>{{#str}} fieldhelptext, block_edupublisher {{/str}}</th>
+                <th>{{#str}} fieldtype, block_edupublisher {{/str}}</th>
+                <th>{{#str}} fieldextras, block_edupublisher {{/str}}</th>
+            </tr>
+        </thead>
+        <tbody>
+    {{#preset}}
+            <tr>
+                <td><input type="text" name="fieldname[]" value="{{fieldname}}" /></td>
+                <td><textarea name="fieldhelptext[]">{{fieldhelptext}}</textarea></td>
+                <td>
+                    <select name="fieldtype[]">
+                        <option{{#is_number}} selected="selected"{{/is_number}}>number</option>
+                        <option{{#is_textsimple}} selected="selected"{{/is_textsimple}}>textsimple</option>
+                        <option{{#is_textarea}} selected="selected"{{/is_textarea}}>textarea</option>
+                    </select>
+                </td>
+                <td><textarea name="fieldextras[]">{{fieldextras}}</textarea></td>
+            </tr>
+    {{/preset}}
+            <tr>
+                <td><input type="text" name="fieldname[]" placeholder="{{fieldname}}" /></td>
+                <td>
+                    <textarea name="fieldhelptext[]"></textarea>
+                </td>
+                <td>
+                    <select name="fieldtype[]">
+                        <option>number</option>
+                        <option>textsimple</option>
+                        <option>textarea</option>
+                    </select>
+                </td>
+                <td>
+                    <textarea name="fieldextras[]"></textarea>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <input type="submit" value="store" />
+</form>
+</div></div>

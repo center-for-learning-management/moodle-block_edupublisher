@@ -1,0 +1,185 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+<div class="ui-edupublisher"><div>
+<h3>{{title}}</h3>
+{{#canmoderate}}
+    <div style="display: grid; grid-template-columns: minmax(200px, 1fr) 2fr;">
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/list.php" class="ui-btn btn btn-primary">{{#str}} manage, block_edupublisher {{/str}}</a>
+        {{#authoreditingpermission}}
+            <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&act=authoreditingpermission&to=remove" class="ui-btn btn btn-primary">{{#str}} trigger_editing_permission_remove, block_edupublisher {{/str}}</a>
+        {{/authoreditingpermission}}
+        {{^authoreditingpermission}}
+            <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&act=authoreditingpermission&to=grant" class="ui-btn btn btn-primary">{{#str}} trigger_editing_permission_grant, block_edupublisher {{/str}}</a>
+        {{/authoreditingpermission}}
+    </div>
+{{/canmoderate}}
+<div style="display: grid; grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr);">
+<a href="{{wwwroot}}/blocks/edupublisher/pages/comment.php?packageid={{id}}" class="btn">{{#str}} comments {{/str}}</a>
+{{#canedit}}
+    <a href="{{wwwroot}}/blocks/edupublisher/pages/package_edit.php?id={{id}}" class="btn">{{#str}} edit {{/str}}</a>
+{{/canedit}}
+{{#candelete}}
+    <a href="{{wwwroot}}/blocks/edupublisher/pages/remove.php?id={{id}}" class="btn">{{#str}} delete {{/str}}</a>
+{{/candelete}}
+</div>
+{{#canviewuser}}
+    {{#str}} issued_by_user, block_edupublisher {{/str}}
+    <ul>
+        {{#_user}}
+            <li><a href="mailto:{{email}}"><img src="/pix/t/message.svg" class="icon" /></a><a href="{{_wwwroot}}/user/profile.php?id={{id}}" target="_blank">{{firstname}} {{lastname}} ({{username}})</a></li>
+        {{/_user}}
+    </ul>
+{{/canviewuser}}
+<div id="channel-default" class="channel-block{{^default_active}} channel-inactive{{/default_active}}">
+    <table border="0" width="100%">
+        <tr>
+            <th colspan="2">
+                {{#str}} default_header, block_edupublisher {{/str}}
+                <div id="{{uniqid}}-rating" style="float: right;">
+                {{> block_edupublisher/package_rating }}
+                </div>
+            </th>
+        </tr>
+        {{#cantriggeractive}}
+        <tr>
+            <td colspan="2">
+                <label>
+                    <input type="checkbox"{{#default_active}} checked="checked"{{/default_active}}
+                           onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'default', chkbox); } );"
+                           id="channel-default-active"/>
+                    {{#str}} default_trigger_active, block_edupublisher {{/str}}
+                </label>
+            </td>
+        </tr>
+        {{/cantriggeractive}}
+        <tr>
+            <td>
+                <a href="{{wwwroot}}/course/view.php?id={{course}}" target="_blank">
+                    <img src="/pix/i/course.svg" class="icon" alt="Package" />
+                    {{title}}
+                </a>
+            </td>
+            <td rowspan="3" width="150" align="right"><img src="{{default_image}}" width="150" /></td>
+        </tr>
+        <tr>
+            <td>
+                <a href="mailto:{{default_authormail}}" target="_blank">
+                    <img src="/pix/i/user.svg" class="icon" alt="Contact" />
+                    {{default_authorname}}
+                </a>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top"><img src="/pix/i/publish.svg" class="icon" alt="Licence" /> {{default_licence}}</td>
+        </tr>
+        <tr>
+            <td colspan="2">{{{default_summary}}}</td>
+        </tr>
+    </table>
+</div>
+{{#etapas_publishas}}
+<div id="channel-etapas" class="channel-block{{^etapas_active}} channel-inactive{{/etapas_active}}">
+    <table border="0" width="100%">
+        <tr><th colspan="2">{{#str}} etapas_header, block_edupublisher {{/str}}</th></tr>
+        {{#cantriggeractiveetapas}}
+        <tr>
+            <td colspan="2">
+                <label>
+                    <input type="checkbox"{{#etapas_active}} checked="checked"{{/etapas_active}}
+                           onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'etapas', chkbox); } );" />
+                    {{#str}} etapas_trigger_active, block_edupublisher {{/str}}
+                </label>
+            </td>
+        </tr>
+        {{/cantriggeractiveetapas}}
+        <tr>
+            <th>{{#str}} etapas_status, block_edupublisher {{/str}}</th>
+            <td>{{etapas_status_localized}}</td>
+        </tr>
+        <tr>
+            <th>{{#str}} etapas_schulstufe, block_edupublisher {{/str}}</th>
+            <td><ul class="text-divider comma" style="margin: 0; padding: 0;">{{#etapas_schulstufe}}<li>{{.}}</li>{{/etapas_schulstufe}}</ul></td>
+        </tr>
+        <tr>
+            <th>{{#str}} etapas_zeitbedarf, block_edupublisher {{/str}}</th>
+            <td>{{etapas_zeitbedarf}}</td>
+        </tr>
+        <tr>
+            <th>{{#str}} etapas_vonschule, block_edupublisher {{/str}}</th>
+            <td>{{etapas_vonschule}}</td>
+        </tr>
+        <tr>
+            <th colspan="2">{{#str}} etapas_vorkenntnisse, block_edupublisher {{/str}}</th>
+        </tr>
+        <tr>
+            <td colspan="2">{{#etapas_vorkenntnisse}}{{{etapas_vorkenntnisse}}}{{/etapas_vorkenntnisse}}{{^etapas_vorkenntnisse}}-{{/etapas_vorkenntnisse}}</td>
+        </tr>
+        <tr>
+            <th colspan="2">{{#str}} etapas_voraussetzungen, block_edupublisher {{/str}}</th>
+        </tr>
+        <tr>
+            <td colspan="2">{{#etapas_voraussetzungen}}{{{etapas_voraussetzungen}}}{{/etapas_voraussetzungen}}{{^etapas_voraussetzungen}}-{{/etapas_voraussetzungen}}</td>
+        </tr>
+        <tr>
+            <th>{{#str}} etapas_erprobungen, block_edupublisher {{/str}}</th>
+            <td><ul class="text-divider comma" style="margin: 0; padding: 0;">{{#etapas_erprobungen}}<a href="{{.}}" target="_blank">{{#pix}} i/report, core, report{{/pix}}</a>{{/etapas_erprobungen}}{{^etapas_erprobungen}}-{{/etapas_erprobungen}}</ul></td>
+        </tr>
+        <tr>
+            <th>{{#str}} lti_data, block_edupublisher {{/str}}</th>
+            <td><a href="{{etapas_lticartridge}}" target="_blank">{{#str}} etapas_lticartridge, block_edupublisher {{/str}}</a>, {{etapas_ltisecret}}</td>
+        </tr>
+
+    </table>
+</div>
+{{/etapas_publishas}}
+{{#eduthek_publishas}}
+<div id="channel-eduthek" class="channel-block{{^eduthek_active}} channel-inactive{{/eduthek_active}}">
+    <table border="0" width="100%">
+        <tr><th colspan="2">{{#str}} eduthek_header, block_edupublisher {{/str}}</th></tr>
+        {{#cantriggeractiveeduthek}}
+        <tr>
+            <td colspan="2">
+                <label>
+                    <input type="checkbox"{{#eduthek_active}} checked="checked"{{/eduthek_active}}
+                           onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'eduthek', chkbox); } );" />
+                    {{#str}} eduthek_trigger_active, block_edupublisher {{/str}}
+                </label>
+            </td>
+        </tr>
+        {{/cantriggeractiveeduthek}}
+        <tr>
+            <th colspan="2">{{#str}} lti_data, block_edupublisher {{/str}}</th>
+        </tr>
+        <tr>
+            <td><a href="{{eduthek_lticartridge}}" target="_blank">{{#str}} eduthek_lticartridge, block_edupublisher {{/str}}</a></td>
+            <td>{{eduthek_ltisecret}}</td>
+        </tr>
+    </table>
+</div>
+{{/eduthek_publishas}}
+{{#origins}}
+    <li>based on {{title}}</li>
+{{/origins}}
+</div>
+
+{{#comments.0}}
+<div id="comments" class="channel-block">
+    {{> block_edupublisher/package_comment }}
+</div>
+{{/comments.0}}
+
+</div>

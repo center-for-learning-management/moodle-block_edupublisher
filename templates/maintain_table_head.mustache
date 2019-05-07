@@ -1,0 +1,39 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+}}
+<div class="ui-edupublisher" style="text-align: center;"><div>
+    <a href="{{wwwroot}}/blocks/edupublisher/pages/list.php" class="btn btn-primary">{{#str}} back {{/str}}</a>
+    <table width="100%" class="generaltable">
+        <colgroup>
+            <col style="width: 50px; text-align: center;" />
+            <col style="text-align: center;" />
+            {{#maintainer_default}} <col style="width: 30px; text-align: center;" span="2"/>{{/maintainer_default}}
+            {{#maintainer_etapas}} <col style="width: 30px; text-align: center;" span="2"/>{{/maintainer_etapas}}
+            {{#maintainer_eduthek}} <col style="width: 30px; text-align: center;" span="2"/>{{/maintainer_eduthek}}
+            <col style="width: 100px; text-align: center;" />
+        </colgroup>
+        <thead>
+            <tr>
+                <th class="cell c0">#</th>
+                <th class="cell c1">{{#str}} title, block_edupublisher {{/str}}</th>
+                {{#maintainer_default}}<th colspan="2">{{#str}} default_header, block_edupublisher {{/str}}</th>{{/maintainer_default}}
+                {{#maintainer_etapas}}<th colspan="2">{{#str}} etapas_header, block_edupublisher {{/str}}</th>{{/maintainer_etapas}}
+                {{#maintainer_eduthek}}<th colspan="2">{{#str}} eduthek_header, block_edupublisher {{/str}}</th>{{/maintainer_eduthek}}
+                <th width="100" class="cell lastcol">{{#str}} rating, block_edupublisher {{/str}}</th>
+            </tr>
+        </thead>
+        <tbody>

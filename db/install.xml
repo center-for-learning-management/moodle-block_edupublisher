@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="blocks/edupublisher/db" VERSION="20180628" COMMENT="XMLDB file for Moodle blocks/edupublisher"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="block_edupublisher_packages" COMMENT="List of publish-packages">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="User who published the package"/>
+        <FIELD NAME="course" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="sourcecourse" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Originating courseid"/>
+        <FIELD NAME="channels" TYPE="char" LENGTH="250" NOTNULL="false" SEQUENCE="false" COMMENT="comma-separated list of channels"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="250" NOTNULL="false" SEQUENCE="false" COMMENT="Title of the published package"/>
+        <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was created"/>
+        <FIELD NAME="modified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was modified"/>
+        <FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="triggers if active or not"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="block_edupublisher_comments" COMMENT="comments to published items">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="true"/>
+        <FIELD NAME="package" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="ID of resource in block_edupublisher_packages"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was created"/>
+        <FIELD NAME="permahash" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="hashcode for permalink without login"/>
+        <FIELD NAME="isautocomment" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="whether this is an autotext (1) or not (0)"/>
+        <FIELD NAME="ispublic" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="whether this is public (1) or not (0)"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="block_edupublisher_metadata" COMMENT="Metadata for published items">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="true"/>
+        <FIELD NAME="package" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="ID of resource in block_edupublisher_packages"/>
+        <FIELD NAME="field" TYPE="char" LENGTH="50" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was created"/>
+        <FIELD NAME="modified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was modified"/>
+        <FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="triggers if active or not"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="package_field" UNIQUE="false" FIELDS="package, field"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="block_edupublisher_rating" COMMENT="Ratings for published items">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="true"/>
+        <FIELD NAME="package" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="ID of resource in block_edupublisher_packages"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="User who rated"/>
+        <FIELD NAME="rating" TYPE="int" LENGTH="2" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was created"/>
+        <FIELD NAME="modified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was modified"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="package_rating" UNIQUE="false" FIELDS="package, rating"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="block_edupublisher_uses" COMMENT="List of use of packages">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="true"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="User who used the package"/>
+        <FIELD NAME="package" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="ID of resource in block_edupublisher_packages"/>
+        <FIELD NAME="targetcourse" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Course where the package was imported to"/>
+        <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was created"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+  </TABLES>
+</XMLDB>

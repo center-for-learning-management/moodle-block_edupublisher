@@ -1,0 +1,45 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+
+<h3>{{#str}} channels, block_edupublisher {{/str}}</h3>
+<table border="0" width="100%">
+    <thead>
+        <tr>
+            <th>{{#str}} name, block_edupublisher {{/str}}</th>
+            <th>{{#str}} action, block_edupublisher {{/str}}</th>
+        </tr>
+    </thead>
+    <tbody>
+{{#channels}}
+        <tr>
+            <td>{{title}}</td>
+            <td>
+                {{#actions}}
+                    <a href="{{url}}"><img src="{{picture}}" alt="{{label}}" width="24" /></a>
+                {{/actions}}
+            </td>
+        </tr>
+{{/channels}}
+    </tbody>
+</table>
+
+<h3>{{#str}} create_channel, block_edupublisher {{/str}}</h3>
+<form action="{{wwwroot}}/blocks/edupublisher/pages/channels.php" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="action" value="create" />
+    <input type="text" name="title" placeholder="{{#str}} title, block_edupublisher {{/str}}" />
+    <input class="btn btn-primary" type="submit" value="{{#str}} create_channel, block_edupublisher {{/str}}" />
+</form>
