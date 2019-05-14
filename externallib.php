@@ -154,7 +154,6 @@ class block_edupublisher_external extends external_api {
                 }
             }
             $SQL .= ' OR (`content` LIKE "%' . $params['search'] . '%" AND `active`=1)';
-
             $SQL .= ' GROUP BY package ORDER BY cnt DESC LIMIT 0,20';
             $relevance = $DB->get_records_sql($SQL, array());
 
