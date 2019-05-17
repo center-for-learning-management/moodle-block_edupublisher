@@ -238,7 +238,8 @@ class block_edupublisher extends block_list {
             }
             if (!empty($package->course)) {
                 $ctx = context_course::instance($package->course);
-                $package->authoreditingpermission = user_has_role_assignment($package->userid, 3, $ctx->id);
+                $package->authoreditingpermission = user_has_role_assignment($package->userid, get_config('block_edupublisher', 'defaultroleteacher'), $ctx->id);
+                //die(get_config('block_edupublisher', 'defaultroleteacher') . '|' . $package->authoreditingpermission . '|' . $ctx->id);
             }
         }
         if (count($withdetails) == 0 || in_array('rating', $withdetails)) {
@@ -597,14 +598,16 @@ class block_edupublisher extends block_list {
         if ($role == 'defaultroleteacher') $role = get_config('block_edupublisher', 'defaultroleteacher');
         if ($role == 'defaultrolestudent') $role = get_config('block_edupublisher', 'defaultrolestudent');
         if (empty($role)) return;
+
         $enrol = enrol_get_plugin('manual');
         if (empty($enrol)) {
             return false;
         }
+
         global $DB;
         foreach ($courseids AS $courseid) {
             // Check if course exists.
-            $course = $DB->get_record('course', array('id' => $courseid), IGNORE_MISSING);
+            $course = get_course($courseid);
             if (empty($course->id)) continue;
             // Check manual enrolment plugin instance is enabled/exist.
             $instance = null;

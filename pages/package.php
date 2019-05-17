@@ -47,12 +47,14 @@ switch ($act) {
         if ($package->canmoderate) {
             $ctx = context_course::instance($package->course);
             if (optional_param('to', '', PARAM_TEXT) == 'grant') {
-                role_assign(3, $package->userid, $ctx->id);
+                block_edupublisher::role_set(array($package->course), array($package->userid), 'defaultroleteacher');
+                //role_assign(get_config('block_edupublisher', 'defaultroleteacher'), $package->userid, $ctx->id);
                 $sendto = array('author');
                 block_edupublisher::store_comment($package, 'comment:template:package_editing_granted', $sendto, true, false);
             }
             if (optional_param('to', '', PARAM_TEXT) == 'remove') {
-                role_unassign(3, $package->userid, $ctx->id);
+                block_edupublisher::role_set(array($package->course), array($package->userid), -1);
+                //role_unassign(get_config('block_edupublisher', 'defaultroleteacher'), $package->userid, $ctx->id);
                 $sendto = array('author');
                 block_edupublisher::store_comment($package, 'comment:template:package_editing_sealed', $sendto, true, false);
             }
