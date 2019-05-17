@@ -141,17 +141,10 @@ class package_create_form extends moodleform {
                 }
             }
             if ($channel == 'default') {
-                /*
-                $boxes = array(
-                    $mform->createElement('checkbox', 'exportcourse', get_string('exportcourse_attention', 'block_edupublisher'), '', array('checked' => 'checked', 'onclick' => 'require(["block_edupublisher/main"], function(MAIN) { MAIN.exportCourseWarning(); });')),
-                );
-                $mform->addGroup($boxes, 'exportcoursebox', get_string('exportcourse', 'block_edupublisher'), array(' '), false);
-                $mform->hideIf('exportcoursebox', 'id', 'neq', '0');
-                $mform->addHelpButton('exportcoursebox', 'exportcourse', 'block_edupublisher');
-                */
-                $mform->addElement('hidden', 'exportcourse', get_string('exportcourse_attention', 'block_edupublisher'));
-                $mform->setType('exportcourse', PARAM_BOOL);
-                $mform->setDefault('exportcourse', 1);
+                $mform->addElement('advcheckbox', 'clonecourse', get_string('clonecourse', 'block_edupublisher'), get_string('clonecourse_help', 'block_edupublisher'), array('group' => 1), array(0, 1));
+                $mform->setDefault('clonecourse', 1);
+                //$mform->addHelpButton('clonecourse', 'clonecourse', 'block_edupublisher');
+                $mform->hideIf('clonecourse', 'id', 'neq', '0');
                 $boxes = array();
                 foreach($channels AS $_channel) {
                     if ($_channel == 'default') continue;

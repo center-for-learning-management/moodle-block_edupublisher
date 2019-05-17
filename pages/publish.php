@@ -122,23 +122,22 @@ if (empty($backupid)) {
         // Create the target course if necessary
         $category = get_config('block_edupublisher', 'category');
         $targetcourse = $importcourse;
-        if (!empty($data->exportcourse) && $data->exportcourse == 1) {
+        $targetcourse->category = intval($category);
+        $targetcourse->fullname = $data->title;
+        $targetcourse->summary = $data->default_summary['text']; // At this stage the editor is represented as array with fields text and format
+        $targetcourse->visible = 1;
+        $targetcourse->shortname = '[' . $USER->id . '-' . date('YmdHis') . ']';
+        $targetcourse->idnumber = '';
+        if (!empty($data->clonecourse) && $data->clonecourse == 1) {
             // Create a target course
-            $targetcourse->category = $category;
             $targetcourse->id = 0;
-            $targetcourse->idnumber = '';
-            $targetcourse->shortname = '[' . $USER->id . '-' . date('YmdHis') . ']';
-            $targetcourse->fullname = $data->title;
-            $targetcourse->summary = $data->default_summary['text']; // At this stage the editor is represented as array with fields text and format
-            $targetcourse->visible = 1;
-
             $targetcourse = create_course($targetcourse);
-            $targetcontext = context_course::instance($targetcourse->id);
         } else {
-            // Move current course to target category
-            $targetcourse->category = $category;
-            $DB->update_record('course', $targetcourse);
+            require_once($CFG->dirroot . '/course/lib.php');
+            update_course($targetcourse);
         }
+        // @todo give user access rights as non-editing-teacher at the end. so that he can access the (invisible!) course.
+        $targetcontext = context_course::instance($targetcourse->id);
         $targetcourseid = $targetcourse->id;
 
         $data->course = $targetcourse->id;
@@ -174,19 +173,22 @@ if ($package->id > 0 && $PREVENTFORM) {
     try {
         $PAGE->set_url($CFG->wwwroot . '/blocks/edupublisher/pages/publish.php?package=' . $package->id);
         block_edupublisher::print_app_header();
-        $targetcourse = get_course($targetcourseid);
-        $targetcontext = context_course::instance($targetcourseid);
-        // Load the course +context to import from
-        $importcourse = get_course($importcourseid);
-        $importcontext = context_course::instance($importcourseid);
-        // Make sure the user can backup from that course, otherwise we are not entitle to publish something!
-        require_capability('moodle/backup:backuptargetimport', $importcontext);
 
-        $DOPOSTTASKS = false;
-        $DOIMPORT = ($importcourseid != $targetcourseid);
+        // If they are the NOT the same we need the import-function
+        $DOIMPORT = ($package->sourcecourse != $package->course);
         if (!$DOIMPORT) {
             $DOPOSTTASKS = true;
         } else {
+            if (empty($targetcourse) || empty($targetcourse->id)) {
+                $targetcourse = get_course($targetcourseid);
+            }
+            $targetcontext = context_course::instance($targetcourseid);
+            // Load the course +context to import from
+            $importcourse = get_course($importcourseid);
+            $importcontext = context_course::instance($importcourseid);
+            // Make sure the user can backup from that course, otherwise we are not entitle to publish something!
+            require_capability('moodle/backup:backuptargetimport', $importcontext);
+
             block_edupublisher::role_set(array($targetcourse->id), array($USER->id), 'defaultroleteacher');
             require_capability('moodle/restore:restoretargetimport', $targetcontext);
             // Prepare the backup renderer
