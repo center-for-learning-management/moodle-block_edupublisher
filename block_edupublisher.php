@@ -1086,7 +1086,7 @@ class block_edupublisher extends block_list {
             $package = self::get_package($package->id, true);
             $this->content = (object) array(
                 'items' => array(
-                    '<a href="mailto:' . $package->default_authormail . '">' . $package->default_authorname . '</a>',
+                    (!empty($package->default_authormailshow) && $package->default_authormailshow == 1) ? '<a href="mailto:' . $package->default_authormail . '">' . $package->default_authorname . '</a>' : $package->default_authorname,
                     $package->default_licence
                 ),
                 'icons' => array(

@@ -52,6 +52,7 @@ $string['default_authorname'] = 'Name of author';
 $string['default_authorname_missing'] = 'Please enter a your name!';
 $string['default_authormail'] = 'eMail of author';
 $string['default_authormail_missing'] = 'Please enter a valid mailaddress!';
+$string['default_authormailshow'] = 'Show eMail of author';
 $string['default_coursecontents'] = 'Course contents';
 $string['default_coursecontents_help'] = 'Course contents';
 $string['default_fetchchannel'] = 'Fetch Default-Channel';

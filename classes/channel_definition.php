@@ -45,6 +45,10 @@ $definition = array(
         ), 'required' => 1),
         'authorname' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
         'authormail' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
+        'authormailshow' => array('type' => 'select', 'datatype' => PARAM_INT, 'default' => 1, 'options' => array(
+            '1' => get_string('yes'), '0' => get_string('no')
+            )
+        ),
         'origins' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_INT),
         'sourcecourse' => array('type' => 'hidden', 'datatype' => PARAM_INT),
         'summary' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
