@@ -85,6 +85,9 @@ $definition = array(
             )
         ),
         'stundenablauf' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
+        'subtype' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'hidden_except_maintainer' => true, 'default' => 'etapa', 'options' => array(
+            'etapa' => 'eTapa', 'digi.komp 4' => 'digi.komp 4', 'digi.komp 8' => 'digi.komp 8', 'digi.komp 12' => 'digi.komp 12')
+        ),
         'vorkenntnisse' => array('type' => 'editor', 'datatype' => PARAM_RAW),
         'voraussetzungen' => array('type' => 'editor', 'datatype' => PARAM_RAW),
         'zeitbedarf' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(

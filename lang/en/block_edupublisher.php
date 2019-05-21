@@ -116,6 +116,7 @@ $string['etapas_status_inspect'] = 'Inspect';
 $string['etapas_status_eval'] = 'Evaluate';
 $string['etapas_status_public'] = 'Public';
 $string['etapas_stundenablauf'] = 'Lessonplan';
+$string['etapas_subtype'] = 'Subtype';
 $string['etapas_trigger_active'] = 'Check this box to make eTapa active!';
 $string['etapas_voraussetzungen'] = 'Prerequisites';
 $string['etapas_vorkenntnisse'] = 'Prior knowledge';

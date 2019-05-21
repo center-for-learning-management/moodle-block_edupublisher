@@ -73,6 +73,11 @@ class package_create_form extends moodleform {
                 if ($_field == 'publish_as') continue;
                 $field = $definition[$channel][$_field];
                 $required = isset($field['required']) && $field['required'];
+                $hiddenexceptmaintainer = isset($field['hidden_except_maintainer']) && $field['hidden_except_maintainer'];
+                if ($hiddenexceptmaintainer && !block_edupublisher::is_maintainer()) {
+                    continue;
+                }
+
                 $label = $this->get_label($definition, $channel, $_field, $_field, $stringman, $required);
 
                 unset($addedfield);

@@ -116,6 +116,7 @@ $string['etapas_status_inspect'] = 'Prüfung';
 $string['etapas_status_eval'] = 'Erprobung';
 $string['etapas_status_public'] = 'Öffentlich';
 $string['etapas_stundenablauf'] = 'Stundenablauf';
+$string['etapas_subtype'] = 'Untergruppe';
 $string['etapas_trigger_active'] = 'Als eTapa aktiv!';
 $string['etapas_voraussetzungen'] = 'Voraussetzungen';
 $string['etapas_vorkenntnisse'] = 'Vorkenntnisse';
