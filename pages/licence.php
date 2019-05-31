@@ -70,8 +70,11 @@ if (empty($publisherid)) {
         case 'generate':
             $data = (object) array(
                 'action' => $action,
-                'amount' => optional_param('amount', 0, PARAM_INT),
+                'amounts' => optional_param('amounts', 0, PARAM_INT),
+                'confirmed' => optional_param('confirmed', 0, PARAM_INT),
+                'failed' => array(),
                 'licencekeys' => optional_param('licencekeys', '', PARAM_TEXT),
+                'maturity' => time() + 60*60*24*365*7, // 7 years in future. @todo: make it customizable.
                 'publisherid' => $publisherid,
                 //'step' => optional_param('step', 0, PARAM_INT),
                 'target' => optional_param('target', 0, PARAM_INT),
@@ -112,9 +115,45 @@ if (empty($publisherid)) {
             if ($data->step == 2 && !empty($data->licencekeys)) {
                 $data->step = 3;
                 // @todo check licencekeys
-                // mustache should show error if any licencekey already exists
-                // otherwise we can proceed with button "create"
-                $data->cancreatekeys = 0;
+                $keys = explode(' ', $data->licencekeys);
+                foreach ($keys AS $key) {
+                    $chk = $DB->get_record('block_edupublisher_lic', array('licencekey' => $key), 'id', IGNORE_MISSING);
+                    if (!empty($chk->id)) {
+                        $data->failed[] = $key;
+                    }
+                }
+            }
+            if ($data->step == 3 && count($data->failed) == 0 && $data->confirmed == 1) {
+                // We really insert the licences.
+                $data->_licencekeys = explode(' ', $data->licencekeys);
+                foreach ($data->_licencekeys AS $key) {
+                    $data->created = time();
+                    $data->redeemid = 0;
+                    $data->userid = $USER->id;
+                    $data->licencekey = $key;
+                    $licenceid = $DB->insert_record('block_edupublisher_lic', $data, true);
+
+                    if (!empty($licenceid)) {
+                        $packageids = array_keys($data->selectedpackages);
+                        foreach ($packageids AS $packageid) {
+                            $obj = array(
+                                'active' => 1,
+                                'amounts' => $data->amounts,
+                                'licenceid' => $licenceid,
+                                'packageid' => $packageid,
+                            );
+                            if ($data->type == 1) {
+                                $obj['amounts'] = $data->amountpackages[$packageid];
+                            }
+                            $DB->insert_record('block_edupublisher_lic_pack', $obj);
+                        }
+                    } else {
+                        $data->failed[] = $key;
+                    }
+                }
+                if (count($data->failed) == 0) {
+                    $data->step = 4;
+                }
             }
 
             //print_r($data);

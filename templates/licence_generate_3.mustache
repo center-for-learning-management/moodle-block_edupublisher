@@ -28,7 +28,7 @@
 
         <!-- STEP 2 -->
         <input type="hidden" name="target" value="{{target}}" />
-        <input type="hidden" name="amount" value="{{amount}}" />
+        <input type="hidden" name="amounts" value="{{amounts}}" />
 
         {{#packages}}
             <input type="hidden" name="packages[{{id}}]" {{#_isselected}} value="1" {{/_isselected}} />
@@ -43,15 +43,23 @@
             {{#type_2}} {{#str}} licence_pool_desc, block_edupublisher {{/str}} {{/type_2}}
         </p>
 
-        TESTING YOUR KEYS
-
-        {{#cancreatekeys}}
+        {{^failed.0}}
+            <input type="hidden" name="confirmed" value="1" />
+            <p class="alert alert-success">
+                {{#str}} licence_check_ok, block_edupublisher {{/str}}
+            </p>
             <input type="submit" value="{{#str}} create {{/str}}" />
-        {{/cancreatekeys}}
-        {{^cancreatekeys}}
+        {{/failed.0}}
+        {{#failed.0}}
+            Failed keys:
+            <ul>
+                {{#failed}}
+                <li>{{.}}</li>
+                {{/failed}}
+            </ul>
             <input type="button" value="{{#str}} back {{/str}}"
                 onclick="require(['jquery'], function($) { $('#licencekeys-{{uniqid}}').val(''); $('#form-{{uniqid}}').submit(); }); return false;"/>
-        {{/cancreatekeys}}
+        {{/failed.0}}
     </form>
 </div></div>
 
