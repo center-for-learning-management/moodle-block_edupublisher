@@ -221,9 +221,10 @@ class block_edupublisher extends block_list {
                                 || (isset($package->etapas_publishas) && $package->etapas_publishas && has_capability('block/edupublisher:manageetapas', context_system::instance()))
                                 || (isset($package->eduthek_publishas) && $package->eduthek_publishas && has_capability('block/edupublisher:manageeduthek', context_system::instance()));
             $package->candelete = self::is_admin();
-            $package->cantriggeractivedefault = has_capability('block/edupublisher:managedefault', context_system::instance());
-            $package->cantriggeractiveetapas = has_capability('block/edupublisher:manageetapas', context_system::instance());
-            $package->cantriggeractiveeduthek = has_capability('block/edupublisher:manageeduthek', context_system::instance());
+            $package->cantriggeractivedefault = self::is_maintainer(array('default'));
+            $package->cantriggeractiveetapas = self::is_maintainer(array('etapas'));
+            $package->cantriggeractiveeduthek = self::is_maintainer(array('eduthek'));
+            $package->cantriggeractivecommercial = self::is_maintainer(array('commercial'));
             $package->canmoderate =
                 $package->cantriggeractivedefault
                 || $package->cantriggeractiveetapas
@@ -256,6 +257,13 @@ class block_edupublisher extends block_list {
                 $rating = $a + 1;
                 $package->ratingselection[$a] = array('num' => $rating, 'active' => ($package->ratingaverage >= $rating) ? 1 : 0, 'selected' => ($package->ratingown == $rating) ? 1 : 0);
             }
+        }
+        if (!empty($package->commercial_publisher))  {
+            $publisher = $DB->get_record('block_edupublisher_pub', array('id' => $package->commercial_publisher));
+            $package->commercial_publisher_name = $publisher->name;
+        }
+        if (!empty($package->commercial_validation))  {
+            $package->commercial_validation_name = get_string('commercial_validate' . $package->commercial_validation, 'block_edupublisher');
         }
         return $package;
     }
@@ -374,16 +382,33 @@ class block_edupublisher extends block_list {
         if (self::is_admin()) return true;
 
         $maintainer_default = has_capability('block/edupublisher:managedefault', context_system::instance());
-        $maintainer_etapas = has_capability('block/edupublisher:managedefault', context_system::instance());
-        $maintainer_eduthek = has_capability('block/edupublisher:managedefault', context_system::instance());
+        $maintainer_etapas = has_capability('block/edupublisher:manageetapas', context_system::instance());
+        $maintainer_eduthek = has_capability('block/edupublisher:manageeduthek', context_system::instance());
+        $maintainer_commercial = has_capability('block/edupublisher:managecommercial', context_system::instance());
 
         if (count($channels) == 0) {
-            return $maintainer_default || $maintainer_etapas || $maintainer_eduthek;
+            return $maintainer_default || $maintainer_etapas || $maintainer_eduthek || $maintainer_commercial;
         }
         return in_array('default', $channels) && $maintainer_default;
         return in_array('etapas', $channels) && $maintainer_etapas;
         return in_array('eduthek', $channels) && $maintainer_eduthek;
+        return in_array('commercial', $channels) && $maintainer_commercial;
         return false;
+    }
+    /**
+     * Indicates if the current user is acting as a publisher for commercial content.
+     * @param publisherid (optional) if user is co-worker of a specific publisher.
+     * @return true if is publisher or site-admin.
+     */
+    public static function is_publisher($publisherid = 0) {
+        if (self::is_admin()) return true;
+        global $DB, $USER;
+        if (empty($publisherid)) {
+            $chk = $DB->get_record('block_edupublisher_pub_user', array('userid' => $USER->id));
+        } else {
+            $chk = $DB->get_record('block_edupublisher_pub_user', array('userid' => $USER->id, 'publisherid' => $publisherid));
+        }
+        return (!empty($chk->id) && $chk->id > 0);
     }
     /**
      * Load a specific comment and enhance data.

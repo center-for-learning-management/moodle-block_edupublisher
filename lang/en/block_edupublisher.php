@@ -46,6 +46,18 @@ $string['comment:template:package_unpublished'] = 'Dear author,<br /><br />I unp
 $string['comment:template:package_updated'] = 'Hello,<br /><br />I just updated the package "{$a->title}"!<br /><br />Kind regards';
 $string['create_channel'] = 'create channel';
 
+$string['commercial_header'] = 'Commercial Content';
+$string['commercial_fetchchannel'] = 'Fetch Commercial-Channel';
+$string['commercial_publish_as'] = 'Publish commercial content';
+$string['commercial_publisher'] = 'Publisher';
+$string['commercial_trigger_active'] = 'Check this box to make this offering active!';
+$string['commercial_shoplink'] = 'Shop-URL';
+$string['commercial_shoplink_help'] = 'Required only if licence validation is set to "internal". Please enter the URL where a licence can be purchased.';
+$string['commercial_validateexternal'] = 'external: Licence will be validated on an external site.';
+$string['commercial_validateinternal'] = 'internal: Licence must exist before import.';
+$string['commercial_validation'] = 'Licence validation';
+$string['commercial_validation_help'] = '<strong>External Validation:</strong> Content can always be imported to courses. Learning ressources remain on an external site. Validation of licence is done on the external site.<br /><strong>Internal:</strong> Content can be imported only if a licence has been stored in eduvidual (User-, Course-, oder Schoolcontext)';
+
 $string['default__mailsubject'] = 'eduPublisher-Item handed in for inspection';
 $string['default_header'] = 'eduvidual';
 $string['default_authorname'] = 'Name of author';
@@ -62,6 +74,7 @@ $string['default_image_help'] = 'Preview image to be shown.';
 $string['default_image_label'] = 'Please choose an image that represents the topic of your package. Be aware of copyright! We recommend <a href="http://www.pixabay.com" target="_blank">pixabay.com</a> as source for images.';
 $string['default_licence'] = 'Licence';
 $string['default_licence_missing'] = 'You have to choose a licence';
+$string['default_licenceother'] = 'Other';
 $string['default_publish_as'] = 'Publish on this site';
 $string['default_title'] = 'Title';
 $string['default_trigger_active'] = 'Check this box to make package active!';
@@ -99,6 +112,9 @@ $string['eduthek_topic'] = 'Topic';
 $string['eduthek_trigger_active'] = 'Check this box to publish this in eduthek!';
 $string['eduthek_type'] = 'Type';
 
+$string['enablecommercial'] = 'Enable commercial content';
+$string['enablecommercial_desc'] = 'With this checkbox you can globally allow or prevent commercial packages from being published in eduPublisher. <strong>Note: </strong> This only applies to new publications. Existing publications will not be affected!';
+
 $string['etapas__description'] = 'The eTapas-Initiative driven by eEducation Austria allows teachers to hand in their learning sequences as Open Educational Resource and get a reward. For more information please refer to the <a href="https://www.eeducation.at/?id=602" target="_blank">eEducation Website</a>.';
 $string['etapas__mailsubject'] = 'eTapa handed in for inspection';
 $string['etapas_erprobungen'] = 'Inspections';
@@ -128,6 +144,34 @@ $string['fieldname'] = 'Name';
 $string['fieldtype'] = 'Type';
 $string['go_back_to_dashboard'] = 'Go back zu Dashboard';
 $string['issued_by_user'] = 'Published by';
+
+$string['licence'] = 'Licence';
+$string['licence_amount'] = 'Amount';
+$string['licence_amount_hint'] = 'Hint: -1 means infinite usages';
+$string['licence_amount_infinite'] = 'Infinite usage';
+$string['licence_amount_none'] = 'No usage at all';
+$string['licence_amount_usages'] = 'Number of usages: {$a->amount}';
+$string['licence_back_to_dashboard'] = 'Back to licence-dashboard';
+$string['licence_collection'] = 'Collection';
+$string['licence_collection_desc'] = 'The "Collection" allows users to redeem every package that is covered by this licence as much times as you specify per package.<br /><br /><strong>Example:</strong> The licence covers 5 packages, each package is set to amount of 2 --> each package of this collection can be redeemed 2 times.';
+$string['licence_generate'] = 'Generate Licences';
+$string['licence_generatekeys'] = 'Create licence-keys';
+$string['licence_manage'] = 'Manage Licences';
+$string['licence_packages'] = 'Packages';
+$string['licence_paste_alternatively'] = 'Alternatively you can paste existing licence-keys!';
+$string['licence_pool'] = 'Pool';
+$string['licence_pool_desc'] = 'The "Pool" allows users to redeem any package that is covered by this licence as much times as you specify per licence.<br /><br /><strong>Example:</strong> The licence covers 20 packages, the amount of redeems in this licence is set to 5 --> the user can redeem 5 packages from this pool.';
+$string['licence_target'] = 'Target';
+$string['licence_target_course'] = 'Course';
+$string['licence_target_course_desc'] = 'The licence is attached to a course, which is more ore less synonymous with a classroom.';
+$string['licence_target_org'] = 'Organisation';
+$string['licence_target_org_desc'] = 'The licence is attached to an organisation, every user of this organisation can redeem this licence.';
+$string['licence_target_user'] = 'User';
+$string['licence_target_user_desc'] = 'The licence is attached to a user, the user can redeem this licence in any course.';
+$string['licence_type'] = 'Type';
+$string['licences'] = 'Licences';
+
+
 $string['lti'] = 'LTI';
 $string['lti_data'] = 'LTI data';
 $string['mail_template'] = 'Template for sending emails';
@@ -143,6 +187,7 @@ $string['permalink'] = 'Permalink';
 $string['permission_denied'] = 'Permission denied';
 $string['public'] = 'Public';
 $string['publish_new_package'] = 'Publish something';
+$string['publisher'] = 'Publisher';
 $string['rating'] = 'Rating';
 $string['relevance:stage_0'] = 'Possibly relevant';
 $string['relevance:stage_1'] = 'Less relevant';

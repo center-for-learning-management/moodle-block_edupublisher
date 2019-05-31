@@ -79,7 +79,7 @@ define(
                         console.log('Doing search via ajax for', $(o.target).val(), MAIN.searchid, searchid);
                         AJAX.call([{
                             methodname: 'block_edupublisher_search',
-                            args: { search: $(o.target).val() },
+                            args: { courseid: courseid, search: $(o.target).val() },
                             done: function(result) {
                                 if (MAIN.searchid != searchid) {
                                     console.log(' => Got response for searchid ', searchid, ' but it is not the current search', MAIN.searchid);
@@ -192,6 +192,85 @@ define(
                 }).fail(function(ex) {
                     console.error(ex);
                 });
+        },
+        storePublisher: function(uniqid, sender) {
+            var self = this;
+            var active = $('#active-' + uniqid).prop('checked') ? 1 : 0;
+            var id = parseInt($('#id-' + uniqid).val());
+            var name = $('#name-' + uniqid).val();
+            if (name.length == 0) return;
+            var data = { active: active, id: id, name: name };
+            console.log(data, sender);
+            AJAX.call([{
+                methodname: 'block_edupublisher_store_publisher',
+                args: data,
+                done: function(result) {
+                    try {
+                        result = JSON.parse(result);
+                        var publishers = Object.keys(result);
+                        self.triggerConfirm($(sender).closest('tr'), 1, 'success');
+                        for (var a = 0; a < publishers.length; a++) {
+                            var publisher = result[publishers[a]];
+                            var form = $('#publisher-' + publisher.id);
+                            if (form.length == 0) {
+                                var form = $('#publisher-0').attr('id', 'publisher-' + publisher.id);
+                                var uniqid = $(form).attr('data-uniqid');
+                                $(form).find('#id-' + uniqid).val(publisher.id);
+                                $(form).find('#edit-' + uniqid + '>*').css('opacity', 1).attr('href', '/blocks/edupublisher/pages/publishers.php?id=' + publisher.id);
+                                TEMPLATES.render('block_edupublisher/publisher', { id: 0, name: '' })
+                                        .then(function(html, js) {
+                                            $(html).insertAfter($('.edupublisher-publishers').last());
+                                        }).fail(function(ex) {
+                                            NOTIFICATION.exception(ex);
+                                        });
+                            } else {
+                                // This is an existing item, update it.
+                                var uniqid = $(form).attr('data-uniqid');
+                                $(form).find('#active-' + uniqid).prop('checked', publisher.active);
+                                $(form).find('#name-' + uniqid).val(publisher.name);
+                            }
+
+                        }
+                    } catch(e) {
+                        console.error('Invalid response');
+                        self.triggerConfirm($(sender).closest('tr'), 1, 'error');
+                    }
+                },
+                fail: NOTIFICATION.exception
+            }]);
+        },
+        storePublisherUsers: function(uniqid, action) {
+            var self = this;
+
+            var publisherid = $('#publisherid-' + uniqid).val();
+            var userids = '';
+            if (action == 'add') {
+                userids = $('#userids-' + uniqid).val();
+            }
+            if (action == 'remove') {
+                userids = $('#users-' + uniqid).val().join(' ');
+            }
+            var data = { action: action, publisherid: publisherid, userids: userids };
+            console.log(data);
+            AJAX.call([{
+                methodname: 'block_edupublisher_store_publisher_user',
+                args: data,
+                done: function(result) {
+                    try {
+                        result = JSON.parse(result);
+                        console.log('Response', result);
+                        var sel = $('#users-' + uniqid).empty();
+                        var users = Object.keys(result);
+                        for (var a = 0; a < users.length; a++) {
+                            var user = result[users[a]];
+                            $(sel).append($('<option>').attr('value', user.id).html(user.fullname));
+                        }
+                    } catch(e) {
+                        console.error('Invalid response', e, result);
+                    }
+                },
+                fail: NOTIFICATION.exception
+            }]);
         },
         triggerActive: function(packageid, type, sender){
             var self = this;

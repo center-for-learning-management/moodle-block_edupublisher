@@ -1,0 +1,146 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+<a href="/blocks/edupublisher/pages/licence.php?publisherid={{publisherid}}" class="btn btn-secondary">
+    {{#str}} licence_back_to_dashboard, block_edupublisher {{/str}}
+</a>
+<div id="{{uniqid}}" class="ui-edupublisher"><div>
+    <form method="POST" action="/blocks/edupublisher/pages/licence.php" enctype="multipart/form-data" beforesubmit="require(['block_edupublisher/licence'], function(LICENCE) { LICENCE.generateStepSubmit('{{uniqid}}', {{step}}); })">
+        <input type="hidden" name="publisherid" value="{{publisherid}}" />
+        <input type="hidden" name="action" value="{{action}}" />
+        <input type="hidden" name="type" value="{{type}}" />
+        <input name="target" id="id_target-{{uniqid}}" type="hidden" value="{{target}}">
+
+        <p class="alert alert-hint">
+            {{#type_1}} {{#str}} licence_collection_desc, block_edupublisher {{/str}} {{/type_1}}
+            {{#type_2}} {{#str}} licence_pool_desc, block_edupublisher {{/str}} {{/type_2}}
+        </p>
+
+        <div id="fitem_id_target-{{uniqid}}" class="form-group row  fitem   ">
+            <div class="col-md-3">
+                <span class="float-sm-right text-nowrap">
+                </span>
+                <label class="col-form-label d-inline " for="id_target-1">
+                    {{#str}} licence_target, block_edupublisher {{/str}}
+                </label>
+            </div>
+            <div class="col-md-9 form-inline felement">
+                <table border="0" width="100%">
+                    <tr>
+                        <td width="30">
+                            <input type="radio" name="target" value="1" id="id_target_choice-1" style="width: 30px;" {{#target_1}} checked="checked" {{/target_1}}
+                                   onclick="require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('1'); });" />
+                        </td>
+                        <td width="80" height="80">
+                            <img src="/blocks/edupublisher/pix/licence_target_school.jpg"  style="display: inline-block; height: 80px; width: 80px;" />
+                        </td>
+                        <td>
+                            {{#str}} licence_target_org, block_edupublisher {{/str}}<br />{{#str}} licence_target_org_desc, block_edupublisher {{/str}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="30">
+                            <input type="radio" name="target" value="2" id="id_target_choice-2" style="width: 30px;" {{#target_2}} checked="checked" {{/target_2}}
+                                   onclick="require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('2'); });" />
+                        </td>
+                        <td width="80" height="80">
+                            <img src="/blocks/edupublisher/pix/licence_target_course.jpg"  style="display: inline-block; height: 80px; width: 80px;" />
+                        </td>
+                        <td>
+                            {{#str}} licence_target_course, block_edupublisher {{/str}}<br />{{#str}} licence_target_course_desc, block_edupublisher {{/str}}
+                        </td>
+                    </tr>
+                    <tr>
+                        <td width="30">
+                            <input type="radio" name="target" value="3" id="id_target_choice-3" style="width: 30px;" {{#target_3}} checked="checked" {{/target_3}}
+                                   onclick="require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('3'); });" />
+                        </td>
+                        <td width="80" height="80">
+                            <img src="/blocks/edupublisher/pix/licence_target_user.jpg"  style="display: inline-block; height: 80px; width: 80px;" />
+                        </td>
+                        <td>
+                            {{#str}} licence_target_user, block_edupublisher {{/str}}<br />{{#str}} licence_target_user_desc, block_edupublisher {{/str}}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        {{#type_2}}
+        <div id="fitem_id_amount-{{uniqid}}" class="form-group row  fitem   ">
+            <div class="col-md-3">
+                <span class="float-sm-right text-nowrap">
+                </span>
+                <label class="col-form-label d-inline " for="id_amount-{{uniqid}}">
+                    {{#str}} licence_amount, block_edupublisher {{/str}}
+                    <br /><small><i>{{#str}} licence_amount_hint, block_edupublisher {{/str}}</i></small>
+                </label>
+            </div>
+            <div class="col-md-9 form-inline felement">
+                <input id="id_amount-{{uniqid}}" name="amount" type="number" min="-1" value="{{amount}}" />
+            </div>
+        </div>
+        {{/type_2}}
+
+        <div id="fitem_id_packages-{{uniqid}}" class="form-group row  fitem   ">
+            <div class="col-md-3">
+                <span class="float-sm-right text-nowrap">
+                </span>
+                <label class="col-form-label d-inline " for="id_packages-{{uniqid}}">
+                    {{#str}} licence_packages, block_edupublisher {{/str}}
+                    {{#type_1}}
+                        <br /><small><i>{{#str}} licence_amount_hint, block_edupublisher {{/str}}</i></small>
+                    {{/type_1}}
+                </label>
+            </div>
+            <div class="col-md-9 form-inline felement">
+                <table border="0" width="100%">
+                {{#packages}}
+                    <tr class="line">
+                        <td width="50">
+                            <input type="checkbox" id="id_package_{{id}}" name="packages[{{id}}]" class="package_choice" {{#_isselected}} checked="checked" {{/_isselected}}
+                                   value="1" style="display: inline-block; width: 40px;"
+                                   onclick="require(['block_edupublisher/licence'], function(LICENCE) { LICENCE.generateStepUi('{{uniqid}}', {{step}})});" />
+                            {{#type_1}}
+                            <input type="number" min="-1" name="packages_amount[{{id}}]" class="package_amount"
+                                   style="width: 50px; display: none;" value="{{amount}}"
+                                   onchange="require(['block_edupublisher/licence'], function(LICENCE) { LICENCE.generateStepUi('{{uniqid}}', {{step}})});" />
+                            {{/type_1}}
+                        </td>
+                        <td width="80">
+                            <a href="/course/view.php?id={{course}}" target="_blank">
+                                <img src="{{default_image}}" style="display: inline-block; height: 60px; width: 60px;" />
+                            </a>
+                        </td>
+                        <td>
+                            {{#type_1}}
+                                <span class="package_amount_lbl"></span><br />
+                            {{/type_1}}
+                            <a href="/course/view.php?id={{course}}" target="_blank">{{title}}</a><br />
+                            <i>{{default_description}}</i>
+                        </td>
+                    </tr>
+                {{/packages}}
+                </table>
+            </div>
+        </div>
+        <input type="submit" value="{{#str}} next {{/str}}" />
+    </form>
+</div></div>
+
+{{#js}}
+    require(['block_edupublisher/licence'], function(LICENCE) { LICENCE.generateStepUi('{{uniqid}}', {{step}})});
+{{/js}}

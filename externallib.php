@@ -31,6 +31,148 @@ class block_edupublisher_external extends external_api {
      * Returns description of method parameters
      * @return external_function_parameters
      */
+    public static function licence_generate_parameters() {
+        return new external_function_parameters(array(
+            'amount' => new external_value(PARAM_INT, 'amount of licences'),
+            'publisherid' => new external_value(PARAM_INT, 'id of publisher'),
+        ));
+    }
+
+    /**
+     * Generate licence-keys without storing them!
+     * @return list of licencekeys as json encoded string.
+     */
+    public static function licence_generate($amount, $publisherid) {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
+        $params = self::validate_parameters(self::licence_generate_parameters(), array('amount' => $amount, 'publisherid' => $publisherid));
+        if (block_edupublisher::is_admin() || block_edupublisher::is_publisher($params['publisherid'])) {
+            $licencekeys = array();
+            $pre = $params['publisherid'];
+            while(count($licencekeys) < $params['amount']) {
+                $code = substr(md5(rand(0, 9999) . time()), 0, 10);
+                $licencekey = $pre . '-' . $code;
+                $chk = $DB->get_record('block_edupublisher_lic', array('licencekey' => $licencekey));
+                if (!$chk) $licencekeys[] = $licencekey;
+            }
+
+            return implode(' ', $licencekeys);
+        } else {
+            return json_encode(array('error' => 'no permission'));
+        }
+    }
+    /**
+     * Return definition.
+     * @return external_value
+     */
+    public static function licence_generate_returns() {
+        return new external_value(PARAM_RAW, 'All generated licencekeys as JSON-string');
+    }
+
+    /**
+     * Returns description of method parameters
+     * @return external_function_parameters
+     */
+    public static function licence_generatenow_parameters() {
+        return new external_function_parameters(array(
+            'amount' => new external_value(PARAM_INT, 'amount of usages'),
+            'licencekeys' => new external_value(PARAM_TEXT, 'licencekeys delimited by space'),
+            'type' => new external_value(PARAM_TEXT, 'type of licence - user, course or org'),
+            'publisherid' => new external_value(PARAM_INT, 'id of publisher'),
+        ));
+    }
+
+    /**
+     * Generate licence-keys without storing them!
+     * @return list of licencekeys as json encoded string.
+     */
+    public static function licence_generatenow($amount, $licencekeys, $type, $publisherid) {
+        global $CFG, $DB, $USER;
+        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
+        $params = self::validate_parameters(self::licence_generatenow_parameters(), array('amount' => $amount, 'licencekeys' => $licencekeys, 'type' => $type, 'publisherid' => $publisherid));
+        if (block_edupublisher::is_admin() || block_edupublisher::is_publisher($params['publisherid'])) {
+            $types = array('course', 'org', 'user');
+            if (in_array($params['type'], $types)) {
+                $licencekeys = explode(' ', $params['licencekeys']);
+                $createdkeys = array();
+                $failedkeys = array();
+                foreach ($licencekeys AS $licencekey) {
+                    $chk = $DB->get_record('block_edupublisher_lic', array('licencekey' => $licencekey));
+                    if (!$chk) {
+                        $DB->insert_record('block_edupublisher_lic', array(
+                            'publisherid' => $params['publisherid'],
+                            'userid' => $USER->id,
+                            'licencekey' => $licencekey,
+                            'type' => $params['type'],
+                            'amount' => $params['amount']
+                        ));
+                    } else {
+
+                    }
+                }
+                $licencekeys = array();
+                $pre = substr(md5($params['publisherid']), 0, 10);
+                while(count($licencekeys) < $params['amount']) {
+                    $code = substr(md5(rand(0, 9999) . time()), 0, 10);
+                    $licencekey = $pre . '-' . $code;
+                    $chk = $DB->get_record('block_edupublisher_lic', array('licencekey' => $licencekey));
+                    if (!$chk) $licencekeys[] = $licencekey;
+                }
+
+                return implode(' ', $licencekeys);
+            } else {
+                return json_encode(array('error' => 'invalid type'));
+            }
+
+        } else {
+            return json_encode(array('error' => 'no permission'));
+        }
+    }
+    /**
+     * Return definition.
+     * @return external_value
+     */
+    public static function licence_generatenow_returns() {
+        return new external_value(PARAM_RAW, 'All stored licencekeys as JSON-string');
+    }
+
+    /**
+     * Returns description of method parameters
+     * @return external_function_parameters
+     */
+    public static function licence_list_parameters() {
+        return new external_function_parameters(array(
+            'publisherid' => new external_value(PARAM_INT, 'id of publisher'),
+        ));
+    }
+
+    /**
+     * Get list of licences
+     * @return list of packages as json encoded string.
+     */
+    public static function licence_list($publisherid) {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
+        $params = self::validate_parameters(self::licence_list_parameters(), array('publisherid' => $publisherid));
+        if (block_edupublisher::is_admin() || block_edupublisher::is_publisher($params['publisherid'])) {
+            $licences = $DB->get_records_sql('SELECT * FROM {block_edupublisher_lic} WHERE publisherid=? ORDER BY licencekey ASC', array($params['publisherid']));
+            return json_encode($licences, JSON_NUMERIC_CHECK);
+        } else {
+            return json_encode(array('error' => 'no permission'));
+        }
+    }
+    /**
+     * Return definition.
+     * @return external_value
+     */
+    public static function licence_list_returns() {
+        return new external_value(PARAM_RAW, 'All licencekeys as JSON-string');
+    }
+
+    /**
+     * Returns description of method parameters
+     * @return external_function_parameters
+     */
     public static function list_parameters() {
         return new external_function_parameters(array(
             'channel' => new external_value(PARAM_INT, 'Channel to generate list, 0 for all')
@@ -120,6 +262,7 @@ class block_edupublisher_external extends external_api {
      */
     public static function search_parameters() {
         return new external_function_parameters(array(
+            'courseid' => new external_value(PARAM_INT, 'courseid'),
             'search' => new external_value(PARAM_TEXT, 'search term'),
         ));
     }
@@ -132,7 +275,7 @@ class block_edupublisher_external extends external_api {
         global $CFG, $DB, $OUTPUT, $PAGE;
         // page-context is required for output of templates.
         $PAGE->set_context(context_system::instance());
-        $params = self::validate_parameters(self::search_parameters(), array('search' => $search));
+        $params = self::validate_parameters(self::search_parameters(), array('courseid' => $courseid, 'search' => $search));
 
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         $reply = array();
@@ -161,10 +304,39 @@ class block_edupublisher_external extends external_api {
                 if (!isset($reply['relevance'][$relevant->cnt])) {
                     $reply['relevance'][$relevant->cnt] = array();
                 }
-                $reply['relevance'][$relevant->cnt][] = $relevant->package;
-                $reply['packages'][$relevant->package] = block_edupublisher::get_package($relevant->package, true);
+                $package = block_edupublisher::get_package($relevant->package, true);
+                $addpackage = true;
+                if (!empty($package->commercial_publishas) && $package->commercial_publishas == 1) {
+                    // For commercial content we need the licence!
+                    $orgid = 0;
+                    if (file_exists($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php')) {
+                        // This is some functionality specific to a plugin that is not published!
+                        require_once($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
+                        $org = block_eduvidual::get_org_by_courseid($params['courseid']);
+                        $orgid = $org->orgid;
+                    }
+                    $sql = "SELECT * FROM {block_edupublisher_lic} l, {block_edupublisher_lic_pack} lp
+                              WHERE l.id=lp.licenceid
+                                AND lp.packageid=?
+                                AND (
+                                    l.amounts = -1 OR l.amounts > 0
+                                )
+                                AND (
+                                    (l.type = 'user' AND l.redeemid>0 AND l.redeemid = ?)
+                                    OR
+                                    (l.type = 'course' AND l.redeemid>0 AND l.redeemid = ?)
+                                    OR
+                                    (l.type = 'org' AND l.redeemid>0 AND l.redeemid = ?)
+                                )";
+                    $licence = $DB->get_records_sql($sql, array($package->id, $USER->id, $params['courseid'], $orgid));
+                    $addpackage = (!empty($licence->id) && $licence->id > 0);
+                }
+                if ($addpackage) {
+                    $reply['relevance'][$relevant->cnt][] = $relevant->package;
+                    $reply['packages'][$relevant->package] = $package;
+                }
             }
-            $reply['sql'] = $SQL;
+            //$reply['sql'] = $SQL;
         }
         return json_encode($reply, JSON_NUMERIC_CHECK);
     }
@@ -174,6 +346,119 @@ class block_edupublisher_external extends external_api {
      */
     public static function search_returns() {
         return new external_value(PARAM_RAW, 'List of packages as json-encoded string.');
+    }
+
+    /**
+     * Returns description of method parameters
+     * @return external_function_parameters
+     */
+    public static function store_publisher_parameters() {
+        return new external_function_parameters(array(
+            'active' => new external_value(PARAM_INT, 'whether it is active (1) or not (0)'),
+            'id' => new external_value(PARAM_INT, 'id of publisher, if 0 will create new one'),
+            'name' => new external_value(PARAM_TEXT, 'name of publisher'),
+        ));
+    }
+
+    /**
+     * Store data of a publisher
+     * @return list of packages as json encoded string.
+     */
+    public static function store_publisher($active, $id, $name) {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
+        if (block_edupublisher::is_admin()) {
+            $params = self::validate_parameters(self::store_publisher_parameters(), array('active' => $active, 'id' => $id, 'name' => $name));
+
+            if (!empty($params['name'])) {
+                if ($params['id'] > 0) {
+                    $obj = $DB->get_record('block_edupublisher_pub', array('id' => $params['id']), '*', MUST_EXIST);
+                } else {
+                    $obj = (object) array('id' => 0);
+                }
+                $obj->active = $params['active'];
+                $obj->name = $params['name'];
+                if ($obj->id > 0) {
+                    $DB->update_record('block_edupublisher_pub', $obj);
+                } else {
+                    $DB->insert_record('block_edupublisher_pub', $obj);
+                }
+            }
+            $publishers = $DB->get_records_sql('SELECT * FROM {block_edupublisher_pub} ORDER BY name ASC');
+            return json_encode($publishers, JSON_NUMERIC_CHECK);
+        } else {
+            return json_encode(array('error' => 'no permission'));
+        }
+    }
+    /**
+     * Return definition.
+     * @return external_value
+     */
+    public static function store_publisher_returns() {
+        return new external_value(PARAM_RAW, 'All publisher-objects as JSON-string');
+    }
+
+    /**
+     * Returns description of method parameters
+     * @return external_function_parameters
+     */
+    public static function store_publisher_user_parameters() {
+        return new external_function_parameters(array(
+            'action' => new external_value(PARAM_TEXT, 'action to perform (add, remove or none)'),
+            'publisherid' => new external_value(PARAM_INT, 'id of publisher'),
+            'userids' => new external_value(PARAM_TEXT, 'userids to add or remove as string, delimited by space'),
+        ));
+    }
+
+    /**
+     * Store data of a publisher
+     * @return list of packages as json encoded string.
+     */
+    public static function store_publisher_user($action, $publisherid, $userids) {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
+        if (block_edupublisher::is_admin()) {
+            $params = self::validate_parameters(self::store_publisher_user_parameters(), array('action' => $action, 'publisherid' => $publisherid, 'userids' => $userids));
+
+            $userids = explode(' ', $params['userids']);
+            switch($params['action']) {
+                case 'add':
+                    foreach($userids AS $userid) {
+                        $user = $DB->get_record('user', array('id' => $userid), '*', IGNORE_MISSING);
+                        if ($user && $user->id == $userid) {
+                            $chk = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $params['publisherid'], 'userid' => $userid));
+                            if (!$chk || empty($chk->id)) {
+                                $DB->insert_record('block_edupublisher_pub_user', array('publisherid' => $params['publisherid'], 'userid' => $userid));
+                            }
+                        }
+                    }
+                break;
+                case 'remove':
+                    foreach($userids AS $userid) {
+                        $DB->delete_records('block_edupublisher_pub_user', array('publisherid' => $params['publisherid'], 'userid' => $userid));
+                    }
+                break;
+            }
+
+            $_users = $DB->get_records_sql('SELECT u.* FROM {user} AS u, {block_edupublisher_pub_user} pu WHERE u.id=pu.userid AND pu.publisherid=? ORDER BY u.lastname ASC, u.firstname ASC', array($params['publisherid']));
+            $users = array();
+            foreach($_users AS $user) {
+                $users[$user->id] = array(
+                    'id' => $user->id,
+                    'fullname' => $user->lastname . ' ' . $user->firstname . ' (' . $user->email . ')'
+                );
+            }
+            return json_encode($users, JSON_NUMERIC_CHECK);
+        } else {
+            return json_encode(array('error' => 'no permission'));
+        }
+    }
+    /**
+     * Return definition.
+     * @return external_value
+     */
+    public static function store_publisher_user_returns() {
+        return new external_value(PARAM_RAW, 'All publisher-users as JSON-string');
     }
 
     public static function trigger_active_parameters() {

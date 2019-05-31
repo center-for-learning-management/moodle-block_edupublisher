@@ -1,0 +1,39 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+<a href="/blocks/edupublisher/pages/licence.php?publisherid={{publisherid}}" class="btn btn-secondary">
+    {{#str}} licence_back_to_dashboard, block_edupublisher {{/str}}
+</a>
+<div class="ui-edupublisher"><div class="grid-eq-2">
+    <div style="text-align: center;">
+        <a class="btn btn-secondary"
+            href="/blocks/edupublisher/pages/licence.php?publisherid={{publisherid}}&action=generate&step=1&type=1">
+            <h3>{{#str}} licence_collection, block_edupublisher {{/str}}</h3>
+            <img src="/blocks/edupublisher/pix/licence_type_collection.png" style="height: 150px;" /><br />
+        </a>
+        <br />
+        <i>{{#str}} licence_collection_desc, block_edupublisher {{/str}}</i>
+    </div>
+    <div style="text-align: center;">
+        <a class="btn btn-secondary"
+            href="/blocks/edupublisher/pages/licence.php?publisherid={{publisherid}}&action=generate&step=1&type=2">
+            <h3>{{#str}} licence_pool, block_edupublisher {{/str}}</h3>
+            <img src="/blocks/edupublisher/pix/licence_type_pool.png" style="height: 150px;" /><br />
+        </a>
+        <br />
+        <i>{{#str}} licence_pool_desc, block_edupublisher {{/str}}</i>
+    </div>
+</div></div>

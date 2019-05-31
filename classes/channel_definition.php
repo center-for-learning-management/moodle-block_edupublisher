@@ -40,8 +40,7 @@ $definition = array(
         'licence' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
             'Public Domain' => 'Public Domain',
             'cc-by' => 'cc-by', 'cc-by-sa' => 'cc-by-sa',
-            'cc-by-nc' => 'cc-by-nc', 'cc-by-nc-sa' => 'cc-by-nc-sa',
-            'All rights reserved ' => 'All rights reserved',
+            'other' => get_string('default_licenceother', 'block_edupublisher')
         ), 'required' => 1),
         'authorname' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
         'authormail' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
@@ -54,7 +53,6 @@ $definition = array(
         'summary' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
         'image' => array('type' => 'filemanager', 'accepted_types' => 'image', 'required' => 1),
         'tags' => array('type' => 'text', 'datatype' => PARAM_TEXT),
-        'weblink' => array('type' => 'url', 'datatype' => PARAM_TEXT),
         // Hidden elements
         'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
         'exacompsourceids' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_INT),
@@ -236,5 +234,15 @@ $definition = array(
             1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5,
             6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11)
         ),
-    )
+    ),
+    'commercial' => array(
+        'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
+        'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL, 'default' => 1),
+        'publisher' => array('type' => 'select', 'datatype' => PARAM_INT, 'options' => array()),
+        'shoplink' => array('type' => 'url', 'datatype' => PARAM_TEXT),
+        'validation' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
+            'external' => get_string('commercial_validateexternal', 'block_edupublisher'),
+            'internal' => get_string('commercial_validateinternal', 'block_edupublisher'))
+        ),
+    ),
 );

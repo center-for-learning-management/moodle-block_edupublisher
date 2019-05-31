@@ -45,6 +45,7 @@ foreach($channels AS $channel) {
     $settings->add(new admin_setting_configtext('block_edupublisher/channelkey_' . $channel, get_string($channel . '_fetchchannel', 'block_edupublisher'), '', md5(time() . rand(0, 1000)), PARAM_TEXT, 32));
 }
 
+// DEFAULT ROLES
 
 $roles = $DB->get_records_sql('SELECT r.* FROM {role} AS r, {role_context_levels} AS rcl WHERE r.id=rcl.roleid  AND rcl.contextlevel = 50 ORDER BY r.name ASC', array());
 $options = array();
@@ -58,6 +59,10 @@ $settings->add(new admin_setting_configselect('block_edupublisher/defaultrolestu
 $settings->add(new admin_setting_configselect('block_edupublisher/defaultroleteacher', get_string('defaultroleteacher', 'block_edupublisher'),
                   get_string('defaultroleteacher:description', 'block_edupublisher'), get_config('block_edupublisher', 'defaultroleteacher'), $options));
 
+// ENABLE COMMERCIAL CONTENT
+$settings->add(new admin_setting_configcheckbox('block_edupublisher/enablecommercial', get_string('enablecommercial', 'block_edupublisher'), get_string('enablecommercial_desc', 'block_edupublisher'), 1));
+
+// EMAIL TEMPLATE
 $defaulttemplate = $OUTPUT->render_from_template('block_edupublisher/mail', array('content' => '{{{content}}}', 'subject' => '{{{subject}}}'));
 $settings->add(new admin_setting_configtextarea('block_edupublisher/mail_template', get_string('mail_template', 'block_edupublisher'),
                   get_string('mail_template:description', 'block_edupublisher'), $defaulttemplate));
