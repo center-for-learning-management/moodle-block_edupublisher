@@ -74,7 +74,6 @@ if (empty($publisherid)) {
         'licencekeys' => optional_param('licencekeys', '', PARAM_TEXT),
         'maturity' => time() + 60*60*24*365*7, // 7 years in future. @todo: make it customizable.
         'publisherid' => $publisherid,
-        //'step' => optional_param('step', 0, PARAM_INT),
         'target' => optional_param('target', 0, PARAM_INT),
         'type' => optional_param('type', 0, PARAM_INT),
     );
@@ -82,7 +81,6 @@ if (empty($publisherid)) {
         case 'generate':
             $data->selectedpackages = optional_param_array('packages', null, PARAM_INT);
             $data->amountpackages = optional_param_array('packages_amount', 0, PARAM_INT);
-            //print_r($data);
 
             $sql = "SELECT p.id, p.title FROM {block_edupublisher_packages} p, {block_edupublisher_metadata} m
                       WHERE p.id=m.package
@@ -114,7 +112,6 @@ if (empty($publisherid)) {
             }
             if ($data->step == 2 && !empty($data->licencekeys)) {
                 $data->step = 3;
-                // @todo check licencekeys
                 $keys = explode(' ', $data->licencekeys);
                 foreach ($keys AS $key) {
                     $chk = $DB->get_record('block_edupublisher_lic', array('licencekey' => $key), 'id', IGNORE_MISSING);
@@ -156,7 +153,6 @@ if (empty($publisherid)) {
                 }
             }
 
-            //print_r($data);
             echo $OUTPUT->render_from_template(
                 'block_edupublisher/licence_generate_' . $data->step,
                 $data
@@ -167,47 +163,12 @@ if (empty($publisherid)) {
             $form = new block_edupublisher\licence_list_form('licence_download.php');
             $form->set_data($data);
             $form->display();
-        /*
-            $sql = "SELECT * FROM {block_edupublisher_lic} WHERE publisherid=? ORDER BY created ASC, licencekey ASC";
-            $licences = $DB->get_records_sql($sql, array($publisherid));
-            $tree = array();
-            foreach ($licences AS $licence) {
-                $created_readable = date('Y-m-d h:i', $licence->created);
-                if (!isset($tree[$created_readable])) {
-                    $tree[$created_readable] = array(
-                        'created_readable' => $created_readable,
-                        'created_readable_md5' => md5($created_readable),
-                        'licences' => array(),
-                    );
-                }
-                $tree[$created_readable]['licences'][] = $licence;
-            }
-            echo $OUTPUT->render_from_template(
-                'block_edupublisher/licence_list',
-                array(
-                    'licencetree' => array_values($tree),
-                    'publisherid' => $publisherid
-                )
-            );
-            */
-        break;
-        case 'export':
         break;
         default:
             echo $OUTPUT->render_from_template(
                 'block_edupublisher/licence_dashboard',
                 array('action_' . $action => 1, 'publisherid' => $publisherid)
             );
-            /*
-            echo $OUTPUT->render_from_template(
-                'block_edupublisher/alert',
-                (object) array(
-                    'content' => 'unknown action ' . $action, // get_string('permission_denied', 'block_edupublisher'),
-                    'url' => $PAGE->url, // $CFG->wwwroot . '/blocks/edupublisher/pages/licence.php',
-                    'type' => 'danger',
-                )
-            );
-            */
     }
 } else {
     echo $OUTPUT->render_from_template(
