@@ -36,6 +36,8 @@ class licence_list_form extends \moodleform {
         $mform->addElement('hidden', 'action', '');
         $mform->setType('action', PARAM_TEXT);
 
+        $mform->addElement('html', '<a href="/blocks/edupublisher/pages/licence.php?publisherid=' . $publisherid . '" class="btn btn-secondary">' . get_string('licence_back_to_dashboard', 'block_edupublisher') . '</a>');
+
         $sql = "SELECT * FROM {block_edupublisher_lic} WHERE publisherid=? ORDER BY created ASC, licencekey ASC";
         $licences = $DB->get_records_sql($sql, array($publisherid));
         $flag = ''; $group = 0;
