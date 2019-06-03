@@ -21,13 +21,9 @@
     <p class="alert alert-success">
         {{#str}} licence_created_successfully, block_edupublisher {{/str}}
     </p>
-    <form action="licence_download.php" method="POST" enctype="multipart/form-data">
-        <input type="hidden" name="publisherid" value="{{publisherid}}" />
-        {{#licenceids}}
-        <input type="hidden" name="licenceids[{{.}}]" value="1" />
-        {{/licenceids}}
-        <input type="submit" class="btn btn-secondary" value="{{#str}} download {{/str}}" />
-    </form>
+    <a href="licence.php?publisherid={{publisherid}}&action=list" class="btn btn-primary">
+        {{#str}} export {{/str}}
+    </a>
     <ul>
         {{#_licencekeys}}
         <li>{{.}}</li>
