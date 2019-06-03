@@ -51,14 +51,17 @@ define(
                             {'key' : 'licence_amount_none', component: 'block_edupublisher' },
                         ]).done(function(s) {
                             if ((type == 2 && pc.prop('checked')) || amount > 0){
+                                line.find('.package_choice').prop('checked', true);
                                 line.find('.package_amount_lbl').html(s[0]);
                                 line.find('a.btn').addClass('active');
                                 line.addClass('active');
                             } else if ((type == 2 && pc.prop('checked')) || amount == -1) {
+                                line.find('.package_choice').prop('checked', true);
                                 line.find('.package_amount_lbl').html(s[1]);
                                 line.find('a.btn').addClass('active');
                                 line.addClass('active');
                             } else {
+                                line.find('.package_choice').prop('checked', false);
                                 line.find('.package_amount_lbl').html(s[2]);
                                 line.find('a.btn').removeClass('active');
                                 line.removeClass('active');
@@ -94,6 +97,52 @@ define(
                         }
                     } catch(e) {
                         console.error('Invalid response');
+                    }
+                },
+                fail: NOTIFICATION.exception
+            }]);
+        },
+        /**
+         * Request the type of a licence and show an appropriate modal.
+         * @param uniqid of template.
+         * @param targetid (optional) to redeem licence.
+         */
+        redeem: function(uniqid, targetid) {
+            if (typeof targetid === 'undefined') targetid = 0;
+            var LICENCE = this;
+            var licencekey = $('#addlicence-' + uniqid + ' input[type="text"]').val();
+            console.log({ licencekey: licencekey, targetid: targetid });
+            AJAX.call([{
+                methodname: 'block_edupublisher_licence_redeem',
+                args: { licencekey: licencekey, targetid: targetid },
+                done: function(result) {
+                    console.log(result);
+                    try {
+                        result = JSON.parse(result);
+                        if (typeof result.error !== 'undefined') {
+                            NOTIFICATION.alert(result.heading, result.error);
+                        } else if (typeof result.success !== 'undefined') {
+                            top.location.href = top.location.href;
+                        } else if (typeof result.options !== 'undefined') {
+                            result.myuniqid = uniqid;
+                            require(['core/modal_factory', 'core/modal_events'], function(ModalFactory, ModalEvents) {
+                                ModalFactory.create({
+                                    type: ModalFactory.types.SAVE_CANCEL,
+                                    title: result.heading,
+                                    body: TEMPLATES.render('block_edupublisher/licence_redeem_options', result),
+                                }, undefined).done(function(modal) {
+                                    console.log(modal);
+                                    modal.show();
+                                    var root = modal.getRoot();
+                                    root.on(ModalEvents.save, function() {
+                                        var targetid = $('#targetid-' + uniqid).val();
+                                        LICENCE.redeem(uniqid, targetid);
+                                    });
+                                });
+                            });
+                        }
+                    } catch(e) {
+                        console.error('Invalid response', e);
                     }
                 },
                 fail: NOTIFICATION.exception

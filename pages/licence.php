@@ -76,6 +76,7 @@ if (empty($publisherid)) {
         'publisherid' => $publisherid,
         'target' => optional_param('target', 0, PARAM_INT),
         'type' => optional_param('type', 0, PARAM_INT),
+        'useseduvidual' => file_exists($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php'),
     );
     switch ($action) {
         case 'generate':
@@ -123,12 +124,14 @@ if (empty($publisherid)) {
             if ($data->step == 3 && count($data->failed) == 0 && $data->confirmed == 1) {
                 // We really insert the licences.
                 $data->_licencekeys = explode(' ', $data->licencekeys);
+                $data->licenceids = array();
                 foreach ($data->_licencekeys AS $key) {
                     $data->created = time();
                     $data->redeemid = 0;
                     $data->userid = $USER->id;
                     $data->licencekey = $key;
                     $licenceid = $DB->insert_record('block_edupublisher_lic', $data, true);
+                    $data->licenceids[] = $licenceid;
 
                     if (!empty($licenceid)) {
                         $packageids = array_keys($data->selectedpackages);

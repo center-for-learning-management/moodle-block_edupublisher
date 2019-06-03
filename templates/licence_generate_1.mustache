@@ -36,6 +36,7 @@
         <h4>{{#str}} licence_target, block_edupublisher {{/str}}</h4>
         <p>{{#str}} licence_target_desc, block_edupublisher {{/str}}</p>
         <div class="grid-eq-3">
+            {{#useseduvidual}}
             <div style="text-align: center;">
                 <input type="radio" name="target" value="1" id="id_target_choice-1" style="display: none; width: 30px;" {{#target_1}} checked="checked" {{/target_1}}
                        onclick="require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('1'); });" />
@@ -45,6 +46,7 @@
                     <h3>{{#str}} licence_target_org, block_edupublisher {{/str}}</h3>
                 </a>
             </div>
+            {{/useseduvidual}}
             <div style="text-align: center;">
                 <input type="radio" name="target" value="2" id="id_target_choice-2" style="display: none; width: 30px;" {{#target_2}} checked="checked" {{/target_2}}
                        onclick="require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('2'); });" />

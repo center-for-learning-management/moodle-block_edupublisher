@@ -49,6 +49,14 @@ $functions = array(
         'type'        => 'read',
         'ajax'        => 1,
     ),
+    'block_edupublisher_licence_redeem' => array(
+        'classname'   => 'block_edupublisher_external',
+        'methodname'  => 'licence_redeem',
+        'classpath'   => 'blocks/edupublisher/externallib.php',
+        'description' => 'Retrieves the licencetype for a licencekey',
+        'type'        => 'read',
+        'ajax'        => 1,
+    ),
     'block_edupublisher_list' => array(
         'classname'   => 'block_edupublisher_external',
         'methodname'  => 'list',

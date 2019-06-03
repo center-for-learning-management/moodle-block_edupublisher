@@ -50,6 +50,7 @@ if (!empty($publisherid) && block_edupublisher::is_maintainer(array('commercial'
         header("Content-Disposition: attachment; filename=licences.csv");
         header("Pragma: no-cache");
         header("Expires: 0");
+        $licenceids = array_keys($data->licenceids);
 
         $out = fopen('php://output', 'w');
         $delimiter = ";";
@@ -57,7 +58,8 @@ if (!empty($publisherid) && block_edupublisher::is_maintainer(array('commercial'
         $escapechar = "\\";
 
         $headline = false;
-        foreach ($data->licenceids AS $licenceid) {
+        foreach ($licenceids AS $licenceid) {
+            if ($data->licenceids[$licenceid] != 1) continue;
             $lic = $DB->get_record('block_edupublisher_lic', array('id' => $licenceid));
             if ($lic->id == $licenceid && $lic->publisherid == $publisherid) {
                 $userid = $lic->userid;

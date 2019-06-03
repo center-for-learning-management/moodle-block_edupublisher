@@ -173,6 +173,87 @@ class block_edupublisher_external extends external_api {
      * Returns description of method parameters
      * @return external_function_parameters
      */
+    public static function licence_redeem_parameters() {
+        return new external_function_parameters(array(
+            'licencekey' => new external_value(PARAM_TEXT, 'licence key'),
+            'targetid' => new external_value(PARAM_INT, 'target id'),
+        ));
+    }
+
+    /**
+     * Redeem a licence.
+     * @param licencekey
+     * @param targetid
+     * @return target of packages as json encoded string.
+     */
+    public static function licence_redeem($licencekey, $targetid) {
+        global $CFG, $DB, $USER;
+        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
+        $params = self::validate_parameters(self::licence_redeem_parameters(), array('licencekey' => $licencekey, 'targetid' => $targetid));
+
+        $lic = $DB->get_record('block_edupublisher_lic', array('licencekey' => $params['licencekey']));
+        $result = array('licencekey' => $params['licencekey'], 'options' => array());
+        if (empty($lic->id)) {
+            $result['heading'] = get_string('error');
+            $result['error'] = get_string('licence_invalid', 'block_edupublisher');
+        } elseif (!empty($lic->redeemid)) {
+            $result['heading'] = get_string('error');
+            $result['error'] = get_string('licence_already_redeemed', 'block_edupublisher');
+        } elseif($params['targetid'] > 0) {
+            $lic->redeemid = $params['targetid'];
+            $DB->update_record('block_edupublisher_lic', $lic);
+            $result['heading'] = get_string('success');
+            $result['success'] = true;
+        } else {
+            // Get possible targets for licencekey.
+            switch ($lic->target) {
+                case 1: // org, only in use for block_eduvidual
+                    $result['heading'] = get_string('licence_target_org', 'block_edupublisher');
+                    require_once($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
+                    $orgs = block_eduvidual::get_organisations('teacher');
+                    foreach ($orgs AS $org) {
+                        $result['options'][] = array(
+                            'id' => $org->orgid,
+                            'name' => $org->orgid . ': ' . $org->name
+                        );
+                    }
+                break;
+                case 2: // course
+                    $result['heading'] = get_string('licence_target_course', 'block_edupublisher');
+                    $courses = enrol_get_all_users_courses($USER->id, true);
+                    foreach ($courses AS $course) {
+                        $context = context_course::instance($course->id);
+                        if (has_capability('moodle/course:update', $context)) {
+                            $result['options'][] = array(
+                                'id' => $course->id,
+                                'name' => $course->fullname
+                            );
+                        }
+                    }
+                break;
+                case 3: // user
+                    $result['heading'] = get_string('licence_target_user', 'block_edupublisher');
+                    $result['options'][] = array(
+                        'id' => $USER->id,
+                        'name' => fullname($USER)
+                    );
+                break;
+            }
+        }
+        return json_encode($result, JSON_NUMERIC_CHECK);
+    }
+    /**
+     * Return definition.
+     * @return external_value
+     */
+    public static function licence_redeem_returns() {
+        return new external_value(PARAM_RAW, 'JSON encoded data for licencekey or success for redeem.');
+    }
+
+    /**
+     * Returns description of method parameters
+     * @return external_function_parameters
+     */
     public static function list_parameters() {
         return new external_function_parameters(array(
             'channel' => new external_value(PARAM_INT, 'Channel to generate list, 0 for all')
