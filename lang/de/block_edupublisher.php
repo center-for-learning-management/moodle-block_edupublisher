@@ -166,6 +166,7 @@ $string['licence_pool_desc'] = 'Der "Korb" ermöglicht es Nutzer/innen jedes bel
 $string['licence_target'] = 'Kontext';
 $string['licence_target_course'] = 'Kurs';
 $string['licence_target_course_desc'] = 'Die Lizenz wird einem Kurs zugeordnet. Das entspricht in den meisten Fällen einer Schulklasse.';
+$string['licence_target_desc'] = 'Dies legt fest, an welche Entität die Lizenz gebunden wird.';
 $string['licence_target_org'] = 'Schule';
 $string['licence_target_org_desc'] = 'Die Lizenz wird einer Schule zugeordnet. Alle Lernbegleiter/innen dieser Schule können die Lizenz verwenden.';
 $string['licence_target_user'] = 'Nutzer/in';

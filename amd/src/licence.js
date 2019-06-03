@@ -42,28 +42,29 @@ define(
                 $('#' + uniqid).find('.package_choice').each(function() {
                     var pc = $(this);
                     var line = $(this).closest('.line');
+                    var type = $('#type-' + uniqid).val();
                     var amount = parseInt(line.find('.package_amount').val());
-                    if (pc.prop('checked')) {
-                        line.find('.package_amount').css('display', 'inline-block');
-                        STR.get_strings([
-                                {'key' : 'licence_amount_usages', component: 'block_edupublisher', param: { amount: amount } },
-                                {'key' : 'licence_amount_infinite', component: 'block_edupublisher' },
-                                {'key' : 'licence_amount_none', component: 'block_edupublisher' },
-                            ]).done(function(s) {
 
-                                if (amount > 0){
-                                    line.find('.package_amount_lbl').html(s[0]);
-                                } else if (amount == -1) {
-                                    line.find('.package_amount_lbl').html(s[1]);
-                                } else {
-                                    line.find('.package_amount_lbl').html(s[2]);
-                                }
+                    STR.get_strings([
+                            {'key' : 'licence_amount_usages', component: 'block_edupublisher', param: { amount: amount } },
+                            {'key' : 'licence_amount_infinite', component: 'block_edupublisher' },
+                            {'key' : 'licence_amount_none', component: 'block_edupublisher' },
+                        ]).done(function(s) {
+                            if ((type == 2 && pc.prop('checked')) || amount > 0){
+                                line.find('.package_amount_lbl').html(s[0]);
+                                line.find('a.btn').addClass('active');
+                                line.addClass('active');
+                            } else if ((type == 2 && pc.prop('checked')) || amount == -1) {
+                                line.find('.package_amount_lbl').html(s[1]);
+                                line.find('a.btn').addClass('active');
+                                line.addClass('active');
+                            } else {
+                                line.find('.package_amount_lbl').html(s[2]);
+                                line.find('a.btn').removeClass('active');
+                                line.removeClass('active');
                             }
-                        ).fail(NOTIFICATION.exception);
-                    } else {
-                        line.find('.package_amount').css('display', 'none');
-                        line.find('.package_amount_lbl').html('');
-                    }
+                        }
+                    ).fail(NOTIFICATION.exception);
                 });
             }
         },

@@ -166,6 +166,7 @@ $string['licence_pool_desc'] = 'The "Pool" allows users to import any package th
 $string['licence_target'] = 'Target';
 $string['licence_target_course'] = 'Course';
 $string['licence_target_course_desc'] = 'The licence is attached to a course, which is more ore less synonymous with a classroom.';
+$string['licence_target_desc'] = 'This specifies to which entity a licence is bound.';
 $string['licence_target_org'] = 'Organisation';
 $string['licence_target_org_desc'] = 'The licence is attached to an organisation, every user of this organisation can redeem this licence.';
 $string['licence_target_user'] = 'User';
