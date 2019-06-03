@@ -40,7 +40,7 @@
                 <input type="radio" name="target" value="1" id="id_target_choice-1" style="display: none; width: 30px;" {{#target_1}} checked="checked" {{/target_1}}
                        onclick="require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('1'); });" />
                 <a href="#" class="btn btn-secondary licence-object target {{uniqid}}{{#target_1}} active {{/target_1}}"
-                    onclick="var a = this; require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('1'); $('#id_target_choice-1').prop('checked', true); $('.licence-object.target.{{uniqid}}').removeClass('active'); $(a).addClass('active'); });">
+                    onclick="var a = this; require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('1'); $('#id_target_choice-1').prop('checked', true); $('.licence-object.target.{{uniqid}}').removeClass('active'); $(a).addClass('active'); }); return false;">
                     <img src="/blocks/edupublisher/pix/licence_target_school.png" style="display: inline-block; height: 80px; width: 80px;" />
                     <h3>{{#str}} licence_target_org, block_edupublisher {{/str}}</h3>
                 </a>
@@ -49,7 +49,7 @@
                 <input type="radio" name="target" value="2" id="id_target_choice-2" style="display: none; width: 30px;" {{#target_2}} checked="checked" {{/target_2}}
                        onclick="require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('2'); });" />
                 <a href="#" class="btn btn-secondary licence-object target {{uniqid}}{{#target_2}} active {{/target_2}}"
-                    onclick="var a = this; require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('2'); $('#id_target_choice-2').prop('checked', true); $('.licence-object.target.{{uniqid}}').removeClass('active'); $(a).addClass('active'); });">
+                    onclick="var a = this; require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('2'); $('#id_target_choice-2').prop('checked', true); $('.licence-object.target.{{uniqid}}').removeClass('active'); $(a).addClass('active'); }); return false;">
                     <img src="/blocks/edupublisher/pix/licence_target_course.png" style="display: inline-block; height: 80px; width: 80px;" />
                     <h3>{{#str}} licence_target_course, block_edupublisher {{/str}}</h3>
                 </a>
@@ -58,7 +58,7 @@
                 <input type="radio" name="target" value="3" id="id_target_choice-3" style="display: none; width: 30px;" {{#target_3}} checked="checked" {{/target_3}}
                        onclick="require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('3'); });" />
                 <a href="#" class="btn btn-secondary licence-object target {{uniqid}}{{#target_3}} active {{/target_3}}"
-                    onclick="var a = this; require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('3'); $('#id_target_choice-3').prop('checked', true); $('.licence-object.target.{{uniqid}}').removeClass('active'); $(a).addClass('active'); });">
+                    onclick="var a = this; require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('3'); $('#id_target_choice-3').prop('checked', true); $('.licence-object.target.{{uniqid}}').removeClass('active'); $(a).addClass('active'); }); return false;">
                     <img src="/blocks/edupublisher/pix/licence_target_user.png" style="display: inline-block; height: 80px; width: 80px;" />
                     <h3>{{#str}} licence_target_user, block_edupublisher {{/str}}</h3>
                 </a>
