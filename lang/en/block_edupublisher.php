@@ -194,6 +194,7 @@ $string['permission_denied'] = 'Permission denied';
 $string['public'] = 'Public';
 $string['publish_new_package'] = 'Publish something';
 $string['publisher'] = 'Publisher';
+$string['publisher_logo'] = 'Logo';
 $string['rating'] = 'Rating';
 $string['relevance:stage_0'] = 'Possibly relevant';
 $string['relevance:stage_1'] = 'Less relevant';

@@ -34,7 +34,30 @@
         </ul>
     </div>
     <div id="commercial-{{uniqid}}" style="display: none;">
-        <div id="licences-{{uniqid}}"></div>
+        <div id="licences-{{uniqid}}">
+            {{#publishers}}
+            <div>
+                <a href="#" style="text-decoration: none;"
+                    onclick="require(['jquery'], function($) { $('#pub_{{publisherid}}_items_{{uniqid}}').toggleClass('hidden'); }); return false;">
+                    <h3 style="dislay: inline">
+                        <img src="{{publisher_logo}}" alt="Logo" style="height: 2em;"/>
+                        {{name}}
+                    </h3>
+                </a>
+                <ul data-role="listview" id="pub_{{publisherid}}_items_{{uniqid}}" class="hidden">
+                    {{#items}}
+                    <li>
+                        <a href="/blocks/edupublisher/pages/import.php?package={{id}}&course={{course}}&section={{sectionid}}">
+                            <img src="{{default_image}}" alt="Image" />
+                            <h3>{{title}}</h3>
+                            <p>{{{default_summary}}}</p>
+                        </a>
+                    </li>
+                    {{/items}}
+                </ul>
+            </div>
+            {{/publishers}}
+        </div>
         <div id="addlicence-{{uniqid}}">
             <input type="text" placeholder="{{#str}} licence_redeem, block_edupublisher {{/str}}" />
             <input type="button" value="{{#str}} add {{/str}}"

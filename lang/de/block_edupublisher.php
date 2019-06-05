@@ -192,6 +192,7 @@ $string['permission_denied'] = 'Zugriff verweigert';
 $string['public'] = 'Öffentlich';
 $string['publish_new_package'] = 'Inhalte veröffentlichen';
 $string['publisher'] = 'Anbieter';
+$string['publisher_logo'] = 'Logo';
 $string['rating'] = 'Bewertung';
 $string['relevance:stage_0'] = 'Möglicherweise relevant';
 $string['relevance:stage_1'] = 'Weniger relevant';

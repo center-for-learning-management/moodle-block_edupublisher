@@ -25,7 +25,7 @@ require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 $id = optional_param('id', 0, PARAM_INT);
-$publisher = $DB->get_record('block_edupublisher_pub', array('id' => $id), '*', IGNORE_MISSING);
+$publisher = block_edupublisher::get_publisher($id);
 $context = context_system::instance();
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/publishers.php?id=' . $id);
@@ -43,10 +43,24 @@ if (block_edupublisher::is_maintainer(array('commercial'))) {
     // if id > 0 show publisher
     // else show list of publishers
     if ($id > 0) {
-        // Publisher details and users
         ?>
             <a href="/blocks/edupublisher/pages/publishers.php" class="btn btn-primary"><?php echo get_string('back'); ?></a>
         <?php
+        // Publisher details and users
+        require_once($CFG->dirroot . '/blocks/edupublisher/classes/publisher_form.php');
+        $form = new block_edupublisher\publisher_form();
+        if ($data = $form->get_data()) {
+            file_save_draft_area_files($data->publisher_logo, $context->id, 'block_edupublisher', 'publisher_logo',
+                           $publisher->id, array('subdirs' => 0, 'maxbytes' => block_edupublisher\publisher_form::$maxbytes, 'maxfiles' => 1));
+        }
+        $draftitemid = file_get_submitted_draft_itemid('publisher_logo');
+        file_prepare_draft_area($draftitemid, $context->id, 'block_edupublisher', 'publisher_logo', $publisher->id,
+                                array('subdirs' => 0, 'maxbytes' => block_edupublisher\publisher_form::$maxbytes, 'maxfiles' => 1));
+        $publisher->publisher_logo = $draftitemid;
+        $form->set_data($publisher);
+
+        $form->display();
+
         echo $OUTPUT->render_from_template(
             'block_edupublisher/publisher_user',
             array('publisherid' => $id, 'users' => array())

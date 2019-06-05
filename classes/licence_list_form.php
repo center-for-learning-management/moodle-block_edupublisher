@@ -55,7 +55,6 @@ class licence_list_form extends \moodleform {
             $mform->addElement('advcheckbox', 'licenceids[' . $licence->id . ']', $licence->licencekey, '', array('group' => $group), array(0, 1));
         }
         $this->add_checkbox_controller($group, NULL, array('style' => 'font-weight: bold;'), 1);
-
         $this->add_action_buttons();
     }
 }

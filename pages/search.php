@@ -63,6 +63,53 @@ $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
 
+$lic_orgids = array();
+$lic_courseids = array();
+$orgs = block_eduvidual::get_organisations('teacher', false);
+foreach ($orgs AS $org) {
+    $lic_orgids[] = $org->orgid;
+}
+$courses = enrol_get_all_users_courses($USER->id, true);
+foreach ($courses AS $_course) {
+    $context = context_course::instance($_course->id);
+    if (has_capability('moodle/course:update', $context)) {
+        $lic_courseids[] = $_course->id;
+    }
+}
+
+$sql = "SELECT l.*,lp.packageid,p.name publishername FROM
+            {block_edupublisher_lic} l,
+            {block_edupublisher_lic_pack} lp,
+            {block_edupublisher_pub} p
+            WHERE l.publisherid=p.id
+                AND l.id=lp.licenceid
+                AND (
+                    (type=3 AND redeemid=?)
+                    OR (type=2 AND redeemid IN (?))
+                    OR (type=1 AND redeemid IN (?))
+                )
+            ORDER BY p.name ASC";
+
+$lics = $DB->get_records_sql($sql, array($USER->id, implode(',', $lic_courseids), implode(',', $lic_orgids)));
+$publishers = array();
+
+foreach ($lics AS $lic) {
+    //print_r($lic);
+    if (!isset($publishers[$lic->publishername])) {
+        $publishers[$lic->publishername] = block_edupublisher::get_publisher($lic->publisherid);
+        $publishers[$lic->publishername]->items = array();
+    }
+    if (!isset($publishers[$lic->publishername]->items[$lic->packageid])) {
+        $publishers[$lic->publishername]->items[$lic->packageid] = block_edupublisher::get_package($lic->packageid, true);
+    }
+}
+$publishers = array_values($publishers);
+for ($a = 0; $a < count($publishers); $a++) {
+    $publishers[$a]->items = array_values($publishers[$a]->items);
+}
+
+//print_r($publishers);
+
 echo $OUTPUT->render_from_template(
     'block_edupublisher/search',
     (object) array(
@@ -70,6 +117,7 @@ echo $OUTPUT->render_from_template(
         'sectionid' => $sectionno,
         'search' => $search,
         'layout' => $layout,
+        'publishers' => $publishers,
         'wwwroot' => $CFG->wwwroot
     )
 );

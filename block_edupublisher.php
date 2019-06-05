@@ -284,6 +284,27 @@ class block_edupublisher extends block_list {
         return $package;
     }
     /**
+     * Gets a publisher from database.
+     * @param publisherid
+     */
+    public static function get_publisher($publisherid) {
+        global $DB, $USER;
+        $publisher = $DB->get_record('block_edupublisher_pub', array('id' => $publisherid), '*', IGNORE_MISSING);
+        if (empty($publisher->id)) return null;
+        $is_coworker = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisherid, 'userid' => $USER->id));
+        $publisher->is_coworker = ($is_coworker->userid == $USER->id);
+        // Load Logo of publisher.
+        $fs = get_file_storage();
+        $context = context_system::instance();
+        $files = $fs->get_area_files($context->id, 'block_edupublisher', 'publisher_logo', $publisherid);
+        foreach ($files as $f) {
+            if (empty(str_replace('.', '', $f->get_filename()))) continue;
+            $publisher->publisher_logo = '' . moodle_url::make_pluginfile_url($f->get_contextid(), $f->get_component(), $f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename(), false);
+            break;
+        }
+        return $publisher;
+    }
+    /**
      * Returns a definition of all channels.
     **/
     public static function get_channel_definition(){

@@ -25,7 +25,7 @@ require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 $publisherid = optional_param('publisherid', 0, PARAM_INT);
-$publisher = $DB->get_record('block_edupublisher_pub', array('id' => $publisherid), '*', IGNORE_MISSING);
+$publisher = block_edupublisher::get_publisher($publisherid);
 $context = context_system::instance();
 
 // Must pass login
@@ -40,8 +40,6 @@ $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
-
-$is_coworker = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisherid, 'userid' => $USER->id));
 
 if (empty($publisherid)) {
     $options = array();
@@ -64,7 +62,7 @@ if (empty($publisherid)) {
         'block_edupublisher/licence_publisherselect',
         array('options' => $options)
     );
-} elseif (block_edupublisher::is_maintainer(array('commercial')) || $is_coworker->userid == $USER->id) {
+} elseif (block_edupublisher::is_maintainer(array('commercial')) || $publisher->is_coworker) {
     $action = optional_param('action', '', PARAM_TEXT);
     $data = (object) array(
         'action' => $action,

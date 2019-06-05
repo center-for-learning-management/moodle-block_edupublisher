@@ -17,9 +17,11 @@
 <div class="ui-edupublisher edupublisher_user"><div>
     <h3>{{#str}} users {{/str}}</h3>
     <input type="hidden" id="publisherid-{{uniqid}}" value="{{publisherid}}" />
-    <input type="text" id="userids-{{uniqid}}" placeholder="UserIDs (separated by space)" />
-    <a onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.storePublisherUsers('{{uniqid}}', 'add'); }); return false;" href="#" class="btn btn-primary">{{#str}} add {{/str}}</a>
-    <a onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.storePublisherUsers('{{uniqid}}', 'remove'); }); return false;" href="#" class="btn btn-primary">{{#str}} remove {{/str}}</a>
+    <div class="grid-eq-3">
+        <input type="text" id="userids-{{uniqid}}" placeholder="UserIDs (separated by space)" />
+        <a onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.storePublisherUsers('{{uniqid}}', 'add'); }); return false;" href="#" class="btn btn-primary">{{#str}} add {{/str}}</a>
+        <a onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.storePublisherUsers('{{uniqid}}', 'remove'); }); return false;" href="#" class="btn btn-primary">{{#str}} remove {{/str}}</a>
+    </div>
     <select id="users-{{uniqid}}" multiple="multiple" size="20"></select>
 </div></div>
 

@@ -352,8 +352,8 @@ class block_edupublisher_external extends external_api {
      * Perform the search.
      * @return list of packages as json encoded string.
      */
-    public static function search($search) {
-        global $CFG, $DB, $OUTPUT, $PAGE;
+    public static function search($courseid, $search) {
+        global $CFG, $DB, $OUTPUT, $PAGE, $USER;
         // page-context is required for output of templates.
         $PAGE->set_context(context_system::instance());
         $params = self::validate_parameters(self::search_parameters(), array('courseid' => $courseid, 'search' => $search));
@@ -389,26 +389,33 @@ class block_edupublisher_external extends external_api {
                 $addpackage = true;
                 if (!empty($package->commercial_publishas) && $package->commercial_publishas == 1) {
                     // For commercial content we need the licence!
+                    $reply['commercial'][] = $package->id;
+
                     $orgid = 0;
-                    if (file_exists($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php')) {
+                    if (false && block_eduvidual::uses_eduvidual()) {
                         // This is some functionality specific to a plugin that is not published!
                         require_once($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
                         $org = block_eduvidual::get_org_by_courseid($params['courseid']);
                         $orgid = $org->orgid;
                     }
-                    $sql = "SELECT * FROM {block_edupublisher_lic} l, {block_edupublisher_lic_pack} lp
+                    $sql = "SELECT *
+                              FROM
+                                {block_edupublisher_lic} l,
+                                {block_edupublisher_lic_pack} lp
                               WHERE l.id=lp.licenceid
                                 AND lp.packageid=?
                                 AND (
-                                    l.amounts = -1 OR l.amounts > 0
+                                    lp.amounts = -1 OR lp.amounts > 0
                                 )
                                 AND (
-                                    (l.type = 'user' AND l.redeemid>0 AND l.redeemid = ?)
+                                    (l.target = 3 AND l.redeemid>0 AND l.redeemid = ?)
                                     OR
-                                    (l.type = 'course' AND l.redeemid>0 AND l.redeemid = ?)
+                                    (l.target = 2 AND l.redeemid>0 AND l.redeemid = ?)
                                     OR
-                                    (l.type = 'org' AND l.redeemid>0 AND l.redeemid = ?)
+                                    (l.target = 1 AND l.redeemid>0 AND l.redeemid = ?)
                                 )";
+                    //$reply['sql'] = $sql;
+                    //$reply['params'] = array($package->id, $USER->id, $params['courseid'], $orgid);
                     $licence = $DB->get_records_sql($sql, array($package->id, $USER->id, $params['courseid'], $orgid));
                     $addpackage = (!empty($licence->id) && $licence->id > 0);
                 }
