@@ -16,6 +16,7 @@
 }}
 
 <div class="ui-edupublisher"><div>
+    {{#enablecommercial}}
     <div class="grid-eq-2">
         <a href="#" class="search {{uniqid}} btn btn-secondary active"
             onclick="require(['jquery'], function($) { $('.btn.{{uniqid}}').removeClass('active'); $('.search.{{uniqid}}').addClass('active'); $('#search-{{uniqid}}').css('display', 'block'); $('#commercial-{{uniqid}}').css('display', 'none'); }); return false;">
@@ -26,6 +27,7 @@
             {{#str}} commercial_header, block_edupublisher {{/str}}
         </a>
     </div>
+    {{/enablecommercial}}
     <div id="search-{{uniqid}}">
         <input type="text" id="{{uniqid}}-search" name="search" placeholder="{{#str}} search, block_edupublisher {{/str}}" onkeyup="require(['block_edupublisher/main'], function(MAIN) { MAIN.search('{{uniqid}}', {{courseid}}, {{sectionid}}); });" />
 
@@ -33,6 +35,7 @@
             <li><a href="#"><h3>{{#str}} search:enter_term, block_edupublisher {{/str}}</h3></a></li>
         </ul>
     </div>
+    {{#enablecommercial}}
     <div id="commercial-{{uniqid}}" style="display: none;">
         <div id="licences-{{uniqid}}">
             {{#publishers}}
@@ -64,6 +67,7 @@
                 onclick="require(['block_edupublisher/licence'], function(LICENCE) { LICENCE.redeem('{{uniqid}}'); });"/>
         </div>
     </div>
+    {{/enablecommercial}}
 </div></div>
 
 {{#js}}

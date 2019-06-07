@@ -114,6 +114,7 @@ echo $OUTPUT->render_from_template(
     'block_edupublisher/search',
     (object) array(
         'courseid' => $course,
+        'enablecommercial' => get_config('block_edupublisher', 'enablecommercial'),
         'sectionid' => $sectionno,
         'search' => $search,
         'layout' => $layout,
