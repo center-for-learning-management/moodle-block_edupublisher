@@ -88,15 +88,19 @@ if (empty($channel)) {
         die();
     }
     echo $OUTPUT->render_from_template('block_edupublisher/maintain_table_head', array(
+        'channel' => $channel,
         'maintainer_default' => $maintainer_default,
         'maintainer_etapas' => $maintainer_etapas,
         'maintainer_eduthek' => $maintainer_eduthek,
     ));
-    $sql = "SELECT DISTINCT(package)
-              FROM {block_edupublisher_metadata}
-              WHERE `field` LIKE ? ESCAPE '+'
+    $orderby = (optional_param('sort', 'date', PARAM_TEXT) == 'date') ? 'm.modified DESC' : 'p.title ASC';
+    $sql = "SELECT DISTINCT(m.package),p.title
+              FROM {block_edupublisher_metadata} m, {block_edupublisher_packages} p
+              WHERE m.package=p.id
+                AND `field` LIKE ? ESCAPE '+'
                 AND content=1
-              ORDER BY modified DESC";
+              ORDER BY " . $orderby;
+
     $packages = $DB->get_records_sql($sql, array($channel . '+_publishas'));
     foreach($packages AS $p) {
         $package = block_edupublisher::get_package($p->package, true);
