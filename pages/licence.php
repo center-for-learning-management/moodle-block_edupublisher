@@ -143,7 +143,9 @@ if (empty($publisherid)) {
                             if ($data->type == 1) {
                                 $obj['amounts'] = $data->amountpackages[$packageid];
                             }
-                            $DB->insert_record('block_edupublisher_lic_pack', $obj);
+                            if (intval($obj['amounts']) !== 0) {
+                                $DB->insert_record('block_edupublisher_lic_pack', $obj);
+                            }
                         }
                     } else {
                         $data->failed[] = $key;

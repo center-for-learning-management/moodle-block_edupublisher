@@ -138,6 +138,8 @@ $string['etapas_voraussetzungen'] = 'Voraussetzungen';
 $string['etapas_vorkenntnisse'] = 'Vorkenntnisse';
 $string['etapas_zeitbedarf'] = 'Zeitbedarf';
 
+$string['export'] = 'Export';
+
 $string['fieldextras'] = 'Extras';
 $string['fieldhelptext'] = 'Hilfetext';
 $string['fieldname'] = 'Name';
