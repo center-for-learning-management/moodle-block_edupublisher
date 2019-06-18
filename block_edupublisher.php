@@ -410,10 +410,10 @@ class block_edupublisher extends block_list {
         if (count($channels) == 0) {
             return $maintainer_default || $maintainer_etapas || $maintainer_eduthek || $maintainer_commercial;
         }
-        return in_array('default', $channels) && $maintainer_default;
-        return in_array('etapas', $channels) && $maintainer_etapas;
-        return in_array('eduthek', $channels) && $maintainer_eduthek;
-        return in_array('commercial', $channels) && $maintainer_commercial;
+        if (in_array('default', $channels) && $maintainer_default) return true;
+        if (in_array('etapas', $channels) && $maintainer_etapas) return true;
+        if (in_array('eduthek', $channels) && $maintainer_eduthek) return true;
+        if (in_array('commercial', $channels) && $maintainer_commercial) return true;
         return false;
     }
     /**
