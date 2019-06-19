@@ -135,8 +135,9 @@ if (empty($backupid)) {
         } else {
             require_once($CFG->dirroot . '/course/lib.php');
             update_course($targetcourse);
+            move_courses(array($targetcourse->id), intval($category));
         }
-        // @todo give user access rights as non-editing-teacher at the end. so that he can access the (invisible!) course.
+
         $targetcontext = context_course::instance($targetcourse->id);
         $targetcourseid = $targetcourse->id;
 
