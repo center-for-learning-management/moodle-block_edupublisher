@@ -357,7 +357,7 @@ if ($package->id > 0 && $PREVENTFORM) {
             block_edupublisher::store_comment($package, 'comment:template:package_created', $sendto, true, false);
 
             // By default we activate all default_metadata-entries here
-            $DB->execute('UPDATE {block_edupublisher_metadata} SET active=1 WHERE package=? AND field LIKE "default_%"', array($package->id));
+            $DB->execute("UPDATE {block_edupublisher_metadata} SET active=1 WHERE package=? AND field LIKE 'default_%'", array($package->id));
 
             echo $OUTPUT->notification(get_string('successfully_published_package', 'block_edupublisher'), 'notifysuccess');
             echo $OUTPUT->continue_button(new moodle_url('/blocks/edupublisher/pages/package.php?id=' . $package->id));

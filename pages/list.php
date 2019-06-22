@@ -92,10 +92,10 @@ if (empty($channel)) {
         'maintainer_etapas' => $maintainer_etapas,
         'maintainer_eduthek' => $maintainer_eduthek,
     ));
-    $sql = "SELECT DISTINCT(package)
+    $sql = "SELECT DISTINCT package, modified
               FROM {block_edupublisher_metadata}
-              WHERE `field` LIKE ? ESCAPE '+'
-                AND content=1
+              WHERE field LIKE ? ESCAPE '+'
+                AND content='1'
               ORDER BY modified DESC";
     $packages = $DB->get_records_sql($sql, array($channel . '+_publishas'));
     foreach($packages AS $p) {
