@@ -369,16 +369,18 @@ class block_edupublisher_external extends external_api {
             $SQL = 'SELECT package, COUNT(package) AS cnt FROM {block_edupublisher_metadata} WHERE 1=0 OR ';
             for ($b = 0; $b < count($searchkeys); $b++) {
                 if (is_numeric($searchkeys[$b])) {
-                    $SQL .= ' (`content`="' . $searchkeys[$b] . '" AND `active`=1)';
+                    $SQL .= " (content='" . $searchkeys[$b] . "' AND active=1)";
                 } else {
-                    $SQL .= ' (`content` LIKE "%' . $searchkeys[$b] . '%" AND `active`=1)';
+                    $SQL .= " (content LIKE '%" . $searchkeys[$b] . "%' AND active=1)";
                 }
                 if ($b < (count($searchkeys) -1)) {
-                    $SQL .= ' OR';
+                    $SQL .= " OR";
                 }
             }
-            $SQL .= ' OR (`content` LIKE "%' . $params['search'] . '%" AND `active`=1)';
-            $SQL .= ' GROUP BY package ORDER BY cnt DESC LIMIT 0,20';
+
+            $SQL .= " OR (content LIKE '%" . $params['search'] . "%' AND active=1)";
+            $SQL .= " GROUP BY package ORDER BY cnt DESC LIMIT 20";
+            
             $relevance = $DB->get_records_sql($SQL, array());
 
             foreach($relevance AS $relevant) {
@@ -573,13 +575,13 @@ class block_edupublisher_external extends external_api {
                 } else {
                     $package->default_active = $package->eduthek_active || $package->etapas_active;
                 }
-                $DB->execute('UPDATE {block_edupublisher_metadata} SET `active`=? WHERE `field` LIKE ? ESCAPE "+" AND package=?', array($package->default_active, 'default' . '+_%', $params['packageid']));
+                $DB->execute("UPDATE {block_edupublisher_metadata} SET active=? WHERE field LIKE ? ESCAPE '+' AND package=?", array($package->default_active, 'default' . '+_%', $params['packageid']));
             } else {
                 $package->default_active = $active;
             }
             block_edupublisher::store_metadata($package, 'default', 'default_active', $package->default_active);
 
-            $DB->execute('UPDATE {block_edupublisher_metadata} SET `active`=? WHERE `field` LIKE ? ESCAPE "+" AND package=?', array($active, $params['type'] . '+_%', $params['packageid']));
+            $DB->execute("UPDATE {block_edupublisher_metadata} SET active=? WHERE field LIKE ? ESCAPE '+' AND package=?", array($active, $params['type'] . '+_%', $params['packageid']));
             $package->modified = time();
             if ($params['type'] == 'default') {
                 block_edupublisher::store_metadata($package, 'default', 'default_active', $package->default_active);
@@ -607,7 +609,7 @@ class block_edupublisher_external extends external_api {
                 block_edupublisher::store_comment($package, 'comment:template:package_unpublished', $sendto, true, false);
             }
         }
-        $chans = $DB->get_records_sql('SELECT id,field,content FROM {block_edupublisher_metadata} WHERE field LIKE "%+_active" ESCAPE "+" AND package=?', array($params['packageid']));
+        $chans = $DB->get_records_sql("SELECT id,field,content FROM {block_edupublisher_metadata} WHERE field LIKE '%+_active' ESCAPE '+' AND package=?", array($params['packageid']));
         $statusses = array();
         foreach ($chans AS $chan) {
             $statusses[$chan->field] = ($chan->content == 1) ? 1 : 0;

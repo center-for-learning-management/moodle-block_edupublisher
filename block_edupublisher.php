@@ -33,7 +33,8 @@ class block_edupublisher extends block_list {
     **/
     public static function add_to_context($context) {
         global $DB;
-        $count = $DB->count_records('block_instances', array('blockname' => 'edupublisher', 'parentcontextid' => $context->id));
+        $count = $DB->count_records('block_instances', 
+                 array('blockname' => 'edupublisher', 'parentcontextid' => $context->id));
         if ($count == 0) {
             // Create edupublisher-block in targetcourse.
             $blockdata = (object) array(
@@ -70,7 +71,8 @@ class block_edupublisher extends block_list {
             if (strpos($key, ':') > 0) continue;
             if (substr($key, 0, 6) == 'rating') continue;
             $parts = explode("_", $key);
-            if (count($parts) == 1 || in_array($parts[0], $includechannels) || count($includechannels) > 0 && $includechannels[0] == '*') {
+            if (count($parts) == 1 || in_array($parts[0], $includechannels) || 
+                count($includechannels) > 0 && $includechannels[0] == '*') {
                 if (strpos($package[$key], "<") > -1) {
                     $xml[] = "\t\t<$key><![CDATA[" . $package[$key] . "]]></$key>";
                 } else {
@@ -841,15 +843,25 @@ class block_edupublisher extends block_list {
             $package->id = $DB->insert_record('block_edupublisher_packages', $package, true);
         }
 
-        // Get exacomp-Relations
-        $competencies = $DB->get_records_sql('SELECT ecd.id id,ecd.title title, ecd.sourceid sourceid, ecd.source source FROM {block_exacompdescriptors} ecd, {block_exacompcompactiv_mm} ecca, {course_modules} cm WHERE cm.course=? AND cm.id=ecca.activityid AND ecca.compid=ecd.id ORDER BY ecd.title ASC', array($package->course));
-        $package->default_exacompids = array();
-        $package->default_exacomptitles = array();
-        foreach($competencies AS $competence) {
-            $source = $DB->get_record('block_exacompdatasources', array('id' => $competence->source));
-            $package->default_exacompdatasources[] = $source->source;
-            $package->default_exacompsourceids[] = $competence->id;
-            $package->default_exacomptitles[] = $competence->title;
+        // Get exacomp-Relations if exacomp block is installed
+        $pluginman = core_plugin_manager::instance();
+        $plugins = $pluginman->get_installed_plugins("block");
+        if (in_array("exacompdatasources", $plugins)) {
+
+            $competencies = $DB->get_records_sql("SELECT ecd.id id,ecd.title title, 
+                ecd.sourceid sourceid, ecd.source source 
+                FROM {block_exacompdescriptors} ecd, {block_exacompcompactiv_mm} ecca, 
+                    {course_modules} cm 
+                WHERE cm.course=? AND cm.id=ecca.activityid AND ecca.compid=ecd.id 
+                ORDER BY ecd.title ASC", array($package->course));
+            $package->default_exacompids = array();
+            $package->default_exacomptitles = array();
+            foreach($competencies AS $competence) {
+                $source = $DB->get_record('block_exacompdatasources', array('id' => $competence->source));
+                $package->default_exacompdatasources[] = $source->source;
+                $package->default_exacompsourceids[] = $competence->id;
+                $package->default_exacomptitles[] = $competence->title;
+            }
         }
 
         // Now store all data.
@@ -862,7 +874,7 @@ class block_edupublisher extends block_list {
 
                 // Remove all meta-objects with pattern channel_field_%, multiple items will be inserted anyway.
                 // Attention: Needs to be done here. If an item has been multiple and is then updated to single it may keep deprecated metadata if executed anywhere else.
-                $DB->execute('DELETE FROM {block_edupublisher_metadata} WHERE package=? AND `field` LIKE ? ESCAPE "+"', array($package->id, $channel . '+_' . $field . '+_%'));
+                $DB->execute("DELETE FROM {block_edupublisher_metadata} WHERE package=? AND field LIKE ? ESCAPE '+'", array($package->id, $channel . '+_' . $field . '+_%'));
 
                 if($definition[$channel][$field]['type'] == 'filemanager' && !empty($draftitemid = file_get_submitted_draft_itemid($dbfield))) { // !empty($package->{$dbfield})) {
                     // We retrieve a file and set the value to the url.
