@@ -33,7 +33,7 @@ class block_edupublisher extends block_list {
     **/
     public static function add_to_context($context) {
         global $DB;
-        $count = $DB->count_records('block_instances', 
+        $count = $DB->count_records('block_instances',
                  array('blockname' => 'edupublisher', 'parentcontextid' => $context->id));
         if ($count == 0) {
             // Create edupublisher-block in targetcourse.
@@ -71,7 +71,7 @@ class block_edupublisher extends block_list {
             if (strpos($key, ':') > 0) continue;
             if (substr($key, 0, 6) == 'rating') continue;
             $parts = explode("_", $key);
-            if (count($parts) == 1 || in_array($parts[0], $includechannels) || 
+            if (count($parts) == 1 || in_array($parts[0], $includechannels) ||
                 count($includechannels) > 0 && $includechannels[0] == '*') {
                 if (strpos($package[$key], "<") > -1) {
                     $xml[] = "\t\t<$key><![CDATA[" . $package[$key] . "]]></$key>";
@@ -175,6 +175,30 @@ class block_edupublisher extends block_list {
     public static function enhance_mail_body($subject, $content) {
         $mailtemplate = get_config('block_edupublisher', 'mail_template');
         return str_replace(array("{{{content}}}", "{{{subject}}}"), array($content, $subject), $mailtemplate);
+    }
+    /**
+     * Returns a list of courses from a user
+     * Note: teacher is identified by capability 'moodle/course:update'
+     * @param user User-Object, if empty use $USER.
+     * @param capability to search.
+     */
+    public static function get_courses($user = null, $capability = '') {
+        if (empty($user)) {
+            global $USER;
+            $user = $USER;
+        }
+        $courses = enrol_get_all_users_courses($USER->id, true);
+        if (!empty($capability)) {
+            return $courses;
+        } else {
+            $ids = array_keys($courses);
+            foreach($ids AS $id) {
+                $context = context_course::instance($id);
+                $canedit = has_capability($capability, $context);
+                if (!$canedit) delete($courses[$id]);
+            }
+            return $courses;
+        }
     }
     /**
      * @param id ID of package or 0
@@ -848,11 +872,11 @@ class block_edupublisher extends block_list {
         $plugins = $pluginman->get_installed_plugins("block");
         if (in_array("exacompdatasources", $plugins)) {
 
-            $competencies = $DB->get_records_sql("SELECT ecd.id id,ecd.title title, 
-                ecd.sourceid sourceid, ecd.source source 
-                FROM {block_exacompdescriptors} ecd, {block_exacompcompactiv_mm} ecca, 
-                    {course_modules} cm 
-                WHERE cm.course=? AND cm.id=ecca.activityid AND ecca.compid=ecd.id 
+            $competencies = $DB->get_records_sql("SELECT ecd.id id,ecd.title title,
+                ecd.sourceid sourceid, ecd.source source
+                FROM {block_exacompdescriptors} ecd, {block_exacompcompactiv_mm} ecca,
+                    {course_modules} cm
+                WHERE cm.course=? AND cm.id=ecca.activityid AND ecca.compid=ecd.id
                 ORDER BY ecd.title ASC", array($package->course));
             $package->default_exacompids = array();
             $package->default_exacomptitles = array();
@@ -1158,6 +1182,12 @@ class block_edupublisher extends block_list {
 
             $this->content->items[] =  $OUTPUT->render_from_template('block_edupublisher/package_rating', $package);
             $this->content->icons[] = html_writer::empty_tag('img', array('src' => '/pix/i/scales.svg', 'class' => 'icon'));
+
+            $courses = self::get_courses(null, 'moodle/course:update');
+            if (count(array_keys($courses)) > 0) {
+                $this->content->items[] = '<a href="#" onclick="require([\'block_edupublisher/main\'], function(MAIN) { MAIN.initImportSelection(' . $package->id . '); }); return false;">' . get_string('initialize_import', 'block_edupublisher') . '</a>';
+                $this->content->icons[] = html_writer::empty_tag('img', array('src' => '/pix/i/import.svg', 'class' => 'icon'));
+            }
             return $this->content;
         } elseif($canedit) {
             $this->content = (object) array(

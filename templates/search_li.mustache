@@ -19,12 +19,17 @@
     <div class="box-right-100"><!-- style="position: absolute; right: 10px; top: 10px; z-index: 999; min-width: 100px !important; -->
         {{> block_edupublisher/package_rating }}
     </div>
+    <a href="{{wwwroot}}/course/view.php?id={{course}}">
+
+    <!--
     {{#importtocourseid}}
     <a href="{{wwwroot}}/blocks/edupublisher/pages/import.php?package={{id}}&course={{importtocourseid}}&section={{importtosectionid}}">
     {{/importtocourseid}}
     {{^importtocourseid}}
     <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}">
     {{/importtocourseid}}
+    -->
+
         <img src="{{default_image}}" alt="{{title}}" />
         <h3>
             {{title}}

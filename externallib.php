@@ -27,6 +27,61 @@ require_once($CFG->libdir . "/externallib.php");
 require_once($CFG->dirroot . "/blocks/edupublisher/block_edupublisher.php");
 
 class block_edupublisher_external extends external_api {
+    public static function init_import_load_courses_parameters() {
+        return new external_function_parameters(array());
+    }
+
+    /**
+     * Return all courses the user has trainer capabilities in.
+     * @return list of courses as json encoded string.
+     */
+    public static function init_import_load_courses() {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
+        $courses = block_edupublisher::get_courses(null, 'moodle/course:update');
+        return json_encode(array('courses' => $courses));
+    }
+    /**
+     * Return definition.
+     * @return external_value
+     */
+    public static function init_import_load_courses_returns() {
+        return new external_value(PARAM_RAW, 'All courses as JSON-string');
+    }
+
+    public static function init_import_load_sections_parameters() {
+        return new external_function_parameters(array(
+            'courseid' => new external_value(PARAM_INT, 'id of course'),
+        ));
+    }
+
+    /**
+     * Return all sections of a course.
+     * The user has to be enrolled in the course.
+     * @param courseid id of course.
+     * @return list of courses as json encoded string.
+     */
+    public static function init_import_load_sections($courseid) {
+        global $CFG, $DB;
+        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
+        $params = self::validate_parameters(self::init_import_load_sections_parameters(), array('courseid' => $courseid));
+
+        $course = $DB->get_record('course', array('id' => $params['courseid']));
+        $context = context_course::instance($course->id);
+        if (is_enrolled($context, $USER->id, '', true)) {
+            $sections = $DB->get_records('course_sections', array('course' => $course->id));
+            return json_encode(array('sections' => $sections));
+        } else {
+            return json_encode(array('error' => 'no permission'));
+        }
+    }
+    /**
+     * Return definition.
+     * @return external_value
+     */
+    public static function init_import_load_sections_returns() {
+        return new external_value(PARAM_RAW, 'All sections as JSON-string');
+    }
     /**
      * Returns description of method parameters
      * @return external_function_parameters
@@ -380,7 +435,7 @@ class block_edupublisher_external extends external_api {
 
             $SQL .= " OR (content LIKE '%" . $params['search'] . "%' AND active=1)";
             $SQL .= " GROUP BY package ORDER BY cnt DESC LIMIT 20";
-            
+
             $relevance = $DB->get_records_sql($SQL, array());
 
             foreach($relevance AS $relevant) {

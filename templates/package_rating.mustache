@@ -24,7 +24,7 @@
     {{!ratingaverage}}
     {{#showpreviewbutton}}
         {{! block_eduvidual is a specific plugin for www.eduvidual.at. This code is for a special purpose, but the plugin also works without it. }}
-        <a href="{{wwwroot}}/course/view.php?id={{course}}" onclick="if (window.self !== window.top) { require(['block_eduvidual/jquery-ba-postmessage'], function(POST) { POST.post('noback|open_preview|{{course}}'); }); } else { window.open(this.href, '_system'); } return false;" class="btn btn-primary">{{#str}} preview {{/str}}</a>
+        <!-- <a href="{{wwwroot}}/course/view.php?id={{course}}" onclick="if (window.self !== window.top) { require(['block_eduvidual/jquery-ba-postmessage'], function(POST) { POST.post('noback|open_preview|{{course}}'); }); } else { window.open(this.href, '_system'); } return false;" class="btn btn-primary">{{#str}} preview {{/str}}</a> -->
     {{/showpreviewbutton}}
     {{^showpreviewbutton}}
         <br /><span id="{{uniqid}}-ratingcount">{{ratingcount}}</span> {{#str}} votes, block_edupublisher {{/str}}

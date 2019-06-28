@@ -25,6 +25,22 @@ defined('MOODLE_INTERNAL') || die;
 
 // We define the web service functions to install.
 $functions = array(
+    'block_edupublisher_init_import_load_courses' => array(
+        'classname'   => 'block_edupublisher_external',
+        'methodname'  => 'init_import_load_courses',
+        'classpath'   => 'blocks/edupublisher/externallib.php',
+        'description' => 'Loads all courses the user has trainer capabilities.',
+        'type'        => 'read',
+        'ajax'        => 1,
+    ),
+    'block_edupublisher_init_import_load_sections' => array(
+        'classname'   => 'block_edupublisher_external',
+        'methodname'  => 'init_import_load_sections',
+        'classpath'   => 'blocks/edupublisher/externallib.php',
+        'description' => 'Loads all section of a course the user is enrolled in.',
+        'type'        => 'read',
+        'ajax'        => 1,
+    ),
     'block_edupublisher_licence_generate' => array(
         'classname'   => 'block_edupublisher_external',
         'methodname'  => 'licence_generate',

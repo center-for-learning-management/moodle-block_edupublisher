@@ -1,6 +1,6 @@
 define(
-    ['jquery', 'core/ajax', 'core/notification', 'core/str', 'core/templates', 'core/url'],
-    function($, AJAX, NOTIFICATION, STR, TEMPLATES, URL) {
+    ['jquery', 'core/ajax', 'core/notification', 'core/str', 'core/templates', 'core/url', 'core/modal_factory', 'core/modal_events'],
+    function($, AJAX, NOTIFICATION, STR, TEMPLATES, URL, ModalFactory, ModalEvents) {
     return {
         searchid: 0, // Ensures that only the last search is shown.
         loadpositions: {},
@@ -43,6 +43,98 @@ define(
                     }
                 ).fail(NOTIFICATION.exception);
             }
+        },
+        initImportSelection: function(packageid) {
+            ModalFactory.create({
+                title: '',
+                body: TEMPLATES.render('block_edupublisher/init_import_selection', { packageid: packageid }),
+            }).done(function(modal) {
+                modal.show();
+            });
+        },
+        initImportLoadGo: function(uniqid) {
+            var courseid = $('#courseid-' + uniqid).val();
+            var packageid = $('#packageid-' + uniqid).val();
+            var sectionid = $('#sectionid-' + uniqid).val();
+            top.location.href = URL.fileUrl("/blocks/edupublisher/pages/import.php", "?package=" + packageid + "&course=" + courseid + "&section=" + sectionid);
+        },
+        initImportLoadCourses: function(uniqid, initial) {
+            $('#courseid-' + uniqid).empty().attr('disabled', 'disabled');
+            $('#sectionid-' + uniqid).empty().attr('disabled', 'disabled');
+            STR.get_strings([
+                    {'key' : 'loading', component: 'core' },
+                ]).done(function(s) {
+                    $('#courseid-' + uniqid + ', #sectionid-' + uniqid).append($('<option>').html(s[0]));
+                    AJAX.call([{
+                        methodname: 'block_edupublisher_init_import_load_courses',
+                        args: { },
+                        done: function(result) {
+                            console.log('Result', result);
+                            var result = JSON.parse(result);
+                            $('#courseid-' + uniqid).empty();
+                            if (typeof result.courses !== 'undefined' && Object.keys(result.courses).length > 0) {
+                                $('#courseid-' + uniqid).removeAttr('disabled');
+                                var first = 0;
+                                Object.keys(result.courses).forEach(function(courseid) {
+                                    var c = result.courses[courseid];
+                                    $('#courseid-' + uniqid).append($('<option>').attr('value', c.id).html(c.fullname));
+                                    if (first == 0 && typeof initial !== 'undefined') {
+                                        first = c.id;
+                                    }
+                                });
+                                MAIN.initImportLoadSections(uniqid);
+                            } else {
+                                STR.get_strings([
+                                        {'key' : 'error', component: 'core' },
+                                    ]).done(function(s) {
+                                        $('#courseid-' + uniqid).append($('<option>').html(s[0]));
+                                        $('#sectionid-' + uniqid).append($('<option>').html(s[0]));
+                                    }
+                                ).fail(NOTIFICATION.exception);
+                            }
+                        },
+                        fail: NOTIFICATION.exception
+                    }]);
+                }
+            ).fail(NOTIFICATION.exception);
+        },
+        initImportLoadSections: function(uniqid) {
+            $('#courseid-' + uniqid);
+            $('#sectionid-' + uniqid).empty().attr('disabled', 'disabled');
+            STR.get_strings([
+                    {'key' : 'loading', component: 'core' },
+                ]).done(function(s) {
+                    $('#sectionid-' + uniqid).append($('<option>').html(s[0]));
+                    AJAX.call([{
+                        methodname: 'block_edupublisher_init_import_load_sections',
+                        args: { courseid: +$('#courseid-' + uniqid).val() },
+                        done: function(result) {
+                            console.log('Result', result);
+                            var result = JSON.parse(result);
+                            $('#sectionid-' + uniqid).empty();
+                            if (typeof result.sections !== 'undefined' && Object.keys(result.sections).length > 0) {
+                                $('#sectionid-' + uniqid).removeAttr('disabled');
+                                var i = 0;
+                                Object.keys(result.sections).forEach(function(sectionid) {
+                                    var s = result.sections[sectionid];
+                                    if (!s.name) s.name = "#" + (i + 1);
+                                    // sectionnr, not sectionid !!
+                                    $('#sectionid-' + uniqid).append($('<option>').attr('value', i).html(s.name));
+                                    i++;
+                                });
+                            } else {
+                                STR.get_strings([
+                                        {'key' : 'error', component: 'core' },
+                                    ]).done(function(s) {
+                                        $('#sectionid-' + uniqid).append($('<option>').html(s[0]));
+                                    }
+                                ).fail(NOTIFICATION.exception);
+                            }
+                        },
+                        fail: NOTIFICATION.exception
+                    }]);
+                }
+            ).fail(NOTIFICATION.exception);
         },
         preparePackageForm: function(channels) {
             console.log('MAIN.preparePackageForm(channels)', channels);

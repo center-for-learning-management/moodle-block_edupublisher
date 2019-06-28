@@ -25,6 +25,7 @@ $string['pluginname'] = 'eduPublisher';
 $string['page:publisher'] = 'veröffentlichen';
 
 $string['action'] = 'Aktion';
+$string['after_section'] = 'Nach Abschnitt einfügen';
 $string['by'] = 'von';
 $string['category'] = 'Kategorie';
 $string['category_help'] = 'Geben Sie hier die Kategorie ein, in der veröffentlichte Kurse hinterlegt werden sollen.';
@@ -145,6 +146,7 @@ $string['fieldhelptext'] = 'Hilfetext';
 $string['fieldname'] = 'Name';
 $string['fieldtype'] = 'Typ';
 $string['go_back_to_dashboard'] = 'Zurück zum Dashboard';
+$string['initialize_import'] = 'Lernpaket verwenden';
 $string['issued_by_user'] = 'Veröffentlicht von Nutzer/in ';
 
 $string['licence'] = 'Lizenz';

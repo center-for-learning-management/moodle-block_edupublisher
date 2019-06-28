@@ -25,6 +25,7 @@ $string['pluginname'] = 'edupublisher';
 $string['page:publisher'] = 'Publish';
 
 $string['action'] = 'Action';
+$string['after_section'] = 'Place after section';
 $string['by'] = 'by';
 $string['category'] = 'Category';
 $string['category_help'] = 'Enter the category id here where published courses will be created';
@@ -145,6 +146,7 @@ $string['fieldhelptext'] = 'Helptext';
 $string['fieldname'] = 'Name';
 $string['fieldtype'] = 'Type';
 $string['go_back_to_dashboard'] = 'Go back zu Dashboard';
+$string['initialize_import'] = 'Use package';
 $string['issued_by_user'] = 'Published by';
 
 $string['licence'] = 'Licence';
