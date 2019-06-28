@@ -45,12 +45,17 @@ define(
             }
         },
         initImportSelection: function(packageid) {
-            ModalFactory.create({
-                title: '',
-                body: TEMPLATES.render('block_edupublisher/init_import_selection', { packageid: packageid }),
-            }).done(function(modal) {
-                modal.show();
-            });
+            STR.get_strings([
+                    {'key' : 'import', component: 'core' },
+                ]).done(function(s) {
+                    ModalFactory.create({
+                        title: s[0],
+                        body: TEMPLATES.render('block_edupublisher/init_import_selection', { packageid: packageid }),
+                    }).done(function(modal) {
+                        modal.show();
+                    });
+                }
+            ).fail(NOTIFICATION.exception);
         },
         initImportLoadGo: function(uniqid) {
             var courseid = $('#courseid-' + uniqid).val();
