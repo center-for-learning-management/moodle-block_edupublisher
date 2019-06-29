@@ -208,7 +208,8 @@ class block_edupublisher extends block_list {
     **/
     public static function get_package($id, $withmetadata = false, $withdetails = array()) {
         global $CFG, $DB, $USER;
-        $package = (object)array('id' => 0, 'course' => 0, 'sourcecourse' => 0, 'channels' => '', 'title' => '', 'userid' => $USER->id, 'created' => time(), 'modified' => time());
+        $package = (object)array('id' => 0, 'course' => 0, 'sourcecourse' => 0, 'channels' => '', 'title' => '', 
+            'userid' => $USER->id, 'created' => time(), 'modified' => time());
         if ($id > 0) {
             $package = $DB->get_record('block_edupublisher_packages', array('id' => $id), '*', IGNORE_MISSING);
             if (empty($package->channels)) return (object) array('id' => $id, 'missing' => 1);
@@ -238,14 +239,19 @@ class block_edupublisher extends block_list {
             }
         }
         if (!empty($package->etapas_status)) {
-            $package->etapas_status_localized = get_string_manager()->string_exists('etapas_status_' . $package->etapas_status, 'block_edupublisher') ? get_string('etapas_status_' . $package->etapas_status, 'block_edupublisher') : $package->etapas_status;
+            $package->etapas_status_localized = get_string_manager()->string_exists('etapas_status_' . $package->etapas_status, 
+                'block_edupublisher') ? get_string('etapas_status_' . $package->etapas_status, 'block_edupublisher') : 
+                $package->etapas_status;
         }
         $package->wwwroot = $CFG->wwwroot;
         if (count($withdetails) == 0 || in_array('internal', $withdetails)) {
             $package->canedit = self::is_admin()
-                                || (isset($package->default_publishas) && $package->default_publishas && has_capability('block/edupublisher:managedefault', context_system::instance()))
-                                || (isset($package->etapas_publishas) && $package->etapas_publishas && has_capability('block/edupublisher:manageetapas', context_system::instance()))
-                                || (isset($package->eduthek_publishas) && $package->eduthek_publishas && has_capability('block/edupublisher:manageeduthek', context_system::instance()));
+                                || (isset($package->default_publishas) && $package->default_publishas && 
+                                    has_capability('block/edupublisher:managedefault', context_system::instance()))
+                                || (isset($package->etapas_publishas) && $package->etapas_publishas && 
+                                    has_capability('block/edupublisher:manageetapas', context_system::instance()))
+                                || (isset($package->eduthek_publishas) && $package->eduthek_publishas && 
+                                    has_capability('block/edupublisher:manageeduthek', context_system::instance()));
             $package->candelete = self::is_admin();
             $package->cantriggeractivedefault = self::is_maintainer(array('default'));
             $package->cantriggeractiveetapas = self::is_maintainer(array('etapas'));
@@ -289,7 +295,8 @@ class block_edupublisher extends block_list {
             $package->commercial_publisher_name = $publisher->name;
         }
         if (!empty($package->commercial_validation))  {
-            $package->commercial_validation_name = get_string('commercial_validate' . $package->commercial_validation, 'block_edupublisher');
+            $package->commercial_validation_name = get_string('commercial_validate' . $package->commercial_validation, 
+            'block_edupublisher');
         }
         return $package;
     }

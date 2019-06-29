@@ -66,7 +66,7 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         // Edupublisher savepoint reached.
         upgrade_block_savepoint(true, 2019021503, 'edupublisher');
     }
-    if ($oldversion < 2019050701) {
+    if ($oldversion < 2019062901) {
         // Define table block_edupublisher_pub to be created.
         $table = new xmldb_table('block_edupublisher_pub');
 
@@ -135,9 +135,9 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
 
         // Edupublisher savepoint reached.
-        upgrade_block_savepoint(true, 2019050701, 'edupublisher');
+        upgrade_block_savepoint(true, 2019062901, 'edupublisher');
     }
-    if ($oldversion < 2019050705) {
+    if ($oldversion < 2019062901) {
         // Define field publisherid to be added to block_edupublisher_lic.
         $table = new xmldb_table('block_edupublisher_lic');
         $field = new xmldb_field('publisherid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null, 'id');
@@ -162,7 +162,7 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
 
         // Edupublisher savepoint reached.
-        upgrade_block_savepoint(true, 2019050705, 'edupublisher');
+        upgrade_block_savepoint(true, 2019062901, 'edupublisher');
     }
 
 
