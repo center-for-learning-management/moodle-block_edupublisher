@@ -32,13 +32,13 @@ $id = optional_param('id', 0, PARAM_INT);
 $packageid = optional_param('packageid', 0, PARAM_INT);
 $perma = optional_param('perma', '', PARAM_TEXT);
 
-$url = $CFG->wwwroot . '/blocks/edupublisher/pages/evaluate.php?';
+$url = $CFG->wwwroot . '/blocks/edupublisher/pages/evaluation.php?';
 if (!empty($id)) $url .= '&id=' . $id;
 if (!empty($packageid)) $url .= '&packageid=' . $packageid;
 if (!empty($perma)) $url .= '&perma=' . $perma;
 $PAGE->set_url($url);
 
-$context = context_system::instance();
+$context = context_course::instance();
 
 $PAGE->set_context($context);
 $PAGE->set_title('eTapas Evaluation');
