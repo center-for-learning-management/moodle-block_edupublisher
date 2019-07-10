@@ -165,6 +165,40 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         upgrade_block_savepoint(true, 2019062901, 'edupublisher');
     }
 
+    if ($oldversion < 2019071000) {
+
+        $table = new xmldb_table('block_edupublisher_evaluatio');
+
+        // Adding fields to table block_edupublisher_evaluatio.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('evaluator_first_name', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('evaluator_last_name', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('e_tapa_name', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('e_tapa_link', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('evaluator_email', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('author_contact', XMLDB_TYPE_BINARY, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('evaluated_on', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('evaluated_at', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('comprehensible_description', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('suitable_workflow', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('reasonable_preconditions', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('correct_content', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('improvement_specification', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('technology_application', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('comments', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        // Adding keys to table block_edupublisher_evaluatio.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+
+        // Conditionally launch create table for block_edupublisher_evaluatio.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+                  
+        // Edupublisher savepoint reached.
+          upgrade_block_savepoint(true, 2019071000, 'edupublisher');
+      }
+  
 
     return true;
 }

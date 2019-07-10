@@ -38,7 +38,7 @@ if (!empty($packageid)) $url .= '&packageid=' . $packageid;
 if (!empty($perma)) $url .= '&perma=' . $perma;
 $PAGE->set_url($url);
 
-$context = context_course::instance();
+$context = context_course::instance($id);
 
 $PAGE->set_context($context);
 $PAGE->set_title('eTapas Evaluation');
