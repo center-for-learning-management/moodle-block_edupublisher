@@ -244,3 +244,6 @@ $string['augmentation'] = 'verbessert, sodass die Technologie einen Mehrwert geb
 $string['modification'] = 'stark verändert, das wäre ohne Technologie kaum möglich gewesen. (Modification)';
 $string['redefinition'] = 'komplett neu erfunden. Das war ohne Technologie undenkbar! (Redefinition)';
 $string['feedback'] = 'Persönliche Eindrücke, Feedback für den/die Autor/in';
+$string['evaluator_first_name'] = 'Vorname Bewerter/in';
+$string['evaluator_last_name'] = 'Nachname Bewerter/in';
+$string['evaluator_email'] = 'E-Mail Bewerter/in';

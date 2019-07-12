@@ -246,3 +246,7 @@ $string['augmentation'] = 'improved in a way that technology provided an added v
 $string['modification'] = 'drastically changed so that it would have been hard without technology (modification)';
 $string['redefinition'] = 'completely changed so that it would have been impossible without technology (redefinition)';
 $string['feedback'] = 'General feedback to the authors';
+$string['evaluator_first_name'] = 'Evaluator first name';
+$string['evaluator_last_name'] = 'Evaluator last name';
+$string['evaluator_email'] = 'Evaluator email';
+

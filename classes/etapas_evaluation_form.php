@@ -25,12 +25,69 @@ namespace block_edupublisher;
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir . "/formslib.php");
-
 class etapas_evaluation_form extends \moodleform {
     function definition() {
-        $mform = $this->_form;
+        global $USER;
+        if(isloggedin()  && !isguestuser()) {
+            $first_name = $USER->firstname;
+            $first_name_value = $first_name;
+        }
+        else {
+            $first_name = get_string('evaluator_first_name', 'block_edupublisher');
+            $first_name_value = '';
+        }
 
-        
+        if(isloggedin()  && !isguestuser()) {
+            $last_name = $USER->lastname;
+            $last_name_value = $last_name;
+        }
+        else {
+            $last_name = get_string('evaluator_last_name', 'block_edupublisher');
+            $last_name_value = '';
+        }
+
+        if(isloggedin()  && !isguestuser()) {
+            $email = $USER->email;
+            $email_value = $email;
+        }
+        else {
+            $email = get_string('evaluator_email', 'block_edupublisher');
+            $email_value = '';
+        }
+
+
+        $mform = $this->_form;  
+
+        $attributes=array('size' => '150', 
+                          'placeholder'=> $first_name,
+                          'maxlength' => '150',
+                          'value' => $first_name_value);
+        $mform->addElement('text', 'evaluator_first_name', get_string('evaluator_first_name', 'block_edupublisher'), $attributes);
+        $mform->setType('evaluator_first_name', PARAM_TEXT);
+        $mform->addRule('evaluator_first_name', get_string('required', 'block_edupublisher'), 'required', 'extraruledata', 'client', false, false);
+        $mform->addRule('evaluator_first_name', get_string('max_length', 'block_edupublisher'), 'maxlength', 150, 'client');
+       
+        $attributes=array('size' => '150', 
+                          'placeholder'=> $last_name,
+                          'maxlength' => '150',
+                          'required' => 'required',
+                          'value' => $last_name_value);
+        $mform->addElement('text', 'evaluator_last_name', get_string('evaluator_last_name', 'block_edupublisher'), $attributes);
+        $mform->setType('evaluator_last_name', PARAM_TEXT);
+        $mform->addRule('evaluator_last_name', get_string('required', 'block_edupublisher'), 'required', 'extraruledata', 'client', false, false);
+        $mform->addRule('evaluator_last_name', get_string('max_length', 'block_edupublisher'), 'maxlength', 150, 'client');
+
+        $attributes=array('size' => '150', 
+                          'placeholder'=> $email,
+                          'maxlength' => '150',
+                          'required' => 'required',
+                          'value' => $email);
+        $mform->addElement('text', 'evaluator_email', get_string('evaluator_email', 'block_edupublisher'), $attributes);
+        $mform->setType('evaluator_email', PARAM_TEXT);
+        $mform->addRule('evaluator_email', get_string('required', 'block_edupublisher'), 'required', 'extraruledata', 'client', false, false);
+        $mform->addRule('evaluator_email', get_string('max_length', 'block_edupublisher'), 'maxlength', 150, 'client');
+
+
         $radioarray=array();
         $radioarray[] = $mform->createElement('radio', 'yesno', '', 
             get_string('yes'), 1);
