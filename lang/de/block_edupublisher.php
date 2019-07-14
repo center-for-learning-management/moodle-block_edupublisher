@@ -247,3 +247,5 @@ $string['feedback'] = 'Persönliche Eindrücke, Feedback für den/die Autor/in';
 $string['evaluator_first_name'] = 'Vorname Bewerter/in';
 $string['evaluator_last_name'] = 'Nachname Bewerter/in';
 $string['evaluator_email'] = 'E-Mail Bewerter/in';
+$string['etapa_name'] = 'eTapa';
+$string['etapa_link'] = 'eTapa Link';

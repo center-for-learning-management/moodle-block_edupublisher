@@ -249,4 +249,5 @@ $string['feedback'] = 'General feedback to the authors';
 $string['evaluator_first_name'] = 'Evaluator first name';
 $string['evaluator_last_name'] = 'Evaluator last name';
 $string['evaluator_email'] = 'Evaluator email';
-
+$string['etapa_name'] = 'eTapa Name';
+$string['etapa_link'] = 'eTapa Link';

@@ -32,16 +32,16 @@ $id = optional_param('id', 0, PARAM_INT);
 $packageid = optional_param('packageid', 0, PARAM_INT);
 $perma = optional_param('perma', '', PARAM_TEXT);
 
-$url = $CFG->wwwroot . '/blocks/edupublisher/pages/evaluation.php?';
-if (!empty($id)) $url .= '&id=' . $id;
-if (!empty($packageid)) $url .= '&packageid=' . $packageid;
-if (!empty($perma)) $url .= '&perma=' . $perma;
+$url = $CFG->wwwroot . '/blocks/edupublisher/pages/evaluation.php';
+if (!empty($id)) $url .= '?&id=' . $id;
+if (!empty($packageid)) $url .= '?&packageid=' . $packageid;
+if (!empty($perma)) $url .= '?&perma=' . $perma;
 $PAGE->set_url($url);
 
-$context = context_course::instance($id);
-
-$PAGE->set_context($context);
+//$context = context_course::instance($id);
+$PAGE->set_context(context_system::instance());
 $PAGE->set_title('eTapas Evaluation');
+//$PAGE->set_course($id);
 $heading = get_string("etapas_evaluation", "block_edupublisher");
 $PAGE->set_heading($heading);
 $PAGE->set_pagelayout('incourse');
@@ -51,20 +51,26 @@ block_edupublisher::print_app_header();
 
 //Instantiate etapas_evaluation_form 
 $mform = new block_edupublisher\etapas_evaluation_form();
- 
+
 //Form processing and displaying is done here
 if ($mform->is_cancelled()) {
-    //Handle form cancel operation, if cancel button is present on form
-} else if ($fromform = $mform->get_data()) {
+    /*$url = $CFG->wwwroot . '/course/view.php?';
+    if (!empty($id)) $url .= '&id=' . $id;
+    if (!empty($packageid)) $url .= '&packageid=' . $packageid;
+    if (!empty($perma)) $url .= '&perma=' . $perma;*/
+    redirect("view.php?id={$id}");
+} else if ($dataobject = $mform->get_data()) {
   //In this case you process validated data. $mform->get_data() returns data posted in form.
+  $table = 'block_edupublisher_evaluatio';
+  $DB->insert_record($table, $dataobject, $returnid=true, $bulk=false);
+  echo('Your data has been successfully submitted');
+
 } else {
   // this branch is executed if the form is submitted but the data doesn't validate and the form should be redisplayed
   // or on the first display of the form.
- 
-  //Set default data (if any)
-  //$mform->set_data($toform);
-  //displays the form
   $mform->display();
+  
 }
+
 
 block_edupublisher::print_app_footer();
