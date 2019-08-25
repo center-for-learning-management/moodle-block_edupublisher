@@ -1189,8 +1189,8 @@ class block_edupublisher extends block_base {
             $tx = $option["title"];
             if (!empty($option["icon"])) $tx = "<img src='" . $option["icon"] . "' class='icon'>" . $tx;
             if (!empty($option["href"])) $tx = "
-                <a href='" . $option["href"] . "' " . ((!empty($option["onclick"])) ? " onclick='" . $option["onclick"] : "") . "
-                   " . ((!empty($option["target"])) ? " target='" . $option["target"] : "") . "'>" . $tx . "</a>";
+                <a href='" . $option["href"] . "' " . ((!empty($option["onclick"])) ? " onclick=\"" . $option["onclick"] . "\"" : "") . "
+                   " . ((!empty($option["target"])) ? " target=\"" . $option["target"] . "\"" : "") . "'>" . $tx . "</a>";
             else  $tx = "<a>" . $tx . "</a>";
             $this->content->text .= $tx . "<br />";
         }
