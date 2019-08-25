@@ -1,6 +1,6 @@
 define(
-    ['jquery', 'core/ajax', 'core/notification', 'core/str', 'core/templates', 'core/url'],
-    function($, AJAX, NOTIFICATION, STR, TEMPLATES, URL) {
+    ['jquery', 'core/ajax', 'core/notification', 'core/str', 'core/templates', 'core/url', 'core/modal_factory', 'core/modal_events'],
+    function($, AJAX, NOTIFICATION, STR, TEMPLATES, URL, ModalFactory, ModalEvents) {
     return {
         searchid: 0, // Ensures that only the last search is shown.
         loadpositions: {},
@@ -44,6 +44,103 @@ define(
                 ).fail(NOTIFICATION.exception);
             }
         },
+        initImportSelection: function(packageid) {
+            STR.get_strings([
+                    {'key' : 'import', component: 'core' },
+                ]).done(function(s) {
+                    ModalFactory.create({
+                        title: s[0],
+                        body: TEMPLATES.render('block_edupublisher/init_import_selection', { packageid: packageid }),
+                    }).done(function(modal) {
+                        modal.show();
+                    });
+                }
+            ).fail(NOTIFICATION.exception);
+        },
+        initImportLoadGo: function(uniqid) {
+            var courseid = $('#courseid-' + uniqid).val();
+            var packageid = $('#packageid-' + uniqid).val();
+            var sectionid = $('#sectionid-' + uniqid).val();
+            top.location.href = URL.fileUrl("/blocks/edupublisher/pages/import.php", "?package=" + packageid + "&course=" + courseid + "&section=" + sectionid);
+        },
+        initImportLoadCourses: function(uniqid, initial) {
+            $('#courseid-' + uniqid).empty().attr('disabled', 'disabled');
+            $('#sectionid-' + uniqid).empty().attr('disabled', 'disabled');
+            STR.get_strings([
+                    {'key' : 'loading', component: 'core' },
+                ]).done(function(s) {
+                    $('#courseid-' + uniqid + ', #sectionid-' + uniqid).append($('<option>').html(s[0]));
+                    AJAX.call([{
+                        methodname: 'block_edupublisher_init_import_load_courses',
+                        args: { },
+                        done: function(result) {
+                            console.log('Result', result);
+                            var result = JSON.parse(result);
+                            $('#courseid-' + uniqid).empty();
+                            if (typeof result.courses !== 'undefined' && Object.keys(result.courses).length > 0) {
+                                $('#courseid-' + uniqid).removeAttr('disabled');
+                                var first = 0;
+                                Object.keys(result.courses).forEach(function(courseid) {
+                                    var c = result.courses[courseid];
+                                    $('#courseid-' + uniqid).append($('<option>').attr('value', c.id).html(c.fullname));
+                                    if (first == 0 && typeof initial !== 'undefined') {
+                                        first = c.id;
+                                    }
+                                });
+                                MAIN.initImportLoadSections(uniqid);
+                            } else {
+                                STR.get_strings([
+                                        {'key' : 'error', component: 'core' },
+                                    ]).done(function(s) {
+                                        $('#courseid-' + uniqid).append($('<option>').html(s[0]));
+                                        $('#sectionid-' + uniqid).append($('<option>').html(s[0]));
+                                    }
+                                ).fail(NOTIFICATION.exception);
+                            }
+                        },
+                        fail: NOTIFICATION.exception
+                    }]);
+                }
+            ).fail(NOTIFICATION.exception);
+        },
+        initImportLoadSections: function(uniqid) {
+            $('#courseid-' + uniqid);
+            $('#sectionid-' + uniqid).empty().attr('disabled', 'disabled');
+            STR.get_strings([
+                    {'key' : 'loading', component: 'core' },
+                ]).done(function(s) {
+                    $('#sectionid-' + uniqid).append($('<option>').html(s[0]));
+                    AJAX.call([{
+                        methodname: 'block_edupublisher_init_import_load_sections',
+                        args: { courseid: +$('#courseid-' + uniqid).val() },
+                        done: function(result) {
+                            console.log('Result', result);
+                            var result = JSON.parse(result);
+                            $('#sectionid-' + uniqid).empty();
+                            if (typeof result.sections !== 'undefined' && Object.keys(result.sections).length > 0) {
+                                $('#sectionid-' + uniqid).removeAttr('disabled');
+                                var i = 0;
+                                Object.keys(result.sections).forEach(function(sectionid) {
+                                    var s = result.sections[sectionid];
+                                    if (!s.name) s.name = "#" + (i + 1);
+                                    // sectionnr, not sectionid !!
+                                    $('#sectionid-' + uniqid).append($('<option>').attr('value', i).html(s.name));
+                                    i++;
+                                });
+                            } else {
+                                STR.get_strings([
+                                        {'key' : 'error', component: 'core' },
+                                    ]).done(function(s) {
+                                        $('#sectionid-' + uniqid).append($('<option>').html(s[0]));
+                                    }
+                                ).fail(NOTIFICATION.exception);
+                            }
+                        },
+                        fail: NOTIFICATION.exception
+                    }]);
+                }
+            ).fail(NOTIFICATION.exception);
+        },
         preparePackageForm: function(channels) {
             console.log('MAIN.preparePackageForm(channels)', channels);
             require(["jquery"], function($) {
@@ -79,7 +176,7 @@ define(
                         console.log('Doing search via ajax for', $(o.target).val(), MAIN.searchid, searchid);
                         AJAX.call([{
                             methodname: 'block_edupublisher_search',
-                            args: { search: $(o.target).val() },
+                            args: { courseid: courseid, search: $(o.target).val() },
                             done: function(result) {
                                 if (MAIN.searchid != searchid) {
                                     console.log(' => Got response for searchid ', searchid, ' but it is not the current search', MAIN.searchid);
@@ -192,6 +289,85 @@ define(
                 }).fail(function(ex) {
                     console.error(ex);
                 });
+        },
+        storePublisher: function(uniqid, sender) {
+            var self = this;
+            var active = $('#active-' + uniqid).prop('checked') ? 1 : 0;
+            var id = parseInt($('#id-' + uniqid).val());
+            var name = $('#name-' + uniqid).val();
+            if (name.length == 0) return;
+            var data = { active: active, id: id, name: name };
+            console.log(data, sender);
+            AJAX.call([{
+                methodname: 'block_edupublisher_store_publisher',
+                args: data,
+                done: function(result) {
+                    try {
+                        result = JSON.parse(result);
+                        var publishers = Object.keys(result);
+                        self.triggerConfirm($(sender).closest('tr'), 1, 'success');
+                        for (var a = 0; a < publishers.length; a++) {
+                            var publisher = result[publishers[a]];
+                            var form = $('#publisher-' + publisher.id);
+                            if (form.length == 0) {
+                                var form = $('#publisher-0').attr('id', 'publisher-' + publisher.id);
+                                var uniqid = $(form).attr('data-uniqid');
+                                $(form).find('#id-' + uniqid).val(publisher.id);
+                                $(form).find('#edit-' + uniqid + '>*').css('opacity', 1).attr('href', '/blocks/edupublisher/pages/publishers.php?id=' + publisher.id);
+                                TEMPLATES.render('block_edupublisher/publisher', { id: 0, name: '' })
+                                        .then(function(html, js) {
+                                            $(html).insertAfter($('.edupublisher-publishers').last());
+                                        }).fail(function(ex) {
+                                            NOTIFICATION.exception(ex);
+                                        });
+                            } else {
+                                // This is an existing item, update it.
+                                var uniqid = $(form).attr('data-uniqid');
+                                $(form).find('#active-' + uniqid).prop('checked', publisher.active);
+                                $(form).find('#name-' + uniqid).val(publisher.name);
+                            }
+
+                        }
+                    } catch(e) {
+                        console.error('Invalid response');
+                        self.triggerConfirm($(sender).closest('tr'), 1, 'error');
+                    }
+                },
+                fail: NOTIFICATION.exception
+            }]);
+        },
+        storePublisherUsers: function(uniqid, action) {
+            var self = this;
+
+            var publisherid = $('#publisherid-' + uniqid).val();
+            var userids = '';
+            if (action == 'add') {
+                userids = $('#userids-' + uniqid).val();
+            }
+            if (action == 'remove') {
+                userids = $('#users-' + uniqid).val().join(' ');
+            }
+            var data = { action: action, publisherid: publisherid, userids: userids };
+            console.log(data);
+            AJAX.call([{
+                methodname: 'block_edupublisher_store_publisher_user',
+                args: data,
+                done: function(result) {
+                    try {
+                        result = JSON.parse(result);
+                        console.log('Response', result);
+                        var sel = $('#users-' + uniqid).empty();
+                        var users = Object.keys(result);
+                        for (var a = 0; a < users.length; a++) {
+                            var user = result[users[a]];
+                            $(sel).append($('<option>').attr('value', user.id).html(user.fullname));
+                        }
+                    } catch(e) {
+                        console.error('Invalid response', e, result);
+                    }
+                },
+                fail: NOTIFICATION.exception
+            }]);
         },
         triggerActive: function(packageid, type, sender){
             var self = this;

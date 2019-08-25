@@ -360,6 +360,31 @@ class block_edupublisher extends block_base {
         return (object) array('imagename' => $imagename, 'imagepath' => $imagepath);
     }
     /**
+     * Returns a list of courses from a user
+     * Note: teacher is identified by capability 'moodle/course:update'
+     * @param user User-Object, if empty use $USER.
+     * @param capability to search.
+     */
+    public static function get_courses($user = null, $capability = '') {
+        if (empty($user)) {
+            global $USER;
+            $user = $USER;
+        }
+        $courses = enrol_get_all_users_courses($USER->id, true);
+        if (!empty($capability)) {
+            return $courses;
+        } else {
+            $ids = array_keys($courses);
+            foreach($ids AS $id) {
+                $context = context_course::instance($id);
+                $canedit = has_capability($capability, $context);
+                if (!$canedit) delete($courses[$id]);
+            }
+            return $courses;
+        }
+    }
+
+    /**
      * @return true if user is sysadmin
     **/
     public static function is_admin() {
@@ -1109,6 +1134,15 @@ class block_edupublisher extends block_base {
                 //"href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
                 "icon" => '/pix/i/scales.svg',
             );
+            $courses = self::get_courses(null, 'moodle/course:update');
+            if (count(array_keys($courses)) > 0) {
+                $options[] = array(
+                    "title" => get_string('initialize_import', 'block_edupublisher'),
+                    "href" => "#",
+                    "icon" => '/pix/i/import.svg',
+                    "onclick" => 'require([\'block_edupublisher/main\'], function(MAIN) { MAIN.initImportSelection(' . $package->id . '); }); return false;',
+                );
+            }
         } elseif($canedit) {
             $options[] = array(
                 "title" => get_string('publish_new_package', 'block_edupublisher'),
@@ -1154,8 +1188,10 @@ class block_edupublisher extends block_base {
         foreach($options AS $option) {
             $tx = $option["title"];
             if (!empty($option["icon"])) $tx = "<img src='" . $option["icon"] . "' class='icon'>" . $tx;
-            if (!empty($option["href"])) $tx = "<a href='" . $option["href"] . "' class='btn' " . ((!empty($option["target"])) ? " target='" . $option["target"] : "") . "'>" . $tx . "</a>";
-            else  $tx = "<a class='btn'>" . $tx . "</a>";
+            if (!empty($option["href"])) $tx = "
+                <a href='" . $option["href"] . "' " . ((!empty($option["onclick"])) ? " onclick='" . $option["onclick"] : "") . "
+                   " . ((!empty($option["target"])) ? " target='" . $option["target"] : "") . "'>" . $tx . "</a>";
+            else  $tx = "<a>" . $tx . "</a>";
             $this->content->text .= $tx . "<br />";
         }
         return $this->content;

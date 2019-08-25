@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/edupublisher/db" VERSION="20180628" COMMENT="XMLDB file for Moodle blocks/edupublisher"
+<XMLDB PATH="blocks/edupublisher/db" VERSION="20190525" COMMENT="XMLDB file for Moodle blocks/edupublisher"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -28,8 +28,8 @@
         <FIELD NAME="content" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was created"/>
         <FIELD NAME="permahash" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="hashcode for permalink without login"/>
-        <FIELD NAME="isautocomment" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="whether this is an autotext (1) or not (0)"/>
-        <FIELD NAME="ispublic" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" DEFAULT="0" COMMENT="whether this is public (1) or not (0)"/>
+        <FIELD NAME="isautocomment" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="whether this is an autotext (1) or not (0)"/>
+        <FIELD NAME="ispublic" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="whether this is public (1) or not (0)"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -75,6 +75,57 @@
         <FIELD NAME="package" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="ID of resource in block_edupublisher_packages"/>
         <FIELD NAME="targetcourse" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Course where the package was imported to"/>
         <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was created"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="block_edupublisher_pub" COMMENT="Publishers that can distribute commercial content.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="name" TYPE="char" LENGTH="250" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="triggers if active or not"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="block_edupublisher_pub_user" COMMENT="Users of various publishers">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="publisherid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+    </TABLE>
+    <TABLE NAME="block_edupublisher_lic" COMMENT="Licence-Codes and their settings">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="publisherid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="ID of publisher"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false" COMMENT="User who created the licence key"/>
+        <FIELD NAME="licencekey" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="The licence-key itself"/>
+        <FIELD NAME="type" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1 ... collection, 2 ... pool"/>
+        <FIELD NAME="target" TYPE="int" LENGTH="3" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="1 ... org | 2 ... course | 3 ... user"/>
+        <FIELD NAME="redeemid" TYPE="int" LENGTH="20" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="ID of object that redeemed this licence (userid, courseid or orgid)"/>
+        <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was created"/>
+        <FIELD NAME="maturity" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it will become invalid automatically"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+          <INDEX NAME="licencekey" UNIQUE="true" FIELDS="licencekey" HINTS="licencekeyscanonlyexistonce"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="block_edupublisher_lic_pack" COMMENT="Packages that are linked to a licence.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="packageid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="licenceid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="amounts" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="-1" SEQUENCE="false" COMMENT="how often this licence can be used. -1 means infinite, 0 means it is exhausted, number above 0 indicates amount."/>
+        <FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="1 ... active, 0 ... inactive. Is active until all amounts from block_edupublisher_lic are -1."/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

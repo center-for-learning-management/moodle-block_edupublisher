@@ -25,7 +25,7 @@ define('NO_OUTPUT_BUFFERING', true);
 require_once('../../../config.php');
 require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
-$course = required_param('courseid', PARAM_INT);
+$course = optional_param('courseid', 0, PARAM_INT);
 $section = optional_param('sectionid', -1, PARAM_INT); // This refers to section id, not number!
 $search = optional_param('search', '', PARAM_TEXT);
 $layout = optional_param('layout', 'incourse', PARAM_TEXT);
@@ -49,9 +49,13 @@ if ($section == -1 && $sectionno > -1) {
     }
 }
 
-$context = context_course::instance($course);
+if (!empty($course)) {
+    $context = context_course::instance($course);
+} else {
+    $context = context_system::instance();
+}
 
-require_login(get_course($course));
+require_login();
 // Set up the page
 $PAGE->set_title(get_string('search'));
 $PAGE->set_heading(get_string('search'));

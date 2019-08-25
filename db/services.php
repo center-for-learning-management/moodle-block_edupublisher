@@ -25,6 +25,54 @@ defined('MOODLE_INTERNAL') || die;
 
 // We define the web service functions to install.
 $functions = array(
+    'block_edupublisher_init_import_load_courses' => array(
+        'classname'   => 'block_edupublisher_external',
+        'methodname'  => 'init_import_load_courses',
+        'classpath'   => 'blocks/edupublisher/externallib.php',
+        'description' => 'Loads all courses the user has trainer capabilities.',
+        'type'        => 'read',
+        'ajax'        => 1,
+    ),
+    'block_edupublisher_init_import_load_sections' => array(
+        'classname'   => 'block_edupublisher_external',
+        'methodname'  => 'init_import_load_sections',
+        'classpath'   => 'blocks/edupublisher/externallib.php',
+        'description' => 'Loads all section of a course the user is enrolled in.',
+        'type'        => 'read',
+        'ajax'        => 1,
+    ),
+    'block_edupublisher_licence_generate' => array(
+        'classname'   => 'block_edupublisher_external',
+        'methodname'  => 'licence_generate',
+        'classpath'   => 'blocks/edupublisher/externallib.php',
+        'description' => 'Generate licences for a publisher and prevent duplicates, BUT NOT STORE THEM!',
+        'type'        => 'read',
+        'ajax'        => 1,
+    ),
+    'block_edupublisher_licence_generatenow' => array(
+        'classname'   => 'block_edupublisher_external',
+        'methodname'  => 'licence_generatenow',
+        'classpath'   => 'blocks/edupublisher/externallib.php',
+        'description' => 'Write generated licencekeys to database - prevents duplicates!',
+        'type'        => 'write',
+        'ajax'        => 1,
+    ),
+    'block_edupublisher_licence_list' => array(
+        'classname'   => 'block_edupublisher_external',
+        'methodname'  => 'licence_list',
+        'classpath'   => 'blocks/edupublisher/externallib.php',
+        'description' => 'Lists all licences of a publisher',
+        'type'        => 'read',
+        'ajax'        => 1,
+    ),
+    'block_edupublisher_licence_redeem' => array(
+        'classname'   => 'block_edupublisher_external',
+        'methodname'  => 'licence_redeem',
+        'classpath'   => 'blocks/edupublisher/externallib.php',
+        'description' => 'Retrieves the licencetype for a licencekey',
+        'type'        => 'read',
+        'ajax'        => 1,
+    ),
     'block_edupublisher_list' => array(
         'classname'   => 'block_edupublisher_external',
         'methodname'  => 'list',
@@ -46,6 +94,22 @@ $functions = array(
         'classpath'   => 'blocks/edupublisher/externallib.php',
         'description' => 'Performs a search based on a search string',
         'type'        => 'read',
+        'ajax'        => 1,
+    ),
+    'block_edupublisher_store_publisher' => array(
+        'classname'   => 'block_edupublisher_external',
+        'methodname'  => 'store_publisher',
+        'classpath'   => 'blocks/edupublisher/externallib.php',
+        'description' => 'Stores information for a publisher',
+        'type'        => 'write',
+        'ajax'        => 1,
+    ),
+    'block_edupublisher_store_publisher_user' => array(
+        'classname'   => 'block_edupublisher_external',
+        'methodname'  => 'store_publisher_user',
+        'classpath'   => 'blocks/edupublisher/externallib.php',
+        'description' => 'Add or remove users to/from a publisher',
+        'type'        => 'write',
         'ajax'        => 1,
     ),
     'block_edupublisher_trigger_active' => array(

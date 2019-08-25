@@ -54,7 +54,7 @@
                 </div>
             </th>
         </tr>
-        {{#cantriggeractive}}
+        {{#cantriggeractivedefault}}
         <tr>
             <td colspan="2">
                 <label>
@@ -65,7 +65,7 @@
                 </label>
             </td>
         </tr>
-        {{/cantriggeractive}}
+        {{/cantriggeractivedefault}}
         <tr>
             <td>
                 <a href="{{wwwroot}}/course/view.php?id={{course}}" target="_blank">
@@ -171,6 +171,38 @@
     </table>
 </div>
 {{/eduthek_publishas}}
+{{#commercial_publishas}}
+<div id="channel-commercial" class="channel-block{{^commercial_active}} channel-inactive{{/commercial_active}}">
+    <table border="0" width="100%">
+        <tr><th colspan="2">{{#str}} commercial_header, block_edupublisher {{/str}}</th></tr>
+        {{#cantriggeractivecommercial}}
+        <tr>
+            <td colspan="2">
+                <label>
+                    <input type="checkbox"{{#commercial_active}} checked="checked"{{/commercial_active}}
+                           onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'commercial', chkbox); } );" />
+                    {{#str}} commercial_trigger_active, block_edupublisher {{/str}}
+                </label>
+            </td>
+        </tr>
+        {{/cantriggeractivecommercial}}
+        <tr>
+            <th>{{#str}} commercial_publisher, block_edupublisher {{/str}}</th>
+            <td>{{commercial_publisher_name}}</td>
+        </tr>
+        {{#commercial_shoplink}}
+            <tr>
+                <th>{{#str}} commercial_shoplink, block_edupublisher {{/str}}</th>
+                <td>{{commercial_shoplink}}</td>
+            </tr>
+        {{/commercial_shoplink}}
+        <tr>
+            <th>{{#str}} commercial_validation, block_edupublisher {{/str}}</th>
+            <td>{{commercial_validation_name}}</td>
+        </tr>
+    </table>
+</div>
+{{/commercial_publishas}}
 {{#origins}}
     <li>based on {{title}}</li>
 {{/origins}}
