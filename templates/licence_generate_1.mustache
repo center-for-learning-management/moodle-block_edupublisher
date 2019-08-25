@@ -1,0 +1,181 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+<a href="/blocks/edupublisher/pages/licence.php?publisherid={{publisherid}}" class="btn btn-secondary">
+    {{#str}} licence_back_to_dashboard, block_edupublisher {{/str}}
+</a>
+<div id="{{uniqid}}" class="ui-edupublisher"><div>
+    <form method="POST" action="/blocks/edupublisher/pages/licence.php" enctype="multipart/form-data" beforesubmit="require(['block_edupublisher/licence'], function(LICENCE) { LICENCE.generateStepSubmit('{{uniqid}}', {{step}}); })">
+        <input type="hidden" name="publisherid" value="{{publisherid}}" />
+        <input type="hidden" name="action" value="{{action}}" />
+        <input type="hidden" id="type-{{uniqid}}" name="type" value="{{type}}" />
+        <input name="target" id="id_target-{{uniqid}}" type="hidden" value="{{target}}">
+
+        {{#type_1}}
+            <h3>{{#str}} licence_collection, block_edupublisher {{/str}}</h3>
+            <p>{{#str}} licence_collection_desc, block_edupublisher {{/str}}</p>
+        {{/type_1}}
+        {{#type_2}}
+            <h3>{{#str}} licence_pool, block_edupublisher {{/str}}</h3>
+            <p>{{#str}} licence_pool_desc, block_edupublisher {{/str}}</p>
+        {{/type_2}}
+
+        <h4>{{#str}} licence_target, block_edupublisher {{/str}}</h4>
+        <p>{{#str}} licence_target_desc, block_edupublisher {{/str}}</p>
+        <div class="grid-eq-3">
+            {{#useseduvidual}}
+            <div style="text-align: center;">
+                <input type="radio" name="target" value="1" id="id_target_choice-1" style="display: none; width: 30px;" {{#target_1}} checked="checked" {{/target_1}}
+                       onclick="require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('1'); });" />
+                <a href="#" class="btn btn-secondary licence-object target {{uniqid}}{{#target_1}} active {{/target_1}}"
+                    onclick="var a = this; require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('1'); $('#id_target_choice-1').prop('checked', true); $('.licence-object.target.{{uniqid}}').removeClass('active'); $(a).addClass('active'); }); return false;">
+                    <img src="/blocks/edupublisher/pix/licence_target_school.png" style="display: inline-block; height: 80px; width: 80px;" />
+                    <h3>{{#str}} licence_target_org, block_edupublisher {{/str}}</h3>
+                </a>
+            </div>
+            {{/useseduvidual}}
+            <div style="text-align: center;">
+                <input type="radio" name="target" value="2" id="id_target_choice-2" style="display: none; width: 30px;" {{#target_2}} checked="checked" {{/target_2}}
+                       onclick="require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('2'); });" />
+                <a href="#" class="btn btn-secondary licence-object target {{uniqid}}{{#target_2}} active {{/target_2}}"
+                    onclick="var a = this; require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('2'); $('#id_target_choice-2').prop('checked', true); $('.licence-object.target.{{uniqid}}').removeClass('active'); $(a).addClass('active'); }); return false;">
+                    <img src="/blocks/edupublisher/pix/licence_target_course.png" style="display: inline-block; height: 80px; width: 80px;" />
+                    <h3>{{#str}} licence_target_course, block_edupublisher {{/str}}</h3>
+                </a>
+            </div>
+            <div style="text-align: center;">
+                <input type="radio" name="target" value="3" id="id_target_choice-3" style="display: none; width: 30px;" {{#target_3}} checked="checked" {{/target_3}}
+                       onclick="require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('3'); });" />
+                <a href="#" class="btn btn-secondary licence-object target {{uniqid}}{{#target_3}} active {{/target_3}}"
+                    onclick="var a = this; require(['jquery'], function($) { $('#id_target-{{uniqid}}').val('3'); $('#id_target_choice-3').prop('checked', true); $('.licence-object.target.{{uniqid}}').removeClass('active'); $(a).addClass('active'); }); return false;">
+                    <img src="/blocks/edupublisher/pix/licence_target_user.png" style="display: inline-block; height: 80px; width: 80px;" />
+                    <h3>{{#str}} licence_target_user, block_edupublisher {{/str}}</h3>
+                </a>
+            </div>
+        </div>
+
+        {{#type_2}}
+        <div id="fitem_id_amount-{{uniqid}}" class="form-group row  fitem   ">
+            <div class="col-md-3">
+                <span class="float-sm-right text-nowrap">
+                </span>
+                <label class="col-form-label d-inline " for="id_amount-{{uniqid}}">
+                    {{#str}} licence_amount, block_edupublisher {{/str}}
+                    <br /><small><i>{{#str}} licence_amount_hint, block_edupublisher {{/str}}</i></small>
+                </label>
+            </div>
+            <div class="col-md-9 form-inline felement">
+                <input id="id_amount-{{uniqid}}" name="amounts" type="number" min="-1" value="{{amounts}}" />
+            </div>
+        </div>
+        {{/type_2}}
+
+        <h4>{{#str}} licence_packages, block_edupublisher {{/str}}</h4>
+        {{#type_1}}
+            <p>{{#str}} licence_amount_hint, block_edupublisher {{/str}}</p>
+        {{/type_1}}
+
+        {{#packages}}
+        <table class="licence_package line btn btn-secondary" style="cursor: unset;" width="100%">
+            <tbody>
+                <tr>
+                    <th colspan="2" style="text-align: left;">
+                        <a href="/course/view.php?id={{course}}" target="_blank">{{#pix}} i/info, core {{/pix}}</a>
+                        {{title}}
+                    </th>
+                </tr>
+                <tr height="100">
+                    <td width="100">
+                        <input type="checkbox" id="id_package_{{uniqid}}_{{id}}" name="packages[{{id}}]" class="package_choice" {{#_isselected}} checked="checked" {{/_isselected}}
+                               value="1" style="display: none;" />
+                        {{#type_1}}
+                            <img src="{{default_image}}" style="height: 100px; width: 100px;" />
+                        {{/type_1}}
+                        {{#type_2}}
+                        <a href="#" class="btn btn-secondary"
+                            onclick="require(['block_edupublisher/licence'], function(LICENCE) { $('#id_package_{{uniqid}}_{{id}}').prop('checked', !$('#id_package_{{uniqid}}_{{id}}').prop('checked')); LICENCE.generateStepUi('{{uniqid}}', {{step}})}); return false;">
+                            <img src="{{default_image}}" style="height: 100px; width: 100px;" />
+                        </a>
+                        {{/type_2}}
+                    </td>
+                    <td>
+                        <i>{{{default_summary}}}</i>
+                    </td>
+                </tr>
+                {{#type_1}}
+                <tr>
+                    <td>
+                        <input type="number" min="-1" name="packages_amount[{{id}}]" class="package_amount" value="{{amount}}"
+                               onchange="require(['block_edupublisher/licence'], function(LICENCE) { LICENCE.generateStepUi('{{uniqid}}', {{step}})});" />
+                   </td>
+                   <td class="package_amount_lbl">
+                    </td>
+                </tr>
+                {{/type_1}}
+            </tbody>
+        </table>
+        {{/packages}}
+        <!--
+        <div id="fitem_id_packages-{{uniqid}}" class="form-group row  fitem   ">
+            <div class="col-md-3">
+                <span class="float-sm-right text-nowrap">
+                </span>
+                <label class="col-form-label d-inline " for="id_packages-{{uniqid}}">
+                    {{#str}} licence_packages, block_edupublisher {{/str}}
+                    {{#type_1}}
+                        <br /><small><i>{{#str}} licence_amount_hint, block_edupublisher {{/str}}</i></small>
+                    {{/type_1}}
+                </label>
+            </div>
+            <div class="col-md-9 form-inline felement">
+                <table border="0" width="100%">
+                {{#packages}}
+                    <tr class="line">
+                        <td width="50">
+                            <input type="checkbox" id="id_package_{{id}}" name="packages[{{id}}]" class="package_choice" {{#_isselected}} checked="checked" {{/_isselected}}
+                                   value="1" style="display: inline-block; width: 40px;"
+                                   onclick="require(['block_edupublisher/licence'], function(LICENCE) { LICENCE.generateStepUi('{{uniqid}}', {{step}})});" />
+                            {{#type_1}}
+                            <input type="number" min="-1" name="packages_amount[{{id}}]" class="package_amount"
+                                   style="width: 50px; display: none;" value="{{amount}}"
+                                   onchange="require(['block_edupublisher/licence'], function(LICENCE) { LICENCE.generateStepUi('{{uniqid}}', {{step}})});" />
+                            {{/type_1}}
+                        </td>
+                        <td width="80">
+                            <a href="/course/view.php?id={{course}}" target="_blank">
+                                <img src="{{default_image}}" style="display: inline-block; height: 60px; width: 60px;" />
+                            </a>
+                        </td>
+                        <td>
+                            {{#type_1}}
+                                <span class="package_amount_lbl"></span><br />
+                            {{/type_1}}
+                            <a href="/course/view.php?id={{course}}" target="_blank">{{title}}</a><br />
+                            <i>{{default_description}}</i>
+                        </td>
+                    </tr>
+                {{/packages}}
+                </table>
+            </div>
+        </div>
+        -->
+        <input type="submit" value="{{#str}} next {{/str}}" />
+    </form>
+</div></div>
+
+{{#js}}
+    require(['block_edupublisher/licence'], function(LICENCE) { LICENCE.generateStepUi('{{uniqid}}', {{step}})});
+{{/js}}

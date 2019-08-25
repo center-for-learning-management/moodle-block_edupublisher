@@ -1,0 +1,64 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+<a href="/blocks/edupublisher/pages/licence.php?publisherid={{publisherid}}" class="btn btn-secondary">
+    {{#str}} licence_back_to_dashboard, block_edupublisher {{/str}}
+</a>
+<div id="{{uniqid}}" class="ui-edupublisher"><div>
+    <form method="POST" action="/blocks/edupublisher/pages/licence.php" enctype="multipart/form-data">
+        <input type="hidden" id="publisherid-{{uniqid}}" value="{{publisherid}}" />
+        <input type="hidden" name="publisherid" value="{{publisherid}}" />
+        <input type="hidden" name="action" value="{{action}}" />
+        <!-- STEP 1 -->
+        <input type="hidden" name="type" value="{{type}}" />
+        <input name="target" id="id_target-{{uniqid}}" type="hidden" value="{{target}}">
+
+        <!-- STEP 2 -->
+        <input type="hidden" name="target" value="{{target}}" />
+        <input type="hidden" name="amounts" value="{{amounts}}" />
+
+        {{#packages}}
+            <input type="hidden" name="packages[{{id}}]" {{#_isselected}} value="1" {{/_isselected}} />
+            <input type="hidden" name="packages_amount[{{id}}]" value="{{amount}}" />
+        {{/packages}}
+
+        <p class="alert alert-hint">
+            {{#type_1}} {{#str}} licence_collection_desc, block_edupublisher {{/str}} {{/type_1}}
+            {{#type_2}} {{#str}} licence_pool_desc, block_edupublisher {{/str}} {{/type_2}}
+        </p>
+
+        <div class="grid-eq-3">
+            <input type="number" min="1" id="amount-{{uniqid}}" value="10" />
+            <a class="btn" style="background: inherit; border: inherit;">{{#str}} licences, block_edupublisher {{/str}}</a>
+            <a href="#" class="btn btn-primary"
+                onclick="require(['block_edupublisher/licence'], function(LICENCE) { LICENCE.generate('{{uniqid}}'); }); return false;">
+                {{#str}} licence_generatekeys, block_edupublisher {{/str}}
+            </a>
+        </div>
+        <p class="alert alert-hint">
+            {{#str}} licence_paste_alternatively, block_edupublisher {{/str}}
+        </p>
+
+
+        <textarea id="licencekeys-{{uniqid}}" name="licencekeys" style="width: 100%;" rows="10"></textarea>
+
+        <input type="submit" value="{{#str}} next {{/str}}" />
+    </form>
+</div></div>
+
+{{#js}}
+    require(['block_edupublisher/licence'], function(LICENCE) { LICENCE.generateStepUi('{{uniqid}}', {{step}})});
+{{/js}}

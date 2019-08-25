@@ -1,0 +1,43 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+    @param type: success, warning, danger
+}}
+<div class="ui-edupublisher"><div>
+    <input type="hidden" id="packageid-{{uniqid}}" value="{{packageid}}" />
+    <label for="courseid-{{uniqid}}">{{#str}} course {{/str}}</label>
+    <br />
+    <select id="courseid-{{uniqid}}" disabled="disabled"
+        onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportLoadSections('{{uniqid}}'); });">
+        <option value="">{{#str}} loading {{/str}}</option>
+    </select>
+    <br />
+    <label for="sectionid-{{uniqid}}">{{#str}} after_section, block_edupublisher {{/str}}</label>
+    <br />
+    <select id="sectionid-{{uniqid}}" disabled="disabled">
+        <option value="">{{#str}} loading {{/str}}</option>
+    </select>
+    <br />
+    <a href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportLoadGo('{{uniqid}}'); }); return false;" class="btn btn-primary">
+        {{#str}} ok {{/str}}
+    </a>
+</div></div>
+
+{{#js}}
+require(['block_edupublisher/main'], function(MAIN) {
+    MAIN.initImportLoadCourses('{{uniqid}}');
+});
+{{/js}}

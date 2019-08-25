@@ -1,0 +1,30 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+<div class="ui-edupublisher">
+    <div class="grid-eq-2">
+        <a href="/blocks/edupublisher/pages/licence.php?publisherid={{publisherid}}&action=generate"
+            class="btn {{#action_generate}} btn-primary {{/action_generate}}{{^action_generate}} btn-secondary {{/action_generate}}">
+            <img src="/blocks/edupublisher/pix/licence_create.png" style="height: 150px;" /><br />
+            <h3>{{#str}} licence_generate, block_edupublisher {{/str}}</h3>
+        </a>
+        <a href="/blocks/edupublisher/pages/licence.php?publisherid={{publisherid}}&action=list"
+            class="btn {{#action_list}} btn-primary {{/action_list}}{{^action_list}} btn-secondary {{/action_list}}">
+            <img src="/blocks/edupublisher/pix/licence_manage.png" style="height: 150px;" /><br />
+            <h3>{{#str}} licence_manage, block_edupublisher {{/str}}</h3>
+        </a>
+    </div>
+</div>
