@@ -26,7 +26,7 @@ defined('MOODLE_INTERNAL') || die;
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/blocks/moodleblock.class.php');
 
-class block_edupublisher extends block_list {
+class block_edupublisher extends block_base {
     /**
      * Ensures that within a context an instance of block_edupublisher exists.
      * @param
@@ -1069,8 +1069,12 @@ class block_edupublisher extends block_list {
         }
 
         if ($this->content !== null) {
-          return $this->content;
+            return $this->content;
         }
+        $this->content = (object) array(
+            'text' => '',
+            'footer' => array()
+        );
 
         // 1. in a package-course: show author
         // 2. in a course + trainer permission: show publish link and list packages
@@ -1081,32 +1085,31 @@ class block_edupublisher extends block_list {
         $canedit = has_capability('moodle/course:update', $context);
 
         $package = $DB->get_record('block_edupublisher_packages', array('course' => $COURSE->id), '*', IGNORE_MULTIPLE);
+        $options = array();
         if ($package) {
             // Is package-course: show author
             $package = self::get_package($package->id, true);
-            $this->content = (object) array(
-                'items' => array(
-                    '<a href="mailto:' . $package->default_authormail . '">' . $package->default_authorname . '</a>',
-                    $package->default_licence
-                ),
-                'icons' => array(
-                    html_writer::empty_tag('img', array('src' => '/pix/i/user.svg', 'class' => 'icon')),
-                    html_writer::empty_tag('img', array('src' => '/pix/i/publish.svg', 'class' => 'icon')),
-                ),
-                'footer' => '',
+            $options[] = array(
+                "title" => $package->default_authorname,
+                "href" => 'mailto:' . $package->default_authormail,
+                //"icon" => '/pix/i/user.svg',
             );
-            $this->content->items[] = '<a href="' . $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id . '">' . get_string('details', 'block_edupublisher') . '</a>';
-            $this->content->icons[] = html_writer::empty_tag('img', array('src' => '/pix/i/hide.svg', 'class' => 'icon'));
-
-            $this->content->items[] =  $OUTPUT->render_from_template('block_edupublisher/package_rating', $package);
-            $this->content->icons[] = html_writer::empty_tag('img', array('src' => '/pix/i/scales.svg', 'class' => 'icon'));
-            return $this->content;
+            $options[] = array(
+                "title" => $package->default_licence,
+                //"href" => 'mailto:' . $package->default_authormail,
+                "icon" => '/pix/i/publish.svg',
+            );
+            $options[] = array(
+                "title" => get_string('details', 'block_edupublisher'),
+                "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
+                "icon" => '/pix/i/hide.svg',
+            );
+            $options[] = array(
+                "title" => $OUTPUT->render_from_template('block_edupublisher/package_rating', $package),
+                //"href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
+                "icon" => '/pix/i/scales.svg',
+            );
         } elseif($canedit) {
-            $this->content = (object) array(
-                'items' => array(),
-                'footer' => array()
-            );
-            $options = array();
             $options[] = array(
                 "title" => get_string('publish_new_package', 'block_edupublisher'),
                 "href" => '/blocks/edupublisher/pages/publish.php?sourcecourse=' . $COURSE->id,
@@ -1147,23 +1150,15 @@ class block_edupublisher extends block_list {
                     );
                 }
             }
-
-            foreach($options AS $option) {
-                if (isset($option["href"])) {
-                    $this->content->items[] = html_writer::tag('a', $option["title"], $option); // array('href' => $option["href"])
-                    $this->content->icons[] = html_writer::empty_tag('img', array('src' => $option["icon"], 'class' => 'icon'));
-                    if (isset($option["subtitle"])) {
-                        $this->content->items[] = html_writer::tag('p',  $option["subtitle"]); // array('href' => $option["href"])
-                        $this->content->icons[] = '&nbsp;';
-                    }
-                } else {
-                    if (!isset($option["class"])) { $option["class"] = 'divider'; }
-                    $this->content->items[] = html_writer::tag('div', $option["title"], $option);
-                    $this->content->icons[] = '';
-                }
-            }
-            return $this->content;
         }
+        foreach($options AS $option) {
+            $tx = $option["title"];
+            if (!empty($option["icon"])) $tx = "<img src='" . $option["icon"] . "' class='icon'>" . $tx;
+            if (!empty($option["href"])) $tx = "<a href='" . $option["href"] . "' class='btn' " . ((!empty($option["target"])) ? " target='" . $option["target"] : "") . "'>" . $tx . "</a>";
+            else  $tx = "<a class='btn'>" . $tx . "</a>";
+            $this->content->text .= $tx . "<br />";
+        }
+        return $this->content;
     }
     public function hide_header() {
         return false;
