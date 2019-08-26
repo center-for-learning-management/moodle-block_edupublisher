@@ -371,7 +371,7 @@ class block_edupublisher extends block_base {
             $user = $USER;
         }
         $courses = enrol_get_all_users_courses($USER->id, true);
-        if (!empty($capability)) {
+        if (empty($capability)) {
             return $courses;
         } else {
             $ids = array_keys($courses);
