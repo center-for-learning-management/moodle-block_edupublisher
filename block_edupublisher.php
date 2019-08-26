@@ -378,7 +378,7 @@ class block_edupublisher extends block_base {
             foreach($ids AS $id) {
                 $context = context_course::instance($id);
                 $canedit = has_capability($capability, $context);
-                if (!$canedit) delete($courses[$id]);
+                if (!$canedit) unset($courses[$id]);
             }
             return $courses;
         }
