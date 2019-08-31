@@ -23,6 +23,7 @@
 
 $string['pluginname'] = 'eduPublisher';
 $string['page:publisher'] = 'veröffentlichen';
+$string['privacy:metadata'] = 'Dieses Plugin speichert keine personenbezogenen Daten';
 
 $string['action'] = 'Aktion';
 $string['after_section'] = 'Nach Abschnitt einfügen';

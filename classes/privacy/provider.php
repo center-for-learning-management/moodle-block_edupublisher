@@ -15,29 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    local_edumessenger
+ * @package    block_edupublisher
  * @copyright  2018 Digital Education Society (http://www.dibig.at)
  * @author     Robert Schrenk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+**/
 
-namespace local_edumessenger\privacy;
+namespace block_edupublisher\privacy;
 use core_privacy\local\metadata\collection;
 
 defined('MOODLE_INTERNAL') || die;
 
-class provider implements \core_privacy\local\metadata\provider {
-
-    public static function get_metadata(collection $collection) : collection {
-        // Here you will add more items into the collection.
-        $collection->add_database_table(
-            'edumessenger_userid_enabled',
-            [
-                'userid' => 'privacy:metadata:edumessenger_userid_enabled:userid',
-                'enabled' => 'privacy:metadata:edumessenger_userid_enabled:enabled',
-            ],
-            'privacy:metadata:edumessenger_userid_enabled'
-        );
-        return $collection;
+class provider implements \core_privacy\local\metadata\null_provider {
+    public static function get_reason() : string {
+        return 'privacy:metadata';
     }
 }
