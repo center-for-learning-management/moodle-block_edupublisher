@@ -26,7 +26,7 @@ $string['page:publisher'] = 'veröffentlichen';
 $string['privacy:metadata'] = 'Dieses Plugin speichert keine personenbezogenen Daten';
 
 $string['action'] = 'Aktion';
-$string['after_section'] = 'Nach Abschnitt einfügen';
+$string['after_section'] = 'In Abschnitt einfügen';
 $string['by'] = 'von';
 $string['category'] = 'Kategorie';
 $string['category_help'] = 'Geben Sie hier die Kategorie ein, in der veröffentlichte Kurse hinterlegt werden sollen.';

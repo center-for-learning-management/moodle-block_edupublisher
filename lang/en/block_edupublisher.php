@@ -26,7 +26,7 @@ $string['page:publisher'] = 'Publish';
 $string['privacy:metadata'] = 'This plugin does not store any personal data';
 
 $string['action'] = 'Action';
-$string['after_section'] = 'Place after section';
+$string['after_section'] = 'Place in section';
 $string['by'] = 'by';
 $string['category'] = 'Category';
 $string['category_help'] = 'Enter the category id here where published courses will be created';
