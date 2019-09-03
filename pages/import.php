@@ -171,6 +171,89 @@ try {
             //restore_dbops::delete_course_content($targetcourse->id);
         }
 
+        // NEW BEHAVIOUR - INJECT INTO SECTION ITSELF
+
+        // Create a label at the end of the section.
+        require_once($CFG->dirroot . '/blocks/edupublisher/classes/module_compiler.php');
+        $data = array(
+            'course' => $targetcourse->id,
+            'intro' => '<h3>' . $package->title . '</h3>',
+            'introformat' => 1,
+            'section' => $sectionid
+        );
+        $item = block_edupublisher_module_compiler::compile('label', (object)$data, (object)array());
+        print_r($item);
+        $module = block_edupublisher_module_compiler::create($item);
+
+        // Now store the data of all sections' sequences in targetcourse.
+        $sections = $DB->get_records('course_sections', array('course' => $targetcourse->id));
+
+        // Now do the import.
+        // Execute the restore.
+        $rc->execute_plan();
+        // Delete the temp directory now
+        fulldelete($tempdestination);
+        // End restore section of progress tracking (restore/precheck).
+        $progress->end_progress();
+        // All progress complete. Hide progress area.
+        $progress->end_progress();
+        echo html_writer::end_div();
+        echo html_writer::script('document.getElementById("executionprogress").style.display = "none";');
+        // Display a notification and a continue button
+        if ($warnings) {
+            echo $OUTPUT->box_start();
+            echo $OUTPUT->notification(get_string('warning'), 'notifyproblem');
+            echo html_writer::start_tag('ul', array('class'=>'list'));
+            foreach ($warnings as $warning) {
+                echo html_writer::tag('li', $warning);
+            }
+            echo html_writer::end_tag('ul');
+            echo $OUTPUT->box_end();
+        }
+
+        // Now log section data again.
+        // All modules that are new have to be moved to $sectionid.
+        // Newly created sections have to be removed.
+        $sections_new = $DB->get_records('course_sections', array('course' => $targetcourse->id));
+        $ids = array_keys($sections_new);
+        for ($a = 0; $a < count($ids); $a++) {
+            if (!empty($sections[$ids[$a]])) {
+                // This section existed before - compare sequence.
+                $oldsequence = explode(',', $sections[$ids[$a]]->sequence);
+                $newsequence = explode(',', $sections_new[$ids[$a]]->sequence);
+                //echo "Comparing old sequence";
+                //print_r($oldsequence);
+                //print_r($newsequence);
+                $cmids_to_move = array();
+                foreach ($newsequence AS $cmid) {
+                    if (!in_array($cmid, $oldsequence)) {
+                        $cmids_to_move[] = $cmid;
+                    }
+                }
+                $remove_section = false;
+                //echo "Old section, moving the following cmids";
+                //print_r($cmids_to_move);
+            } else {
+                // This section is new - move all content and remove afterwards.
+                $cmids_to_move = explode(',', $sections[$ids[$a]]->sequence);
+                $remove_section = true;
+                //echo "New section, moving the following cmids";
+                //print_r($cmids_to_move);
+            }
+
+            foreach ($cmids_to_move AS $cmid) {
+                course_add_cm_to_section($targetcourse, $cmid, $sectionid);
+            }
+            if ($remove_section) {
+                course_delete_section($targetcourse, $sections_new[$ids[$a]], true);
+            }
+        }
+        rebuild_course_cache($targetcourse->id, true);
+
+        /*
+
+        OLD BEHAVIOUR - WE SHIFT SECTIONS
+
         // Shift should be at least 10000, or higher if target- or importcourse have more sections.
         $SHIFT = 10000;
         $highest = $DB->get_records_sql('SELECT MAX(section) AS section FROM {course_sections} WHERE course=?', array($targetcourse->id));
@@ -257,6 +340,7 @@ try {
             $DB->update_record('course_sections', $targetsections[$a]);
         }
         rebuild_course_cache($targetcourse->id, true);
+        */
 
         $DB->insert_record('block_edupublisher_uses', (object) array(
             'userid' => $USER->id,

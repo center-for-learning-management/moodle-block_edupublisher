@@ -5,6 +5,7 @@ define(
         searchid: 0, // Ensures that only the last search is shown.
         loadpositions: {},
         confirmRemoval: function(url) {
+            var MAIN = this;
             STR.get_strings([
                     {'key' : 'removal:title', component: 'block_edupublisher' },
                     {'key' : 'removal:text', component: 'block_edupublisher' },
@@ -18,6 +19,7 @@ define(
             ).fail(NOTIFICATION.exception);
         },
         cancelPackageForm: function(url) {
+            var MAIN = this;
             STR.get_strings([
                     {'key' : 'removal:title', component: 'block_edupublisher' },
                     {'key' : 'removal:text', component: 'block_edupublisher' },
@@ -31,6 +33,7 @@ define(
             ).fail(NOTIFICATION.exception);
         },
         exportCourseWarning: function() {
+            var MAIN = this;
             var active = $('#id_exportcourse').is(':checked');
             if (!active) {
                 STR.get_strings([
@@ -45,6 +48,7 @@ define(
             }
         },
         initImportSelection: function(packageid) {
+            var MAIN = this;
             STR.get_strings([
                     {'key' : 'import', component: 'core' },
                 ]).done(function(s) {
@@ -58,12 +62,14 @@ define(
             ).fail(NOTIFICATION.exception);
         },
         initImportLoadGo: function(uniqid) {
+            var MAIN = this;
             var courseid = $('#courseid-' + uniqid).val();
             var packageid = $('#packageid-' + uniqid).val();
             var sectionid = $('#sectionid-' + uniqid).val();
             top.location.href = URL.fileUrl("/blocks/edupublisher/pages/import.php", "?package=" + packageid + "&course=" + courseid + "&section=" + sectionid);
         },
         initImportLoadCourses: function(uniqid, initial) {
+            var MAIN = this;
             $('#courseid-' + uniqid).empty().attr('disabled', 'disabled');
             $('#sectionid-' + uniqid).empty().attr('disabled', 'disabled');
             STR.get_strings([
@@ -104,6 +110,7 @@ define(
             ).fail(NOTIFICATION.exception);
         },
         initImportLoadSections: function(uniqid) {
+            var MAIN = this;
             $('#courseid-' + uniqid);
             $('#sectionid-' + uniqid).empty().attr('disabled', 'disabled');
             STR.get_strings([
@@ -142,6 +149,7 @@ define(
             ).fail(NOTIFICATION.exception);
         },
         preparePackageForm: function(channels) {
+            var MAIN = this;
             console.log('MAIN.preparePackageForm(channels)', channels);
             require(["jquery"], function($) {
                 if (typeof channels !== 'undefined') {
@@ -291,6 +299,7 @@ define(
                 });
         },
         storePublisher: function(uniqid, sender) {
+            var MAIN = this;
             var self = this;
             var active = $('#active-' + uniqid).prop('checked') ? 1 : 0;
             var id = parseInt($('#id-' + uniqid).val());
@@ -337,6 +346,7 @@ define(
             }]);
         },
         storePublisherUsers: function(uniqid, action) {
+            var MAIN = this;
             var self = this;
 
             var publisherid = $('#publisherid-' + uniqid).val();
@@ -370,6 +380,7 @@ define(
             }]);
         },
         triggerActive: function(packageid, type, sender){
+            var MAIN = this;
             var self = this;
             console.log({packageid: packageid, type: type, to: $(sender).is(':checked') ? 1 : 0 });
             AJAX.call([{
@@ -402,6 +413,7 @@ define(
             }]);
         },
         triggerRating: function(uniqid, packageid, to) {
+            var MAIN = this;
             var self = this;
             console.log({packageid: packageid, to: to});
             AJAX.call([{
@@ -419,6 +431,7 @@ define(
             }]);
         },
         triggerConfirm: function(sender, step, type) {
+            var MAIN = this;
             var self = this;
             if (step == 1) {
                 $(sender).addClass('block-edupublisher-' + type);
@@ -428,6 +441,7 @@ define(
             }
         },
         watchValue: function(o, interval) {
+            var MAIN = this;
             if (this.debug > 5) console.log('MAIN.watchValue(o, interval)', o, interval);
             if (typeof interval === 'undefined') interval = 1000;
             var self = this;

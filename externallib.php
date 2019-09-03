@@ -39,7 +39,12 @@ class block_edupublisher_external extends external_api {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         $courses = block_edupublisher::get_courses(null, 'moodle/course:update');
-        return json_encode(array('courses' => $courses));
+        // Re-sort by name.
+        $_courses = array();
+        foreach ($courses AS $course) {
+            $_courses[$course->name . '_' . $course->id] = $course;
+        }
+        return json_encode(array('courses' => array_reverse(array_values($_courses))));
     }
     /**
      * Return definition.
@@ -69,7 +74,7 @@ class block_edupublisher_external extends external_api {
         $course = $DB->get_record('course', array('id' => $params['courseid']));
         $context = context_course::instance($course->id);
         if (is_enrolled($context, $USER->id, '', true)) {
-            $sections = $DB->get_records('course_sections', array('course' => $course->id));
+            $sections = array_values($DB->get_records('course_sections', array('course' => $course->id)));
             return json_encode(array('sections' => $sections));
         } else {
             return json_encode(array('error' => 'no permission'));
