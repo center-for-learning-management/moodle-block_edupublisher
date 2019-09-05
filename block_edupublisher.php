@@ -55,14 +55,23 @@ class block_edupublisher extends block_base {
      * return package item as XML
      * @param package to print.
      * @param includechannels list of channel-data to include, * as first element means 'all'.
+     * @param items XMLElement to attach new item to.
      * @return xml string representation in xml format.
     **/
-    public static function as_xml($id, $includechannels = array('default')) {
+    public static function as_xml($id, $includechannels = array('default'), $items = '') {
         $exclude = array('channels', 'sourcecourse', 'wwwroot');
         $package = (array)self::get_package($id, true, array('rating'));
         $keys = array_keys($package);
-        $xml = array("\t<item>");
+        //echo get_class($items);
+        if (get_class($items) == 'SimpleXMLElement') {
+            $item = $items->addChild('item');
+        } else {
+            $item = new SimpleXMLElement('<item />');
+        }
+
+        //$xml = array("\t<item>");
         //print_r($package);
+        //print_r($item);
         foreach($keys AS $key) {
             // Exclude some fields.
             if (in_array($key, $exclude)) continue;
@@ -71,15 +80,28 @@ class block_edupublisher extends block_base {
             if (substr($key, 0, 6) == 'rating') continue;
             $parts = explode("_", $key);
             if (count($parts) == 1 || in_array($parts[0], $includechannels) || count($includechannels) > 0 && $includechannels[0] == '*') {
+                if (is_array($package[$key])) {
+                    $item->addChild($key, json_encode($package[$key]));
+                } else {
+                    $item->addChild($key, htmlspecialchars($package[$key]));
+                }
+
+                /*
                 if (strpos($package[$key], "<") > -1) {
                     $xml[] = "\t\t<$key><![CDATA[" . $package[$key] . "]]></$key>";
                 } else {
                     $xml[] = "\t\t<$key>" . $package[$key] . "</$key>";
                 }
+                */
             }
         }
-        $xml[] = "\t</item>";
-        return implode("\n", $xml);
+        //print_r($item);
+        //$xml[] = "\t</item>";
+        if (get_class($items) != 'SimpleXMLElement') {
+            return $item->asXML();
+        }
+
+        //return implode("\n", $xml);
     }
     /**
      * Determines if the plugin can be used.

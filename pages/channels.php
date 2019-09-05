@@ -44,22 +44,20 @@ if (count($channels) == 0) {
 }
 header('Content-type: application/xml');
 
-// Default-Data will always be included
-if (!in_array('default', $channels)) $channels[] = 'default';
-
-?><?xml version="1.0" encoding="UTF-8"?>
-<items>
-<?php
 $sql = 'SELECT p.id FROM {block_edupublisher_packages} p, {block_edupublisher_metadata} m WHERE p.id=m.package AND p.modified>? AND (1=0';
 foreach($channels AS $channel) {
     $sql .= ' OR (p.channels LIKE "%,' . $channel. ',%" AND m.field = "' . $channel . '_active" AND m.content = "1")';
 }
 $sql .= ')';
+
+// Default-Data is added to be included in output, but AFTER sql!
+if (!in_array('default', $channels)) $channels[] = 'default';
+
 //echo $sql;
+$items = new SimpleXMLElement('<items />');
 $packageids = $DB->get_records_sql($sql, array($modified));
 foreach($packageids AS $packageid) {
-    echo block_edupublisher::as_xml($packageid->id, $channels);
+    block_edupublisher::as_xml($packageid->id, $channels, $items);
 }
+echo $items->asXML();
 ?>
-
-</items>
