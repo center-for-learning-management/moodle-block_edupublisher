@@ -4,7 +4,7 @@ define(
     return {
         searchid: 0, // Ensures that only the last search is shown.
         loadpositions: {},
-        confirmRemoval: function(url) {
+        cancelPackageForm: function(url) {
             var MAIN = this;
             STR.get_strings([
                     {'key' : 'removal:title', component: 'block_edupublisher' },
@@ -18,7 +18,10 @@ define(
                 }
             ).fail(NOTIFICATION.exception);
         },
-        cancelPackageForm: function(url) {
+        clickImportConfirmation: function() {
+            $('form[action*="/edupublisher/pages/import.php"]').submit();
+        },
+        confirmRemoval: function(url) {
             var MAIN = this;
             STR.get_strings([
                     {'key' : 'removal:title', component: 'block_edupublisher' },

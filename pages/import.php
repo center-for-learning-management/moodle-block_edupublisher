@@ -108,6 +108,9 @@ try {
     // If this is the confirmation stage remove the filename setting
     if ($backup->get_stage() == backup_ui::STAGE_CONFIRMATION) {
         $backup->get_setting('filename')->set_visibility(backup_setting::HIDDEN);
+        // We try to skip this stage!
+        import_ui::skip_current_stage(true);
+        $PAGE->requires->js_call_amd('block_edupublisher/main', 'clickImportConfirmation', array());
     }
     // If it's the final stage process the import
     if ($backup->get_stage() == backup_ui::STAGE_FINAL) {
@@ -182,7 +185,7 @@ try {
             'section' => $sectionid
         );
         $item = block_edupublisher_module_compiler::compile('label', (object)$data, (object)array());
-        print_r($item);
+        //print_r($item);
         $module = block_edupublisher_module_compiler::create($item);
 
         // Now store the data of all sections' sequences in targetcourse.
@@ -221,6 +224,7 @@ try {
                 // This section existed before - compare sequence.
                 $oldsequence = explode(',', $sections[$ids[$a]]->sequence);
                 $newsequence = explode(',', $sections_new[$ids[$a]]->sequence);
+
                 //echo "Comparing old sequence";
                 //print_r($oldsequence);
                 //print_r($newsequence);
@@ -359,6 +363,7 @@ try {
         if ($loghtml != '') {
             echo $renderer->log_display($loghtml);
         }
+        redirect($CFG->wwwroot . '/course/view.php?id=' . $targetcourse->id);
     } else {
         // Otherwise save the controller and progress
         $backup->save_controller();
@@ -377,6 +382,10 @@ try {
         $cbox = pq('#id_previous')->parent()->parent()->parent();
         if ($backup->get_stage() <= 2) {
             pq('#id_previous')->parent()->parent()->remove();
+        }
+        if ($backup->get_stage() == backup_ui::STAGE_CONFIRMATION) {
+            pq('form')->addClass('invisible');
+            pq('form')->parent()->prepend(pq('<p>' . get_string('loading') . '</p>'));
         }
         pq('#id_cancel')->remove();
         pq($cbox)->append(pq('<input>')->attr('type', 'button')->attr('value', get_string('cancel'))->attr('class', 'ui-btn btn')->attr('onclick', "history.back(); return false;"));
