@@ -19,7 +19,7 @@ define(
             ).fail(NOTIFICATION.exception);
         },
         clickImportConfirmation: function() {
-            $('form[action*="/edupublisher/pages/import.php"]').submit();
+            $('#page-content div[role="main"] form[action*="/edupublisher/pages/import.php"]').submit();
         },
         confirmRemoval: function(url) {
             var MAIN = this;
