@@ -59,5 +59,6 @@ $packageids = $DB->get_records_sql($sql, array($modified));
 foreach($packageids AS $packageid) {
     block_edupublisher::as_xml($packageid->id, $channels, $items);
 }
+
 echo $items->asXML();
 ?>

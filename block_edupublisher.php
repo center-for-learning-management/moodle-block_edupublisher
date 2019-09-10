@@ -80,11 +80,19 @@ class block_edupublisher extends block_base {
             if (substr($key, 0, 6) == 'rating') continue;
             $parts = explode("_", $key);
             if (count($parts) == 1 || in_array($parts[0], $includechannels) || count($includechannels) > 0 && $includechannels[0] == '*') {
+                self::as_xml_array($item, $key, $package[$key]);
+                /*
                 if (is_array($package[$key])) {
-                    $item->addChild($key, json_encode($package[$key]));
+                    $skeys = array_keys($package[$key]);
+                    foreach ($skeys AS $skey) {
+                        $item->addChild($skey, htmlspecialchars($package[$key][$skey]));
+                    }
+                    //$element = $item->addChild($key);
+                    //$item->addChild($key, json_encode($package[$key]));
                 } else {
                     $item->addChild($key, htmlspecialchars($package[$key]));
                 }
+                */
 
                 /*
                 if (strpos($package[$key], "<") > -1) {
@@ -102,6 +110,60 @@ class block_edupublisher extends block_base {
         }
 
         //return implode("\n", $xml);
+    }
+    private static function as_xml_array2($array, &$xmlinfo) {
+        foreach($array as $key => $value) {
+            if(is_array($value)) {
+                if(!is_numeric($key)){
+                    $subnode = $xmlinfo->addChild("$key");
+                    self::as_xml_array2($value, $subnode);
+                } else {
+                    $subnode = $xmlinfo->addChild("$key");
+                    self::as_xml_array2($value, $subnode);
+                }
+            }else {
+                $xmlinfo->addChild("$key",htmlspecialchars("$value"));
+            }
+        }
+    }
+    /**
+     * Recursively adds the content of an array to an xml-tree.
+     * @param xml reference to the SimpleXMLElement
+     * @param subtree the array to add.
+     */
+    private static function as_xml_array(&$xml, $elementname, $subtree) {
+        if (substr($elementname, -6) === ":dummy") return;
+        if (is_array($subtree)) {
+            // This subtree again is an array, go deeper.
+            $keys = array_keys($subtree);
+            $element = $xml->addChild("$elementname");
+            foreach ($keys AS $key) {
+                self::as_xml_array($element, $key, $subtree[$key]);
+            }
+            //$item->addChild($key, json_encode($package[$key]));
+        } else {
+            if (is_numeric($elementname)) {
+                $elementname = "item";
+            }
+            //$xml->addChild($elementname, str_replace(array("\n", "\r") , "_____", htmlspecialchars($subtree)));
+            if (substr($elementname, -13) === "_lticartridge") {
+                $cartridge = $xml->addChild("$elementname");
+                $cartridge->addAttribute('source', htmlspecialchars($subtree));
+                $parent = dom_import_simplexml($cartridge);
+                $child  = dom_import_simplexml(simplexml_load_string(file_get_contents($subtree)));
+
+                // Import the <cat> into the dictionary document
+                $child  = $parent->ownerDocument->importNode($child, TRUE);
+
+                // Append the <cat> to <c> in the dictionary
+                $parent->appendChild($child);
+
+                //$content =
+                //$cartridge->children = $content->children;
+            } else {
+                $element = $xml->addChild("$elementname", htmlspecialchars(str_replace("\n", "", $subtree)));
+            }
+        }
     }
     /**
      * Determines if the plugin can be used.
