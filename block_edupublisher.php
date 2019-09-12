@@ -1198,11 +1198,20 @@ class block_edupublisher extends block_base {
         if ($package) {
             // Is package-course: show author
             $package = self::get_package($package->id, true);
-            $options[] = array(
-                "title" => $package->default_authorname,
-                "href" => 'mailto:' . $package->default_authormail,
-                //"icon" => '/pix/i/user.svg',
-            );
+            if (!empty($package->default_authormailshow) && $package->default_authormailshow == 1) {
+                $options[] = array(
+                    "title" => $package->default_authorname,
+                    "href" => 'mailto:' . $package->default_authormail,
+                    //"icon" => '/pix/i/user.svg',
+                );
+            } else {
+                $options[] = array(
+                    "title" => $package->default_authorname,
+                    //"href" => 'mailto:' . $package->default_authormail,
+                    //"icon" => '/pix/i/user.svg',
+                );
+            }
+
             $options[] = array(
                 "title" => $package->default_licence,
                 //"href" => 'mailto:' . $package->default_authormail,
