@@ -17,9 +17,7 @@
 
 {{#canrate}}
     {{#ratingselection}}
-        <a href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerRating('{{uniqid}}', {{id}}, {{num}}); }); return false;">
-            <img src="{{wwwroot}}/blocks/edupublisher/pix/star_{{active}}_{{selected}}.png" alt="{{num}}" class="icon" id="{{uniqid}}-rating-{{num}}" style="margin-right: 0;" />
-        </a>
+        <a href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerRating('{{uniqid}}', {{id}}, {{num}}); }); return false;"><img src="{{wwwroot}}/blocks/edupublisher/pix/star_{{active}}_{{selected}}.png" alt="{{num}}" class="icon" id="{{uniqid}}-rating-{{num}}" style="margin-right: 0;" /></a>
     {{/ratingselection}}
     {{!ratingaverage}}
     {{#showpreviewbutton}}
@@ -32,9 +30,7 @@
 {{/canrate}}
 {{^canrate}}
     {{#ratingselection}}
-        <a onclick="return false;">
-            <img src="{{wwwroot}}/blocks/edupublisher/pix/star_{{active}}_{{selected}}.png" alt="{{num}}" class="icon" style="margin-right: 0;" />
-        </a>
+        <a onclick="return false;"><img src="{{wwwroot}}/blocks/edupublisher/pix/star_{{active}}_{{selected}}.png" alt="{{num}}" class="icon" style="margin-right: 0;" /></a>
     {{/ratingselection}}
     {{#showpreviewbutton}}
         {{! block_eduvidual is a specific plugin for www.eduvidual.at. This code is for a special purpose, but the plugin also works without it. }}
