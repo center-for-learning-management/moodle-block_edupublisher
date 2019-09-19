@@ -21,7 +21,7 @@
     <label for="courseid-{{uniqid}}">{{#str}} course {{/str}}</label>
     <br />
     <select id="courseid-{{uniqid}}" disabled="disabled"
-        onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportLoadSections('{{uniqid}}'); });">
+        onchange="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportLoadSections('{{uniqid}}'); });">
         <option value="">{{#str}} loading {{/str}}</option>
     </select>
     <br />
