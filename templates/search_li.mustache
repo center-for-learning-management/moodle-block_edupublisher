@@ -20,7 +20,8 @@
         {{> block_edupublisher/package_rating }}
     </div>
     {{#importtocourseid}}
-    <a href="{{wwwroot}}/blocks/edupublisher/pages/import.php?package={{id}}&course={{importtocourseid}}&section={{importtosectionid}}">
+    {{! { {wwwroot} }/blocks/edupublisher/pages/import.php?package={ {id} }&course={ {importtocourseid} }&section={ {importtosectionid} } }}
+    <a href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportSelection({{id}},{{importtocourseid}}); }); return false;">
     {{/importtocourseid}}
     {{^importtocourseid}}
     <a href="{{wwwroot}}/course/view.php?id={{course}}">

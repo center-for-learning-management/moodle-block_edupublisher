@@ -50,14 +50,14 @@ define(
                 ).fail(NOTIFICATION.exception);
             }
         },
-        initImportSelection: function(packageid) {
+        initImportSelection: function(packageid, courseid) {
             var MAIN = this;
             STR.get_strings([
                     {'key' : 'import', component: 'core' },
                 ]).done(function(s) {
                     ModalFactory.create({
                         title: s[0],
-                        body: TEMPLATES.render('block_edupublisher/init_import_selection', { packageid: packageid }),
+                        body: TEMPLATES.render('block_edupublisher/init_import_selection', { packageid: packageid, courseid: courseid }),
                     }).done(function(modal) {
                         modal.show();
                     });
@@ -71,7 +71,14 @@ define(
             var sectionid = $('#sectionid-' + uniqid).val();
             top.location.href = URL.fileUrl("/blocks/edupublisher/pages/import.php", "?package=" + packageid + "&course=" + courseid + "&section=" + sectionid);
         },
+        /**
+         * Load list of courses we could import to.
+         *
+         * @param uniqid of template.
+         * @param initial course to select initially.
+         */
         initImportLoadCourses: function(uniqid, initial) {
+            console.log('MAIN.initIportLoadCourses(uniqid, initial)', uniqid, initial);
             var MAIN = this;
             $('#courseid-' + uniqid).empty().attr('disabled', 'disabled');
             $('#sectionid-' + uniqid).empty().attr('disabled', 'disabled');
@@ -91,9 +98,13 @@ define(
                                 var first = 0;
                                 Object.keys(result.courses).forEach(function(courseid) {
                                     var c = result.courses[courseid];
-                                    $('#courseid-' + uniqid).append($('<option>').attr('value', c.id).html(c.fullname));
+                                    var opt = $('<option>').attr('value', c.id).html(c.fullname);
+                                    $('#courseid-' + uniqid).append(opt);
                                     if (first == 0 && typeof initial !== 'undefined') {
                                         first = c.id;
+                                    }
+                                    if (typeof initial !== 'undefined' && initial == c.id) {
+                                        opt.attr('selected', 'selected');
                                     }
                                 });
                                 MAIN.initImportLoadSections(uniqid);
@@ -114,7 +125,6 @@ define(
         },
         initImportLoadSections: function(uniqid) {
             var MAIN = this;
-            $('#courseid-' + uniqid);
             $('#sectionid-' + uniqid).empty().attr('disabled', 'disabled');
             STR.get_strings([
                     {'key' : 'loading', component: 'core' },
@@ -133,8 +143,7 @@ define(
                                 Object.keys(result.sections).forEach(function(sectionid) {
                                     var s = result.sections[sectionid];
                                     if (!s.name) s.name = "#" + (i + 1);
-                                    // sectionnr, not sectionid !!
-                                    $('#sectionid-' + uniqid).append($('<option>').attr('value', i).html(s.name));
+                                    $('#sectionid-' + uniqid).append($('<option>').attr('value', s.id).html(s.name));
                                     i++;
                                 });
                             } else {

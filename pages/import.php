@@ -35,6 +35,9 @@ $packageid = required_param('package', PARAM_INT);
 $targetcourseid = required_param('course', PARAM_INT);
 $sectionid = optional_param('section', 0, PARAM_INT);
 
+$section = $DB->get_record('course_sections', array('course' => $targetcourseid, 'id' => $sectionid));
+$sectionnr = $section->section;
+
 // Require editing-permissions in targetcourse
 $targetcourse = $DB->get_record('course', array('id'=>$targetcourseid), '*', MUST_EXIST);
 $targetcontext = context_course::instance($targetcourse->id);
@@ -182,7 +185,7 @@ try {
             'course' => $targetcourse->id,
             'intro' => '<h3>' . $package->title . '</h3>',
             'introformat' => 1,
-            'section' => $sectionid
+            'section' => $sectionnr
         );
         $item = block_edupublisher_module_compiler::compile('label', (object)$data, (object)array());
         //print_r($item);
@@ -246,7 +249,7 @@ try {
             }
 
             foreach ($cmids_to_move AS $cmid) {
-                course_add_cm_to_section($targetcourse, $cmid, $sectionid);
+                course_add_cm_to_section($targetcourse, $cmid, $sectionnr);
             }
             if ($remove_section) {
                 course_delete_section($targetcourse, $sections_new[$ids[$a]], true);
@@ -256,6 +259,8 @@ try {
 
         /*
 
+        THIS WILL NOT WORK ANYMORE AS SECTION IS NO IDENTIFIED BY ID NOT NUMBER!
+        NOW IT IS CALLED $sectionnr
         OLD BEHAVIOUR - WE SHIFT SECTIONS
 
         // Shift should be at least 10000, or higher if target- or importcourse have more sections.
