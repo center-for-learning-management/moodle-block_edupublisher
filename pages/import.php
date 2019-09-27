@@ -257,100 +257,6 @@ try {
         }
         rebuild_course_cache($targetcourse->id, true);
 
-        /*
-
-        THIS WILL NOT WORK ANYMORE AS SECTION IS NO IDENTIFIED BY ID NOT NUMBER!
-        NOW IT IS CALLED $sectionnr
-        OLD BEHAVIOUR - WE SHIFT SECTIONS
-
-        // Shift should be at least 10000, or higher if target- or importcourse have more sections.
-        $SHIFT = 10000;
-        $highest = $DB->get_records_sql('SELECT MAX(section) AS section FROM {course_sections} WHERE course=?', array($targetcourse->id));
-        foreach($highest AS $max) { if ($max->section > $SHIFT) { $SHIFT = $max->section; } }
-        $highest = $DB->get_records_sql('SELECT MAX(section) AS section FROM {course_sections} WHERE course=?', array($importcourse->id));
-        foreach($highest AS $max) { if ($max->section > $SHIFT) { $SHIFT = $max->section; } }
-
-        // Shift section-numbers in database to absurd values, otherwise we may have conflicting keys
-        $DB->execute('UPDATE {course_sections} SET section=section+? WHERE course=?', array($SHIFT, $targetcourse->id));
-
-        // Prepend sections at the beginning of targetcourse, so that we import into empty sections
-        $importsections = $DB->get_records('course_sections', array('course' => $importcourse->id));
-        $sectionno = 0;
-        foreach ($importsections AS $targetsection) {
-            unset($targetsection->id);
-            $targetsection->course = $targetcourse->id;
-            $targetsection->section = $sectionno++;
-            // We must delete sequence to avoid references the the old course!
-            // Attention: If we do not do this and the section is deleted in the target course,
-            // then all coursemodules in the sourcecourse will be deleted as well!!!!
-            $targetsection->sequence = '';
-            $targetsection->id = $DB->insert_record('course_sections', $targetsection, 1);
-        }
-
-        // We need to flatten our section-numbering, otherwise moodle would fill with empty sections.
-        $sections = $DB->get_records_sql('SELECT * FROM {course_sections} WHERE course=? ORDER BY section ASC', array($targetcourse->id));
-        $a = 0;
-        foreach ($sections AS $targetsection) {
-            $targetsection->section = $a++;
-            $DB->update_record('course_sections', $targetsection);
-        }
-
-        // Execute the restore.
-        $rc->execute_plan();
-        // Delete the temp directory now
-        fulldelete($tempdestination);
-        // End restore section of progress tracking (restore/precheck).
-        $progress->end_progress();
-        // All progress complete. Hide progress area.
-        $progress->end_progress();
-        echo html_writer::end_div();
-        echo html_writer::script('document.getElementById("executionprogress").style.display = "none";');
-        // Display a notification and a continue button
-        if ($warnings) {
-            echo $OUTPUT->box_start();
-            echo $OUTPUT->notification(get_string('warning'), 'notifyproblem');
-            echo html_writer::start_tag('ul', array('class'=>'list'));
-            foreach ($warnings as $warning) {
-                echo html_writer::tag('li', $warning);
-            }
-            echo html_writer::end_tag('ul');
-            echo $OUTPUT->box_end();
-        }
-
-        // Move imported sections to new position
-        $importsectioncount = $DB->count_records_sql('SELECT COUNT(id) FROM {course_sections} WHERE course=?', array($importcourse->id));
-        $allsections = $DB->get_records_sql('SELECT * FROM {course_sections} WHERE course=? ORDER BY section ASC', array($targetcourse->id));
-        $importsections = array(); // Collect sections that have been imported and are now at the beginning
-        $targetsections = array(); // Collect sections that have been in course before import
-        $a = 0;
-        foreach ($allsections AS $section) {
-            if ($a < $importsectioncount) {
-                // This section was imported. It is empty after importing, we remove it agin.
-                if (empty($section->sequence)) {
-                    $DB->delete_records('course_sections', array('id' => $section->id));
-                } else {
-                    $importsections[] = $section;
-                }
-            } else {
-                $targetsections[] = $section;
-            }
-            $a++;
-        }
-
-        // Insert the imported sections at the correct position.
-        array_splice($targetsections, $sectionid + 1, 0, $importsections);
-
-        // Shift numbering again.
-        $DB->execute('UPDATE {course_sections} SET section=section+? WHERE course=?', array($SHIFT, $targetcourse->id));
-
-        // Do the re-ordering.
-        for($a = 0; $a < count($targetsections); $a++) {
-            $targetsections[$a]->section = $a;
-            $DB->update_record('course_sections', $targetsections[$a]);
-        }
-        rebuild_course_cache($targetcourse->id, true);
-        */
-
         $DB->insert_record('block_edupublisher_uses', (object) array(
             'userid' => $USER->id,
             'package' => $package->id,
@@ -368,7 +274,7 @@ try {
         if ($loghtml != '') {
             echo $renderer->log_display($loghtml);
         }
-        redirect($CFG->wwwroot . '/course/view.php?id=' . $targetcourse->id);
+        $redirect = $CFG->wwwroot . '/course/view.php?id=' . $targetcourse->id
     } else {
         // Otherwise save the controller and progress
         $backup->save_controller();
@@ -407,4 +313,5 @@ try {
     // Withdraw user trainer-permission in package-course
     block_edupublisher::role_set(array($importcourse->id), array($USER->id), -1);
     block_edupublisher::print_app_footer();
+    if (!empty($redirect)) redirect($redirect);
 }
