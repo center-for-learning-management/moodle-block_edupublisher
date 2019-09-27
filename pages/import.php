@@ -274,7 +274,7 @@ try {
         if ($loghtml != '') {
             echo $renderer->log_display($loghtml);
         }
-        $redirect = $CFG->wwwroot . '/course/view.php?id=' . $targetcourse->id
+        $redirect = $CFG->wwwroot . '/course/view.php?id=' . $targetcourse->id;
     } else {
         // Otherwise save the controller and progress
         $backup->save_controller();
@@ -313,5 +313,5 @@ try {
     // Withdraw user trainer-permission in package-course
     block_edupublisher::role_set(array($importcourse->id), array($USER->id), -1);
     block_edupublisher::print_app_footer();
-    if (!empty($redirect)) redirect($redirect);
+    if (!empty($redirect)) { redirect($redirect); }
 }
