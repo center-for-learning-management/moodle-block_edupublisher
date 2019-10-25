@@ -321,8 +321,10 @@ class block_edupublisher extends block_base {
                 $package->_user = array($DB->get_record('user', array('id' => $package->userid), 'id,email,firstname,lastname,username'));
             }
             if (!empty($package->course)) {
-                $ctx = context_course::instance($package->course);
-                $package->authoreditingpermission = user_has_role_assignment($package->userid, get_config('block_edupublisher', 'defaultroleteacher'), $ctx->id);
+                $ctx = context_course::instance($package->course, IGNORE_MISSING);
+                if (!empty($ctx->id)) {
+                    $package->authoreditingpermission = user_has_role_assignment($package->userid, get_config('block_edupublisher', 'defaultroleteacher'), $ctx->id);
+                }
                 //die(get_config('block_edupublisher', 'defaultroleteacher') . '|' . $package->authoreditingpermission . '|' . $ctx->id);
             }
         }
@@ -358,6 +360,27 @@ class block_edupublisher extends block_base {
         $package->default_summary = $course->summary;
 
         return $package;
+    }
+    /**
+     * Gets a publisher from database.
+     * @param publisherid
+     */
+    public static function get_publisher($publisherid) {
+        global $DB, $USER;
+        $publisher = $DB->get_record('block_edupublisher_pub', array('id' => $publisherid), '*', IGNORE_MISSING);
+        if (empty($publisher->id)) return null;
+        $is_coworker = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisherid, 'userid' => $USER->id));
+        $publisher->is_coworker = ($is_coworker->userid == $USER->id);
+        // Load Logo of publisher.
+        $fs = get_file_storage();
+        $context = context_system::instance();
+        $files = $fs->get_area_files($context->id, 'block_edupublisher', 'publisher_logo', $publisherid);
+        foreach ($files as $f) {
+            if (empty(str_replace('.', '', $f->get_filename()))) continue;
+            $publisher->publisher_logo = '' . moodle_url::make_pluginfile_url($f->get_contextid(), $f->get_component(), $f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename(), false);
+            break;
+        }
+        return $publisher;
     }
     /**
      * Returns a definition of all channels.
@@ -493,6 +516,21 @@ class block_edupublisher extends block_base {
         return in_array('etapas', $channels) && $maintainer_etapas;
         return in_array('eduthek', $channels) && $maintainer_eduthek;
         return false;
+    }
+    /**
+     * Indicates if the current user is acting as a publisher for commercial content.
+     * @param publisherid (optional) if user is co-worker of a specific publisher.
+     * @return true if is publisher or site-admin.
+     */
+    public static function is_publisher($publisherid = 0) {
+        if (self::is_admin()) return true;
+        global $DB, $USER;
+        if (empty($publisherid)) {
+            $chk = $DB->get_record('block_edupublisher_pub_user', array('userid' => $USER->id));
+        } else {
+            $chk = $DB->get_record('block_edupublisher_pub_user', array('userid' => $USER->id, 'publisherid' => $publisherid));
+        }
+        return (!empty($chk->id) && $chk->id > 0);
     }
     /**
      * Load a specific comment and enhance data.
@@ -1172,6 +1210,7 @@ class block_edupublisher extends block_base {
         global $CFG, $COURSE, $DB, $OUTPUT, $PAGE, $USER;
 
         $PAGE->requires->css('/blocks/edupublisher/style/main.css');
+        $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
         if (!isset($COURSE->id) || $COURSE->id <= 1) {
             return;

@@ -40,7 +40,7 @@ function block_edupublisher_pluginfile($course, $cm, $context, $filearea, $args,
     global $CFG;
     require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
     $definition = block_edupublisher::get_channel_definition();
-    $areas = array();
+    $areas = array('publisher_logo');
     $channels = array_keys($definition);
     foreach($channels AS $channel) {
         $fields = array_keys($definition[$channel]);

@@ -115,7 +115,7 @@ $string['eduthek_trigger_active'] = 'In eduthek aktiv!';
 $string['eduthek_type'] = 'Typ';
 
 $string['enablecommercial'] = 'Erlaube kommerziellen Inhalt';
-$string['enablecommercial_desc'] = 'Mit dieser Checkbox kann die Publikation von kommerziellen Inhalten global erlaubt oder verboten werden. <strong>Achtung: </strong> Die Einstellung bezieht sich nur auf neue Veröffentlichungen. Vorhandene Einträge werden nicht verändert!';
+$string['enablecommercial_desc'] = 'Mit dieser Checkbox kann die Findbarkeit von kommerziellen Inhalten global gesteuert werden.';
 
 $string['etapas__description'] = 'Die eTapas-Initiative von eEducation Austria ermöglicht es Lehrer/innen eigene Lernszenarien als Open Educational Resource zu veröffentlichen und dafür eine Entlohnung zu erhalten. Für mehr Informationen besuchen Sie bitte die <a href="https://www.eeducation.at/?id=602" target="_blank">eEducation Webseite</a>.';
 $string['etapas__mailsubject'] = 'eTapa zur Prüfung eingereicht';
@@ -170,6 +170,7 @@ $string['licence_packages'] = 'Pakete';
 $string['licence_paste_alternatively'] = 'Alternativ können Sie auch bestehende Lizenz-Schlüssel hier einfügen!';
 $string['licence_pool'] = 'Korb';
 $string['licence_pool_desc'] = 'Der "Korb" ermöglicht es Nutzer/innen jedes beliebige Paket, das von einer Lizenz umfasst wird, so oft in einen Kurs zu importieren, wie Sie in dieser Lizenz festgelegt haben.<br /><br /><strong>Beispiel:</strong> Die Lizenz umfasst 20 Lernpakete, die Anzahl an Imports wurde auf 5 gesetzt --> Die Nutzer/innen können 5 mal eines dieser Lernpakete in einen Kurs importieren.';
+$string['licence_redeem'] = 'Lizenz einlösen';
 $string['licence_target'] = 'Kontext';
 $string['licence_target_course'] = 'Kurs';
 $string['licence_target_course_desc'] = 'Die Lizenz wird einem Kurs zugeordnet. Das entspricht in den meisten Fällen einer Schulklasse.';

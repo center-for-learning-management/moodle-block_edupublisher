@@ -82,13 +82,14 @@ define(
             var MAIN = this;
             $('#courseid-' + uniqid).empty().attr('disabled', 'disabled');
             $('#sectionid-' + uniqid).empty().attr('disabled', 'disabled');
+            var packageid = +$('#packageid-' + uniqid).val();
             STR.get_strings([
                     {'key' : 'loading', component: 'core' },
                 ]).done(function(s) {
                     $('#courseid-' + uniqid + ', #sectionid-' + uniqid).append($('<option>').html(s[0]));
                     AJAX.call([{
                         methodname: 'block_edupublisher_init_import_load_courses',
-                        args: { },
+                        args: { packageid: packageid },
                         done: function(result) {
                             console.log('Result', result);
                             var result = JSON.parse(result);
@@ -116,6 +117,7 @@ define(
                                         $('#sectionid-' + uniqid).append($('<option>').html(s[0]));
                                     }
                                 ).fail(NOTIFICATION.exception);
+                                NOTIFICATION.show('error', 'no courses');
                             }
                         },
                         fail: NOTIFICATION.exception

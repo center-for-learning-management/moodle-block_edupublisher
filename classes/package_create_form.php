@@ -33,7 +33,7 @@ class package_create_form extends moodleform {
     static $subdirs = 0;
 
     function definition() {
-        global $CFG, $COURSE, $DB;
+        global $CFG, $COURSE, $DB, $USER;
 
         $editoroptions = array('subdirs'=>0, 'maxbytes'=>0, 'maxfiles'=>0,
                                'changeformat'=>0, 'context'=>null, 'noclean'=>0,
@@ -57,11 +57,14 @@ class package_create_form extends moodleform {
         $mform->setType('__possible_origins', PARAM_RAW);
         */
 
+        //$ALLOW_COMMERCIAL = get_config('block_edupublisher', 'enablecommercial') && block_edupublisher::is_publisher();
+        $ALLOW_COMMERCIAL = block_edupublisher::is_publisher();
         $definition = block_edupublisher::get_channel_definition();
         //print_r($definition);
         $channels = array_keys($definition);
         $stringman = get_string_manager();
         foreach($channels AS $channel) {
+            if ($channel == 'commercial' && !$ALLOW_COMMERCIAL) continue;
             $label = $this->get_label($definition, $channel, 'publish_as', ucfirst($channel), $stringman);
             $mform->addElement('header', $channel . '_publish_as', $label);
             if ($this->has_channel_description($channel, $stringman)) {
@@ -73,6 +76,11 @@ class package_create_form extends moodleform {
                 if ($_field == 'publish_as') continue;
                 $field = $definition[$channel][$_field];
                 $required = isset($field['required']) && $field['required'];
+                $hiddenexceptmaintainer = isset($field['hidden_except_maintainer']) && $field['hidden_except_maintainer'];
+                if ($hiddenexceptmaintainer && !block_edupublisher::is_maintainer()) {
+                    continue;
+                }
+
                 $label = $this->get_label($definition, $channel, $_field, $_field, $stringman, $required);
 
                 unset($addedfield);
@@ -109,6 +117,23 @@ class package_create_form extends moodleform {
                     break;
                     case 'select':
                         $options = (isset($field['options'])) ? $field['options'] : array();
+                        if ($channel == 'commercial' && $_field == 'publisher') {
+                            if (block_edupublisher::is_admin()) {
+                                $allpublishers = $DB->get_records_sql('SELECT * FROM {block_edupublisher_pub} ORDER BY name ASC', array());
+                            } else {
+                                $allpublishers = $DB->get_records_sql('SELECT ep.* FROM {block_edupublisher_pub} ep, {block_edupublisher_pub_user} epu WHERE ep.id=epu.publisherid AND epu.userid=? ORDER BY name ASC', array($USER->id));
+                            }
+                            foreach($allpublishers AS $publisher) {
+                                if (block_edupublisher::is_admin()) {
+                                    $chk = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisher->id, 'userid' => $USER->id));
+                                    if (!$chk) $publisher->name = '! ' . $publisher->name;
+                                }
+                                $options[$publisher->id] = $publisher->name;
+                            }
+                        }
+                        if ($channel == 'default' && $_field == 'licence' && !block_edupublisher::is_publisher()) {
+                            unset($options['other']);
+                        }
                         $addedfield = $mform->addElement('select', $channel . '_' . $_field, $label, $options);
                         if (isset($field['multiple']) && $field['multiple']) {
                             $addedfield->setMultiple(true);
@@ -116,6 +141,9 @@ class package_create_form extends moodleform {
                     break;
                     case 'text':
                         $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label);
+                    break;
+                    case 'url':
+                        $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label, array('type' => $field['type']));
                     break;
                 }
                 if (isset($addedfield) && isset($field['default'])) {
@@ -141,20 +169,14 @@ class package_create_form extends moodleform {
                 }
             }
             if ($channel == 'default') {
-                /*
-                $boxes = array(
-                    $mform->createElement('checkbox', 'exportcourse', get_string('exportcourse_attention', 'block_edupublisher'), '', array('checked' => 'checked', 'onclick' => 'require(["block_edupublisher/main"], function(MAIN) { MAIN.exportCourseWarning(); });')),
-                );
-                $mform->addGroup($boxes, 'exportcoursebox', get_string('exportcourse', 'block_edupublisher'), array(' '), false);
-                $mform->hideIf('exportcoursebox', 'id', 'neq', '0');
-                $mform->addHelpButton('exportcoursebox', 'exportcourse', 'block_edupublisher');
-                */
                 $mform->addElement('hidden', 'exportcourse', get_string('exportcourse_attention', 'block_edupublisher'));
                 $mform->setType('exportcourse', PARAM_BOOL);
                 $mform->setDefault('exportcourse', 1);
+
                 $boxes = array();
                 foreach($channels AS $_channel) {
                     if ($_channel == 'default') continue;
+                    if ($_channel == 'commercial' && !$ALLOW_COMMERCIAL) continue;
                     $label = $this->get_label($definition, $_channel, 'publish_as', ucfirst($_channel), $stringman);
                     $boxes[] = $mform->createElement('checkbox', $_channel . '_publishas', $label, NULL, array('onclick' => 'var inp = this; require(["jquery"], function($) { $("#id_' . $_channel . '_publish_as").css("display", $(inp).is(":checked") ? "block" : "none"); });'));
                     $mform->setType($_channel . '_publishas', PARAM_BOOL);
@@ -165,6 +187,14 @@ class package_create_form extends moodleform {
         $mform->hideIf('etapas_status', 'cantriggeractiveetapas', 'neq', '1');
 
         $mform->addElement('html', '<script type="text/javascript"> document.addEventListener("DOMContentLoaded", function(event) { require(["block_edupublisher/main"], function(MAIN) { MAIN.preparePackageForm("' . implode(',', $channels) . '"); }); });</script>');
+
+        // Manually disable OER-Channels if set to commercial and vice versa
+        if ($ALLOW_COMMERCIAL) {
+            $mform->disabledIf('commercial_publishas', 'etapas_publishas', 'checked');
+            $mform->disabledIf('commercial_publishas', 'eduthek_publishas', 'checked');
+            $mform->disabledIf('etapas_publishas', 'commercial_publishas', 'checked');
+            $mform->disabledIf('eduthek_publishas', 'commercial_publishas', 'checked');
+        }
 
         $this->add_action_buttons();
     }

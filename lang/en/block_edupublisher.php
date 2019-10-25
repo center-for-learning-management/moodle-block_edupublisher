@@ -115,7 +115,7 @@ $string['eduthek_trigger_active'] = 'Check this box to publish this in eduthek!'
 $string['eduthek_type'] = 'Type';
 
 $string['enablecommercial'] = 'Enable commercial content';
-$string['enablecommercial_desc'] = 'With this checkbox you can globally allow or prevent commercial packages from being published in eduPublisher. <strong>Note: </strong> This only applies to new publications. Existing publications will not be affected!';
+$string['enablecommercial_desc'] = 'With this checkbox you can globally control if commercial packages can be found in edupublisher.';
 
 $string['etapas__description'] = 'The eTapas-Initiative driven by eEducation Austria allows teachers to hand in their learning sequences as Open Educational Resource and get a reward. For more information please refer to the <a href="https://www.eeducation.at/?id=602" target="_blank">eEducation Website</a>.';
 $string['etapas__mailsubject'] = 'eTapa handed in for inspection';

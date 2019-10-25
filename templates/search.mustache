@@ -49,13 +49,7 @@
                 </a>
                 <ul data-role="listview" id="pub_{{publisherid}}_items_{{uniqid}}" class="hidden">
                     {{#items}}
-                    <li>
-                        <a href="/blocks/edupublisher/pages/import.php?package={{id}}&course={{course}}&section={{sectionid}}">
-                            <img src="{{default_image}}" alt="Image" />
-                            <h3>{{title}}</h3>
-                            <p>{{{default_summary}}}</p>
-                        </a>
-                    </li>
+                        {{> block_edupublisher/search_li}}
                     {{/items}}
                 </ul>
             </div>

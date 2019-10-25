@@ -28,17 +28,59 @@ require_once($CFG->dirroot . "/blocks/edupublisher/block_edupublisher.php");
 
 class block_edupublisher_external extends external_api {
     public static function init_import_load_courses_parameters() {
-        return new external_function_parameters(array());
+        return new external_function_parameters(array(
+            'packageid' => new external_value(PARAM_INT, 'id of package'),
+        ));
     }
 
     /**
      * Return all courses the user has trainer capabilities in.
      * @return list of courses as json encoded string.
      */
-    public static function init_import_load_courses() {
-        global $CFG, $DB;
+    public static function init_import_load_courses($packageid) {
+        global $CFG, $DB, $USER;
+        $params = self::validate_parameters(self::init_import_load_courses_parameters(), array('packageid' => $packageid));
+
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         $courses = block_edupublisher::get_courses(null, 'moodle/course:update');
+        $package = block_edupublisher::get_package($params['packageid']);
+        if (!empty($package->commercial_publishas) && $package->commercial_publishas) {
+            // The licence must allow us to import into certain courses.
+            foreach ($courses AS $courseid => $course) {
+                $orgid = 0;
+
+                if (block_edupublisher::uses_eduvidual()) {
+                    // This is some functionality specific to a plugin that is not published!
+                    require_once($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
+                    $org = block_eduvidual::get_org_by_courseid($courseid);
+                    $orgid = $org->orgid;
+                }
+                $sql = "SELECT *
+                          FROM
+                            {block_edupublisher_lic} l,
+                            {block_edupublisher_lic_pack} lp
+                          WHERE l.id=lp.licenceid
+                            AND lp.packageid=?
+                            AND (
+                                lp.amounts = -1 OR lp.amounts > 0
+                            )
+                            AND (
+                                (l.target = 3 AND l.redeemid>0 AND l.redeemid = ?)
+                                OR
+                                (l.target = 2 AND l.redeemid>0 AND l.redeemid = ?)
+                                OR
+                                (l.target = 1 AND l.redeemid>0 AND l.redeemid = ?)
+                            )";
+                //$reply['sql'] = $sql;
+                //$reply['params'] = array($package->id, $USER->id, $params['courseid'], $orgid);
+                $licence = $DB->get_records_sql($sql, array($package->id, $USER->id, $courseid, $orgid));
+                if (empty($licence->id)) {
+                    // No licence for this course.
+                    unset($courses[$courseid]);
+                };
+            }
+        }
+
         // Re-sort by name.
         $_courses = array();
         foreach ($courses AS $course) {
@@ -454,7 +496,8 @@ class block_edupublisher_external extends external_api {
                     $reply['commercial'][] = $package->id;
 
                     $orgid = 0;
-                    if (false && block_eduvidual::uses_eduvidual()) {
+
+                    if (block_edupublisher::uses_eduvidual()) {
                         // This is some functionality specific to a plugin that is not published!
                         require_once($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
                         $org = block_eduvidual::get_org_by_courseid($params['courseid']);
