@@ -29,7 +29,7 @@ $publisher = block_edupublisher::get_publisher($publisherid);
 $context = context_system::instance();
 
 // Must pass login
-$PAGE->set_url('/blocks/edupublisher/pages/licence.php?id=' . $publisherid);
+$PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/licence.php', array('publisherid' => $publisherid)));
 require_login();
 $PAGE->set_context($context);
 $PAGE->set_title((!empty($publisher->id) ? $publisher->name . ' - ' : '') . get_string('licence', 'block_edupublisher'));
@@ -37,6 +37,10 @@ $PAGE->set_heading((!empty($publisher->id) ? $publisher->name . ' - ' : '') . ge
 $PAGE->set_pagelayout('mydashboard');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
+
+$PAGE->navbar->add(get_string('publisher', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/publishers.php', array()));
+$PAGE->navbar->add($publisher->name, new moodle_url('/blocks/edupublisher/pages/publishers.php', array('publisherid' => $publisher->id)));
+$PAGE->navbar->add(get_string('licence', 'block_edupublisher'), $PAGE->url);
 
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();

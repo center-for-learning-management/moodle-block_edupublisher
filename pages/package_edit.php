@@ -38,6 +38,9 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
+$PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->id)));
+$PAGE->navbar->add(get_string('edit'), $PAGE->url);
+
 block_edupublisher::check_requirements();
 
 block_edupublisher::print_app_header();

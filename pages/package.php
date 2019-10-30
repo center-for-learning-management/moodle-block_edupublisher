@@ -38,6 +38,8 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
+$PAGE->navbar->add(get_string('details', 'block_edupublisher'), $PAGE->url);
+
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
 

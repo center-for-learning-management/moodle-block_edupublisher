@@ -28,7 +28,7 @@ $id = optional_param('id', 0, PARAM_INT);
 $publisher = block_edupublisher::get_publisher($id);
 $context = context_system::instance();
 // Must pass login
-$PAGE->set_url('/blocks/edupublisher/pages/publishers.php?id=' . $id);
+$PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/publishers.php', array('id' => $id)));
 require_login();
 $PAGE->set_context($context);
 $PAGE->set_title((!empty($publisher->id) ? $publisher->name : get_string('publisher', 'block_edupublisher')));
@@ -37,6 +37,10 @@ $PAGE->set_pagelayout('mydashboard');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
+$PAGE->navbar->add(get_string('publisher', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/publishers.php', array()));
+if (!empty($publisher->name)) {
+    $PAGE->navbar->add($publisher->name, $PAGE->url);
+}
 block_edupublisher::print_app_header();
 
 if (block_edupublisher::is_maintainer(array('commercial'))) {

@@ -62,6 +62,7 @@ $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/search.php', array('co
 $PAGE->set_pagelayout($layout);
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
+$PAGE->navbar->add(get_string('search_in_edupublisher', 'block_edupublisher'), $PAGE->url);
 
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();

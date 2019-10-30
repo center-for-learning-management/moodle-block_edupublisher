@@ -29,7 +29,7 @@ $channel = optional_param('channel', '', PARAM_TEXT);
 
 $context = context_system::instance();
 // Must pass login
-$PAGE->set_url('/blocks/edupublisher/pages/list.php?channel=' . $channel);
+$PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/list.php', array('channel' => $channel)));
 require_login();
 $PAGE->set_context($context);
 $title = get_string('channels', 'block_edupublisher');
@@ -43,6 +43,11 @@ $PAGE->set_heading($title);
 $PAGE->set_pagelayout('mydashboard');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
+
+$PAGE->navbar->add(get_string('channels', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/publishers.php', array()));
+if (!empty($channel)) {
+    $PAGE->navbar->add($title, $PAGE->url);
+}
 
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();

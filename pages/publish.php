@@ -68,6 +68,7 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
+$PAGE->navbar->add(get_string('publish_new_package', 'block_edupublisher'), $PAGE->url);
 block_edupublisher::check_requirements();
 
 if (optional_param('cancel', 0, PARAM_INT) == 1) {

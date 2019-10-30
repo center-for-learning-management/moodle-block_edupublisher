@@ -29,10 +29,10 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 $id = required_param('id', PARAM_INT);
 $confirmed = optional_param('confirmed', 0, PARAM_INT);
 $package = block_edupublisher::get_package($id, true);
-$context = context_system::instance();
+$context = context_course::instance($package->course);
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/remove.php?id=' . $id);
-require_login();
+require_login($package->course);
 $PAGE->set_context($context);
 $PAGE->set_title($package->title);
 $PAGE->set_heading($package->title);
@@ -40,6 +40,8 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
+$PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->id)));
+$PAGE->navbar->add(get_string('removal:title', 'block_edupublisher'), $PAGE->url);
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
 
