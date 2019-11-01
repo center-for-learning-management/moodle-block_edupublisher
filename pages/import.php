@@ -221,12 +221,16 @@ try {
         // All modules that are new have to be moved to $sectionid.
         // Newly created sections have to be removed.
         $sections_new = $DB->get_records('course_sections', array('course' => $targetcourse->id));
-        $ids = array_keys($sections_new);
-        for ($a = 0; $a < count($ids); $a++) {
-            if (!empty($sections[$ids[$a]])) {
+        foreach ($sections_new AS $id => $section) {
+            if (!empty($sections[$id])) {
+                $newsequence = $sections_new[$id]->sequence;
+                // Set section data to original, but with new sequence.
+                $sections_new[$id] = $section[$id];
+                $sections_new[$id]->sequence = $newsequence;
+
                 // This section existed before - compare sequence.
-                $oldsequence = explode(',', $sections[$ids[$a]]->sequence);
-                $newsequence = explode(',', $sections_new[$ids[$a]]->sequence);
+                $oldsequence = explode(',', $section[$id]->sequence);
+                $newsequence = explode(',', $sections_new[$id]->sequence);
 
                 //echo "Comparing old sequence";
                 //print_r($oldsequence);
@@ -242,19 +246,19 @@ try {
                 //print_r($cmids_to_move);
             } else {
                 // This section is new - move all content and remove afterwards.
-                $cmids_to_move = explode(',', $sections[$ids[$a]]->sequence);
+                $cmids_to_move = explode(',', $sections[$id]->sequence);
                 $remove_section = true;
                 //echo "New section, moving the following cmids";
                 //print_r($cmids_to_move);
             }
-
             foreach ($cmids_to_move AS $cmid) {
                 course_add_cm_to_section($targetcourse, $cmid, $sectionnr);
             }
             if ($remove_section) {
-                course_delete_section($targetcourse, $sections_new[$ids[$a]], true);
+                course_delete_section($targetcourse, $sections_new[$id], true);
             }
         }
+
         rebuild_course_cache($targetcourse->id, true);
 
         $DB->insert_record('block_edupublisher_uses', (object) array(
