@@ -225,11 +225,12 @@ try {
             if (!empty($sections[$id])) {
                 $newsequence = $sections_new[$id]->sequence;
                 // Set section data to original, but with new sequence.
-                $sections_new[$id] = $section[$id];
+                $sections_new[$id] = $sections[$id];
                 $sections_new[$id]->sequence = $newsequence;
+                $DB->update_record('course_sections', $sections_new[$id]);
 
                 // This section existed before - compare sequence.
-                $oldsequence = explode(',', $section[$id]->sequence);
+                $oldsequence = explode(',', $sections[$id]->sequence);
                 $newsequence = explode(',', $sections_new[$id]->sequence);
 
                 //echo "Comparing old sequence";
