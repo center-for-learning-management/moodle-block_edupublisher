@@ -144,7 +144,7 @@ define(
                                 var i = 0;
                                 Object.keys(result.sections).forEach(function(sectionid) {
                                     var s = result.sections[sectionid];
-                                    if (!s.name) s.name = "#" + (i + 1);
+                                    if (!s.name) s.name = "#" + (i);
                                     $('#sectionid-' + uniqid).append($('<option>').attr('value', s.id).html(s.name));
                                     i++;
                                 });
