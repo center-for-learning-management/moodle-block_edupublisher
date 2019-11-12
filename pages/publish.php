@@ -200,7 +200,8 @@ if ($package->id > 0 && $PREVENTFORM) {
                                         backup::INTERACTIVE_YES, backup::MODE_IMPORT, $USER->id);
                 $bc->get_plan()->get_setting('users')->set_status(backup_setting::LOCKED_BY_CONFIG);
                 $settings = $bc->get_plan()->get_settings();
-                $settings_disable = array( 'blocks', 'calendarevents', 'filters', 'users');
+                $settings_enable = array( 'blocks');
+                $settings_disable = array( 'calendarevents', 'filters', 'users');
 
                 // For the initial stage we want to hide all locked settings and if there are
                 // no visible settings move to the next stage
@@ -209,6 +210,10 @@ if ($package->id > 0 && $PREVENTFORM) {
                     // Disable undesired settings
                     if (in_array($setting->get_name(), $settings_disable) && $setting->get_status() == backup_setting::NOT_LOCKED) {
                         $setting->set_value(0);
+                        $setting->set_status(backup_setting::LOCKED_BY_CONFIG);
+                    }
+                    if (in_array($setting->get_name(), $settings_enable) && $setting->get_status() == backup_setting::NOT_LOCKED) {
+                        $setting->set_value(1);
                         $setting->set_status(backup_setting::LOCKED_BY_CONFIG);
                     }
                     if ($setting->get_status() !== backup_setting::NOT_LOCKED) {
