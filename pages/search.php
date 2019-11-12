@@ -51,10 +51,12 @@ if ($section == -1 && $sectionno > -1) {
 
 if (!empty($course)) {
     $context = context_course::instance($course);
+    require_login(get_course($course));
 } else {
     $context = context_system::instance();
+    require_login();
 }
-require_login();
+
 // Set up the page
 $PAGE->set_title(get_string('search'));
 $PAGE->set_heading(get_string('search'));
