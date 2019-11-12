@@ -78,12 +78,9 @@ try {
     if (!($bc = backup_ui::load_controller($backupid))) {
         $bc = new backup_controller(backup::TYPE_1COURSE, $importcourse->id, backup::FORMAT_MOODLE,
                                 backup::INTERACTIVE_YES, backup::MODE_IMPORT, $USER->id);
-        //$bc->get_plan()->get_setting('blocks')->set_value(0);
-        //$bc->get_plan()->get_setting('users')->set_value(0);
-        //$bc->get_plan()->get_setting('blocks')->set_status(backup_setting::LOCKED_BY_CONFIG);
-        $bc->get_plan()->get_setting('users')->set_status(backup_setting::LOCKED_BY_CONFIG);
         $settings = $bc->get_plan()->get_settings();
-        $settings_disable = array( 'blocks', 'calendarevents', 'filters', 'users');
+        $settings_enable = array('blocks');
+        $settings_disable = array('calendarevents', 'filters', 'users');
 
         // For the initial stage we want to hide all locked settings and if there are
         // no visible settings move to the next stage
@@ -92,6 +89,10 @@ try {
             // Disable undesired settings
             if (in_array($setting->get_name(), $settings_disable) && $setting->get_status() == backup_setting::NOT_LOCKED) {
                 $setting->set_value(0);
+                $setting->set_status(backup_setting::LOCKED_BY_CONFIG);
+            }
+            if (in_array($setting->get_name(), $settings_enable) && $setting->get_status() == backup_setting::NOT_LOCKED) {
+                $setting->set_value(1);
                 $setting->set_status(backup_setting::LOCKED_BY_CONFIG);
             }
             if ($setting->get_status() !== backup_setting::NOT_LOCKED) {
@@ -108,24 +109,27 @@ try {
     $backup = new import_ui($bc, array('importid'=>$importcourse->id, 'target'=>$restoretarget));
     // Process the current stage
     $backup->process();
+
     // If this is the confirmation stage remove the filename setting
     if ($backup->get_stage() == backup_ui::STAGE_CONFIRMATION) {
         $backup->get_setting('filename')->set_visibility(backup_setting::HIDDEN);
         // We try to skip this stage!
         import_ui::skip_current_stage(true);
+        // If we are not able to skip this step and the form is display, we click the "confirm"-button using JS.
         $PAGE->requires->js_call_amd('block_edupublisher/main', 'clickImportConfirmation', array());
     }
+
     // If it's the final stage process the import
     if ($backup->get_stage() == backup_ui::STAGE_FINAL) {
         // Display an extra progress bar so that we can show the current stage.
-        echo html_writer::start_div('', array('id' => 'executionprogress'));
+        //echo html_writer::start_div('', array('id' => 'executionprogress'));
         //echo $renderer->progress_bar($backup->get_progress_bar());
         // Start the progress display - we split into 2 chunks for backup and restore.
         $progress = new \core\progress\display();
         $progress->start_progress('', 2);
         $backup->get_controller()->set_progress($progress);
         // Prepare logger for backup.
-        $logger = new core_backup_html_logger($CFG->debugdeveloper ? backup::LOG_DEBUG : backup::LOG_INFO);
+        $logger = new core_backup_html_logger(backup::LOG_INFO); // $CFG->debugdeveloper ? backup::LOG_DEBUG : backup::LOG_INFO);
         $backup->get_controller()->add_logger($logger);
         // First execute the backup
         $backup->execute();
@@ -140,59 +144,39 @@ try {
         if (!file_exists($tempdestination) || !is_dir($tempdestination)) {
             print_error('unknownbackupexporterror'); // shouldn't happen ever
         }
-        // Prepare the restore controller. We don't need a UI here as we will just use what
-        // ever the restore has (the user has just chosen).
-        $rc = new restore_controller($backupid, $targetcourse->id, backup::INTERACTIVE_NO, backup::MODE_IMPORT, $USER->id, $restoretarget);
-        // Start a progress section for the restore, which will consist of 2 steps
-        // (the precheck and then the actual restore).
-        $progress->start_progress('Restore process', 2);
-        $rc->set_progress($progress);
-        // Set logger for restore.
-        $rc->add_logger($logger);
-        // Convert the backup if required.... it should NEVER happed
-        if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
-            $rc->convert();
-        }
-        // Mark the UI finished.
-        //$rc->finish_ui();
-        // Execute prechecks
-        $warnings = false;
-        if (!$rc->execute_precheck()) {
-            $precheckresults = $rc->get_precheck_results();
-            if (is_array($precheckresults)) {
-                if (!empty($precheckresults['errors'])) { // If errors are found, terminate the import.
-                    fulldelete($tempdestination);
-                    echo $renderer->precheck_notices($precheckresults);
-                    echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id'=>$targetcourseid)));
-                    block_edupublisher::print_app_footer();
-                    die();
-                }
-                if (!empty($precheckresults['warnings'])) { // If warnings are found, go ahead but display warnings later.
-                    $warnings = $precheckresults['warnings'];
-                }
-            }
-        }
-        if ($restoretarget == backup::TARGET_CURRENT_DELETING || $restoretarget == backup::TARGET_EXISTING_DELETING) {
-            // This would not be intended by us!
-            //restore_dbops::delete_course_content($targetcourse->id);
-        }
 
-        // NEW BEHAVIOUR - INJECT INTO SECTION ITSELF
 
+        // Backup was ok - we create a label and to the restore.
         // Create a label at the end of the section.
         require_once($CFG->dirroot . '/blocks/edupublisher/classes/module_compiler.php');
         $data = array(
             'course' => $targetcourse->id,
             'intro' => '<h3>' . $package->title . '</h3>',
             'introformat' => 1,
-            'section' => $sectionnr
+            'section' => $sectionnr,
         );
         $item = block_edupublisher_module_compiler::compile('label', (object)$data, (object)array());
-        //print_r($item);
         $module = block_edupublisher_module_compiler::create($item);
 
         // Now store the data of all sections' sequences in targetcourse.
-        $sections = $DB->get_records('course_sections', array('course' => $targetcourse->id));
+        $sections_old = $DB->get_records('course_sections', array('course' => $targetcourse->id));
+
+        require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
+        $transaction = $DB->start_delegated_transaction();
+
+        // Restore backup into course.
+        $rc = new restore_controller($bc->get_backupid(), $targetcourseid,
+                backup::INTERACTIVE_NO, backup::MODE_IMPORT, $USER->id,
+                backup::TARGET_EXISTING_ADDING);
+        if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
+            $rc->convert();
+        }
+        $rc->execute_precheck();
+
+        // Commit.
+        $transaction->allow_commit();
+
+        // NEW BEHAVIOUR - INJECT INTO SECTION ITSELF
 
         // Now do the import.
         // Execute the restore.
@@ -200,67 +184,72 @@ try {
         // Delete the temp directory now
         fulldelete($tempdestination);
         // End restore section of progress tracking (restore/precheck).
-        $progress->end_progress();
+        //$progress->end_progress();
         // All progress complete. Hide progress area.
         $progress->end_progress();
-        echo html_writer::end_div();
-        echo html_writer::script('document.getElementById("executionprogress").style.display = "none";');
+        //echo html_writer::end_div();
+        //echo html_writer::script('document.getElementById("executionprogress").style.display = "none";');
         // Display a notification and a continue button
-        if ($warnings) {
-            echo $OUTPUT->box_start();
-            echo $OUTPUT->notification(get_string('warning'), 'notifyproblem');
-            echo html_writer::start_tag('ul', array('class'=>'list'));
-            foreach ($warnings as $warning) {
-                echo html_writer::tag('li', $warning);
-            }
-            echo html_writer::end_tag('ul');
-            echo $OUTPUT->box_end();
-        }
 
-        // Now log section data again.
-        // All modules that are new have to be moved to $sectionid.
-        // Newly created sections have to be removed.
+        $remove_sections = array();
+        $cmids_new = array();
         $sections_new = $DB->get_records('course_sections', array('course' => $targetcourse->id));
+        $sql = "SELECT section,name
+                    FROM {course_sections}
+                    WHERE course=?";
+        $sections_basement_by_no = $DB->get_records_sql($sql, array($importcourse->id));
+
         foreach ($sections_new AS $id => $section) {
-            if (!empty($sections[$id])) {
-                $newsequence = $sections_new[$id]->sequence;
-                // Set section data to original, but with new sequence.
-                $sections_new[$id] = $sections[$id];
-                $sections_new[$id]->sequence = $newsequence;
-                $DB->update_record('course_sections', $sections_new[$id]);
+            $oldsequence = !empty($sections_old[$id]) ? explode(',', $sections_old[$id]->sequence) : array();
+            $newsequence = explode(',', $sections_new[$id]->sequence);
+            if (!empty($sections_basement_by_no[$section->section])) {
+                $sec = $sections_basement_by_no[$section->section];
+                if (!empty($sec->name)) {
+                    // Add label for section.
+                    $cmids_new[] = $sec->name;
+                }
+            }
 
-                // This section existed before - compare sequence.
-                $oldsequence = explode(',', $sections[$id]->sequence);
-                $newsequence = explode(',', $sections_new[$id]->sequence);
-
-                //echo "Comparing old sequence";
-                //print_r($oldsequence);
-                //print_r($newsequence);
-                $cmids_to_move = array();
+            if (!empty($sections_old[$id])) {
                 foreach ($newsequence AS $cmid) {
                     if (!in_array($cmid, $oldsequence)) {
-                        $cmids_to_move[] = $cmid;
+                        $cmids_new[] = $cmid;
                     }
                 }
-                $remove_section = false;
-                //echo "Old section, moving the following cmids";
-                //print_r($cmids_to_move);
+                $sections_old[$id]->sequence = $sections_new[$id]->sequence;
+                // Reset old data.
+                $DB->update_record('course_sections', $sections_old[$id]);
             } else {
-                // This section is new - move all content and remove afterwards.
-                $cmids_to_move = explode(',', $sections[$id]->sequence);
-                $remove_section = true;
-                //echo "New section, moving the following cmids";
-                //print_r($cmids_to_move);
-            }
-            foreach ($cmids_to_move AS $cmid) {
-                course_add_cm_to_section($targetcourse, $cmid, $sectionnr);
-            }
-            if ($remove_section) {
-                course_delete_section($targetcourse, $sections_new[$id], true);
+                $remove_sections[] = $id;
+                foreach ($newsequence AS $cmid) {
+                    $cmids_new[] = $cmid;
+                }
             }
         }
+        foreach ($cmids_new AS $cmid) {
+            if (intval($cmid) > 0) {
+                //echo "<li>Moving cmid #" . $cmid . " to section no " . $sectionnr . "</li>\n";
+                course_add_cm_to_section($targetcourseid, $cmid, $sectionnr);
+            } elseif(strlen($cmid) > 0) {
+                $data = array(
+                    'course' => $targetcourse->id,
+                    'intro' => '<h4>' . $cmid . '</h4>',
+                    'introformat' => 1,
+                    'section' => $sectionnr,
+                );
+                $item = block_edupublisher_module_compiler::compile('label', (object)$data, (object)array());
+                $module = block_edupublisher_module_compiler::create($item);
+                //echo "<li>Creating label " . $cmid . " with cmid " . $module->coursemodule . "</li>\n";
+                course_add_cm_to_section($targetcourseid, $module->coursemodule, $sectionnr);
+            }
 
-        rebuild_course_cache($targetcourse->id, true);
+        }
+        foreach ($remove_sections AS $rs) {
+            //echo "<li>Delete section #" . $id . "</li>\n";
+            course_delete_section($targetcourseid, $id, true);
+        }
+
+        rebuild_course_cache($targetcourseid, true);
 
         $DB->insert_record('block_edupublisher_uses', (object) array(
             'userid' => $USER->id,
