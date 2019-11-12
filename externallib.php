@@ -84,7 +84,7 @@ class block_edupublisher_external extends external_api {
         // Re-sort by name.
         $_courses = array();
         foreach ($courses AS $course) {
-            $_courses[$course->name . '_' . $course->id] = $course;
+            $_courses[$course->fullname . '_' . $course->id] = $course;
         }
         return json_encode(array('courses' => array_reverse(array_values($_courses))));
     }
@@ -109,7 +109,7 @@ class block_edupublisher_external extends external_api {
      * @return list of courses as json encoded string.
      */
     public static function init_import_load_sections($courseid) {
-        global $CFG, $DB;
+        global $CFG, $DB, $USER;
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         $params = self::validate_parameters(self::init_import_load_sections_parameters(), array('courseid' => $courseid));
 
@@ -501,7 +501,7 @@ class block_edupublisher_external extends external_api {
                         // This is some functionality specific to a plugin that is not published!
                         require_once($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
                         $org = block_eduvidual::get_org_by_courseid($params['courseid']);
-                        $orgid = $org->orgid;
+                        $orgid = !empty($org->orgid) ? $org->orgid : 0;
                     }
                     $sql = "SELECT *
                               FROM
