@@ -68,14 +68,7 @@ $definition = array(
         'ltiurl' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
         'lticartridge' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
         'ltisecret' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
-        'kompetenzen' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
         'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL),
-        'vonschule' => array('type' => 'text', 'datatype' => PARAM_TEXT),
-        'schulstufe' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'multiple' => 1, 'required' => 1, 'options' => array(
-            1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5,
-            6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11,
-            12 => 12, 13 => 13)
-        ),
         'status' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'default' => 'inspect',
             'hidden_on_init' => true, 'options' => array(
                 'inspect' => get_string('etapas_status_inspect', 'block_edupublisher'),
@@ -83,6 +76,20 @@ $definition = array(
                 'public' => get_string('etapas_status_public', 'block_edupublisher'),
             )
         ),
+        'type' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'default' => 'lesson', 'required' => 1, 'options' => array(
+            'lesson' => 'Unterricht', 'collection' => 'Beispielsammlung', 'learningroute' => 'Lernstrecke')
+        ),
+        'subtype' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'hidden_except_maintainer' => true, 'default' => 'etapa', 'options' => array(
+            'etapa' => 'eTapa', 'digi.komp 4' => 'digi.komp 4', 'digi.komp 8' => 'digi.komp 8', 'digi.komp 12' => 'digi.komp 12')
+        ),
+        'gegenstand' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
+        'vonschule' => array('type' => 'text', 'datatype' => PARAM_TEXT),
+        'schulstufe' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'multiple' => 1, 'required' => 1, 'options' => array(
+            1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5,
+            6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11,
+            12 => 12, 13 => 13)
+        ),
+        'kompetenzen' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
         'stundenablauf' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
         'vorkenntnisse' => array('type' => 'editor', 'datatype' => PARAM_RAW),
         'voraussetzungen' => array('type' => 'editor', 'datatype' => PARAM_RAW),
