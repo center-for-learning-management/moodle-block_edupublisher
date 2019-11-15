@@ -202,7 +202,7 @@ try {
         foreach ($sections_new AS $id => $section) {
             $oldsequence = !empty($sections_old[$id]) ? explode(',', $sections_old[$id]->sequence) : array();
             $newsequence = explode(',', $sections_new[$id]->sequence);
-            if (!empty($sections_basement_by_no[$section->section])) {
+            if (count($oldsequence) != count($newsequence) && !empty($sections_basement_by_no[$section->section])) {
                 $sec = $sections_basement_by_no[$section->section];
                 if (!empty($sec->name)) {
                     // Add label for section.
@@ -249,7 +249,7 @@ try {
             course_delete_section($targetcourseid, $id, true);
         }
 
-        rebuild_course_cache($targetcourseid, true);
+        //rebuild_course_cache($targetcourseid, true);
 
         $DB->insert_record('block_edupublisher_uses', (object) array(
             'userid' => $USER->id,
