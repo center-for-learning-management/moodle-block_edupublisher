@@ -164,7 +164,31 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         // Edupublisher savepoint reached.
         upgrade_block_savepoint(true, 2019050705, 'edupublisher');
     }
+    if ($oldversion < 2019111900) {
+        // Define field publisherid to be added to block_edupublisher_lic.
+        $table = new xmldb_table('block_edupublisher_packages');
+        $field = new xmldb_field('deleted', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'modified');
+        // Conditionally launch add field created.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
 
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2019111900, 'edupublisher');
+    }
+    if ($oldversion < 2019111901) {
+        // Add "published" - value for each channel as copy of "modified" if it is active!
+        $metas = $DB->get_records_sql("SELECT * FROM {block_edupublisher_metadata} WHERE field LIKE '%_active' AND content = '1'");
+        foreach ($metas AS $meta) {
+            unset($meta->id);
+            $meta->field = str_replace('_active', '_published', $meta->field);
+            $meta->content = $meta->modified;
+            $DB->insert_record('block_edupublisher_metadata', $meta);
+        }
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2019111901, 'edupublisher');
+    }
 
     return true;
 }

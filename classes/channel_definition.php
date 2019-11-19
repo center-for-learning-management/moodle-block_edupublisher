@@ -56,6 +56,7 @@ $definition = array(
         'tags' => array('type' => 'text', 'datatype' => PARAM_TEXT),
         // Hidden elements
         'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
+        'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
         'exacompsourceids' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_INT),
         'exacomptitles' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_TEXT),
         'exacompdatasources' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_TEXT),
@@ -69,6 +70,7 @@ $definition = array(
         'lticartridge' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
         'ltisecret' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
         'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL),
+        'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
         'status' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'default' => 'inspect',
             'hidden_on_init' => true, 'options' => array(
                 'inspect' => get_string('etapas_status_inspect', 'block_edupublisher'),
@@ -100,6 +102,7 @@ $definition = array(
     'eduthek' => array(
         'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
         'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL),
+        'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
         'ltiurl' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
         'lticartridge' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
         'ltisecret' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
@@ -243,6 +246,7 @@ $definition = array(
     'commercial' => array(
         'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
         'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL, 'default' => 1),
+        'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
         'publisher' => array('type' => 'select', 'datatype' => PARAM_INT, 'options' => array()),
         'shoplink' => array('type' => 'url', 'datatype' => PARAM_TEXT),
         'validation' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(

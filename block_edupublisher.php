@@ -887,7 +887,9 @@ class block_edupublisher extends block_base {
                         $messagetexts[$recipient->lang] = html_to_text($messagehtmls[$recipient->lang]);
                     }
 
-                    email_to_user($recipient, $fromuser, $subjects[$recipient->lang], $messagetexts[$recipient->lang], $messagehtmls[$recipient->lang], '', '', true);
+                    try {
+                        email_to_user($recipient, $fromuser, $subjects[$recipient->lang], $messagetexts[$recipient->lang], $messagehtmls[$recipient->lang], '', '', true);
+                    } catch(Exception $e) {}
                 }
             }
         }
@@ -939,6 +941,7 @@ class block_edupublisher extends block_base {
             $package->active = 0;
             $package->modified = time();
             $package->created = time();
+            $package->deleted = 0;
             $package->id = $DB->insert_record('block_edupublisher_packages', $package, true);
         }
 

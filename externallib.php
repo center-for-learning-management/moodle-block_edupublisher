@@ -664,8 +664,9 @@ class block_edupublisher_external extends external_api {
     public static function trigger_active($packageid, $type, $to) {
         $params = self::validate_parameters(self::trigger_active_parameters(), array('packageid' => $packageid, 'type' => $type, 'to' => $to));
         global $CFG, $DB, $USER;
-        $package = block_edupublisher::get_package($params['packageid'], false);
+        $package = block_edupublisher::get_package($params['packageid'], true);
 
+        $statusses = array();
         if (isset($package->{'cantriggeractive' . $params['type']}) && $package->{'cantriggeractive' . $params['type']}) {
             $active = ($params['to'] >= 1) ? 1 : 0;
             if ($params['type'] != 'default') {
@@ -706,17 +707,24 @@ class block_edupublisher_external extends external_api {
             $PAGE->set_context(context_system::instance());
             require_login();
             $sendto = array('author');
+            require_once($CFG->dirroot . '/blocks/edupublisher/classes/channel_definition.php');
+            $channels = array_keys($definition);
+            foreach ($channels AS $channel) {
+                $statusses[$channel . '_active'] = (!empty($package->{$channel . '_active'}) && $package->{$channel . '_active'} == 1) ? 1 : 0;
+                if (
+                    !empty($package->{$channel . '_active'}) && $package->{$channel . '_active'} == "1"
+                    &&
+                    (empty($package->{$channel . '_published'}) || $package->{$channel . '_published'} == "0")) {
+                    block_edupublisher::store_metadata($package, $channel, $channel . '_published', time());
+                }
+            }
             if ($package->active) {
                 block_edupublisher::store_comment($package, 'comment:template:package_published', $sendto, true, false);
             } else {
                 block_edupublisher::store_comment($package, 'comment:template:package_unpublished', $sendto, true, false);
             }
         }
-        $chans = $DB->get_records_sql("SELECT id,field,content FROM {block_edupublisher_metadata} WHERE field LIKE '%+_active' ESCAPE '+' AND package=?", array($params['packageid']));
-        $statusses = array();
-        foreach ($chans AS $chan) {
-            $statusses[$chan->field] = ($chan->content == 1) ? 1 : 0;
-        }
+        error_log(print_r($statusses, 1));
         return json_encode($statusses);
     }
     public static function trigger_active_returns() {

@@ -14,6 +14,7 @@
         <FIELD NAME="title" TYPE="char" LENGTH="250" NOTNULL="false" SEQUENCE="false" COMMENT="Title of the published package"/>
         <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was created"/>
         <FIELD NAME="modified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was modified"/>
+        <FIELD NAME="deleted" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was deleted"/>
         <FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="triggers if active or not"/>
       </FIELDS>
       <KEYS>

@@ -44,18 +44,28 @@ if (count($channels) == 0) {
 }
 header('Content-type: application/xml');
 
-$sql = 'SELECT p.id FROM {block_edupublisher_packages} p, {block_edupublisher_metadata} m WHERE p.id=m.package AND p.modified>? AND (1=0';
+$sql = "SELECT p.id
+            FROM {block_edupublisher_packages} p, {block_edupublisher_metadata} m
+            WHERE p.id=m.package
+                AND (
+                    p.modified>?
+                    OR
+                    m.modified>?
+                ) AND (1=0";
 foreach($channels AS $channel) {
-    $sql .= ' OR (p.channels LIKE "%,' . $channel. ',%" AND m.field = "' . $channel . '_active" AND m.content = "1")';
+    // If we filter for "active"
+    // $sql .= " OR (p.channels LIKE \"%," . $channel. ",%\" AND m.field = \"" . $channel . "_active\" AND m.content = \"1\")";
+    // If we filter for "was published at least once"
+    $sql .= " OR (p.channels LIKE \"%," . $channel. ",%\" AND m.field = \"" . $channel . "_published\" AND m.content <> \"0\")";
 }
-$sql .= ')';
+$sql .= ")";
 
 // Default-Data is added to be included in output, but AFTER sql!
 if (!in_array('default', $channels)) $channels[] = 'default';
 
 //echo $sql;
 $items = new SimpleXMLElement('<items />');
-$packageids = $DB->get_records_sql($sql, array($modified));
+$packageids = $DB->get_records_sql($sql, array($modified, $modified));
 foreach($packageids AS $packageid) {
     block_edupublisher::as_xml($packageid->id, $channels, $items);
 }

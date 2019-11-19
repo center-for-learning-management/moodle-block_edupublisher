@@ -53,10 +53,18 @@ if ($package->candelete) {
         );
         echo $OUTPUT->render_from_template('block_edupublisher/alert', (object) $params);
         delete_course($package->course, false);
-        $DB->delete_records('block_edupublisher_uses', array('package' => $id));
-        $DB->delete_records('block_edupublisher_rating', array('package' => $id));
-        $DB->delete_records('block_edupublisher_metadata', array('package' => $id));
-        $DB->delete_records('block_edupublisher_packages', array('id' => $id));
+
+        /**
+        * Removing all data may create inconsistencies. We just flag as removed.
+        * $DB->delete_records('block_edupublisher_uses', array('package' => $id));
+        * $DB->delete_records('block_edupublisher_rating', array('package' => $id));
+        * $DB->delete_records('block_edupublisher_metadata', array('package' => $id));
+        * $DB->delete_records('block_edupublisher_packages', array('id' => $id));
+        **/
+        $p = $DB->get_record('block_edupublisher_packages', array('id' => $package->id));
+        $p->deleted = time();
+        $p->modified = time();
+        $DB->update_record('block_edupublisher_packages', $p);
         $params = array(
             'content' => get_string('removed_package', 'block_edupublisher', (object) $package),
             'type' => 'success',
