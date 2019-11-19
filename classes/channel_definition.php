@@ -108,7 +108,7 @@ $definition = array(
         'ltisecret' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
         'curriculum' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
         'language' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
-        'type' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'required' => 1, 'options' => array(
+        'type' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'multiple' => 1, 'required' => 1, 'options' => array(
             'edu_tutorial' => 'Anleitung/Tutorial',
             'edu_tool' => 'Tool/App',
             'edu_worksheet' => 'Arbeitsblatt',
