@@ -36,7 +36,7 @@ $targetcourseid = required_param('course', PARAM_INT);
 $sectionid = optional_param('section', 0, PARAM_INT);
 
 $section = $DB->get_record('course_sections', array('course' => $targetcourseid, 'id' => $sectionid));
-$sectionnr = $section->section;
+$sectionnr = intval($section->section);
 
 // Require editing-permissions in targetcourse
 $targetcourse = $DB->get_record('course', array('id'=>$targetcourseid), '*', MUST_EXIST);
@@ -145,19 +145,6 @@ try {
             print_error('unknownbackupexporterror'); // shouldn't happen ever
         }
 
-
-        // Backup was ok - we create a label and to the restore.
-        // Create a label at the end of the section.
-        require_once($CFG->dirroot . '/blocks/edupublisher/classes/module_compiler.php');
-        $data = array(
-            'course' => $targetcourse->id,
-            'intro' => '<h3>' . $package->title . '</h3>',
-            'introformat' => 1,
-            'section' => $sectionnr,
-        );
-        $item = block_edupublisher_module_compiler::compile('label', (object)$data, (object)array());
-        $module = block_edupublisher_module_compiler::create($item);
-
         // Now store the data of all sections' sequences in targetcourse.
         $sections_old = $DB->get_records('course_sections', array('course' => $targetcourse->id));
 
@@ -192,7 +179,9 @@ try {
         // Display a notification and a continue button
 
         $remove_sections = array();
-        $cmids_new = array();
+        $cmids_new = array(
+            '<h3>' . $package->title . '</h3>',
+        );
         $sections_new = $DB->get_records('course_sections', array('course' => $targetcourse->id));
         $sql = "SELECT section,name
                     FROM {course_sections}
@@ -206,14 +195,14 @@ try {
                 $sec = $sections_basement_by_no[$section->section];
                 if (!empty($sec->name)) {
                     // Add label for section.
-                    $cmids_new[] = $sec->name;
+                    $cmids_new[] = '<h4>' . $sec->name . '</h4>';
                 }
             }
 
             if (!empty($sections_old[$id])) {
                 foreach ($newsequence AS $cmid) {
                     if (!in_array($cmid, $oldsequence)) {
-                        $cmids_new[] = $cmid;
+                        $cmids_new[] = intval($cmid);
                     }
                 }
                 $sections_old[$id]->sequence = $sections_new[$id]->sequence;
@@ -222,18 +211,19 @@ try {
             } else {
                 $remove_sections[] = $id;
                 foreach ($newsequence AS $cmid) {
-                    $cmids_new[] = $cmid;
+                    $cmids_new[] = intval($cmid);
                 }
             }
         }
+        require_once($CFG->dirroot . '/blocks/edupublisher/classes/module_compiler.php');
         foreach ($cmids_new AS $cmid) {
-            if (intval($cmid) > 0) {
+            if (is_int($cmid)) {
                 //echo "<li>Moving cmid #" . $cmid . " to section no " . $sectionnr . "</li>\n";
                 course_add_cm_to_section($targetcourseid, $cmid, $sectionnr);
             } elseif(strlen($cmid) > 0) {
                 $data = array(
                     'course' => $targetcourse->id,
-                    'intro' => '<h4>' . $cmid . '</h4>',
+                    'intro' => $cmid,
                     'introformat' => 1,
                     'section' => $sectionnr,
                 );

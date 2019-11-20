@@ -1143,7 +1143,7 @@ class block_edupublisher extends block_base {
                 'content' => !empty($content) ? $content : $package->{$field},
                 'created' => time(),
                 'modified' => time(),
-                'active' => isset($package->{$channel . '_active'}) ? $package->{$channel . '_active'} : 0,
+                'active' => !empty($package->{$channel . '_active'}) ? $package->{$channel . '_active'} : 0,
         );
 
         $o = $DB->get_record('block_edupublisher_metadata', array('package' => $metaobject->package, 'field' => $metaobject->field));
