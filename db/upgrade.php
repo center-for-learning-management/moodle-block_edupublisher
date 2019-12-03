@@ -165,7 +165,7 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         upgrade_block_savepoint(true, 2019062901, 'edupublisher');
     }
 
-    if ($oldversion < 2019071000) {
+    if ($oldversion < 2019120300) {
 
         $table = new xmldb_table('block_edupublisher_evaluatio');
 
@@ -196,7 +196,7 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
 
         // Edupublisher savepoint reached.
-          upgrade_block_savepoint(true, 2019071000, 'edupublisher');
+          upgrade_block_savepoint(true, 2019120300, 'edupublisher');
       }
 
 
