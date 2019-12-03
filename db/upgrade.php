@@ -66,7 +66,7 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         // Edupublisher savepoint reached.
         upgrade_block_savepoint(true, 2019021503, 'edupublisher');
     }
-    if ($oldversion < 2019050701) {
+    if ($oldversion < 2019062901) {
         // Define table block_edupublisher_pub to be created.
         $table = new xmldb_table('block_edupublisher_pub');
 
@@ -135,9 +135,9 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
 
         // Edupublisher savepoint reached.
-        upgrade_block_savepoint(true, 2019050701, 'edupublisher');
+        upgrade_block_savepoint(true, 2019062901, 'edupublisher');
     }
-    if ($oldversion < 2019050705) {
+    if ($oldversion < 2019062901) {
         // Define field publisherid to be added to block_edupublisher_lic.
         $table = new xmldb_table('block_edupublisher_lic');
         $field = new xmldb_field('publisherid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null, 'id');
@@ -162,33 +162,43 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
 
         // Edupublisher savepoint reached.
-        upgrade_block_savepoint(true, 2019050705, 'edupublisher');
+        upgrade_block_savepoint(true, 2019062901, 'edupublisher');
     }
-    if ($oldversion < 2019111900) {
-        // Define field publisherid to be added to block_edupublisher_lic.
-        $table = new xmldb_table('block_edupublisher_packages');
-        $field = new xmldb_field('deleted', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, 0, 'modified');
-        // Conditionally launch add field created.
-        if (!$dbman->field_exists($table, $field)) {
-            $dbman->add_field($table, $field);
+
+    if ($oldversion < 2019071000) {
+
+        $table = new xmldb_table('block_edupublisher_evaluatio');
+
+        // Adding fields to table block_edupublisher_evaluatio.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('evaluator_first_name', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('evaluator_last_name', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('e_tapa_name', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('e_tapa_link', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('evaluator_email', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('author_contact', XMLDB_TYPE_BINARY, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('evaluated_on', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('evaluated_at', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('comprehensible_description', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('suitable_workflow', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('reasonable_preconditions', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('correct_content', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('improvement_specification', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('technology_application', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('comments', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        // Adding keys to table block_edupublisher_evaluatio.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+
+        // Conditionally launch create table for block_edupublisher_evaluatio.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
         }
 
         // Edupublisher savepoint reached.
-        upgrade_block_savepoint(true, 2019111900, 'edupublisher');
-    }
-    if ($oldversion < 2019111901) {
-        // Add "published" - value for each channel as copy of "modified" if it is active!
-        $metas = $DB->get_records_sql("SELECT * FROM {block_edupublisher_metadata} WHERE field LIKE '%_active' AND content = '1'");
-        foreach ($metas AS $meta) {
-            unset($meta->id);
-            $meta->field = str_replace('_active', '_published', $meta->field);
-            $meta->content = $meta->modified;
-            $DB->insert_record('block_edupublisher_metadata', $meta);
-        }
+          upgrade_block_savepoint(true, 2019071000, 'edupublisher');
+      }
 
-        // Edupublisher savepoint reached.
-        upgrade_block_savepoint(true, 2019111901, 'edupublisher');
-    }
 
     return true;
 }

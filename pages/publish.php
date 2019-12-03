@@ -123,23 +123,23 @@ if (empty($backupid)) {
         // Create the target course if necessary
         $category = get_config('block_edupublisher', 'category');
         $targetcourse = $importcourse;
-        if (!empty($data->exportcourse) && $data->exportcourse == 1) {
+        $targetcourse->category = intval($category);
+        $targetcourse->fullname = $data->title;
+        $targetcourse->summary = $data->default_summary['text']; // At this stage the editor is represented as array with fields text and format
+        $targetcourse->visible = 1;
+        $targetcourse->shortname = '[' . $USER->id . '-' . date('YmdHis') . ']';
+        $targetcourse->idnumber = '';
+        if (!empty($data->clonecourse) && $data->clonecourse == 1) {
             // Create a target course
-            $targetcourse->category = $category;
             $targetcourse->id = 0;
-            $targetcourse->idnumber = '';
-            $targetcourse->shortname = '[' . $USER->id . '-' . date('YmdHis') . ']';
-            $targetcourse->fullname = $data->title;
-            $targetcourse->summary = $data->default_summary['text']; // At this stage the editor is represented as array with fields text and format
-            $targetcourse->visible = 1;
-
             $targetcourse = create_course($targetcourse);
-            $targetcontext = context_course::instance($targetcourse->id);
         } else {
-            // Move current course to target category
-            $targetcourse->category = $category;
-            $DB->update_record('course', $targetcourse);
+            require_once($CFG->dirroot . '/course/lib.php');
+            update_course($targetcourse);
+            move_courses(array($targetcourse->id), intval($category));
         }
+
+        $targetcontext = context_course::instance($targetcourse->id);
         $targetcourseid = $targetcourse->id;
 
         $data->course = $targetcourse->id;
@@ -175,19 +175,22 @@ if ($package->id > 0 && $PREVENTFORM) {
     try {
         $PAGE->set_url($CFG->wwwroot . '/blocks/edupublisher/pages/publish.php?package=' . $package->id);
         block_edupublisher::print_app_header();
-        $targetcourse = get_course($targetcourseid);
-        $targetcontext = context_course::instance($targetcourseid);
-        // Load the course +context to import from
-        $importcourse = get_course($importcourseid);
-        $importcontext = context_course::instance($importcourseid);
-        // Make sure the user can backup from that course, otherwise we are not entitle to publish something!
-        require_capability('moodle/backup:backuptargetimport', $importcontext);
 
-        $DOPOSTTASKS = false;
-        $DOIMPORT = ($importcourseid != $targetcourseid);
+        // If they are the NOT the same we need the import-function
+        $DOIMPORT = ($package->sourcecourse != $package->course);
         if (!$DOIMPORT) {
             $DOPOSTTASKS = true;
         } else {
+            if (empty($targetcourse) || empty($targetcourse->id)) {
+                $targetcourse = get_course($targetcourseid);
+            }
+            $targetcontext = context_course::instance($targetcourseid);
+            // Load the course +context to import from
+            $importcourse = get_course($importcourseid);
+            $importcontext = context_course::instance($importcourseid);
+            // Make sure the user can backup from that course, otherwise we are not entitle to publish something!
+            require_capability('moodle/backup:backuptargetimport', $importcontext);
+
             block_edupublisher::role_set(array($targetcourse->id), array($USER->id), 'defaultroleteacher');
             require_capability('moodle/restore:restoretargetimport', $targetcontext);
             // Prepare the backup renderer
@@ -354,14 +357,12 @@ if ($package->id > 0 && $PREVENTFORM) {
                     $plugin->unenrol_user($instance, $_user->id);
                 }
             }
+            block_edupublisher::role_set(array($package->course), array($USER->id), 'defaultrolestudent');
 
             block_edupublisher::store_package($package);
             // Create the comment.
             $sendto = array('allmaintainers');
             block_edupublisher::store_comment($package, 'comment:template:package_created', $sendto, true, false);
-
-            // By default we activate all default_metadata-entries here
-            $DB->execute('UPDATE {block_edupublisher_metadata} SET active=1 WHERE package=? AND field LIKE "default_%"', array($package->id));
 
             echo $OUTPUT->notification(get_string('successfully_published_package', 'block_edupublisher'), 'notifysuccess');
             echo $OUTPUT->continue_button(new moodle_url('/blocks/edupublisher/pages/package.php?id=' . $package->id));

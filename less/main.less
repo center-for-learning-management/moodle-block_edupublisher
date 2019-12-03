@@ -11,6 +11,23 @@
     border-radius: 15px; border: 2px solid black;
 }
 
+.licence_object {
+    border: 1px solid transparent;
+}
+.licence_object.active {
+    border: 1px solid green;
+}
+.licence_package * {
+    box-sizing:content-box;
+    white-space: normal;
+}
+.licence_package tr * {
+    text-align: justify;
+}
+.licence_package.active {
+    background-color: rgba(120, 120, 100, 0.6);
+}
+
 section.block.block_edupublisher {
     & .column:only-child {
         /* width: 100%; */
