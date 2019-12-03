@@ -40,6 +40,18 @@ $capabilities = array(
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(),
     ),
+    'block/edupublisher:canevaluate' => array(
+        'riskbitmask' => RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(),
+    ),
+    'block/edupublisher:canseeevaluation' => array(
+        'riskbitmask' => RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(),
+    ),
     'block/edupublisher:manage' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',

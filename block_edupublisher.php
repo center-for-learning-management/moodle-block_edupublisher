@@ -1269,6 +1269,14 @@ class block_edupublisher extends block_base {
                 //"href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
                 "icon" => '/pix/i/scales.svg',
             );
+
+            if (has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
+                $options[] = array(
+                    "title" => get_string('evaluations', 'block_edupublisher'),
+                    "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/evaluation.php?packageid=' . $package->id,
+                    "icon" => '/pix/i/report.svg',
+                );
+            }
             $courses = self::get_courses(null, 'moodle/course:update');
             if (count(array_keys($courses)) > 0) {
                 $options[] = array(
