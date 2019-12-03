@@ -34,7 +34,7 @@ $package = \block_edupublisher::get_package($packageid, false);
 
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/evaluation.php', array('id' => $id, 'packageid' => $packageid, 'perma' => $perma)));
 
-$context = \context_course::instance($package->courseid);
+$context = \context_course::instance($package->course);
 $PAGE->set_context($context);
 $PAGE->set_title(get_string('etapas_evaluation', 'block_edupublisher'));
 $PAGE->set_heading(get_string('etapas_evaluation', 'block_edupublisher'));
