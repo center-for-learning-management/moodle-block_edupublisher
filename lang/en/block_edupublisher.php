@@ -92,7 +92,9 @@ $string['derivative'] = 'Derivative';
 $string['details'] = 'Details';
 
 $string['edupublisher:addinstance'] = 'Add block instance';
+$string['edupublisher:canevaluate'] = 'Can evaluate';
 $string['edupublisher:canuse'] = 'Can use edupublisher';
+$string['edupublisher:canseeevaluation'] = 'Can see evaluations';
 $string['edupublisher:manage'] = 'Manage block instance';
 $string['edupublisher:managedefault'] = 'Manage Default-Items';
 $string['edupublisher:manageeduthek'] = 'Manage eduthek-Items';
