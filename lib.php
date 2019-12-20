@@ -23,7 +23,6 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-
 /**
  * Serve the files from the MYPLUGIN file areas
  *

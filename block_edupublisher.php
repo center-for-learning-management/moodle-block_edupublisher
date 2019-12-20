@@ -346,7 +346,19 @@ class block_edupublisher extends block_base {
         return $package;
     }
     /**
+     * Gets an existing package by its courseid.
+     * @param courseid the courseid.
+     */
+    public static function get_package_by_courseid($courseid) {
+        global $DB;
+        $item = $DB->get_record('block_edupublisher_packages', array('active' => 1, 'course' => $courseid, 'deleted' => 0), '*', MUST_EXIST);
+        if (!empty($item->id)) {
+            return self::get_package($item->id);
+        }
+    }
+    /**
      * Creates an empty package and fills with data from course.
+     * This is used when we create a new package.
     **/
     public static function get_package_from_course($courseid){
         global $DB, $USER;
@@ -1239,6 +1251,10 @@ class block_edupublisher extends block_base {
         $options = array();
         if ($package) {
             // Is package-course: show author
+            if (has_capability('block_edupublisher/canselfenrol', $context) && !is_enrolled(\context_course::instance($COURSE->id))) {
+                $PAGE->requires->js_call_amd('block_edupublisher/main', 'injectEnrolButton', array($COURSE->id));
+            }
+
             $package = self::get_package($package->id, true);
             if (!empty($package->default_authormailshow) && $package->default_authormailshow == 1) {
                 $options[] = array(

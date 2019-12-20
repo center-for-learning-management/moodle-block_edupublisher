@@ -162,6 +162,18 @@ define(
                 }
             ).fail(NOTIFICATION.exception);
         },
+        injectEnrolButton: function(courseid) {
+            console.log('MAIN.injectEnrolButton(courseid)', courseid);
+            var context = { url: URL.fileUrl('/blocks/edupublisher/pages', '/self_enrol.php?id=' + courseid) };
+            // This will call the function to load and render our template.
+            TEMPLATES.render('block_edupublisher/inject_enrol_button', context)
+                .then(function(html, js) {
+                    // Here eventually I have my compiled template, and any javascript that it generated.
+                    // The templates object has append, prepend and replace functions.
+                    TEMPLATES.prependNodeContents('#page-content #region-main-box', html, js);
+                })
+                .fail(NOTIFICATION.exception);
+        },
         preparePackageForm: function(channels) {
             var MAIN = this;
             console.log('MAIN.preparePackageForm(channels)', channels);

@@ -52,6 +52,14 @@ $capabilities = array(
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(),
     ),
+    'block/edupublisher:canselfenrol' => array(
+        'riskbitmask' => RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(
+            'user' => CAP_ALLOW,
+        ),
+    ),
     'block/edupublisher:manage' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
