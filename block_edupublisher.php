@@ -301,6 +301,7 @@ class block_edupublisher extends block_base {
         $package->wwwroot = $CFG->wwwroot;
         if (count($withdetails) == 0 || in_array('internal', $withdetails)) {
             $package->canedit = self::is_admin()
+                                || self::is_author_editing($package)
                                 || (isset($package->default_publishas) && $package->default_publishas && has_capability('block/edupublisher:managedefault', context_system::instance()))
                                 || (isset($package->etapas_publishas) && $package->etapas_publishas && has_capability('block/edupublisher:manageetapas', context_system::instance()))
                                 || (isset($package->eduthek_publishas) && $package->eduthek_publishas && has_capability('block/edupublisher:manageeduthek', context_system::instance()));
@@ -346,7 +347,19 @@ class block_edupublisher extends block_base {
         return $package;
     }
     /**
+     * Gets an existing package by its courseid.
+     * @param courseid the courseid.
+     */
+    public static function get_package_by_courseid($courseid) {
+        global $DB;
+        $item = $DB->get_record('block_edupublisher_packages', array('active' => 1, 'course' => $courseid, 'deleted' => 0), '*', MUST_EXIST);
+        if (!empty($item->id)) {
+            return self::get_package($item->id);
+        }
+    }
+    /**
      * Creates an empty package and fills with data from course.
+     * This is used when we create a new package.
     **/
     public static function get_package_from_course($courseid){
         global $DB, $USER;
@@ -498,6 +511,21 @@ class block_edupublisher extends block_base {
         $sysctx = context_system::instance();
         return has_capability('moodle/site:config', $sysctx);
     }
+    /**
+     * Checks if a user can edit a package (has course:update-capability).
+     * @param package to check.
+     * @param userid to check, if not set use $USER->id
+     * @return true if user is author of a package.
+    **/
+    public static function is_author_editing($package, $userid = 0) {
+        global $USER;
+        if (empty($package->course)) return false;
+        if (empty($userid)) $userid = $USER->id;
+        $ctx = context_course::instance($package->course, IGNORE_MISSING);
+        if (empty($ctx->id)) return false;
+        return has_capability('moodle/course:update', $ctx);
+    }
+
     /**
      * @param (optional) array of channels we want to check
      * @return true if user is a maintainer
@@ -1239,6 +1267,10 @@ class block_edupublisher extends block_base {
         $options = array();
         if ($package) {
             // Is package-course: show author
+            if (has_capability('block_edupublisher/canselfenrol', $context) && !is_enrolled(\context_course::instance($COURSE->id))) {
+                $PAGE->requires->js_call_amd('block_edupublisher/main', 'injectEnrolButton', array($COURSE->id));
+            }
+
             $package = self::get_package($package->id, true);
             if (!empty($package->default_authormailshow) && $package->default_authormailshow == 1) {
                 $options[] = array(
@@ -1269,6 +1301,14 @@ class block_edupublisher extends block_base {
                 //"href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
                 "icon" => '/pix/i/scales.svg',
             );
+
+            if (has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
+                $options[] = array(
+                    "title" => get_string('evaluations', 'block_edupublisher'),
+                    "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/evaluation.php?packageid=' . $package->id,
+                    "icon" => '/pix/i/report.svg',
+                );
+            }
             $courses = self::get_courses(null, 'moodle/course:update');
             if (count(array_keys($courses)) > 0) {
                 $options[] = array(

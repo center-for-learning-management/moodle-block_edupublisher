@@ -140,7 +140,8 @@ class package_create_form extends moodleform {
                         }
                     break;
                     case 'text':
-                        $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label);
+                    case 'url':
+                        $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label, array('type' => $field['type']));
                     break;
                     case 'url':
                         $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label, array('type' => $field['type']));

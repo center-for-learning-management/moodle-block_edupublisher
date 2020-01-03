@@ -16,15 +16,15 @@
 
 /**
  * @package    block_edupublisher
- * @copyright  2018 Digital Education Society (http://www.dibig.at)
+ * @copyright  2018 onwards Digital Education Society (http://www.dibig.at)
  * @author     Robert Schrenk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2019111901;
+$plugin->version  = 2019121100;
 $plugin->requires = 2014051200;
 $plugin->component = 'block_edupublisher';
-$plugin->release = '0.6 (Build: 2019111901)';
+$plugin->release = '0.7 (Build: 2019121100)';
 $plugin->maturity = MATURITY_STABLE;

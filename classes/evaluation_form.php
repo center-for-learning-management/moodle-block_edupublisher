@@ -37,7 +37,8 @@ class evaluation_form extends \moodleform {
         $mform->setType('package', PARAM_INT);
         $mform->addElement('hidden', 'packageid', 0);
         $mform->setType('packageid', PARAM_INT);
-        $mform->addElement('editor', 'content', get_string('comment', 'block_edupublisher'), $editoroptions);
+        $mform->addElement('editor', 'content', get_string('comment', 'block_edupublisher'), 
+            $editoroptions);
         $mform->setType('content', PARAM_RAW);
         $this->add_action_buttons();
     }
