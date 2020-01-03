@@ -264,3 +264,6 @@ $string['evaluator_last_name'] = 'Evaluator last name';
 $string['evaluator_email'] = 'Evaluator email';
 $string['etapa_name'] = 'eTapa Name';
 $string['etapa_link'] = 'eTapa Link';
+$string['evaluations']  = 'Evaluation';
+$string['evaluate'] = 'Evaluate';
+
