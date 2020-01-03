@@ -301,6 +301,7 @@ class block_edupublisher extends block_base {
         $package->wwwroot = $CFG->wwwroot;
         if (count($withdetails) == 0 || in_array('internal', $withdetails)) {
             $package->canedit = self::is_admin()
+                                || self::is_author_editing($package)
                                 || (isset($package->default_publishas) && $package->default_publishas && has_capability('block/edupublisher:managedefault', context_system::instance()))
                                 || (isset($package->etapas_publishas) && $package->etapas_publishas && has_capability('block/edupublisher:manageetapas', context_system::instance()))
                                 || (isset($package->eduthek_publishas) && $package->eduthek_publishas && has_capability('block/edupublisher:manageeduthek', context_system::instance()));
@@ -510,6 +511,21 @@ class block_edupublisher extends block_base {
         $sysctx = context_system::instance();
         return has_capability('moodle/site:config', $sysctx);
     }
+    /**
+     * Checks if a user can edit a package (has course:update-capability).
+     * @param package to check.
+     * @param userid to check, if not set use $USER->id
+     * @return true if user is author of a package.
+    **/
+    public static function is_author_editing($package, $userid = 0) {
+        global $USER;
+        if (empty($package->course)) return false;
+        if (empty($userid)) $userid = $USER->id;
+        $ctx = context_course::instance($package->course, IGNORE_MISSING);
+        if (empty($ctx->id)) return false;
+        return has_capability('moodle/course:update', $ctx);
+    }
+
     /**
      * @param (optional) array of channels we want to check
      * @return true if user is a maintainer
