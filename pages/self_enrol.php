@@ -52,7 +52,7 @@ if (empty($package->course)) {
 
 $context = context_course::instance($package->course);
 $PAGE->set_url('/blocks/edupublisher/pages/self_enrol.php?id=' . $courseid);
-require_capability('block_edupublisher/canselfenrol', $context);
+require_capability('block/edupublisher:canselfenrol', $context);
 require_login($courseid);
 $PAGE->set_heading($package->title);
 $PAGE->set_context($context);
