@@ -34,7 +34,7 @@ function block_edupublisher_before_standard_html_head() {
             $chk = $DB->get_record('block_edupublisher_packages', array('course' => $courseid));
             if (!empty($chk->id)) {
                 $context = context_course::instance($courseid);
-                if (has_capability('block/edupublisher:canselfenrol', $context)) {
+                if (!is_enrolled($context) && has_capability('block/edupublisher:canselfenrol', $context)) {
                     $PAGE->requires->js_call_amd('block_edupublisher/main', 'injectEnrolButton', array('courseid' => $courseid));
                 }
             }
