@@ -16,9 +16,6 @@
 
 }}
 <li>
-    <div class="box-right-100"><!-- style="position: absolute; right: 10px; top: 10px; z-index: 999; min-width: 100px !important; -->
-        {{> block_edupublisher/package_rating }}
-    </div>
     {{#importtocourseid}}
     {{! { {wwwroot} }/blocks/edupublisher/pages/import.php?package={ {id} }&course={ {importtocourseid} }&section={ {importtosectionid} } }}
     <a href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportSelection({{id}},{{importtocourseid}}); }); return false;">
@@ -35,4 +32,7 @@
             {{^default_summary:stripped}} {{{default_summary}}} {{/default_summary:stripped}}
         </p>
     </a>
+    <div class="box-right-100" style="position: absolute; right: 10px; top: 10px; z-index: 999; min-width: 100px !important;">
+        {{> block_edupublisher/package_rating }}
+    </div>
 </li>
