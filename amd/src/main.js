@@ -171,6 +171,8 @@ define(
                     // Here eventually I have my compiled template, and any javascript that it generated.
                     // The templates object has append, prepend and replace functions.
                     TEMPLATES.prependNodeContents('#page-content #region-main-box', html, js);
+                    // Remove the default course-guestaccess-infobox
+                    $('.course-guestaccess-infobox').remove();
                 })
                 .fail(NOTIFICATION.exception);
         },
