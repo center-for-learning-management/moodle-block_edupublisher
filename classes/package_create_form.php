@@ -170,9 +170,9 @@ class package_create_form extends moodleform {
                 }
             }
             if ($channel == 'default') {
-                $mform->addElement('hidden', 'exportcourse', get_string('exportcourse_attention', 'block_edupublisher'));
-                $mform->setType('exportcourse', PARAM_BOOL);
-                $mform->setDefault('exportcourse', 1);
+                $mform->addElement('hidden', 'clonecourse', get_string('clonecourse_attention', 'block_edupublisher'));
+                $mform->setType('clonecourse', PARAM_BOOL);
+                $mform->setDefault('clonecourse', 1);
 
                 $boxes = array();
                 foreach($channels AS $_channel) {

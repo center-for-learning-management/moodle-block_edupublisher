@@ -105,6 +105,7 @@ if (empty($channel)) {
               WHERE m.package=p.id
                 AND field LIKE ? ESCAPE '+'
                 AND content='1'
+                AND p.deleted=0
               ORDER BY " . $orderby;
 
 
