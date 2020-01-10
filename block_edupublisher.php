@@ -1252,7 +1252,7 @@ class block_edupublisher extends block_base {
         }
         $this->content = (object) array(
             'text' => '',
-            'footer' => array()
+            'footer' => ''
         );
 
         // 1. in a package-course: show author
@@ -1266,11 +1266,6 @@ class block_edupublisher extends block_base {
         $package = $DB->get_record('block_edupublisher_packages', array('course' => $COURSE->id), '*', IGNORE_MULTIPLE);
         $options = array();
         if ($package) {
-            // Is package-course: show author
-            if (has_capability('block_edupublisher/canselfenrol', $context) && !is_enrolled(\context_course::instance($COURSE->id))) {
-                $PAGE->requires->js_call_amd('block_edupublisher/main', 'injectEnrolButton', array($COURSE->id));
-            }
-
             $package = self::get_package($package->id, true);
             if (!empty($package->default_authormailshow) && $package->default_authormailshow == 1) {
                 $options[] = array(
