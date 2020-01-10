@@ -1302,25 +1302,28 @@ class block_edupublisher extends block_base {
                 "icon" => '/pix/i/scales.svg',
             );
 
-            if (has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
+            if (!empty($package->etapas_subtype) && $package->etapas_subtype == 'etapa' && has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
                 $options[] = array(
                     "title" => get_string('evaluations', 'block_edupublisher'),
                     "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/evaluation.php?packageid=' . $package->id,
                     "icon" => '/pix/i/report.svg',
                 );
             }
-            if (!empty($package->etapas_active) && !empty($package->etapas_subtype)) {
-                $options[] = array(
-                    "title" => "<img src=\"" . $CFG->wwwroot . "/blocks/edupublisher/pix/channel/" . str_replace(array(' ', '.'), '', $package->etapas_subtype) . ".png\" width=\"100%\" />",
-                );
-            }
+            // Show use package-button
             $courses = self::get_courses(null, 'moodle/course:update');
             if (count(array_keys($courses)) > 0) {
                 $options[] = array(
                     "title" => get_string('initialize_import', 'block_edupublisher'),
                     "href" => "#",
-                    "icon" => '/pix/i/import.svg',
+                    //"icon" => '/pix/i/import.svg',
+                    "class" => 'btn btn-primary',
                     "onclick" => 'require([\'block_edupublisher/main\'], function(MAIN) { MAIN.initImportSelection(' . $package->id . '); }); return false;',
+                    "style" => 'margin-top: 10px;',
+                );
+            }
+            if (!empty($package->etapas_active) && !empty($package->etapas_subtype)) {
+                $options[] = array(
+                    "title" => "<img src=\"" . $CFG->wwwroot . "/blocks/edupublisher/pix/channel/" . str_replace(array(' ', '.'), '', $package->etapas_subtype) . ".png\" style=\"width: 100%; max-width: 170px; margin-top: 20px;\" />",
                 );
             }
         } elseif($canedit) {
