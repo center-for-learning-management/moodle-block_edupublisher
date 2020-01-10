@@ -78,6 +78,11 @@ $string['default_licence'] = 'Licence';
 $string['default_licence_missing'] = 'You have to choose a licence';
 $string['default_licenceother'] = 'Other';
 $string['default_publish_as'] = 'Publish on this site';
+$string['default_subjectarea'] = 'Subjectarea';
+$string['default_subjectarea_informatics'] = 'Informatics';
+$string['default_subjectarea_mathematics'] = 'Mathematics';
+$string['default_suppresscomment'] = 'Suppress comment';
+$string['default_suppresscomment_help'] = 'Store without generating a comment.';
 $string['default_title'] = 'Title';
 $string['default_trigger_active'] = 'Check this box to make package active!';
 $string['default_summary'] = 'Summary';
@@ -266,4 +271,3 @@ $string['etapa_name'] = 'eTapa Name';
 $string['etapa_link'] = 'eTapa Link';
 $string['evaluations']  = 'Evaluation';
 $string['evaluate'] = 'Evaluate';
-
