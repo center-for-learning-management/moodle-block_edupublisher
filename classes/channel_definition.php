@@ -67,7 +67,7 @@ $definition = array(
         'exacomptitles' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_TEXT),
         'exacompdatasources' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_TEXT),
         'imageurl' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
-        'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL, 'default' => 1),
+        'publishas' => array('type' => 'hidden', 'datatype' => PARAM_BOOL, 'default' => 1),
     ),
     'etapas' => array(
         'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
