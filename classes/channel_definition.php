@@ -36,6 +36,9 @@ defined('MOODLE_INTERNAL') || die;
 
 $definition = array(
     'default' => array(
+        'suppresscomment' => array('type' => 'select', 'datatype' => PARAM_INT, 'hidden_except_maintainer' => 1, 'options' => array(
+            '0' => get_string('no'), '1' => get_string('yes')
+        ), 'donotstore' => 1),
         'title' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
         'licence' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
             'Public Domain' => 'Public Domain',
