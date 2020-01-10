@@ -56,6 +56,9 @@ $definition = array(
         'sourcecourse' => array('type' => 'hidden', 'datatype' => PARAM_INT),
         'summary' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
         'image' => array('type' => 'filemanager', 'accepted_types' => 'image', 'required' => 1),
+        'subjectarea' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_TEXT, 'required' => 1, 'options' => array(
+            'mathematics' => get_string('default_subjectarea_mathematics', 'block_edupublisher'), 'informatics' => get_string('default_subjectarea_informatics', 'block_edupublisher'),
+        )),
         'tags' => array('type' => 'text', 'datatype' => PARAM_TEXT),
         // Hidden elements
         'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
