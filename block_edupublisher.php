@@ -1309,6 +1309,11 @@ class block_edupublisher extends block_base {
                     "icon" => '/pix/i/report.svg',
                 );
             }
+            if (!empty($package->etapas_active) && !empty($package->etapas_subtype)) {
+                $options[] = array(
+                    "title" => "<img src=\"" . $CFG->wwwroot . "/blocks/edupublisher/pix/channel/" . str_replace(array(' ', '.'), '', $package->etapas_subtype) . ".png\" width=\"100%\" />",
+                );
+            }
             $courses = self::get_courses(null, 'moodle/course:update');
             if (count(array_keys($courses)) > 0) {
                 $options[] = array(
