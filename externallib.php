@@ -667,8 +667,10 @@ class block_edupublisher_external extends external_api {
         $package = block_edupublisher::get_package($params['packageid'], true);
 
         $statusses = array();
+        $statusses['cantriggeractive' . $params['type']] = $package->{'cantriggeractive' . $params['type']};
         if (isset($package->{'cantriggeractive' . $params['type']}) && $package->{'cantriggeractive' . $params['type']}) {
             $active = ($params['to'] >= 1) ? 1 : 0;
+            $package->{$params['type'] .'_active'} = $active;
             if ($params['type'] != 'default') {
                 /*
                  * If any channel gets activated, also activate default
@@ -679,6 +681,7 @@ class block_edupublisher_external extends external_api {
                 } else {
                     $package->default_active = $package->eduthek_active || $package->etapas_active;
                 }
+                // Trigger metadata in default channel.
                 $DB->execute("UPDATE {block_edupublisher_metadata} SET active=? WHERE field LIKE ? ESCAPE '+' AND package=?", array($package->default_active, 'default' . '+_%', $params['packageid']));
             } else {
                 $package->default_active = $active;
@@ -691,13 +694,7 @@ class block_edupublisher_external extends external_api {
                 block_edupublisher::store_metadata($package, 'default', 'default_active', $package->default_active);
                 $package->active = $active;
             } else {
-                $activeentry = $DB->get_record('block_edupublisher_metadata', array('package' => $package->id, 'field' => $params['type'] . '_active'));
-                if (isset($activeentry) && $activeentry->id > 0) {
-                    $activeentry->content = $active;
-                    $DB->update_record('block_edupublisher_metadata', $activeentry);
-                } else {
-                    $DB->insert_record('block_edupublisher_metadata', (object) array('package' => $package->id, 'field' => $params['type'] . '_active', 'content' => $active, 'created' => time(), 'modified' => time(), 'active' => $active));
-                }
+                block_edupublisher::store_metadata($package, $params['type'], $params['type'] . '_active', $active);
             }
             $package->active = $package->default_active;
             block_edupublisher::toggle_guest_access($package->course, $package->active);
