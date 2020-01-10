@@ -24,10 +24,12 @@ define('NO_OUTPUT_BUFFERING', true);
 
 require_once('../../../config.php');
 require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
+require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
 
 $course = optional_param('courseid', 0, PARAM_INT);
 $section = optional_param('sectionid', -1, PARAM_INT); // This refers to section id, not number!
 $search = optional_param('search', '', PARAM_TEXT);
+$subjectarea = optional_param('subjectarea', '', PARAM_TEXT);
 $layout = optional_param('layout', 'incourse', PARAM_TEXT);
 $availablelayouts = array('incourse', 'embedded', 'popup');
 if (!in_array($layout, $availablelayouts)) {
@@ -68,6 +70,13 @@ $PAGE->navbar->add(get_string('search_in_edupublisher', 'block_edupublisher'), $
 
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
+
+
+$subjectareas = block_edupublisher\get_subjectareas_sorted();
+echo $OUTPUT->render_from_template('block_edupublisher/subjectarea_selector', array(
+    'subjectarea' => $subjectarea,
+    'subjectareas' => $subjectareas,
+));
 
 $lic_orgids = array();
 $lic_courseids = array();
