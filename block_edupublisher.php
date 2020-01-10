@@ -928,6 +928,8 @@ class block_edupublisher extends block_base {
     **/
     public static function store_package($package) {
         global $CFG, $DB;
+        // Every author must publish in  the default channel.
+        $package->default_publishas = 1;
 
         $context = context_course::instance($package->course);
 
@@ -959,7 +961,7 @@ class block_edupublisher extends block_base {
             // Prevent deactivating a channel after it was activated.
             $ignore = array('etapas_publishas', 'eduthek_publishas');
             foreach($keys AS $key) {
-                if (in_array($key, $ignore)) continue;
+                if (in_array($key, $ignore) && !empty($original->{$key})) continue;
                 $original->{$key} = $package->{$key};
             }
 
@@ -990,6 +992,7 @@ class block_edupublisher extends block_base {
             $fields = array_keys($definition[$channel]);
             //echo 'Channel: "' . $channel . '_active" => ' . $package->{$channel . '_active'} . '<br />';
             foreach($fields AS $field) {
+                if (!empty($definition[$channel][$field]['donotstore'])) continue;
                 $dbfield = $channel . '_' . $field;
 
                 // Remove all meta-objects with pattern channel_field_%, multiple items will be inserted anyway.
@@ -1031,9 +1034,6 @@ class block_edupublisher extends block_base {
                 }
                 // We retrieve anything else.
                 if (isset($package->{$dbfield}) && (is_array($package->{$dbfield}) || !empty($package->{$dbfield})  || is_numeric($package->{$dbfield}))) {
-                    if ($field == 'publishas' && $package->{$dbfield}) {
-                        $channels[] = $channel;
-                    }
                     unset($allowedoptions);
                     unset($allowedkeys);
                     if (isset($definition[$channel][$field]['options'])) {
