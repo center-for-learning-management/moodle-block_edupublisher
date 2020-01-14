@@ -447,6 +447,7 @@ class block_edupublisher_external extends external_api {
         return new external_function_parameters(array(
             'courseid' => new external_value(PARAM_INT, 'courseid'),
             'search' => new external_value(PARAM_TEXT, 'search term'),
+            'subjectarea' => new external_value(PARAM_TEXT, 'subjectarea'),
         ));
     }
 
@@ -454,11 +455,11 @@ class block_edupublisher_external extends external_api {
      * Perform the search.
      * @return list of packages as json encoded string.
      */
-    public static function search($courseid, $search) {
+    public static function search($courseid, $search, $subjectarea) {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;
         // page-context is required for output of templates.
         $PAGE->set_context(context_system::instance());
-        $params = self::validate_parameters(self::search_parameters(), array('courseid' => $courseid, 'search' => $search));
+        $params = self::validate_parameters(self::search_parameters(), array('courseid' => $courseid, 'search' => $search, 'subjectarea' => $subjectarea));
 
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         $reply = array();

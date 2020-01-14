@@ -15,27 +15,21 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 
-<div class="ui-edupublisher"><div>
+<div class="_ui-edupublisher"><div>
+    {{> block_edupublisher/subjectarea_selector}}
+
     {{#enablecommercial}}
     <div class="grid-eq-2">
         <a href="#" class="search {{uniqid}} btn btn-secondary active"
             onclick="require(['jquery'], function($) { $('.btn.{{uniqid}}').removeClass('active'); $('.search.{{uniqid}}').addClass('active'); $('#search-{{uniqid}}').css('display', 'block'); $('#commercial-{{uniqid}}').css('display', 'none'); }); return false;">
-            {{#str}} search {{/str}}
+            {{#str}} oer_header, block_edupublisher {{/str}}
         </a>
         <a href="#" class="commercial {{uniqid}} btn btn-secondary"
             onclick="require(['jquery'], function($) { $('.btn.{{uniqid}}').removeClass('active'); $('.commercial.{{uniqid}}').addClass('active'); $('#search-{{uniqid}}').css('display', 'none'); $('#commercial-{{uniqid}}').css('display', 'block'); }); return false;">
             {{#str}} commercial_header, block_edupublisher {{/str}}
         </a>
     </div>
-    {{/enablecommercial}}
-    <div id="search-{{uniqid}}">
-        <input type="text" id="{{uniqid}}-search" name="search" placeholder="{{#str}} search, block_edupublisher {{/str}}" onkeyup="require(['block_edupublisher/main'], function(MAIN) { MAIN.search('{{uniqid}}', {{courseid}}, {{sectionid}}); });" />
 
-        <ul id="{{uniqid}}-results" data-role="listview">
-            <li><a href="#"><h3>{{#str}} search:enter_term, block_edupublisher {{/str}}</h3></a></li>
-        </ul>
-    </div>
-    {{#enablecommercial}}
     <div id="commercial-{{uniqid}}" style="display: none;">
         <div id="licences-{{uniqid}}">
             {{#publishers}}
@@ -62,6 +56,13 @@
         </div>
     </div>
     {{/enablecommercial}}
+
+    <div id="search-{{uniqid}}">
+        {{! <input type="text" id="{{uniqid} }-search" name="search" placeholder="{{#str} } search, block_edupublisher {{/str} }" onkeyup="require(['block_edupublisher/main'], function(MAIN) { MAIN.search('{{uniqid} }', {{courseid} }, {{sectionid} }); });" /> }}
+        <ul id="{{uniqid}}-results" data-role="listview">
+            <li><a href="#"><h3>{{#str}} search:enter_term, block_edupublisher {{/str}}</h3></a></li>
+        </ul>
+    </div>
 </div></div>
 
 {{#js}}

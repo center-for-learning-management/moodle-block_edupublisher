@@ -71,12 +71,7 @@ $PAGE->navbar->add(get_string('search_in_edupublisher', 'block_edupublisher'), $
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
 
-
-$subjectareas = block_edupublisher\get_subjectareas_sorted();
-echo $OUTPUT->render_from_template('block_edupublisher/subjectarea_selector', array(
-    'subjectarea' => $subjectarea,
-    'subjectareas' => $subjectareas,
-));
+$subjectareas = block_edupublisher\get_subjectareas_sorted($subjectarea);
 
 $lic_orgids = array();
 $lic_courseids = array();
@@ -132,12 +127,14 @@ echo $OUTPUT->render_from_template(
         'courseid' => $course,
         'enablecommercial' => get_config('block_edupublisher', 'enablecommercial'),
         'importtocourseid' => $course, // Required together with showpreviewbutton for search_li.mustache
+        'layout' => $layout,
+        'publishers' => $publishers,
         'sectionid' => $sectionno,
         'search' => $search,
         'showpreviewbutton' => $course, // Required together with importtocourseid for search_li.mustache
-        'layout' => $layout,
-        'publishers' => $publishers,
-        'wwwroot' => $CFG->wwwroot
+        'subjectarea' => $subjectarea,
+        'subjectareas' => $subjectareas,
+        'wwwroot' => $CFG->wwwroot,
     )
 );
 

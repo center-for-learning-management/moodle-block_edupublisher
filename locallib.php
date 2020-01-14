@@ -25,7 +25,11 @@ namespace block_edupublisher;
 
 defined('MOODLE_INTERNAL') || die;
 
-function get_subjectareas_sorted() {
+/**
+ * List all subjectareas in an localized, alphabetically sorted array.
+ * @param selectedarea mark a subjectarea as selected.
+ **/
+function get_subjectareas_sorted($selectedarea = "") {
     global $CFG;
     require_once($CFG->dirroot . '/blocks/edupublisher/classes/channel_definition.php');
     $locs = array();
@@ -37,7 +41,11 @@ function get_subjectareas_sorted() {
     sort($locs);
     $sorted = array();
     foreach ($locs AS $loc) {
-        $sorted[] = array('key' => $loc_key[$loc], 'name' => $loc);
+        $sorted[] = array(
+            'key' => $loc_key[$loc],
+            'name' => $loc,
+            'isselected' => ($loc_key[$loc] == $selectedarea)
+        );
     }
     return $sorted;
 }

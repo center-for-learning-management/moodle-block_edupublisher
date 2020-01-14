@@ -57,7 +57,16 @@ $definition = array(
         'summary' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
         'image' => array('type' => 'filemanager', 'accepted_types' => 'image', 'required' => 1),
         'subjectarea' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_TEXT, 'required' => 1, 'options' => array(
-            'mathematics' => get_string('default_subjectarea_mathematics', 'block_edupublisher'), 'informatics' => get_string('default_subjectarea_informatics', 'block_edupublisher'),
+            'arts' => get_string('default_subjectarea_arts', 'block_edupublisher'),
+            'economics' => get_string('default_subjectarea_economics', 'block_edupublisher'),
+            'geography' => get_string('default_subjectarea_geography', 'block_edupublisher'),
+            'history' => get_string('default_subjectarea_history', 'block_edupublisher'),
+            'informatics' => get_string('default_subjectarea_informatics', 'block_edupublisher'),
+            'languages' => get_string('default_subjectarea_languages', 'block_edupublisher'),
+            'mathematics' => get_string('default_subjectarea_mathematics', 'block_edupublisher'),
+            'naturalsciences' => get_string('default_subjectarea_naturalsciences', 'block_edupublisher'),
+            'philosophy' => get_string('default_subjectarea_philosophy', 'block_edupublisher'),
+            'other' => get_string('default_subjectarea_other', 'block_edupublisher'),
         )),
         'tags' => array('type' => 'text', 'datatype' => PARAM_TEXT),
         // Hidden elements

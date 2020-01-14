@@ -17,9 +17,14 @@
 
 <div class="subjectarea_selector"><div>
     <form method="post" action="" enctype="multipart/form-data">
-        <input type="hidden" name="search" id="{{uniqid}}-search" />
         {{#subjectareas}}
-            <button type="submit" name="subjectarea" value="{{key}}" href="#" class="btn btn-secondary">{{name}}</button>
+            <button type="submit" name="subjectarea" value="{{key}}" href="#"
+                onclick="var b = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.searchNow({ uniqid: '{{uniqid}}', courseid: {{courseid}}, sectionid: {{sectionid}} }, b); }); return false;"
+                class="{{uniqid}}-subjectarea btn {{#isselected}} btn-primary {{/isselected}} {{^isselected}} btn-secondary {{/isselected}}">
+                {{name}}
+            </button>
         {{/subjectareas}}
+        <input type="text" id="{{uniqid}}-search" name="search" placeholder="{{#str}} search, block_edupublisher {{/str}}"
+            onkeyup="require(['block_edupublisher/main'], function(MAIN) { MAIN.search('{{uniqid}}', {{courseid}}, {{sectionid}}); });" />
     </form>
 </div></div>
