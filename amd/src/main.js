@@ -216,17 +216,20 @@ define(
          * @param sender html-object that caused the event.
          */
         searchNow: function(o, sender) {
-            o.subjectarea = '';
+            o.subjectareas = [];
             if (typeof sender !== 'undefined') {
                 if ($(sender).attr('name') == 'subjectarea') {
-                    o.subjectarea = $(sender).attr('value');
+                    $(sender).toggleClass('selected');
                     $('.' + o.uniqid + '-subjectarea').removeClass('btn-primary').addClass('btn-secondary');
-                    $('.' + o.uniqid + '-subjectarea[value="' + o.subjectarea + '"]').addClass('btn-primary').removeClass('btn-secondary');
+                    $('.' + o.uniqid + '-subjectarea.selected').addClass('btn-primary').removeClass('btn-secondary');
                 }
             }
+            $('.' + o.uniqid + '-subjectarea.selected').each(function() {
+                o.subjectareas[o.subjectareas.length] = $(this).attr('value');
+            });
             o.search = $('#' + o.uniqid + '-search').val();
             // Generate object for sending (only some parameters accepted by webservice)
-            var o2 = { courseid: o.courseid, search: o.search, subjectarea: o.subjectarea };
+            var o2 = { courseid: o.courseid, search: o.search, subjectareas: o.subjectareas.join(',') };
             require(['block_edupublisher/main'], function(MAIN) {
                 MAIN.searchid++;
                 var searchid = MAIN.searchid;
@@ -291,7 +294,7 @@ define(
                                     var item = result.packages[ids[b]];
                                     item.importtocourseid = o.courseid;
                                     item.importtosectionid = o.sectionid;
-                                    item.showpreviewbutton = true;
+                                    //item.showpreviewbutton = true;
                                     console.log('Call list-template for item ', item.id);
                                     MAIN.searchTemplate(o.uniqid, position++, 'block_edupublisher/search_li', item);
                                 }

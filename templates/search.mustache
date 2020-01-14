@@ -15,7 +15,7 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 
-<div class="_ui-edupublisher"><div>
+<div class="ui-edupublisher search"><div>
     {{> block_edupublisher/subjectarea_selector}}
 
     {{#enablecommercial}}
@@ -59,7 +59,7 @@
 
     <div id="search-{{uniqid}}">
         {{! <input type="text" id="{{uniqid} }-search" name="search" placeholder="{{#str} } search, block_edupublisher {{/str} }" onkeyup="require(['block_edupublisher/main'], function(MAIN) { MAIN.search('{{uniqid} }', {{courseid} }, {{sectionid} }); });" /> }}
-        <ul id="{{uniqid}}-results" data-role="listview">
+        <ul id="{{uniqid}}-results" data-role="listgrid">
             <li><a href="#"><h3>{{#str}} search:enter_term, block_edupublisher {{/str}}</h3></a></li>
         </ul>
     </div>
