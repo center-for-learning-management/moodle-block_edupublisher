@@ -538,8 +538,8 @@ class block_edupublisher extends block_base {
         $category = get_config('block_edupublisher', 'category');
         $context = context_coursecat::instance($category);
         $maintainer_default = has_capability('block/edupublisher:managedefault', $context);
-        $maintainer_etapas = has_capability('block/edupublisher:managedefault', $context);
-        $maintainer_eduthek = has_capability('block/edupublisher:managedefault', $context);
+        $maintainer_etapas = has_capability('block/edupublisher:manageetapas', $context);
+        $maintainer_eduthek = has_capability('block/edupublisher:manageeduthek', $context);
 
         if (count($channels) == 0) {
             return $maintainer_default || $maintainer_etapas || $maintainer_eduthek;

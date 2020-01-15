@@ -64,6 +64,7 @@ if (!block_edupublisher::is_maintainer() || !empty($channel) && !in_array($chann
     block_edupublisher::print_app_footer();
     die();
 }
+
 $category = get_config('block_edupublisher', 'category');
 $context = context_coursecat::instance($category);
 $maintainer_default = has_capability('block/edupublisher:managedefault', $context);
