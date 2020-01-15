@@ -544,9 +544,9 @@ class block_edupublisher extends block_base {
         if (count($channels) == 0) {
             return $maintainer_default || $maintainer_etapas || $maintainer_eduthek;
         }
-        return in_array('default', $channels) && $maintainer_default;
-        return in_array('etapas', $channels) && $maintainer_etapas;
-        return in_array('eduthek', $channels) && $maintainer_eduthek;
+        if (in_array('default', $channels) && $maintainer_default) return true;
+        if (in_array('etapas', $channels) && $maintainer_etapas) return true;
+        if (in_array('eduthek', $channels) && $maintainer_eduthek) return true;
         return false;
     }
     /**
