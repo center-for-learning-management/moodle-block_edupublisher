@@ -862,7 +862,6 @@ class block_edupublisher extends block_base {
             $recipients = array();
             $category = get_config('block_edupublisher', 'category');
             $context = context_coursecat::instance($category);
-            foreach($recipients AS $recipient) {
             foreach ($sendto AS $identifier) {
                 switch ($identifier) {
                     case 'author': $recipients[$package->userid] = true; break;
