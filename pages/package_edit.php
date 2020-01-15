@@ -53,8 +53,10 @@ if ($package->canedit) {
     $form = new package_create_form(null, null, 'post', '_self', array('onsubmit' => 'this.querySelectorAll("input").forEach( i => i.disabled = false)'), true);
     if ($data = $form->get_data()) {
         $package = block_edupublisher::store_package($data);
-        $sendto = array('allmaintainers');
-        block_edupublisher::store_comment($package, 'comment:template:package_updated', $sendto, true, false);
+        if (empty($package->default_suppresscomment)) {
+            $sendto = array('allmaintainers');
+            block_edupublisher::store_comment($package, 'comment:template:package_updated', $sendto, true, false);
+        }
         echo "<p class=\"alert alert-success\">" . get_string('successfully_saved_package', 'block_edupublisher') . "</p>";
     }
     //$MODE_SHOW_FORM = 1;

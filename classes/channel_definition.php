@@ -36,6 +36,9 @@ defined('MOODLE_INTERNAL') || die;
 
 $definition = array(
     'default' => array(
+        'suppresscomment' => array('type' => 'select', 'datatype' => PARAM_INT, 'hidden_except_maintainer' => 1, 'options' => array(
+            '0' => get_string('no'), '1' => get_string('yes')
+        ), 'donotstore' => 1),
         'title' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
         'licence' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
             'Public Domain' => 'Public Domain',
@@ -53,6 +56,18 @@ $definition = array(
         'sourcecourse' => array('type' => 'hidden', 'datatype' => PARAM_INT),
         'summary' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
         'image' => array('type' => 'filemanager', 'accepted_types' => 'image', 'required' => 1),
+        'subjectarea' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_TEXT, 'required' => 1, 'options' => array(
+            'arts' => get_string('default_subjectarea_arts', 'block_edupublisher'),
+            'economics' => get_string('default_subjectarea_economics', 'block_edupublisher'),
+            'geography' => get_string('default_subjectarea_geography', 'block_edupublisher'),
+            'history' => get_string('default_subjectarea_history', 'block_edupublisher'),
+            'informatics' => get_string('default_subjectarea_informatics', 'block_edupublisher'),
+            'languages' => get_string('default_subjectarea_languages', 'block_edupublisher'),
+            'mathematics' => get_string('default_subjectarea_mathematics', 'block_edupublisher'),
+            'naturalsciences' => get_string('default_subjectarea_naturalsciences', 'block_edupublisher'),
+            'philosophy' => get_string('default_subjectarea_philosophy', 'block_edupublisher'),
+            'other' => get_string('default_subjectarea_other', 'block_edupublisher'),
+        )),
         'tags' => array('type' => 'text', 'datatype' => PARAM_TEXT),
         // Hidden elements
         'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
@@ -61,7 +76,7 @@ $definition = array(
         'exacomptitles' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_TEXT),
         'exacompdatasources' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_TEXT),
         'imageurl' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
-        'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL, 'default' => 1),
+        'publishas' => array('type' => 'hidden', 'datatype' => PARAM_BOOL, 'default' => 1),
     ),
     'etapas' => array(
         'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
@@ -85,7 +100,7 @@ $definition = array(
             'etapa' => 'eTapa', 'digi.komp 4' => 'digi.komp 4', 'digi.komp 8' => 'digi.komp 8', 'digi.komp 12' => 'digi.komp 12')
         ),
         'gegenstand' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
-        'vonschule' => array('type' => 'text', 'datatype' => PARAM_TEXT),
+        //'vonschule' => array('type' => 'text', 'datatype' => PARAM_TEXT),
         'schulstufe' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'multiple' => 1, 'required' => 1, 'options' => array(
             1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5,
             6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11,
