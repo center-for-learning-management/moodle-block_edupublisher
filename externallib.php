@@ -754,8 +754,11 @@ class block_edupublisher_external extends external_api {
             } else {
                 block_edupublisher::store_comment($package, 'comment:template:package_unpublished', $sendto, true, false);
             }
+            // Toggle course visibility
+            $course = get_course($package->course);
+            $course->visible = $package->active;
+            $DB->update_record('course', $course);
         }
-        error_log(print_r($statusses, 1));
         return json_encode($statusses);
     }
     public static function trigger_active_returns() {

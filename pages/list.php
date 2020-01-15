@@ -52,7 +52,7 @@ if (!empty($channel)) {
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
 
-if (!block_edupublisher::is_maintainer() || !empty($channel) && !in_array($channel, $channels)) {
+if (empty($channel) && !block_edupublisher::is_maintainer() || !block_edupublisher::is_maintainer(array($channel))) {
     echo $OUTPUT->render_from_template(
         'block_edupublisher/alert',
         array(
@@ -91,6 +91,7 @@ if (empty($channel)) {
                 'url' => $CFG->wwwroot . '/my',
             )
         );
+
         block_edupublisher::print_app_footer();
         die();
     }

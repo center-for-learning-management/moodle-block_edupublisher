@@ -15,16 +15,15 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 }}
-<div class="ui-edupublisher" style="text-align: center;"><div>
-    <ul data-role="listview">
-        {{#maintainer_default}}
-            <li><a href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel=default">{{#str}} default_header, block_edupublisher {{/str}}</a></li>
-        {{/maintainer_default}}
-        {{#maintainer_etapas}}
-            <li><a href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel=etapas">{{#str}} etapas_header, block_edupublisher {{/str}}</a></li>
-        {{/maintainer_etapas}}
-        {{#maintainer_eduthek}}
-            <li><a href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel=eduthek">{{#str}} eduthek_header, block_edupublisher {{/str}}</a></li>
-        {{/maintainer_eduthek}}
-    </ul>
+<div class="ui-edupublisher"><div>
+    <h3>{{#str}} channel, block_edupublisher {{/str}}</h3>
+    {{#maintainer_default}}
+        <a class="btn btn-secondary" href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel=default">{{#str}} default_header, block_edupublisher {{/str}}</a>
+    {{/maintainer_default}}
+    {{#maintainer_etapas}}
+        <a class="btn btn-secondary" href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel=etapas">{{#str}} etapas_header, block_edupublisher {{/str}}</a>
+    {{/maintainer_etapas}}
+    {{#maintainer_eduthek}}
+        <a class="btn btn-secondary" href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel=eduthek">{{#str}} eduthek_header, block_edupublisher {{/str}}</a>
+    {{/maintainer_eduthek}}
 </div></div><!-- ui-edupublisher -->
