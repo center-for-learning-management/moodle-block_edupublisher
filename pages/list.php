@@ -52,7 +52,7 @@ if (!empty($channel)) {
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
 
-if (empty($channel) && !block_edupublisher::is_maintainer() || !block_edupublisher::is_maintainer(array($channel))) {
+if (empty($channel) && !block_edupublisher::is_maintainer() || !empty($channel) && !block_edupublisher::is_maintainer(array($channel))) {
     echo $OUTPUT->render_from_template(
         'block_edupublisher/alert',
         array(
