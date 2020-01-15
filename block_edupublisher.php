@@ -300,15 +300,17 @@ class block_edupublisher extends block_base {
         }
         $package->wwwroot = $CFG->wwwroot;
         if (count($withdetails) == 0 || in_array('internal', $withdetails)) {
+            $category = get_config('block_edupublisher', 'category');
+            $context = context_coursecat::instance($category);
             $package->canedit = self::is_admin()
                                 || self::is_author_editing($package)
-                                || (isset($package->default_publishas) && $package->default_publishas && has_capability('block/edupublisher:managedefault', context_system::instance()))
-                                || (isset($package->etapas_publishas) && $package->etapas_publishas && has_capability('block/edupublisher:manageetapas', context_system::instance()))
-                                || (isset($package->eduthek_publishas) && $package->eduthek_publishas && has_capability('block/edupublisher:manageeduthek', context_system::instance()));
+                                || (isset($package->default_publishas) && $package->default_publishas && has_capability('block/edupublisher:managedefault', $context))
+                                || (isset($package->etapas_publishas) && $package->etapas_publishas && has_capability('block/edupublisher:manageetapas', $context))
+                                || (isset($package->eduthek_publishas) && $package->eduthek_publishas && has_capability('block/edupublisher:manageeduthek', $context));
             $package->candelete = self::is_admin();
-            $package->cantriggeractivedefault = has_capability('block/edupublisher:managedefault', context_system::instance());
-            $package->cantriggeractiveetapas = has_capability('block/edupublisher:manageetapas', context_system::instance());
-            $package->cantriggeractiveeduthek = has_capability('block/edupublisher:manageeduthek', context_system::instance());
+            $package->cantriggeractivedefault = has_capability('block/edupublisher:managedefault', $context);
+            $package->cantriggeractiveetapas = has_capability('block/edupublisher:manageetapas', $context);
+            $package->cantriggeractiveeduthek = has_capability('block/edupublisher:manageeduthek', $context);
             $package->canmoderate =
                 $package->cantriggeractivedefault
                 || $package->cantriggeractiveetapas
@@ -533,9 +535,11 @@ class block_edupublisher extends block_base {
     public static function is_maintainer($channels = array()) {
         if (self::is_admin()) return true;
 
-        $maintainer_default = has_capability('block/edupublisher:managedefault', context_system::instance());
-        $maintainer_etapas = has_capability('block/edupublisher:managedefault', context_system::instance());
-        $maintainer_eduthek = has_capability('block/edupublisher:managedefault', context_system::instance());
+        $category = get_config('block_edupublisher', 'category');
+        $context = context_coursecat::instance($category);
+        $maintainer_default = has_capability('block/edupublisher:managedefault', $context);
+        $maintainer_etapas = has_capability('block/edupublisher:managedefault', $context);
+        $maintainer_eduthek = has_capability('block/edupublisher:managedefault', $context);
 
         if (count($channels) == 0) {
             return $maintainer_default || $maintainer_etapas || $maintainer_eduthek;
@@ -671,7 +675,9 @@ class block_edupublisher extends block_base {
             $messagehtml = enhance_mail_body($subject, $messagehtml);
             $messagetext = html_to_text($messagehtml);
 
-            $recipients = get_users_by_capability(context_system::instance(), 'block/edupublisher:manage' . $channel, '', '', '', 10);
+            $category = get_config('block_edupublisher', 'category');
+            $context = context_coursecat::instance($category);
+            $recipients = get_users_by_capability($context, 'block/edupublisher:manage' . $channel, '', '', '', 10);
             foreach($recipients AS $recipient) {
                 email_to_user($recipient, $fromuser, $subject, $messagetext, $messagehtml, "", true);
             }
@@ -855,6 +861,8 @@ class block_edupublisher extends block_base {
                 }
             }
             $recipients = array();
+            $category = get_config('block_edupublisher', 'category');
+            $context = context_coursecat::instance($category);
             foreach ($sendto AS $identifier) {
                 switch ($identifier) {
                     case 'author': $recipients[$package->userid] = true; break;
@@ -865,19 +873,19 @@ class block_edupublisher extends block_base {
                         }
                     break;
                     case 'maintainers_default':
-                        $maintainers = get_users_by_capability(context_system::instance(), 'block/edupublisher:managedefault', '', '', '', 100);
+                        $maintainers = get_users_by_capability($context, 'block/edupublisher:managedefault', '', '', '', 100);
                         foreach ($maintainers AS $maintainer) {
                             $recipients[$maintainer->id] = true;
                         }
                     break;
                     case 'maintainers_eduthek':
-                        $maintainers = get_users_by_capability(context_system::instance(), 'block/edupublisher:manageeduthek', '', '', '', 100);
+                        $maintainers = get_users_by_capability($context, 'block/edupublisher:manageeduthek', '', '', '', 100);
                         foreach ($maintainers AS $maintainer) {
                             $recipients[$maintainer->id] = true;
                         }
                     break;
                     case 'maintainers_etapas':
-                        $maintainers = get_users_by_capability(context_system::instance(), 'block/edupublisher:manageetapas', '', '', '', 100);
+                        $maintainers = get_users_by_capability($context, 'block/edupublisher:manageetapas', '', '', '', 100);
                         foreach ($maintainers AS $maintainer) {
                             $recipients[$maintainer->id] = true;
                         }

@@ -65,9 +65,11 @@ if (!block_edupublisher::is_maintainer() || !empty($channel) && !in_array($chann
     die();
 }
 
-$maintainer_default = has_capability('block/edupublisher:managedefault', context_system::instance());
-$maintainer_etapas = has_capability('block/edupublisher:manageetapas', context_system::instance());
-$maintainer_eduthek = has_capability('block/edupublisher:manageeduthek', context_system::instance());
+$category = get_config('block_edupublisher', 'category');
+$context = context_coursecat::instance($category);
+$maintainer_default = has_capability('block/edupublisher:managedefault', $context);
+$maintainer_etapas = has_capability('block/edupublisher:manageetapas', $context);
+$maintainer_eduthek = has_capability('block/edupublisher:manageeduthek', $context);
 
 if (empty($channel)) {
     echo $OUTPUT->render_from_template(
