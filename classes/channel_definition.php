@@ -100,7 +100,7 @@ $definition = array(
             'etapa' => 'eTapa', 'digi.komp 4' => 'digi.komp 4', 'digi.komp 8' => 'digi.komp 8', 'digi.komp 12' => 'digi.komp 12')
         ),
         'gegenstand' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
-        'vonschule' => array('type' => 'text', 'datatype' => PARAM_TEXT),
+        //'vonschule' => array('type' => 'text', 'datatype' => PARAM_TEXT),
         'schulstufe' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'multiple' => 1, 'required' => 1, 'options' => array(
             1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5,
             6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11,
