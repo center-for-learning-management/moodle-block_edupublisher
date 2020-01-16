@@ -15,11 +15,11 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * @package    block_edupublisher
- * @copyright  2019 Digital Education Society (http://www.dibig.at)
- * @author     Robert Schrenk
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+* @package    block_edupublisher
+* @copyright  2019 Digital Education Society (http://www.dibig.at)
+* @author     Robert Schrenk
+* @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+*/
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -131,7 +131,7 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
 
         // Conditionally launch create table for block_edupublisher_lic_pack.
         if (!$dbman->table_exists($table)) {
-           $dbman->create_table($table);
+            $dbman->create_table($table);
         }
 
         // Edupublisher savepoint reached.
@@ -196,8 +196,15 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
 
         // Edupublisher savepoint reached.
-          upgrade_block_savepoint(true, 2019120300, 'edupublisher');
-      }
+        upgrade_block_savepoint(true, 2019120300, 'edupublisher');
+    }
+
+    if ($oldversion < 2020010800) {
+        $sql = "DELETE FROM {block_edupublisher_metadata} WHERE field=?";
+        $DB->execute($sql, array('etapas_vonschule'));
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2020010800, 'edupublisher');
+    }
 
 
     return true;

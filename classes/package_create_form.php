@@ -179,8 +179,8 @@ class package_create_form extends moodleform {
                     if ($_channel == 'default') continue;
                     if ($_channel == 'commercial' && !$ALLOW_COMMERCIAL) continue;
                     $label = $this->get_label($definition, $_channel, 'publish_as', ucfirst($_channel), $stringman);
-                    $boxes[] = $mform->createElement('checkbox', $_channel . '_publishas', $label, NULL, array('onclick' => 'var inp = this; require(["jquery"], function($) { $("#id_' . $_channel . '_publish_as").css("display", $(inp).is(":checked") ? "block" : "none"); });'));
-                    $mform->setType($_channel . '_publishas', PARAM_BOOL);
+                    $boxes[] = $mform->createElement('advcheckbox', $_channel . '_publishas', $label, NULL, array('onclick' => 'var inp = this; require(["jquery"], function($) { $("#id_' . $_channel . '_publish_as").css("display", $(inp).is(":checked") ? "block" : "none"); });'), array(0, 1));
+                    //$mform->setType($_channel . '_publishas', PARAM_INT);
                 }
                 $mform->addGroup($boxes, 'publishings', get_string('channels', 'block_edupublisher'), array(' '), false);
             }

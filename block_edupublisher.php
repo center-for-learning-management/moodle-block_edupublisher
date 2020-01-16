@@ -538,15 +538,15 @@ class block_edupublisher extends block_base {
         $category = get_config('block_edupublisher', 'category');
         $context = context_coursecat::instance($category);
         $maintainer_default = has_capability('block/edupublisher:managedefault', $context);
-        $maintainer_etapas = has_capability('block/edupublisher:managedefault', $context);
-        $maintainer_eduthek = has_capability('block/edupublisher:managedefault', $context);
+        $maintainer_etapas = has_capability('block/edupublisher:manageetapas', $context);
+        $maintainer_eduthek = has_capability('block/edupublisher:manageeduthek', $context);
 
         if (count($channels) == 0) {
             return $maintainer_default || $maintainer_etapas || $maintainer_eduthek;
         }
-        return in_array('default', $channels) && $maintainer_default;
-        return in_array('etapas', $channels) && $maintainer_etapas;
-        return in_array('eduthek', $channels) && $maintainer_eduthek;
+        if (in_array('default', $channels) && $maintainer_default) return true;
+        if (in_array('etapas', $channels) && $maintainer_etapas) return true;
+        if (in_array('eduthek', $channels) && $maintainer_eduthek) return true;
         return false;
     }
     /**
@@ -674,7 +674,6 @@ class block_edupublisher extends block_base {
             $subject = get_string($channel . '__mailsubject' , 'block_edupublisher');
             $messagehtml = enhance_mail_body($subject, $messagehtml);
             $messagetext = html_to_text($messagehtml);
-
             $category = get_config('block_edupublisher', 'category');
             $context = context_coursecat::instance($category);
             $recipients = get_users_by_capability($context, 'block/edupublisher:manage' . $channel, '', '', '', 10);
@@ -936,6 +935,8 @@ class block_edupublisher extends block_base {
     **/
     public static function store_package($package) {
         global $CFG, $DB;
+        // Every author must publish in  the default channel.
+        $package->default_publishas = 1;
 
         $context = context_course::instance($package->course);
 
@@ -967,7 +968,7 @@ class block_edupublisher extends block_base {
             // Prevent deactivating a channel after it was activated.
             $ignore = array('etapas_publishas', 'eduthek_publishas');
             foreach($keys AS $key) {
-                if (in_array($key, $ignore)) continue;
+                if (in_array($key, $ignore) && !empty($original->{$key})) continue;
                 $original->{$key} = $package->{$key};
             }
 
@@ -998,6 +999,7 @@ class block_edupublisher extends block_base {
             $fields = array_keys($definition[$channel]);
             //echo 'Channel: "' . $channel . '_active" => ' . $package->{$channel . '_active'} . '<br />';
             foreach($fields AS $field) {
+                if (!empty($definition[$channel][$field]['donotstore'])) continue;
                 $dbfield = $channel . '_' . $field;
 
                 // Remove all meta-objects with pattern channel_field_%, multiple items will be inserted anyway.
@@ -1039,9 +1041,6 @@ class block_edupublisher extends block_base {
                 }
                 // We retrieve anything else.
                 if (isset($package->{$dbfield}) && (is_array($package->{$dbfield}) || !empty($package->{$dbfield})  || is_numeric($package->{$dbfield}))) {
-                    if ($field == 'publishas' && $package->{$dbfield}) {
-                        $channels[] = $channel;
-                    }
                     unset($allowedoptions);
                     unset($allowedkeys);
                     if (isset($definition[$channel][$field]['options'])) {
@@ -1260,7 +1259,7 @@ class block_edupublisher extends block_base {
         }
         $this->content = (object) array(
             'text' => '',
-            'footer' => array()
+            'footer' => ''
         );
 
         // 1. in a package-course: show author
@@ -1274,11 +1273,6 @@ class block_edupublisher extends block_base {
         $package = $DB->get_record('block_edupublisher_packages', array('course' => $COURSE->id), '*', IGNORE_MULTIPLE);
         $options = array();
         if ($package) {
-            // Is package-course: show author
-            if (has_capability('block_edupublisher/canselfenrol', $context) && !is_enrolled(\context_course::instance($COURSE->id))) {
-                $PAGE->requires->js_call_amd('block_edupublisher/main', 'injectEnrolButton', array($COURSE->id));
-            }
-
             $package = self::get_package($package->id, true);
             if (!empty($package->default_authormailshow) && $package->default_authormailshow == 1) {
                 $options[] = array(
@@ -1310,20 +1304,28 @@ class block_edupublisher extends block_base {
                 "icon" => '/pix/i/scales.svg',
             );
 
-            if (has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
+            if (!empty($package->etapas_subtype) && $package->etapas_subtype == 'etapa' && has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
                 $options[] = array(
                     "title" => get_string('evaluations', 'block_edupublisher'),
                     "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/evaluation.php?packageid=' . $package->id,
                     "icon" => '/pix/i/report.svg',
                 );
             }
+            // Show use package-button
             $courses = self::get_courses(null, 'moodle/course:update');
             if (count(array_keys($courses)) > 0) {
                 $options[] = array(
                     "title" => get_string('initialize_import', 'block_edupublisher'),
                     "href" => "#",
-                    "icon" => '/pix/i/import.svg',
+                    //"icon" => '/pix/i/import.svg',
+                    "class" => 'btn btn-primary',
                     "onclick" => 'require([\'block_edupublisher/main\'], function(MAIN) { MAIN.initImportSelection(' . $package->id . '); }); return false;',
+                    "style" => 'margin-top: 10px;',
+                );
+            }
+            if (!empty($package->etapas_active) && !empty($package->etapas_subtype)) {
+                $options[] = array(
+                    "title" => "<img src=\"" . $CFG->wwwroot . "/blocks/edupublisher/pix/channel/" . str_replace(array(' ', '.'), '', $package->etapas_subtype) . ".png\" style=\"width: 100%; max-width: 170px; margin-top: 20px;\" />",
                 );
             }
         } elseif($canedit) {
@@ -1373,7 +1375,9 @@ class block_edupublisher extends block_base {
             if (!empty($option["icon"])) $tx = "<img src='" . $option["icon"] . "' class='icon'>" . $tx;
             if (!empty($option["href"])) $tx = "
                 <a href='" . $option["href"] . "' " . ((!empty($option["onclick"])) ? " onclick=\"" . $option["onclick"] . "\"" : "") . "
-                   " . ((!empty($option["target"])) ? " target=\"" . $option["target"] . "\"" : "") . "'>" . $tx . "</a>";
+                    " . ((!empty($option["class"])) ? " class=\"" . $option["class"] . "\"" : "") . "
+                    " . ((!empty($option["style"])) ? " style=\"" . $option["style"] . "\"" : "") . "
+                    " . ((!empty($option["target"])) ? " target=\"" . $option["target"] . "\"" : "") . "'>" . $tx . "</a>";
             else  $tx = "<a>" . $tx . "</a>";
             $this->content->text .= $tx . "<br />";
         }
