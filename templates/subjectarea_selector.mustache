@@ -24,7 +24,8 @@
                 {{name}}
             </button>
         {{/subjectareas}}
-        <input type="text" id="{{uniqid}}-search" name="search" placeholder="{{#str}} search, block_edupublisher {{/str}}"
+        <input type="text" id="{{uniqid}}-search" name="search" style="width: 100%;"
+            placeholder="{{#str}} search, block_edupublisher {{/str}}"
             onkeyup="require(['block_edupublisher/main'], function(MAIN) { MAIN.search('{{uniqid}}', {{courseid}}, {{sectionid}}); });" />
     </form>
 </div></div>
