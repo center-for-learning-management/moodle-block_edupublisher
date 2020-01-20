@@ -37,6 +37,7 @@ if(!isloggedin() || isguestuser($USER)) {
 
 
 $courseid = required_param('id', PARAM_INT);
+$unenrol = optional_param('unenrol', 0, PARAM_INT);
 $package = block_edupublisher::get_package_by_courseid($courseid);
 if (empty($package->course)) {
     // Show a warning that this is not a package.
@@ -71,37 +72,53 @@ if (empty($defaultrolestudent)) {
         'content' => get_string('defaultrolestudent:missing', 'block_edupublisher'),
     ));
 } elseif (optional_param('confirm', 0, PARAM_BOOL) == 1) {
-    // Do the enrolment and redirect.
-    $course = $DB->get_record('course', array('id' => $package->course), '*', MUST_EXIST);
-    $enrol = enrol_get_plugin('manual');
-    if ($enrol === null) {
-        return false;
-    }
-    $instances = enrol_get_instances($package->course, true);
-    $manualinstance = null;
-    foreach ($instances as $instance) {
-        if ($instance->enrol == 'manual') {
-            $manualinstance = $instance;
-            break;
+    if (!empty($unenrol)) {
+        // Do the un-enrolment.
+        $instances = $DB->get_records('enrol', array('courseid' => $package->course));
+        foreach ($instances as $instance) {
+            $plugin = enrol_get_plugin($instance->enrol);
+            $plugin->unenrol_user($instance, $USER->id);
         }
-    }
-
-    if (empty($manualinstance->id)) {
-        $instanceid = $enrol->add_default_instance($course);
-        if ($instanceid === null) {
-            $instanceid = $enrol->add_instance($course);
+        echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
+            'type' => 'success',
+            'content' => get_string('successfully_unenrolled', 'block_edupublisher'),
+            'url' => $CFG->wwwroot . '/my',
+        ));
+        redirect(new moodle_url('/my', array()));
+    } else {
+        // Do the enrolment and redirect.
+        $course = $DB->get_record('course', array('id' => $package->course), '*', MUST_EXIST);
+        $enrol = enrol_get_plugin('manual');
+        if ($enrol === null) {
+            return false;
         }
-        $instance = $DB->get_record('enrol', array('id' => $instanceid));
-    }
+        $instances = enrol_get_instances($package->course, true);
+        $manualinstance = null;
+        foreach ($instances as $instance) {
+            if ($instance->enrol == 'manual') {
+                $manualinstance = $instance;
+                break;
+            }
+        }
 
-    $enrol->enrol_user($instance, $USER->id, $defaultrolestudent);
-    echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
-        'type' => 'success',
-        'content' => get_string('successfully_enrolled', 'block_edupublisher'),
-        'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->course,
-    ));
-    redirect(new moodle_url('/course/view.php', array('id' => $package->course)));
+        if (empty($manualinstance->id)) {
+            $instanceid = $enrol->add_default_instance($course);
+            if ($instanceid === null) {
+                $instanceid = $enrol->add_instance($course);
+            }
+            $instance = $DB->get_record('enrol', array('id' => $instanceid));
+        }
+
+        $enrol->enrol_user($instance, $USER->id, $defaultrolestudent);
+        echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
+            'type' => 'success',
+            'content' => get_string('successfully_enrolled', 'block_edupublisher'),
+            'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->course,
+        ));
+        redirect(new moodle_url('/course/view.php', array('id' => $package->course)));
+    }
 } else {
+    $package->unenrol = $unenrol;
     echo $OUTPUT->render_from_template(
         'block_edupublisher/self_enrol_confirm',
         $package
