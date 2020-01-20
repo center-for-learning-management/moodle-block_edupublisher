@@ -1272,7 +1272,7 @@ class block_edupublisher extends block_base {
 
         $package = $DB->get_record('block_edupublisher_packages', array('course' => $COURSE->id), '*', IGNORE_MULTIPLE);
         $options = array();
-        if ($package) {
+        if (!empty($package->id)) {
             $package = self::get_package($package->id, true);
             if (!empty($package->default_authormailshow) && $package->default_authormailshow == 1) {
                 $options[] = array(
@@ -1318,8 +1318,18 @@ class block_edupublisher extends block_base {
                     "title" => get_string('initialize_import', 'block_edupublisher'),
                     "href" => "#",
                     //"icon" => '/pix/i/import.svg',
-                    "class" => 'btn btn-primary',
+                    "class" => 'btn btn-primary btn-block',
                     "onclick" => 'require([\'block_edupublisher/main\'], function(MAIN) { MAIN.initImportSelection(' . $package->id . '); }); return false;',
+                    "style" => 'margin-top: 10px;',
+                );
+            }
+            // If we are enrolled let check if we can selfunenrol
+            if (is_enrolled($context, null, 'block/edupublisher:canselfenrol')) {
+                $options[] = array(
+                    "title" => get_string('self_unenrol', 'block_edupublisher'),
+                    "href" => $CFG->wwwroot . "/blocks/edupublisher/pages/self_enrol.php?id=" . $package->course . "&unenrol=1",
+                    //"icon" => '/pix/i/import.svg',
+                    "class" => 'btn btn-secondary btn-block',
                     "style" => 'margin-top: 10px;',
                 );
             }

@@ -15,17 +15,32 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 <div class="ui-edupublisher"><div class="alert-warning" style="padding: 10px;">
+    {{#unenrol}}
+    <h3>{{#str}} self_unenrol, block_edupublisher {{/str}}</h3>
+    <p>{{#str}} self_unenrol_confirm_text, block_edupublisher {{/str}}</p>
+    {{/unenrol}}
+    {{^unenrol}}
     <h3>{{#str}} self_enrol, block_edupublisher {{/str}}</h3>
     <p>{{#str}} self_enrol_confirm_text, block_edupublisher {{/str}}</p>
+    {{/unenrol}}
+
     <form method="POST" enctype="multipart/form-data">
+        {{#unenrol}}
+            <input type="hidden" name="unenrol" value="1" />
+            <label>
+                <input type="checkbox" name="confirm">
+                {{#str}} only_viewing_unenrol_button, block_edupublisher  {{/str}}
+            </label>
+        {{/unenrol}}
+        {{^unenrol}}
         <label>
             <input type="checkbox" name="confirm">
             {{#str}} only_viewing_enrol_button, block_edupublisher  {{/str}}
         </label>
+        {{/unenrol}}
+
         <button type="submit" class="btn btn btn-primary">
             {{#str}} submit {{/str}}
         </button>
     </form>
-
-
 </div></div>
