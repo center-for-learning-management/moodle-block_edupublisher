@@ -1,3 +1,62 @@
+// out: ../style/ui.css, sourcemap: true, compress: true
+
+.ui-edupublisher {
+    ul[data-role="listgrid"] {
+        padding-left: 0;
+        &>li {
+            margin: 0;
+        }
+        &>li.list-divider {
+            list-style-type: none;
+            background-color: lightgray;
+            font-weight: bold;
+        }
+        &>li.list-grid {
+            list-style-type: none;
+            position: absolute;
+            display: inline-block;
+            width: 300px;
+            height: 300px;
+            margin-right: 5px;
+            padding: 15px;
+            overflow:hidden;
+
+            &>a {
+                position: absolute; z-index: 2;
+                top: 0; right: 0; bottom: 0; left: 0;
+                text-decoration: none;
+                color: inherit;
+                &>* {
+                    text-overflow:ellipsis;
+                    background-color: none;
+                }
+                &>.title {
+                    font-weight: bold;
+                }
+                &>.description {
+                    font-style: italic;
+                }
+            }
+            &>div.img-bg {
+                /* div-container that acts as background-image */
+                position: absolute; z-index: 1;
+                top: 0; right: 0; bottom: 0; left: 0;
+
+                opacity: 0.3;
+                background-position: center center;
+                background-size: contain;
+            }
+            &>div.rating {
+                position: absolute;
+                right: 0; bottom: 0;
+                z-index: 3; min-width: 100px !important;
+            }
+        }
+    }
+}
+
+// We wanted to get rid of everything below this line, but it looks terrible if we do.
+
 /* ATTENTION, because of ui-edupublisher-skip feature this does not apply to direct childs od ui-edupublisher */
 .ui-edupublisher :not(.ui-edupublisher-skip) {
     .btn,
@@ -253,9 +312,6 @@
                 top: 0;
                 width: 100px;
                 z-index: 10;
-                &>a:not(.btn) {
-                    max-width: 18px;
-                }
             }
             &>img {
                 vertical-align: middle;

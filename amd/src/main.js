@@ -206,82 +206,104 @@ define(
                 uniqid: uniqid,
                 run: function() {
                     var o = this;
-                    require(['block_edupublisher/main'], function(MAIN) {
-                        MAIN.searchid++;
-                        var searchid = MAIN.searchid;
-                        console.log('Doing search via ajax for', $(o.target).val(), MAIN.searchid, searchid);
-                        AJAX.call([{
-                            methodname: 'block_edupublisher_search',
-                            args: { courseid: courseid, search: $(o.target).val() },
-                            done: function(result) {
-                                if (MAIN.searchid != searchid) {
-                                    console.log(' => Got response for searchid ', searchid, ' but it is not the current search', MAIN.searchid);
-                                } else {
-                                    console.log('Result', result);
-                                    //$('ul#' + o.uniqid + '-results').empty().html(result);
-
-                                    var result = JSON.parse(result);
-                                    console.log('Received', result);
-                                    $('ul#' + o.uniqid + '-results').empty();
-
-                                    var counts = Object.keys(result.relevance);
-                                    var stagesrelevances = [0, 1, 2];
-                                    var stagesprinted = [false, false, false];
-                                    if (counts.length === 0) {
-                                        STR.get_strings([
-                                                {'key' : 'search:enter_term', component: 'block_edupublisher' },
-                                            ]).done(function(s) {
-                                                $('ul#' + o.uniqid + '-results').append($('<li>').append('<a href="#">').append('<h3>').html(s[0]));
-                                            }
-                                        ).fail(NOTIFICATION.exception);
-                                    } else if (counts.length === 1) {
-                                        // All are the same relevant
-                                        var stagesrelevances = [0, 0, counts[0], counts[0] + 1];
-                                    } else if (counts.length === 2) {
-                                        // All are the only two relevant stages
-                                        var max = Math.round(counts[counts.length - 1]);
-                                        var stagesrelevances = [0, 0, max / 2, max];
-                                    } else {
-                                        // We divide into three fields
-                                        var max = Math.round(counts[counts.length - 1]);
-                                        var stagesrelevances = [0, max / 3, max / 3 * 2, max];
-                                    }
-                                    var position = 0;
-                                    for(var a = counts.length - 1; a >= 0; a--) {
-                                        var relevance = counts[a];
-                                        var ids = result.relevance[relevance];
-                                        if (ids.length == 0) continue;
-
-                                        var stage = -1;
-                                        for (var b = 0; b < stagesrelevances.length; b++) {
-                                            console.log('Compare ', b, 'of ', stagesrelevances, ' to ', relevance)
-                                            if (relevance >= stagesrelevances[b]) {
-                                                stage = b;
-                                            }
-                                            console.log('=> Stage is ', stage);
-                                        }
-
-                                        if (stage > -1 && !stagesprinted[stage]) {
-                                            MAIN.searchTemplate(o.uniqid, position++, 'block_edupublisher/search_li_divider', { stage0: (stage == 0), stage1: (stage == 1), stage2: (stage == 2), stage3: (stage == 3) });
-                                            stagesprinted[stage] = true;
-                                        }
-
-                                        for (var b = 0; b < ids.length; b++) {
-                                            var item = result.packages[ids[b]];
-                                            item.importtocourseid = o.courseid;
-                                            item.importtosectionid = o.sectionid;
-                                            item.showpreviewbutton = true;
-                                            console.log('Call list-template for item ', item.id);
-                                            MAIN.searchTemplate(o.uniqid, position++, 'block_edupublisher/search_li', item);
-                                        }
-                                    }
-                                }
-                            },
-                            fail: NOTIFICATION.exception
-                        }]);
-                    });
+                    require(['block_edupublisher/main'], function(MAIN) { MAIN.searchNow(o); });
                 }
             }, 200);
+        },
+        /**
+         * Do the search.
+         * @param object containing courseid, sectionid, target and uniqid.
+         * @param sender html-object that caused the event.
+         */
+        searchNow: function(o, sender) {
+            o.subjectareas = [];
+            if (typeof sender !== 'undefined') {
+                if ($(sender).attr('name') == 'subjectarea') {
+                    $(sender).toggleClass('selected');
+                    $('.' + o.uniqid + '-subjectarea').prop('checked', false);
+                    $('.' + o.uniqid + '-subjectarea.selected').prop('checked', true);
+                }
+            }
+            $('.' + o.uniqid + '-subjectarea.selected').each(function() {
+                o.subjectareas[o.subjectareas.length] = $(this).attr('value');
+            });
+            o.search = $('#' + o.uniqid + '-search').val();
+            // Generate object for sending (only some parameters accepted by webservice)
+            var o2 = { courseid: o.courseid, search: o.search, subjectareas: o.subjectareas.join(',') };
+            require(['block_edupublisher/main'], function(MAIN) {
+                MAIN.searchid++;
+                var searchid = MAIN.searchid;
+                console.log('Doing search via ajax for', o2, MAIN.searchid, searchid);
+                AJAX.call([{
+                    methodname: 'block_edupublisher_search',
+                    args: o2,
+                    done: function(result) {
+                        if (MAIN.searchid != searchid) {
+                            console.log(' => Got response for searchid ', searchid, ' but it is not the current search', MAIN.searchid);
+                        } else {
+                            console.log('Result', result);
+                            //$('ul#' + o.uniqid + '-results').empty().html(result);
+
+                            var result = JSON.parse(result);
+                            console.log('Received', result);
+                            $('ul#' + o.uniqid + '-results').empty();
+
+                            var counts = Object.keys(result.relevance);
+                            var stagesrelevances = [0, 1, 2];
+                            var stagesprinted = [false, false, false];
+                            if (counts.length === 0) {
+                                STR.get_strings([
+                                        {'key' : 'search:enter_term', component: 'block_edupublisher' },
+                                    ]).done(function(s) {
+                                        $('ul#' + o.uniqid + '-results').append($('<li>').append('<a href="#">').append('<h3>').html(s[0]));
+                                    }
+                                ).fail(NOTIFICATION.exception);
+                            } else if (counts.length === 1) {
+                                // All are the same relevant
+                                var stagesrelevances = [0, 0, counts[0], counts[0] + 1];
+                            } else if (counts.length === 2) {
+                                // All are the only two relevant stages
+                                var max = Math.round(counts[counts.length - 1]);
+                                var stagesrelevances = [0, 0, max / 2, max];
+                            } else {
+                                // We divide into three fields
+                                var max = Math.round(counts[counts.length - 1]);
+                                var stagesrelevances = [0, max / 3, max / 3 * 2, max];
+                            }
+                            var position = 0;
+                            for(var a = counts.length - 1; a >= 0; a--) {
+                                var relevance = counts[a];
+                                var ids = result.relevance[relevance];
+                                if (ids.length == 0) continue;
+
+                                var stage = -1;
+                                for (var b = 0; b < stagesrelevances.length; b++) {
+                                    console.log('Compare ', b, 'of ', stagesrelevances, ' to ', relevance)
+                                    if (relevance >= stagesrelevances[b]) {
+                                        stage = b;
+                                    }
+                                    console.log('=> Stage is ', stage);
+                                }
+
+                                if (stage > -1 && !stagesprinted[stage]) {
+                                    MAIN.searchTemplate(o.uniqid, position++, 'block_edupublisher/search_li_divider', { stage0: (stage == 0), stage1: (stage == 1), stage2: (stage == 2), stage3: (stage == 3) });
+                                    stagesprinted[stage] = true;
+                                }
+
+                                for (var b = 0; b < ids.length; b++) {
+                                    var item = result.packages[ids[b]];
+                                    item.importtocourseid = o.courseid;
+                                    item.importtosectionid = o.sectionid;
+                                    //item.showpreviewbutton = true;
+                                    console.log('Call list-template for item ', item.id);
+                                    MAIN.searchTemplate(o.uniqid, position++, 'block_edupublisher/search_li', item);
+                                }
+                            }
+                        }
+                    },
+                    fail: NOTIFICATION.exception
+                }]);
+            });
         },
         /**
          * Print all items that are loaded in listpositions.

@@ -91,6 +91,7 @@ if (empty($channel)) {
                 'url' => $CFG->wwwroot . '/my',
             )
         );
+
         block_edupublisher::print_app_footer();
         die();
     }

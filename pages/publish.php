@@ -357,7 +357,6 @@ if ($package->id > 0 && $PREVENTFORM) {
                     $plugin->unenrol_user($instance, $_user->id);
                 }
             }
-            block_edupublisher::role_set(array($package->course), array($USER->id), 'defaultrolestudent');
 
             block_edupublisher::store_package($package);
             // Create the comment.
