@@ -82,9 +82,9 @@ if (empty($defaultrolestudent)) {
         echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
             'type' => 'success',
             'content' => get_string('successfully_unenrolled', 'block_edupublisher'),
-            'url' => $CFG->wwwroot . '/my',
+            'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->course,
         ));
-        redirect(new moodle_url('/my', array()));
+        redirect(new moodle_url('/course/view.php', array('id' => $package->course)));
     } else {
         // Do the enrolment and redirect.
         $course = $DB->get_record('course', array('id' => $package->course), '*', MUST_EXIST);
