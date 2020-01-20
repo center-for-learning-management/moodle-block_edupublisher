@@ -220,8 +220,8 @@ define(
             if (typeof sender !== 'undefined') {
                 if ($(sender).attr('name') == 'subjectarea') {
                     $(sender).toggleClass('selected');
-                    $('.' + o.uniqid + '-subjectarea').removeClass('btn-primary').addClass('btn-secondary');
-                    $('.' + o.uniqid + '-subjectarea.selected').addClass('btn-primary').removeClass('btn-secondary');
+                    $('.' + o.uniqid + '-subjectarea').prop('checked', false);
+                    $('.' + o.uniqid + '-subjectarea.selected').prop('checked', true);
                 }
             }
             $('.' + o.uniqid + '-subjectarea.selected').each(function() {
