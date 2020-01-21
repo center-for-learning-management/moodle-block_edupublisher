@@ -354,7 +354,7 @@ class block_edupublisher extends block_base {
      */
     public static function get_package_by_courseid($courseid) {
         global $DB;
-        $item = $DB->get_record('block_edupublisher_packages', array('active' => 1, 'course' => $courseid, 'deleted' => 0), '*', MUST_EXIST);
+        $item = $DB->get_record('block_edupublisher_packages', array('course' => $courseid), '*', MUST_EXIST);
         if (!empty($item->id)) {
             return self::get_package($item->id);
         }
