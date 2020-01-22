@@ -1,4 +1,4 @@
-// out: ../style/main.css, sourcemap: true, compress: true
+// out: ../style/main.css, sourcemap: false, compress: true
 .block-edupublisher-success {
     background-color: rgba(0, 255, 0, 0.3);
 }
@@ -49,4 +49,36 @@ ul.text-divider {
 
 ul.text-divider.comma li:not(:last-child):after {
     content: ", ";
+}
+
+@media screen and (min-width: 801px) {
+    .grid-eq-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 50%);
+    }
+    .grid-eq-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 33%);
+    }
+    .grid-eq-2>*,
+    .grid-eq-3>* {
+        width: calc(100% - 4px) !important;
+        margin-left: 2px !important;
+    }
+}
+
+@media screen and (max-width: 800px) {
+    .grid-eq-2 {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 100%);
+    }
+    .grid-eq-3 {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, 100%);
+    }
+    .grid-eq-2>*,
+    .grid-eq-3>* {
+        width: calc(100% - 4px) !important;
+        margin: 2px !important;
+    }
 }

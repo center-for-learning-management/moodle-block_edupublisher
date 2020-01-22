@@ -745,16 +745,19 @@ class block_edupublisher extends block_base {
         return $package;
     }
     /**
-     * If eduvidual is used print eduvidual-header, otherwise default header
+     * Prints header and injects other sources that are required.
     **/
     public static function print_app_header() {
         global $CFG, $OUTPUT;
+        echo $OUTPUT->header();
+        /*
         if (self::uses_eduvidual()) {
             require_once($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
             block_eduvidual::print_app_header();
         } else {
             echo $OUTPUT->header();
         }
+        */
     }
     /**
      * If eduvidual is used print eduvidual-footer, otherwise default footer
