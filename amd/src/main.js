@@ -294,7 +294,7 @@ define(
                                     var item = result.packages[ids[b]];
                                     item.importtocourseid = o.courseid;
                                     item.importtosectionid = o.sectionid;
-                                    //item.showpreviewbutton = true;
+                                    item.showpreviewbutton = true;
                                     console.log('Call list-template for item ', item.id);
                                     MAIN.searchTemplate(o.uniqid, position++, 'block_edupublisher/search_li', item);
                                 }
