@@ -16,7 +16,19 @@
 }}
 
 <div class="ui-edupublisher search"><div>
-    {{> block_edupublisher/subjectarea_selector}}
+    <form method="post" action="" enctype="multipart/form-data">
+        <!--
+        {{#subjectareas}}
+            <input type="checkbox" name="subjectarea" value="{{key}}" href="#"
+                onclick="var b = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.searchNow({ uniqid: '{{uniqid}}', courseid: {{courseid}}, sectionid: {{sectionid}} }, b); }); return false;"
+                class="{{uniqid}}-subjectarea" {{#isselected}} checked="checked" {{/isselected}}>
+            <label>{{name}}</label>
+        {{/subjectareas}}
+        -->
+        <input type="text" id="{{uniqid}}-search" name="search" style="width: 100%;"
+            placeholder="{{#str}} search, block_edupublisher {{/str}}"
+            onkeyup="require(['block_edupublisher/main'], function(MAIN) { MAIN.search('{{uniqid}}', {{courseid}}, {{sectionid}}); });" />
+    </form>
 
     {{#enablecommercial}}
     <div class="grid-eq-2">
@@ -59,7 +71,7 @@
 
     <div id="search-{{uniqid}}">
         {{! <input type="text" id="{{uniqid} }-search" name="search" placeholder="{{#str} } search, block_edupublisher {{/str} }" onkeyup="require(['block_edupublisher/main'], function(MAIN) { MAIN.search('{{uniqid} }', {{courseid} }, {{sectionid} }); });" /> }}
-        <ul id="{{uniqid}}-results" data-role="listgrid">
+        <ul id="{{uniqid}}-results" data-role="listview">
             <li><a href="#"><h3>{{#str}} search:enter_term, block_edupublisher {{/str}}</h3></a></li>
         </ul>
     </div>

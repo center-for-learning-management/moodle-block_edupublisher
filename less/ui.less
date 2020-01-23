@@ -1,4 +1,4 @@
-// out: ../style/ui.css, sourcemap: true, compress: true
+// out: ../style/ui.css, sourcemap: false, compress: true
 
 .ui-edupublisher {
     ul[data-role="listgrid"] {
@@ -18,7 +18,7 @@
             width: 300px;
             height: 300px;
             margin-right: 5px;
-            padding: 15px;
+            padding: 15px;line-height: 1.5em;
             overflow:hidden;
 
             &>a {
@@ -309,8 +309,8 @@
             &>.box-right-100 {
                 position: absolute;
                 right: 10px;
-                top: 0;
-                width: 100px;
+                top: -3px;
+                width: 101px;
                 z-index: 10;
             }
             &>img {
@@ -351,11 +351,14 @@
         }
         &>li[data-role="list-divider"] {
             background-color: #eaeaea;
-            height: 2em !important;
+            font-weight: bold;
+            height: 1.5em !important;
+            line-height: 1.5em;
             &>a {
-                height: 2em !important;
+                height: 1.5em !important;
+                line-height: 1.5em;
                 &>* {
-                    height: 2em;
+                    height: 1.5em;
                 }
             }
 
