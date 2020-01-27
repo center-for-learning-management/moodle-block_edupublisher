@@ -300,15 +300,17 @@ class block_edupublisher extends block_base {
         }
         $package->wwwroot = $CFG->wwwroot;
         if (count($withdetails) == 0 || in_array('internal', $withdetails)) {
+            $category = get_config('block_edupublisher', 'category');
+            $context = context_coursecat::instance($category);
             $package->canedit = self::is_admin()
                                 || self::is_author_editing($package)
-                                || (isset($package->default_publishas) && $package->default_publishas && has_capability('block/edupublisher:managedefault', context_system::instance()))
-                                || (isset($package->etapas_publishas) && $package->etapas_publishas && has_capability('block/edupublisher:manageetapas', context_system::instance()))
-                                || (isset($package->eduthek_publishas) && $package->eduthek_publishas && has_capability('block/edupublisher:manageeduthek', context_system::instance()));
+                                || (isset($package->default_publishas) && $package->default_publishas && has_capability('block/edupublisher:managedefault', $context))
+                                || (isset($package->etapas_publishas) && $package->etapas_publishas && has_capability('block/edupublisher:manageetapas', $context))
+                                || (isset($package->eduthek_publishas) && $package->eduthek_publishas && has_capability('block/edupublisher:manageeduthek', $context));
             $package->candelete = self::is_admin();
-            $package->cantriggeractivedefault = has_capability('block/edupublisher:managedefault', context_system::instance());
-            $package->cantriggeractiveetapas = has_capability('block/edupublisher:manageetapas', context_system::instance());
-            $package->cantriggeractiveeduthek = has_capability('block/edupublisher:manageeduthek', context_system::instance());
+            $package->cantriggeractivedefault = has_capability('block/edupublisher:managedefault', $context);
+            $package->cantriggeractiveetapas = has_capability('block/edupublisher:manageetapas', $context);
+            $package->cantriggeractiveeduthek = has_capability('block/edupublisher:manageeduthek', $context);
             $package->canmoderate =
                 $package->cantriggeractivedefault
                 || $package->cantriggeractiveetapas
@@ -352,7 +354,7 @@ class block_edupublisher extends block_base {
      */
     public static function get_package_by_courseid($courseid) {
         global $DB;
-        $item = $DB->get_record('block_edupublisher_packages', array('active' => 1, 'course' => $courseid, 'deleted' => 0), '*', MUST_EXIST);
+        $item = $DB->get_record('block_edupublisher_packages', array('course' => $courseid), '*', MUST_EXIST);
         if (!empty($item->id)) {
             return self::get_package($item->id);
         }
@@ -533,16 +535,18 @@ class block_edupublisher extends block_base {
     public static function is_maintainer($channels = array()) {
         if (self::is_admin()) return true;
 
-        $maintainer_default = has_capability('block/edupublisher:managedefault', context_system::instance());
-        $maintainer_etapas = has_capability('block/edupublisher:managedefault', context_system::instance());
-        $maintainer_eduthek = has_capability('block/edupublisher:managedefault', context_system::instance());
+        $category = get_config('block_edupublisher', 'category');
+        $context = context_coursecat::instance($category);
+        $maintainer_default = has_capability('block/edupublisher:managedefault', $context);
+        $maintainer_etapas = has_capability('block/edupublisher:manageetapas', $context);
+        $maintainer_eduthek = has_capability('block/edupublisher:manageeduthek', $context);
 
         if (count($channels) == 0) {
             return $maintainer_default || $maintainer_etapas || $maintainer_eduthek;
         }
-        return in_array('default', $channels) && $maintainer_default;
-        return in_array('etapas', $channels) && $maintainer_etapas;
-        return in_array('eduthek', $channels) && $maintainer_eduthek;
+        if (in_array('default', $channels) && $maintainer_default) return true;
+        if (in_array('etapas', $channels) && $maintainer_etapas) return true;
+        if (in_array('eduthek', $channels) && $maintainer_eduthek) return true;
         return false;
     }
     /**
@@ -670,8 +674,9 @@ class block_edupublisher extends block_base {
             $subject = get_string($channel . '__mailsubject' , 'block_edupublisher');
             $messagehtml = enhance_mail_body($subject, $messagehtml);
             $messagetext = html_to_text($messagehtml);
-
-            $recipients = get_users_by_capability(context_system::instance(), 'block/edupublisher:manage' . $channel, '', '', '', 10);
+            $category = get_config('block_edupublisher', 'category');
+            $context = context_coursecat::instance($category);
+            $recipients = get_users_by_capability($context, 'block/edupublisher:manage' . $channel, '', '', '', 10);
             foreach($recipients AS $recipient) {
                 email_to_user($recipient, $fromuser, $subject, $messagetext, $messagehtml, "", true);
             }
@@ -740,16 +745,19 @@ class block_edupublisher extends block_base {
         return $package;
     }
     /**
-     * If eduvidual is used print eduvidual-header, otherwise default header
+     * Prints header and injects other sources that are required.
     **/
     public static function print_app_header() {
         global $CFG, $OUTPUT;
+        echo $OUTPUT->header();
+        /*
         if (self::uses_eduvidual()) {
             require_once($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
             block_eduvidual::print_app_header();
         } else {
             echo $OUTPUT->header();
         }
+        */
     }
     /**
      * If eduvidual is used print eduvidual-footer, otherwise default footer
@@ -855,6 +863,8 @@ class block_edupublisher extends block_base {
                 }
             }
             $recipients = array();
+            $category = get_config('block_edupublisher', 'category');
+            $context = context_coursecat::instance($category);
             foreach ($sendto AS $identifier) {
                 switch ($identifier) {
                     case 'author': $recipients[$package->userid] = true; break;
@@ -865,19 +875,19 @@ class block_edupublisher extends block_base {
                         }
                     break;
                     case 'maintainers_default':
-                        $maintainers = get_users_by_capability(context_system::instance(), 'block/edupublisher:managedefault', '', '', '', 100);
+                        $maintainers = get_users_by_capability($context, 'block/edupublisher:managedefault', '', '', '', 100);
                         foreach ($maintainers AS $maintainer) {
                             $recipients[$maintainer->id] = true;
                         }
                     break;
                     case 'maintainers_eduthek':
-                        $maintainers = get_users_by_capability(context_system::instance(), 'block/edupublisher:manageeduthek', '', '', '', 100);
+                        $maintainers = get_users_by_capability($context, 'block/edupublisher:manageeduthek', '', '', '', 100);
                         foreach ($maintainers AS $maintainer) {
                             $recipients[$maintainer->id] = true;
                         }
                     break;
                     case 'maintainers_etapas':
-                        $maintainers = get_users_by_capability(context_system::instance(), 'block/edupublisher:manageetapas', '', '', '', 100);
+                        $maintainers = get_users_by_capability($context, 'block/edupublisher:manageetapas', '', '', '', 100);
                         foreach ($maintainers AS $maintainer) {
                             $recipients[$maintainer->id] = true;
                         }
@@ -1265,7 +1275,7 @@ class block_edupublisher extends block_base {
 
         $package = $DB->get_record('block_edupublisher_packages', array('course' => $COURSE->id), '*', IGNORE_MULTIPLE);
         $options = array();
-        if ($package) {
+        if (!empty($package->id)) {
             $package = self::get_package($package->id, true);
             if (!empty($package->default_authormailshow) && $package->default_authormailshow == 1) {
                 $options[] = array(
@@ -1311,8 +1321,18 @@ class block_edupublisher extends block_base {
                     "title" => get_string('initialize_import', 'block_edupublisher'),
                     "href" => "#",
                     //"icon" => '/pix/i/import.svg',
-                    "class" => 'btn btn-primary',
+                    "class" => 'btn btn-primary btn-block',
                     "onclick" => 'require([\'block_edupublisher/main\'], function(MAIN) { MAIN.initImportSelection(' . $package->id . '); }); return false;',
+                    "style" => 'margin-top: 10px;',
+                );
+            }
+            // If we are enrolled let check if we can selfunenrol
+            if (is_enrolled($context, null, 'block/edupublisher:canselfenrol')) {
+                $options[] = array(
+                    "title" => get_string('self_unenrol', 'block_edupublisher'),
+                    "href" => $CFG->wwwroot . "/blocks/edupublisher/pages/self_enrol.php?id=" . $package->course . "&unenrol=1",
+                    //"icon" => '/pix/i/import.svg',
+                    "class" => 'btn btn-secondary btn-block',
                     "style" => 'margin-top: 10px;',
                 );
             }

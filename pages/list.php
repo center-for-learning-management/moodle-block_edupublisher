@@ -44,7 +44,7 @@ $PAGE->set_pagelayout('mydashboard');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
-$PAGE->navbar->add(get_string('channels', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/publishers.php', array()));
+$PAGE->navbar->add(get_string('channels', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/list.php', array()));
 if (!empty($channel)) {
     $PAGE->navbar->add($title, $PAGE->url);
 }
@@ -52,7 +52,7 @@ if (!empty($channel)) {
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
 
-if (!block_edupublisher::is_maintainer() || !empty($channel) && !in_array($channel, $channels)) {
+if (empty($channel) && !block_edupublisher::is_maintainer() || !empty($channel) && !block_edupublisher::is_maintainer(array($channel))) {
     echo $OUTPUT->render_from_template(
         'block_edupublisher/alert',
         array(
@@ -65,9 +65,11 @@ if (!block_edupublisher::is_maintainer() || !empty($channel) && !in_array($chann
     die();
 }
 
-$maintainer_default = has_capability('block/edupublisher:managedefault', context_system::instance());
-$maintainer_etapas = has_capability('block/edupublisher:manageetapas', context_system::instance());
-$maintainer_eduthek = has_capability('block/edupublisher:manageeduthek', context_system::instance());
+$category = get_config('block_edupublisher', 'category');
+$context = context_coursecat::instance($category);
+$maintainer_default = has_capability('block/edupublisher:managedefault', $context);
+$maintainer_etapas = has_capability('block/edupublisher:manageetapas', $context);
+$maintainer_eduthek = has_capability('block/edupublisher:manageeduthek', $context);
 
 if (empty($channel)) {
     echo $OUTPUT->render_from_template(
@@ -89,6 +91,7 @@ if (empty($channel)) {
                 'url' => $CFG->wwwroot . '/my',
             )
         );
+
         block_edupublisher::print_app_footer();
         die();
     }

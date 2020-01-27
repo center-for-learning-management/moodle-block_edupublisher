@@ -484,9 +484,9 @@ class block_edupublisher_external extends external_api {
             $sql .= ")\n";
 
             $sqlparams = array_merge($sqlparams, $params['subjectareas']);
-            $linksearch = "AND";
+            $linksearch = " AND ";
         } else {
-            $linksearch = "OR";
+            $linksearch = " OR ";
         }
 
         if (!empty($params['search'])) {
@@ -504,11 +504,11 @@ class block_edupublisher_external extends external_api {
                     $sqlparams[] = '%' . $searchkeys[$b] . '%';
                 }
                 if ($b < (count($searchkeys) -1)) {
-                    $sql .= " OR";
+                    $sql .= " OR ";
                 }
             }
             //$sql .= " OR (content LIKE ? AND active=1)";
-            $sql .= "OR package IN (SELECT package FROM {block_edupublisher_metadata} WHERE content LIKE ? AND active=1)";
+            $sql .= " OR package IN (SELECT package FROM {block_edupublisher_metadata} WHERE content LIKE ? AND active=1)";
             $sql .= ")";
             $sqlparams[] = '%' . $params['search'] . '%';
         }
@@ -754,8 +754,11 @@ class block_edupublisher_external extends external_api {
             } else {
                 block_edupublisher::store_comment($package, 'comment:template:package_unpublished', $sendto, true, false);
             }
+            // Toggle course visibility
+            $course = get_course($package->course);
+            $course->visible = $package->active;
+            $DB->update_record('course', $course);
         }
-        error_log(print_r($statusses, 1));
         return json_encode($statusses);
     }
     public static function trigger_active_returns() {

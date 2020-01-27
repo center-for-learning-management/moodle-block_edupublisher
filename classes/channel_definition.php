@@ -68,7 +68,7 @@ $definition = array(
             'philosophy' => get_string('default_subjectarea_philosophy', 'block_edupublisher'),
             'other' => get_string('default_subjectarea_other', 'block_edupublisher'),
         )),
-        'tags' => array('type' => 'text', 'datatype' => PARAM_TEXT),
+        'tags' => array('type' => 'tags', 'datatype' => PARAM_TEXT, 'multiple' => 1),
         // Hidden elements
         'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
         'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),

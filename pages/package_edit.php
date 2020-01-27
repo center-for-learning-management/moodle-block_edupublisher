@@ -68,7 +68,9 @@ if ($package->canedit) {
 //print_r($package);
 
     $form->set_data($package);
+    echo "<div class=\"skip-ui-eduvidual ui-edupublisher-skip\">";
     $form->display();
+    echo "</div>";
 } else {
     echo $OUTPUT->render_from_template(
         'block_edupublisher/alert',

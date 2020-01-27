@@ -220,8 +220,8 @@ define(
             if (typeof sender !== 'undefined') {
                 if ($(sender).attr('name') == 'subjectarea') {
                     $(sender).toggleClass('selected');
-                    $('.' + o.uniqid + '-subjectarea').removeClass('btn-primary').addClass('btn-secondary');
-                    $('.' + o.uniqid + '-subjectarea.selected').addClass('btn-primary').removeClass('btn-secondary');
+                    $('.' + o.uniqid + '-subjectarea').prop('checked', false);
+                    $('.' + o.uniqid + '-subjectarea.selected').prop('checked', true);
                 }
             }
             $('.' + o.uniqid + '-subjectarea.selected').each(function() {
@@ -294,7 +294,7 @@ define(
                                     var item = result.packages[ids[b]];
                                     item.importtocourseid = o.courseid;
                                     item.importtosectionid = o.sectionid;
-                                    //item.showpreviewbutton = true;
+                                    item.showpreviewbutton = true;
                                     console.log('Call list-template for item ', item.id);
                                     MAIN.searchTemplate(o.uniqid, position++, 'block_edupublisher/search_li', item);
                                 }
