@@ -66,6 +66,7 @@ $definition = array(
             'mathematics' => get_string('default_subjectarea_mathematics', 'block_edupublisher'),
             'naturalsciences' => get_string('default_subjectarea_naturalsciences', 'block_edupublisher'),
             'philosophy' => get_string('default_subjectarea_philosophy', 'block_edupublisher'),
+            'physicaleducation' => get_string('default_subjectarea_physicaleducation', 'block_edupublisher'),
             'other' => get_string('default_subjectarea_other', 'block_edupublisher'),
         )),
         'tags' => array('type' => 'tags', 'datatype' => PARAM_TEXT, 'multiple' => 1),
