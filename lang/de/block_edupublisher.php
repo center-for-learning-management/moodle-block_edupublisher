@@ -89,7 +89,7 @@ $string['default_subjectarea_mathematics'] = 'Mathematik';
 $string['default_subjectarea_naturalsciences'] = 'Naturwissenschaften';
 $string['default_subjectarea_other'] = '- Andere -';
 $string['default_subjectarea_philosophy'] = 'Philospophie';
-$string['default_subjectarea_physicaleducationy'] = 'Sport';
+$string['default_subjectarea_physicaleducation'] = 'Sport';
 
 $string['default_suppresscomment'] = 'Kein Kommentar';
 $string['default_suppresscomment_help'] = 'Speichere, ohne einen Kommentar zu generieren';
