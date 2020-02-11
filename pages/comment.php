@@ -69,7 +69,8 @@ $context = context_course::instance($package->course);
 
 $PAGE->set_context($context);
 // Attention! Guest access will only be active, if the package was published by a moderator!
-require_login($package->course);
+if (!empty($perma)) require_login();
+else require_login($package->course);
 $PAGE->set_title($package->title);
 $PAGE->set_heading($package->title);
 $PAGE->set_pagelayout('incourse');
