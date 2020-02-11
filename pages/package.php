@@ -41,7 +41,7 @@ $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 $PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id' => $package->course)));
 $PAGE->navbar->add(get_string('details', 'block_edupublisher'), $PAGE->url);
 
-block_edupublisher::check_requirements();
+block_edupublisher::check_requirements(false);
 block_edupublisher::print_app_header();
 
 $act = optional_param('act', '', PARAM_TEXT);
