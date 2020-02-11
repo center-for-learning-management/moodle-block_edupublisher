@@ -68,11 +68,8 @@ if (empty($package->id) && empty($id)) {
 $context = context_course::instance($package->course);
 
 $PAGE->set_context($context);// Attention! Guest access will only be active, if the package was published by a moderator!
-if (!empty($perma)) {
-    require_login();
-    $PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id' => $package->course)));
-} else require_login($package->course);
-
+require_login();
+$PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id' => $package->course)));
 $PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->id)));
 $PAGE->navbar->add(get_string('comments'), $PAGE->url);
 
