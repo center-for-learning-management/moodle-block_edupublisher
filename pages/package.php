@@ -30,7 +30,7 @@ $package = block_edupublisher::get_package($id, true);
 $context = context_course::instance($package->course);
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/package.php?id=' . $id);
-require_login($package->course);
+require_login();
 $PAGE->set_context($context);
 $PAGE->set_title(get_string('package', 'block_edupublisher'));
 $PAGE->set_heading(get_string('package', 'block_edupublisher'));
@@ -38,9 +38,10 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
+$PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id' => $package->course)));
 $PAGE->navbar->add(get_string('details', 'block_edupublisher'), $PAGE->url);
 
-block_edupublisher::check_requirements();
+block_edupublisher::check_requirements(false);
 block_edupublisher::print_app_header();
 
 $act = optional_param('act', '', PARAM_TEXT);
