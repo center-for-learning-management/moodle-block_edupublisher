@@ -210,6 +210,7 @@ $string['lti_data'] = 'LTI data';
 $string['mail_template'] = 'Template for sending emails';
 $string['mail_template:description'] = 'You can change the template for sending emails here. This should represent a hole HTML-Page. Any occurence of the string {{{subject}}} will be replace by the subject, {{{content}}} with the content.';
 $string['manage'] = 'manage';
+$string['missing_capability'] = 'No capability to use edupublisher!';
 $string['name'] = 'Name';
 $string['no_such_package'] = 'No such package';
 $string['oer_header'] = 'Open Educational Resources';

@@ -209,6 +209,7 @@ $string['lti_data'] = 'LTI data';
 $string['mail_template'] = 'Vorlage für eMails';
 $string['mail_template:description'] = 'Hier kann die Vorlage für eMails bearbeitet werden. Dieser Inhalt sollte eine komplette HTML-Seite repräsentieren. Jedes Vorkommnis der Zeichenkette {{{subject}}} wird durch den Betreff ersetzt, {{content}}} durch den Inhalt.';
 $string['manage'] = 'verwalten';
+$string['missing_capability'] = 'Sie sind leider nicht berechtigt eduPublisher zu verwenden!';
 $string['name'] = 'Name';
 $string['no_such_package'] = 'Das angeforderte Paket existiert nicht.';
 $string['oer_header'] = 'Offene Bildungsressourcen';

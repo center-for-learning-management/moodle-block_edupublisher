@@ -202,7 +202,7 @@ class block_edupublisher extends block_base {
                     'block_edupublisher/alert',
                     array(
                         'type' => 'warning',
-                        'content' => 'No capability to use edupublisher!',
+                        'content' => get_string('missing_capability', 'block_edupublisher'),
                         'url' => $CFG->wwwroot . '/my',
                     )
                 );
