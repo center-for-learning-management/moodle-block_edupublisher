@@ -162,9 +162,13 @@ define(
                 }
             ).fail(NOTIFICATION.exception);
         },
-        injectEnrolButton: function(courseid) {
-            console.log('MAIN.injectEnrolButton(courseid)', courseid);
-            var context = { url: URL.fileUrl('/blocks/edupublisher/pages', '/self_enrol.php?id=' + courseid) };
+        injectEnrolButton: function(courseid, isguestuser) {
+            console.log('MAIN.injectEnrolButton(courseid, isguestuser)', courseid, isguestuser);
+            var context = {
+                isguestuser: isguestuser,
+                url: URL.relativeUrl('/blocks/edupublisher/pages/self_enrol.php', { id: courseid }),
+            };
+
             // This will call the function to load and render our template.
             TEMPLATES.render('block_edupublisher/inject_enrol_button', context)
                 .then(function(html, js) {

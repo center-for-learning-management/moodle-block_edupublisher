@@ -59,6 +59,9 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configselect('block_edupublisher/defaultroleteacher', get_string('defaultroleteacher', 'block_edupublisher'),
                       get_string('defaultroleteacher:description', 'block_edupublisher'), get_config('block_edupublisher', 'defaultroleteacher'), $options));
 
+    // Open to guests?
+    $settings->add(new admin_setting_configcheckbox('block_edupublisher/allowguests', get_string('allowguests', 'block_edupublisher'), get_string('allowguests_desc', 'block_edupublisher'), 0));
+
     // ENABLE COMMERCIAL CONTENT
     $settings->add(new admin_setting_configcheckbox('block_edupublisher/enablecommercial', get_string('enablecommercial', 'block_edupublisher'), get_string('enablecommercial_desc', 'block_edupublisher'), 1));
 

@@ -27,6 +27,8 @@ $string['privacy:metadata'] = 'Dieses Plugin speichert keine personenbezogenen D
 
 $string['action'] = 'Aktion';
 $string['after_section'] = 'In Abschnitt einfügen';
+$string['allowguests'] = 'Offen für Gäste';
+$string['allowguests_desc'] = 'Wenn diese Option an ist, können Gäste die Suchfunktion verwenden.';
 $string['by'] = 'von';
 $string['category'] = 'Kategorie';
 $string['category_help'] = 'Geben Sie hier die Kategorie ein, in der veröffentlichte Kurse hinterlegt werden sollen.';

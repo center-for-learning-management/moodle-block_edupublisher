@@ -193,8 +193,8 @@ class block_edupublisher extends block_base {
         }
 
         $context = $context || (isset($PAGE->context->id)) ? $PAGE->context : context_system::instance();
-
-        if (!has_capability('block/edupublisher:canuse', $context)) {
+        $allowguests = get_config('block_edupublisher', 'allowguests');
+        if (empty($allowguests) && !has_capability('block/edupublisher:canuse', $context)) {
             if ($die) {
                 block_edupublisher::print_app_header();
 
@@ -202,7 +202,7 @@ class block_edupublisher extends block_base {
                     'block_edupublisher/alert',
                     array(
                         'type' => 'warning',
-                        'content' => get_string('missing_capability', 'block_edupublisher'),
+                        'content' => get_string(!empty($allowguests) ? 'missing_capability' : 'guest_not_allowed', 'block_edupublisher'),
                         'url' => $CFG->wwwroot . '/my',
                     )
                 );
