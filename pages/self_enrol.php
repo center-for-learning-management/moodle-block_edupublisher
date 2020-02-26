@@ -51,17 +51,6 @@ $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
 $PAGE->navbar->add(get_string('self_enrol', 'block_edupublisher'), $PAGE->url);
 
-if(!isloggedin() || isguestuser($USER)) {
-    echo $OUTPUT->header();
-    echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
-        'type' => 'danger',
-        'content' => get_string('guest_not_allowed', 'block_edupublisher'),
-        'url' => $CFG->wwwroot . '/login/index.php',
-    ));
-    echo $OUTPUT->footer();
-    die();
-}
-
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
 
