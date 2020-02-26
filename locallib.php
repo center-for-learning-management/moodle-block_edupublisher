@@ -25,6 +25,97 @@ namespace block_edupublisher;
 
 defined('MOODLE_INTERNAL') || die;
 
+class lib {
+
+    /**
+     * Enrols users to specific courses
+     * @param courseids array containing courseid or a single courseid
+     * @param userids array containing userids or a single userid
+     * @param roleid roleid to assign, or -1 if wants to unenrol
+     * @return true or false
+    **/
+    public static function course_manual_enrolments($courseids, $userids, $roleid, $remove) {
+        global $CFG, $DB, $reply;
+        if (!isset($reply)) $reply = array();
+        //print_r($courseids); print_r($userids); echo $roleid;
+        if (!is_array($courseids)) $courseids = array($courseids);
+        if (!is_array($userids)) $userids = array($userids);
+        // Retrieve the manual enrolment plugin.
+        $enrol = enrol_get_plugin('manual');
+        if (empty($enrol)) {
+            return false;
+        }
+        $failures = 0;
+        foreach ($courseids AS $courseid) {
+            // Check if course exists.
+            $course = $DB->get_record('course', array('id' => $courseid), '*', IGNORE_MISSING);
+            $context = \context_course::instance($course->id);
+            //$course = get_course($courseid);
+            if (empty($course->id)) continue;
+            // Check manual enrolment plugin instance is enabled/exist.
+            $instance = null;
+            $enrolinstances = enrol_get_instances($courseid, false);
+            $reply['enrolinstances'] = $enrolinstances;
+            foreach ($enrolinstances as $courseenrolinstance) {
+              if ($courseenrolinstance->enrol == "manual") {
+                  $instance = $courseenrolinstance;
+                  break;
+              }
+            }
+            if (empty($instance)) {
+                // We have to add a "manual-enrolment"-instance
+                $fields = array(
+                    'status' => 0,
+                    'roleid' => get_config('block_eduvidual', 'defaultrolestudent'),
+                    'enrolperiod' => 0,
+                    'expirynotify' => 0,
+                    'expirytreshold' => 0,
+                    'notifyall' => 0
+                );
+                require_once($CFG->dirroot . '/enrol/manual/lib.php');
+                $emp = new enrol_manual_plugin();
+                $reply['createinstance'] = true;
+                $instance = $emp->add_instance($course, $fields);
+            }
+            $reply['enrolinstance'] = $instance;
+            if (empty($instance)) {
+                $failures++;
+            } else {
+                if ($instance->status == 1) {
+                    // It is inactive - we have to activate it!
+                    $data = (object)array('status' => 0);
+                    require_once($CFG->dirroot . '/enrol/manual/lib.php');
+                    $emp = new enrol_manual_plugin();
+                    $reply['updateinstance'] = true;
+                    $emp->update_instance($instance, $data);
+                    $instance->status = $data->status;
+                }
+                foreach ($userids AS $userid) {
+                    if (!empty($remove)) {
+                        role_unassign($roleid, $userid, $context->id);
+                        // If this was the last role, we unenrol completely
+                        $roles = get_user_roles($context, $userid);
+                        $foundatleastone = false;
+                        foreach($roles AS $role) {
+                            if ($role->contextid == $context->id) {
+                                $foundatleastone = true;
+                                break;
+                            }
+                        }
+
+                        if (!$foundatleastone) {
+                            $enrol->unenrol_user($instance, $userid);
+                        }
+                    } else {
+                        $enrol->enrol_user($instance, $userid, $roleid, 0, 0, ENROL_USER_ACTIVE);
+                    }
+                }
+            }
+        }
+        return ($failures == 0);
+    }
+}
+
 /**
  * List all subjectareas in an localized, alphabetically sorted array.
  * @param selectedarea mark a subjectarea as selected.

@@ -27,16 +27,44 @@
     <form method="POST" enctype="multipart/form-data">
         {{#unenrol}}
             <input type="hidden" name="unenrol" value="1" />
+            {{#canenrolasteacher}}
+                <input type="hidden" name="confirm" value="1">
+                <input type="hidden" name="canenrolasteacher" value="1" />
+                <label>
+                    <input type="checkbox" name="asstudent">
+                    {{#str}} only_viewing_unenrol_as_student, block_edupublisher {{/str}}
+                </label><br />
+                <label>
+                    <input type="checkbox" name="asteacher">
+                    {{#str}} only_viewing_unenrol_as_teacher, block_edupublisher {{/str}}
+                </label><br />
+            {{/canenrolasteacher}}
+            {{^canenrolasteacher}}
             <label>
                 <input type="checkbox" name="confirm">
                 {{#str}} only_viewing_unenrol_button, block_edupublisher  {{/str}}
             </label>
+            {{/canenrolasteacher}}
         {{/unenrol}}
         {{^unenrol}}
-        <label>
-            <input type="checkbox" name="confirm">
-            {{#str}} only_viewing_enrol_button, block_edupublisher  {{/str}}
-        </label>
+            {{#canenrolasteacher}}
+                <input type="hidden" name="confirm" value="1">
+                <input type="hidden" name="canenrolasteacher" value="1" />
+                <label>
+                    <input type="checkbox" name="asstudent">
+                    {{#str}} only_viewing_enrol_as_student, block_edupublisher {{/str}}
+                </label><br />
+                <label>
+                    <input type="checkbox" name="asteacher">
+                    {{#str}} only_viewing_enrol_as_teacher, block_edupublisher {{/str}}
+                </label><br />
+            {{/canenrolasteacher}}
+            {{^canenrolasteacher}}
+            <label>
+                <input type="checkbox" name="confirm">
+                {{#str}} only_viewing_enrol_button, block_edupublisher  {{/str}}
+            </label>
+            {{/canenrolasteacher}}
         {{/unenrol}}
 
         <button type="submit" class="btn btn btn-primary">

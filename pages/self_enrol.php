@@ -40,6 +40,7 @@ if (empty($package->course)) {
 }
 
 $context = context_course::instance($package->course);
+
 $PAGE->set_url('/blocks/edupublisher/pages/self_enrol.php?id=' . $courseid);
 require_capability('block/edupublisher:canselfenrol', $context);
 require_login($courseid);
@@ -54,6 +55,12 @@ $PAGE->navbar->add(get_string('self_enrol', 'block_edupublisher'), $PAGE->url);
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
 
+// determine if we are a maintainer of this package!
+$ismaintainer = block_edupublisher::is_maintainer(explode(',',$package->channels));
+if (!empty($ismaintainer)) {
+    $defaultroleteacher = get_config('block_edupublisher', 'defaultroleteacher');
+}
+
 $defaultrolestudent = get_config('block_edupublisher', 'defaultrolestudent');
 if (empty($defaultrolestudent)) {
     echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
@@ -61,13 +68,21 @@ if (empty($defaultrolestudent)) {
         'content' => get_string('defaultrolestudent:missing', 'block_edupublisher'),
     ));
 } elseif (optional_param('confirm', 0, PARAM_BOOL) == 1) {
+    $canenrolasteacher = optional_param('canenrolasteacher', 0, PARAM_INT);
+    $asstudent = optional_param('asstudent', 0, PARAM_BOOL);
+    $asteacher = optional_param('asteacher', 0, PARAM_BOOL);
+    require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
+    $reply = array();
+    if (!empty($canenrolasteacher)) {
+        // We distinguish between student and teacher role.
+        if (!empty($asstudent)) block_edupublisher\lib::course_manual_enrolments(array($package->course), array($USER->id), $defaultrolestudent, !empty($unenrol));
+        if (!empty($asteacher)) block_edupublisher\lib::course_manual_enrolments(array($package->course), array($USER->id), $defaultroleteacher, !empty($unenrol));
+    } else {
+        // There is only the student role.
+        block_edupublisher\lib::course_manual_enrolments(array($package->course), array($USER->id), $defaultrolestudent, !empty($unenrol));
+    }
+
     if (!empty($unenrol)) {
-        // Do the un-enrolment.
-        $instances = $DB->get_records('enrol', array('courseid' => $package->course));
-        foreach ($instances as $instance) {
-            $plugin = enrol_get_plugin($instance->enrol);
-            $plugin->unenrol_user($instance, $USER->id);
-        }
         echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
             'type' => 'success',
             'content' => get_string('successfully_unenrolled', 'block_edupublisher'),
@@ -76,29 +91,6 @@ if (empty($defaultrolestudent)) {
         redirect(new moodle_url('/course/view.php', array('id' => $package->course)));
     } else {
         // Do the enrolment and redirect.
-        $course = $DB->get_record('course', array('id' => $package->course), '*', MUST_EXIST);
-        $enrol = enrol_get_plugin('manual');
-        if ($enrol === null) {
-            return false;
-        }
-        $instances = enrol_get_instances($package->course, true);
-        $manualinstance = null;
-        foreach ($instances as $instance) {
-            if ($instance->enrol == 'manual') {
-                $manualinstance = $instance;
-                break;
-            }
-        }
-
-        if (empty($manualinstance->id)) {
-            $instanceid = $enrol->add_default_instance($course);
-            if ($instanceid === null) {
-                $instanceid = $enrol->add_instance($course);
-            }
-            $instance = $DB->get_record('enrol', array('id' => $instanceid));
-        }
-
-        $enrol->enrol_user($instance, $USER->id, $defaultrolestudent);
         echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
             'type' => 'success',
             'content' => get_string('successfully_enrolled', 'block_edupublisher'),
@@ -108,6 +100,7 @@ if (empty($defaultrolestudent)) {
     }
 } else {
     $package->unenrol = $unenrol;
+    $package->canenrolasteacher = !empty($ismaintainer);
     echo $OUTPUT->render_from_template(
         'block_edupublisher/self_enrol_confirm',
         $package
