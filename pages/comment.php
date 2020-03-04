@@ -66,19 +66,17 @@ if (empty($package->id) && empty($id)) {
 }
 
 $context = context_course::instance($package->course);
+$PAGE->set_context($context);// Attention! Guest access will only be active, if the package was published by a moderator!
+require_login();
+$PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id' => $package->course)));
+$PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->id)));
+$PAGE->navbar->add(get_string('comments'), $PAGE->url);
 
-$PAGE->set_context($context);
-// Attention! Guest access will only be active, if the package was published by a moderator!
-require_login($package->course);
 $PAGE->set_title($package->title);
 $PAGE->set_heading($package->title);
 $PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
-
-$PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->id)));
-$PAGE->navbar->add(get_string('comments'), $PAGE->url);
-
 //block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
 
