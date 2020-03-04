@@ -145,9 +145,6 @@ try {
             print_error('unknownbackupexporterror'); // shouldn't happen ever
         }
 
-        // Now store the data of all sections' sequences in targetcourse.
-        $sections_old = $DB->get_records('course_sections', array('course' => $targetcourse->id));
-
         require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
         $transaction = $DB->start_delegated_transaction();
 
@@ -163,9 +160,45 @@ try {
         // Commit.
         $transaction->allow_commit();
 
-        // NEW BEHAVIOUR - INJECT INTO SECTION ITSELF
 
-        // Now do the import.
+        // NEW BEHAVIOUR: move sections instead of move modules.
+        // new sections should be moved AFTER $section
+        $sections_old = $DB->get_records('course_sections', array('course' => $targetcourse->id));
+        // Store the current number of the section we want to add everything AFTER.
+
+        $moveaftersectionnumber = $sections_old[$sectionid]->section;
+
+        $oldsectionids_beforeimport = array();
+
+        foreach ($sections_old AS $section_old) {
+            if ($section_old->section <= $moveaftersectionnumber) {
+                $oldsectionids_beforeimport[] = $section_old->id;
+            }
+        }
+
+        // 1.) We have to create empty sections at the beginning of the course,
+        //     where the new contents can be imported to.
+        $sections_import = array_values($DB->get_records('course_sections', array('course' => $importcourse->id)));
+        $createdsectionids = array();
+
+        $DB->execute("UPDATE {course_sections} SET section=section+? WHERE course=? ORDER BY section DESC", array(count($sections_import), $targetcourse->id));
+        for($a = 0; $a < count($sections_import); $a++) {
+            $seco = (object) array(
+                'course' => $targetcourse->id,
+                'section' => $a,
+                'name' => $sections_import[$a]->name,
+                'summary' => $sections_import[$a]->summary,
+                'summaryformat' => $sections_import[$a]->summaryformat,
+                'sequence' => '',
+                'visible' => $sections_import[$a]->visible,
+                'availability' => $sections_import[$a]->availability,
+                'timemodified' => time(),
+            );
+            $createdsectionids[] = $DB->insert_record('course_sections', $seco);
+        }
+        rebuild_course_cache($targetcourse->id, true);
+
+        // 2.) Now we are ready for the import.
         // Execute the restore.
         $rc->execute_plan();
         // Delete the temp directory now
@@ -178,68 +211,35 @@ try {
         //echo html_writer::script('document.getElementById("executionprogress").style.display = "none";');
         // Display a notification and a continue button
 
-        $remove_sections = array();
-        $cmids_new = array(
-            '<h3>' . $package->title . '</h3>',
-        );
-        $sections_new = $DB->get_records('course_sections', array('course' => $targetcourse->id));
-        $sql = "SELECT section,name
-                    FROM {course_sections}
-                    WHERE course=?";
-        $sections_basement_by_no = $DB->get_records_sql($sql, array($importcourse->id));
+        // 3.) Now we delete created sections is they have an empty sequence (nothing was imported).
+        $sql = "DELETE FROM {course_sections}
+                    WHERE course=?
+                        AND id IN (?)
+                        AND (name IS NULL OR name = '')
+                        AND (sequence IS NULL OR sequence = '')
+                        AND (summary IS NULL or summary = '')";
 
-        foreach ($sections_new AS $id => $section) {
-            $oldsequence = !empty($sections_old[$id]) ? explode(',', $sections_old[$id]->sequence) : array();
-            $newsequence = explode(',', $sections_new[$id]->sequence);
-            if (count($oldsequence) != count($newsequence) && !empty($sections_basement_by_no[$section->section])) {
-                $sec = $sections_basement_by_no[$section->section];
-                if (!empty($sec->name)) {
-                    // Add label for section.
-                    $cmids_new[] = '<h4>' . $sec->name . '</h4>';
-                }
-            }
-
-            if (!empty($sections_old[$id])) {
-                foreach ($newsequence AS $cmid) {
-                    if (!in_array($cmid, $oldsequence)) {
-                        $cmids_new[] = intval($cmid);
-                    }
-                }
-                $sections_old[$id]->sequence = $sections_new[$id]->sequence;
-                // Reset old data.
-                $DB->update_record('course_sections', $sections_old[$id]);
-            } else {
-                $remove_sections[] = $id;
-                foreach ($newsequence AS $cmid) {
-                    $cmids_new[] = intval($cmid);
-                }
-            }
-        }
-        require_once($CFG->dirroot . '/blocks/edupublisher/classes/module_compiler.php');
-        foreach ($cmids_new AS $cmid) {
-            if (is_int($cmid)) {
-                //echo "<li>Moving cmid #" . $cmid . " to section no " . $sectionnr . "</li>\n";
-                course_add_cm_to_section($targetcourseid, $cmid, $sectionnr);
-            } elseif(strlen($cmid) > 0) {
-                $data = array(
-                    'course' => $targetcourse->id,
-                    'intro' => $cmid,
-                    'introformat' => 1,
-                    'section' => $sectionnr,
-                );
-                $item = block_edupublisher_module_compiler::compile('label', (object)$data, (object)array());
-                $module = block_edupublisher_module_compiler::create($item);
-                //echo "<li>Creating label " . $cmid . " with cmid " . $module->coursemodule . "</li>\n";
-                course_add_cm_to_section($targetcourseid, $module->coursemodule, $sectionnr);
-            }
-
-        }
-        foreach ($remove_sections AS $rs) {
-            //echo "<li>Delete section #" . $id . "</li>\n";
-            course_delete_section($targetcourseid, $id, true);
+        // 3.) Re-order all sections.
+        $sections_new = $DB->get_records('course_sections', array('course' => $targetcourse->id), 'section ASC');
+        //     Increment section numbering, so that we have no problem with re-ordering.
+        $sql = "UPDATE {course_sections}
+                    SET section=section+?
+                    WHERE course=?
+                    ORDER BY section DESC";
+        $DB->execute($sql, array(count($sections_new), $targetcourse->id));
+        //     Start re-ordering with our old sections that are BEFORE the new content.
+        $newposition = 0;
+        foreach ($oldsectionids_beforeimport AS $s) {
+            $DB->set_field('course_sections', 'section', $newposition++, array('id' => $s));
         }
 
-        //rebuild_course_cache($targetcourseid, true);
+        foreach ($sections_new AS $snew) {
+            if (!in_array($snew->id, $oldsectionids_beforeimport)) {
+                $DB->set_field('course_sections', 'section', $newposition++, array('id' => $snew->id));
+            }
+        }
+
+        rebuild_course_cache($targetcourse->id, true);
 
         $DB->insert_record('block_edupublisher_uses', (object) array(
             'userid' => $USER->id,
@@ -247,10 +247,7 @@ try {
             'targetcourse' => $targetcourse->id,
             'created' => time()
         ));
-        if (block_edupublisher::uses_eduvidual()) {
-            // This is only used for a certain instance-specific app for www.eduvidual.at. This plugin also works without this line!
-            $PAGE->requires->js_call_amd('block_eduvidual/jquery-ba-postmessage', 'post', array('edupublisher_import_complete'));
-        }
+
         echo $OUTPUT->notification(get_string('importsuccess', 'backup'), 'notifysuccess');
         echo $OUTPUT->continue_button(new moodle_url('/course/view.php?id=' . $targetcourse->id));
         // Get and display log data if there was any.

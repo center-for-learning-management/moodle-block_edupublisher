@@ -26,7 +26,7 @@ $string['page:publisher'] = 'Publish';
 $string['privacy:metadata'] = 'This plugin does not store any personal data';
 
 $string['action'] = 'Action';
-$string['after_section'] = 'Place in section';
+$string['after_section'] = 'Place after section';
 $string['allowguests'] = 'Open for guests';
 $string['allowguests_desc'] = 'If this is on, guest users can access the search function.';
 $string['by'] = 'by';
