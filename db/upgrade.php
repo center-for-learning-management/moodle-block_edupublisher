@@ -166,7 +166,6 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
     }
 
     if ($oldversion < 2019120300) {
-
         $table = new xmldb_table('block_edupublisher_evaluatio');
 
         // Adding fields to table block_edupublisher_evaluatio.
