@@ -94,7 +94,7 @@ $string['default_subjectarea_languages'] = 'Sprachen';
 $string['default_subjectarea_mathematics'] = 'Mathematik';
 $string['default_subjectarea_naturalsciences'] = 'Naturwissenschaften';
 $string['default_subjectarea_other'] = '- Andere -';
-$string['default_subjectarea_philosophy'] = 'Philospophie';
+$string['default_subjectarea_philosophy'] = 'Philosophie';
 $string['default_subjectarea_physicaleducation'] = 'Sport';
 
 $string['default_suppresscomment'] = 'Kein Kommentar';
