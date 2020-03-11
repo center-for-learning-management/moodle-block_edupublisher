@@ -952,9 +952,6 @@ class block_edupublisher extends block_base {
         }
 
         $package->title = $package->default_title;
-        $course = $DB->get_record('course', array('id' => $package->course));
-        $course->fullname = $package->title;
-        $DB->update_record('course', $course);
 
         // Retrieve all channels that we publish to.
         $definition = self::get_channel_definition();
@@ -1158,6 +1155,7 @@ class block_edupublisher extends block_base {
         }
         $course = get_course($package->course);
         $course->summary = $package->default_summary;
+        $course->fullname = $package->default_title;
         $DB->update_record('course', $course);
         rebuild_course_cache($course->id, true);
 
