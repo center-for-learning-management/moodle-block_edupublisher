@@ -24,15 +24,17 @@
     <a href="{{wwwroot}}/course/view.php?id={{course}}">
     {{/importtocourseid}}
         <img src="{{default_image}}" alt="{{title}}" />
-        <h3>
+        <h3 style="margin-top: 20px;">
             {{title}}
         </h3>
+        <!--
         <p>
             {{#default_summary:stripped}} <span class="stripped"> {{{default_summary:stripped}}} </span> {{/default_summary:stripped}}
             {{^default_summary:stripped}} {{{default_summary}}} {{/default_summary:stripped}}
         </p>
+    -->
     </a>
-    <div class="box-right-100" style="position: absolute; right: 10px; top: 10px; z-index: 999; min-width: 100px !important;">
+    <div class="box-right-100" style="position: absolute; right: 10px; top: -3px; z-index: 999; min-width: 100px !important;">
         {{> block_edupublisher/package_rating }}
     </div>
 </li>
