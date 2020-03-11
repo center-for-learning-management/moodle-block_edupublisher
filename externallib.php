@@ -550,7 +550,7 @@ class block_edupublisher_external extends external_api {
             $sql .= ' 1=0';
         }
 
-        $sql .= " GROUP BY package ORDER BY cnt DESC LIMIT 20";
+        $sql .= " GROUP BY package ORDER BY cnt DESC";
 
         $reply['conditions'] = $conditions;
         $reply['sqlparams'] = $sqlparams;
