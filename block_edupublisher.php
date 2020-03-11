@@ -952,7 +952,7 @@ class block_edupublisher extends block_base {
         }
 
         $package->title = $package->default_title;
-        $course = $DB->get_record('course', array('id' = $package->course));
+        $course = $DB->get_record('course', array('id' => $package->course));
         $course->fullname = $package->title;
         $DB->update_record('course', $course);
 
