@@ -41,7 +41,8 @@ $definition = array(
         ), 'donotstore' => 1),
         'title' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
         'licence' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
-            'Public Domain' => 'Public Domain',
+            //'Public Domain' => 'Public Domain',
+            'cc-0' => 'cc-0',
             'cc-by' => 'cc-by', 'cc-by-sa' => 'cc-by-sa',
             'cc-by-nc' => 'cc-by-nc', 'cc-by-nc-sa' => 'cc-by-nc-sa',
             'other' => get_string('default_licenceother', 'block_edupublisher'),
