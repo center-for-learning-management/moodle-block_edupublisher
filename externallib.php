@@ -538,7 +538,7 @@ class block_edupublisher_external extends external_api {
             $qparams = array_merge($qparams, $sqlparams['and']);
         }
         if (!empty($sqlor)) {
-            $sql .= $sqlor;
+            $sql .= '(' . $sqlor . ')';
         }
         if (!empty($sqland)) {
             if (!empty($sqlor)) {
