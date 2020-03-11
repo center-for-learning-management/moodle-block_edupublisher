@@ -23,6 +23,14 @@
                 class="{{uniqid}}-subjectarea" {{#isselected}} checked="checked" {{/isselected}}>
             <label>{{name}}</label>
         {{/subjectareas}}
+        <br />
+        {{#schoollevels}}
+            <input type="checkbox" name="schoollevel" value="{{key}}" href="#"
+                onclick="var b = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.searchNow({ uniqid: '{{uniqid}}', courseid: {{courseid}}, sectionid: {{sectionid}} }, b); }); return false;"
+                class="{{uniqid}}-schoollevel" {{#isselected}} checked="checked" {{/isselected}}>
+            <label>{{name}}</label>
+        {{/schoollevels}}
+        <br />
         <input type="text" id="{{uniqid}}-search" name="search" style="width: 100%;"
             placeholder="{{#str}} search, block_edupublisher {{/str}}"
             onkeyup="require(['block_edupublisher/main'], function(MAIN) { MAIN.search('{{uniqid}}', {{courseid}}, {{sectionid}}); });" />

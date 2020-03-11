@@ -221,19 +221,28 @@ define(
          */
         searchNow: function(o, sender) {
             o.subjectareas = [];
+            o.schoollevels = [];
             if (typeof sender !== 'undefined') {
                 if ($(sender).attr('name') == 'subjectarea') {
                     $(sender).toggleClass('selected');
                     $('.' + o.uniqid + '-subjectarea').prop('checked', false);
                     $('.' + o.uniqid + '-subjectarea.selected').prop('checked', true);
                 }
+                if ($(sender).attr('name') == 'schoollevel') {
+                    $(sender).toggleClass('selected');
+                    $('.' + o.uniqid + '-schoollevel').prop('checked', false);
+                    $('.' + o.uniqid + '-schoollevel.selected').prop('checked', true);
+                }
             }
             $('.' + o.uniqid + '-subjectarea.selected').each(function() {
                 o.subjectareas[o.subjectareas.length] = $(this).attr('value');
             });
+            $('.' + o.uniqid + '-schoollevel.selected').each(function() {
+                o.schoollevels[o.schoollevels.length] = $(this).attr('value');
+            });
             o.search = $('#' + o.uniqid + '-search').val();
             // Generate object for sending (only some parameters accepted by webservice)
-            var o2 = { courseid: o.courseid, search: o.search, subjectareas: o.subjectareas.join(',') };
+            var o2 = { courseid: o.courseid, search: o.search, subjectareas: o.subjectareas.join(','), schoollevels: o.schoollevels.join(',') };
             require(['block_edupublisher/main'], function(MAIN) {
                 MAIN.searchid++;
                 var searchid = MAIN.searchid;
@@ -245,7 +254,7 @@ define(
                         if (MAIN.searchid != searchid) {
                             console.log(' => Got response for searchid ', searchid, ' but it is not the current search', MAIN.searchid);
                         } else {
-                            console.log('Result', result);
+                            console.log('Result', result, result.sql, result.sqlparams);
                             //$('ul#' + o.uniqid + '-results').empty().html(result);
 
                             var result = JSON.parse(result);

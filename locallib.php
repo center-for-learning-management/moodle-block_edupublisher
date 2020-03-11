@@ -122,10 +122,38 @@ class lib {
  **/
 function get_subjectareas_sorted($selectedarea = "") {
     global $CFG;
-    require_once($CFG->dirroot . '/blocks/edupublisher/classes/channel_definition.php');
+    require($CFG->dirroot . '/blocks/edupublisher/classes/channel_definition.php');
     $locs = array();
     $loc_key = array();
+
     foreach ($definition['default']['subjectarea']['options'] AS $key => $localized) {
+        $locs[] = $localized;
+        $loc_key[$localized] = $key;
+    }
+    sort($locs);
+    $sorted = array();
+    foreach ($locs AS $loc) {
+        $sorted[] = array(
+            'key' => $loc_key[$loc],
+            'name' => $loc,
+            'isselected' => ($loc_key[$loc] == $selectedarea)
+        );
+    }
+    return $sorted;
+}
+
+/**
+ * List all schoollevels in an localized, alphabetically sorted array.
+ * @param selectedarea mark a schoollevel as selected.
+ **/
+function get_schoollevels_sorted($selectedarea = "") {
+    global $CFG;
+
+    require($CFG->dirroot . '/blocks/edupublisher/classes/channel_definition.php');
+    $locs = array();
+    $loc_key = array();
+
+    foreach ($definition['default']['schoollevel']['options'] AS $key => $localized) {
         $locs[] = $localized;
         $loc_key[$localized] = $key;
     }

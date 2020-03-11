@@ -30,6 +30,7 @@ $course = optional_param('courseid', 0, PARAM_INT);
 $section = optional_param('sectionid', -1, PARAM_INT); // This refers to section id, not number!
 $search = optional_param('search', '', PARAM_TEXT);
 $subjectarea = optional_param('subjectarea', '', PARAM_TEXT);
+$schoollevel = optional_param('schoollevel', '', PARAM_TEXT);
 $layout = optional_param('layout', 'incourse', PARAM_TEXT);
 $availablelayouts = array('incourse', 'embedded', 'popup');
 if (!in_array($layout, $availablelayouts)) {
@@ -53,9 +54,11 @@ if ($section == -1 && $sectionno > -1) {
 
 if (!empty($course)) {
     $context = context_course::instance($course);
+    $PAGE->set_context($context);
     require_login(get_course($course));
 } else {
     $context = context_system::instance();
+    $PAGE->set_context($context);
     require_login();
 }
 
@@ -71,7 +74,8 @@ $PAGE->navbar->add(get_string('search_in_edupublisher', 'block_edupublisher'), $
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
 
-$subjectareas = block_edupublisher\get_subjectareas_sorted($subjectarea);
+$subjectareas = \block_edupublisher\get_subjectareas_sorted($subjectarea);
+$schoollevels = \block_edupublisher\get_schoollevels_sorted($schoollevel);
 
 $lic_orgids = array();
 $lic_courseids = array();
@@ -120,7 +124,6 @@ for ($a = 0; $a < count($publishers); $a++) {
 }
 
 //print_r($publishers);
-
 echo $OUTPUT->render_from_template(
     'block_edupublisher/search',
     (object) array(
@@ -134,6 +137,8 @@ echo $OUTPUT->render_from_template(
         'showpreviewbutton' => $course, // Required together with importtocourseid for search_li.mustache
         'subjectarea' => $subjectarea,
         'subjectareas' => $subjectareas,
+        'schoollevel' => $schoollevel,
+        'schoollevels' => $schoollevels,
         'wwwroot' => $CFG->wwwroot,
     )
 );

@@ -69,6 +69,12 @@ $definition = array(
             'physicaleducation' => get_string('default_subjectarea_physicaleducation', 'block_edupublisher'),
             'other' => get_string('default_subjectarea_other', 'block_edupublisher'),
         )),
+        'schoollevel' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_TEXT, 'required' => 1, 'options' => array(
+            'primary' => get_string('default_schoollevel_primary', 'block_edupublisher'),
+            'secondary_1' => get_string('default_schoollevel_secondary_1', 'block_edupublisher'),
+            'secondary_2' => get_string('default_schoollevel_secondary_2', 'block_edupublisher'),
+            'tertiary' => get_string('default_schoollevel_tertiary', 'block_edupublisher'),
+        )),
         'tags' => array('type' => 'tags', 'datatype' => PARAM_TEXT, 'multiple' => 1),
         // Hidden elements
         'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),

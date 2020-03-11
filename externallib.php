@@ -448,6 +448,7 @@ class block_edupublisher_external extends external_api {
             'courseid' => new external_value(PARAM_INT, 'courseid'),
             'search' => new external_value(PARAM_TEXT, 'search term'),
             'subjectareas' => new external_value(PARAM_TEXT, 'comma-separated list of subjectareas'),
+            'schoollevels' => new external_value(PARAM_TEXT, 'comma-separated list of schoollevels'),
         ));
     }
 
@@ -455,71 +456,109 @@ class block_edupublisher_external extends external_api {
      * Perform the search.
      * @return list of packages as json encoded string.
      */
-    public static function search($courseid, $search, $subjectareas) {
+    public static function search($courseid, $search, $subjectareas, $schoollevels) {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;
         // page-context is required for output of templates.
         $PAGE->set_context(context_system::instance());
-        $params = self::validate_parameters(self::search_parameters(), array('courseid' => $courseid, 'search' => $search, 'subjectareas' => $subjectareas));
+        $params = self::validate_parameters(self::search_parameters(), array('courseid' => $courseid, 'search' => $search, 'subjectareas' => $subjectareas, 'schoollevels' => $schoollevels));
         $params['subjectareas'] = array_filter(explode(',', $params['subjectareas']));
+        $params['schoollevels'] = array_filter(explode(',', $params['schoollevels']));
 
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         $reply = array();
         $reply['relevance'] = array();
         $reply['packages'] = array();
         $reply['subjectareas'] = $params['subjectareas'];
+        $reply['schoollevels'] = $params['schoollevels'];
 
-        $sqlparams = array();
+        $conditions = array(
+            'and' => array(),
+            'or' => array(),
+            'schoollevels' => array(),
+            'subjectareas' => array(),
+        );
+        $sqlparams = array(
+            'and' => array(),
+            'or' => array(),
+            'schoollevels' => array(),
+            'subjectareas' => array(),
+        );
         $sql = "SELECT package, COUNT(package) AS cnt\n
                     FROM {block_edupublisher_metadata}\n
-                    WHERE 1=0\n";
+                    WHERE \n";
 
         $basesql = "SELECT package FROM {block_edupublisher_metadata} WHERE field LIKE '%field%' AND content=? AND active=1";
         if (count($params['subjectareas']) > 0) {
             // At least one of the areas should match!
-            $sql .= " OR (\n";
             for ($a = 0; $a < count($params['subjectareas']); $a++) {
-                if ($a > 0) $sql .= " OR ";
-                $sql .= "package IN (" . str_replace("%field%", "default_subjectarea%", $basesql) . ")\n";
+                $conditions['subjectareas'][] = "package IN (" . str_replace("%field%", "default_subjectarea%", $basesql) . ")\n";
+                $sqlparams['subjectareas'][] = $params['subjectareas'][$a];
             }
-            $sql .= ")\n";
-
-            $sqlparams = array_merge($sqlparams, $params['subjectareas']);
-            $linksearch = " AND ";
-        } else {
-            $linksearch = " OR ";
+        }
+        if (count($params['schoollevels']) > 0) {
+            // At least one of the levels should match!
+            for ($a = 0; $a < count($params['schoollevels']); $a++) {
+                $conditions['schoollevels'][] = "package IN (" . str_replace("%field%", "default_schoollevel%", $basesql) . ")\n";
+                $sqlparams['schoollevels'][] = $params['schoollevels'][$a];
+            }
         }
 
         if (!empty($params['search'])) {
-            $sql .= " " . $linksearch . " (";
             $searchkeys = explode(' ', $params['search']);
 
             for ($b = 0; $b < count($searchkeys); $b++) {
                 if (is_numeric($searchkeys[$b])) {
-                    $sql .= "package IN (SELECT package FROM {block_edupublisher_metadata} WHERE content=? AND active=1)";
-                    //$sql .= " (content=? AND active=1)";
-                    $sqlparams[] = $searchkeys[$b];
+                    $conditions['or'][] = "package IN (SELECT package FROM {block_edupublisher_metadata} WHERE content=? AND active=1)";
+                    $sqlparams['or'][] = $searchkeys[$b];
                 } else {
-                    $sql .= "package IN (SELECT package FROM {block_edupublisher_metadata} WHERE content LIKE ? AND active=1)";
-                    //$sql .= " (content LIKE ? AND active=1)";
-                    $sqlparams[] = '%' . $searchkeys[$b] . '%';
-                }
-                if ($b < (count($searchkeys) -1)) {
-                    $sql .= " OR ";
+                    $conditions['or'][] = "package IN (SELECT package FROM {block_edupublisher_metadata} WHERE content LIKE ? AND active=1)";
+                    $sqlparams['or'][] = '%' . $searchkeys[$b] . '%';
                 }
             }
-            //$sql .= " OR (content LIKE ? AND active=1)";
-            $sql .= " OR package IN (SELECT package FROM {block_edupublisher_metadata} WHERE content LIKE ? AND active=1)";
-            $sql .= ")";
-            $sqlparams[] = '%' . $params['search'] . '%';
+            $conditions['or'][] = "package IN (SELECT package FROM {block_edupublisher_metadata} WHERE content LIKE ? AND active=1)";
+            $sqlparams['or'][] = '%' . $params['search'] . '%';
+        }
+
+        $qparams = array();
+        if (count($conditions['or']) > 0) {
+            $sqlor = implode(' OR ', $conditions['or']);
+            $qparams = $sqlparams['or'];
+        }
+
+        if (count($conditions['schoollevels']) > 0) {
+            $conditions['and'][] = '(' . implode(' OR ', $conditions['schoollevels']) . ')';
+            $sqlparams['and'] = array_merge($sqlparams['and'], $sqlparams['schoollevels']);
+        }
+        if (count($conditions['subjectareas']) > 0) {
+            $conditions['and'][] = '(' . implode(' OR ', $conditions['subjectareas']) . ')';
+            $sqlparams['and'] = array_merge($sqlparams['and'], $sqlparams['subjectareas']);
+        }
+        if (count($conditions['and']) > 0) {
+            $sqland = implode(' AND ', $conditions['and']);
+            $qparams = array_merge($qparams, $sqlparams['and']);
+        }
+        if (!empty($sqlor)) {
+            $sql .= $sqlor;
+        }
+        if (!empty($sqland)) {
+            if (!empty($sqlor)) {
+                $sql .= ' AND ';
+            }
+            $sql .= $sqland;
+        }
+        if (empty($sqlor) && empty($sqland)) {
+            $sql .= ' 1=0';
         }
 
         $sql .= " GROUP BY package ORDER BY cnt DESC LIMIT 20";
 
-        $reply['sql'] = $sql;
+        $reply['conditions'] = $conditions;
         $reply['sqlparams'] = $sqlparams;
+        $reply['sql'] = $sql;
+        $reply['qparams'] = $qparams;
         //return json_encode($reply, JSON_NUMERIC_CHECK);
 
-        $relevance = $DB->get_records_sql($sql, $sqlparams);
+        $relevance = $DB->get_records_sql($sql, $qparams);
 
         foreach($relevance AS $relevant) {
             if (!isset($reply['relevance'][$relevant->cnt])) {
