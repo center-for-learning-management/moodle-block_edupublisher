@@ -36,7 +36,7 @@
         {{/schoollevels}}
         <br />
         <input type="text" id="{{uniqid}}-search" name="search" style="width: 100%;"
-            placeholder="{{#str}} search, block_edupublisher {{/str}}"
+            placeholder="{{#str}} search, block_edupublisher {{/str}}" value="{{search}}"
             onkeyup="require(['block_edupublisher/main'], function(MAIN) { MAIN.search('{{uniqid}}', {{courseid}}, {{sectionid}}); });" />
     </form>
 
