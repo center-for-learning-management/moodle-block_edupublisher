@@ -152,19 +152,13 @@ class block_edupublisher extends block_base {
                 $parent = dom_import_simplexml($cartridge);
                 $child  = dom_import_simplexml(simplexml_load_string(file_get_contents($subtree)));
 
-                // Import the <cat> into the dictionary document
-                try {
+                if (!empty($child)) {
+                    // Import the <cat> into the dictionary document
                     $child  = $parent->ownerDocument->importNode($child, TRUE);
 
                     // Append the <cat> to <c> in the dictionary
                     $parent->appendChild($child);
-                } catch($e) {
-                    
                 }
-
-
-                //$content =
-                //$cartridge->children = $content->children;
             } else {
                 $element = $xml->addChild("$elementname", htmlspecialchars(str_replace("\n", "", $subtree)));
             }
