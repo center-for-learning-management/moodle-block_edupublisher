@@ -68,9 +68,9 @@ class block_edupublisher extends block_base {
         } else {
             $item = new SimpleXMLElement('<item />');
         }
-        if (!empty($package->deleted)) {
-            $item->addChild("id", $package->id);
-            $item->addChild("deleted", $package->deleted);
+        if (!empty($package['deleted'])) {
+            $item->addChild("id", $package['id']);
+            $item->addChild("deleted", $package['deleted']);
         } else {
             //$xml = array("\t<item>");
             //print_r($package);
