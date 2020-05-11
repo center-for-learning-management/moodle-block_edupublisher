@@ -68,41 +68,47 @@ class block_edupublisher extends block_base {
         } else {
             $item = new SimpleXMLElement('<item />');
         }
-
-        //$xml = array("\t<item>");
-        //print_r($package);
-        //print_r($item);
-        foreach($keys AS $key) {
-            // Exclude some fields.
-            if (in_array($key, $exclude)) continue;
-            // Exclude dummy-entries etc.
-            if (strpos($key, ':') > 0) continue;
-            if (substr($key, 0, 6) == 'rating') continue;
-            $parts = explode("_", $key);
-            if (count($parts) == 1 || in_array($parts[0], $includechannels) || count($includechannels) > 0 && $includechannels[0] == '*') {
-                self::as_xml_array($item, $key, $package[$key]);
-                /*
-                if (is_array($package[$key])) {
-                    $skeys = array_keys($package[$key]);
-                    foreach ($skeys AS $skey) {
-                        $item->addChild($skey, htmlspecialchars($package[$key][$skey]));
+        if (!empty($package->deleted)) {
+            $item->addChild("id", $package->id);
+            $item->addChild("deleted", $package->deleted);
+        } else {
+            //$xml = array("\t<item>");
+            //print_r($package);
+            //print_r($item);
+            foreach($keys AS $key) {
+                // Exclude some fields.
+                if (in_array($key, $exclude)) continue;
+                // Exclude dummy-entries etc.
+                if (strpos($key, ':') > 0) continue;
+                if (substr($key, 0, 6) == 'rating') continue;
+                $parts = explode("_", $key);
+                if (count($parts) == 1 || in_array($parts[0], $includechannels) || count($includechannels) > 0 && $includechannels[0] == '*') {
+                    self::as_xml_array($item, $key, $package[$key]);
+                    /*
+                    if (is_array($package[$key])) {
+                        $skeys = array_keys($package[$key]);
+                        foreach ($skeys AS $skey) {
+                            $item->addChild($skey, htmlspecialchars($package[$key][$skey]));
+                        }
+                        //$element = $item->addChild($key);
+                        //$item->addChild($key, json_encode($package[$key]));
+                    } else {
+                        $item->addChild($key, htmlspecialchars($package[$key]));
                     }
-                    //$element = $item->addChild($key);
-                    //$item->addChild($key, json_encode($package[$key]));
-                } else {
-                    $item->addChild($key, htmlspecialchars($package[$key]));
-                }
-                */
+                    */
 
-                /*
-                if (strpos($package[$key], "<") > -1) {
-                    $xml[] = "\t\t<$key><![CDATA[" . $package[$key] . "]]></$key>";
-                } else {
-                    $xml[] = "\t\t<$key>" . $package[$key] . "</$key>";
+                    /*
+                    if (strpos($package[$key], "<") > -1) {
+                        $xml[] = "\t\t<$key><![CDATA[" . $package[$key] . "]]></$key>";
+                    } else {
+                        $xml[] = "\t\t<$key>" . $package[$key] . "</$key>";
+                    }
+                    */
                 }
-                */
             }
         }
+
+
         //print_r($item);
         //$xml[] = "\t</item>";
         if (get_class($items) != 'SimpleXMLElement') {
