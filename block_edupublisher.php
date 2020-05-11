@@ -70,6 +70,7 @@ class block_edupublisher extends block_base {
         }
         if (!empty($package['deleted'])) {
             $item->addChild("id", $package['id']);
+            $item->addChild("active", 0);
             $item->addChild("deleted", $package['deleted']);
         } else {
             //$xml = array("\t<item>");
