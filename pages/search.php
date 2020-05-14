@@ -53,9 +53,11 @@ if ($section == -1 && $sectionno > -1) {
 
 if (!empty($course)) {
     $context = context_course::instance($course);
+    $PAGE->set_context($context);
     require_login(get_course($course));
 } else {
     $context = context_system::instance();
+    $PAGE->set_context($context);
     require_login();
 }
 
@@ -71,7 +73,7 @@ $PAGE->navbar->add(get_string('search_in_edupublisher', 'block_edupublisher'), $
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
 
-$subjectareas = block_edupublisher\get_subjectareas_sorted($subjectarea);
+$subjectareas = \block_edupublisher\get_subjectareas_sorted($subjectarea);
 
 $lic_orgids = array();
 $lic_courseids = array();
