@@ -1064,7 +1064,7 @@ class block_edupublisher extends block_base {
                             }
                             if (isset($allowedkeys)) {
                                 // If the option text differs from the content store as separate value for search operations.
-                                if ($allowedoptions[$content] != $content) {
+                                if (!empty($allowedoptions[$content]) && $allowedoptions[$content] != $content) {
                                     self::store_metadata($package, $channel, $channel . '_' . $field . '_' . $option . ':dummy', $allowedoptions[$content]);
                                 }
                             }
