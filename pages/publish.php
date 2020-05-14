@@ -326,7 +326,7 @@ if ($package->id > 0 && $PREVENTFORM) {
                 $backup->save_controller();
             }
         }
-        if ($DOPOSTTASKS) {
+        if (!empty($DOPOSTTASKS)) {
             // Create edupublisher-block in sourcecontext & targetcourse.
             $sourcecontext = context_course::instance($importcourseid);
             block_edupublisher::add_to_context($targetcontext);

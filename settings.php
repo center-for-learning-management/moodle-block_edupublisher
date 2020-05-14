@@ -67,6 +67,13 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtextarea('block_edupublisher/mail_template', get_string('mail_template', 'block_edupublisher'),
                       get_string('mail_template:description', 'block_edupublisher'), $defaulttemplate));
 
-
-    //$ADMIN->add('blocksettings', $settings);
+    $settings->add(
+        new admin_setting_configtext(
+            'block_edupublisher/danubeai_apikey',
+            get_string('danubeai:apikey', 'block_edupublisher'),
+            get_string('danubeai:apikey:description', 'block_edupublisher'),
+            '',
+            PARAM_TEXT
+        )
+    );
 }

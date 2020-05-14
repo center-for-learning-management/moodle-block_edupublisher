@@ -28,6 +28,7 @@ $string['privacy:metadata'] = 'This plugin does not store any personal data';
 $string['action'] = 'Action';
 $string['after_section'] = 'Place in section';
 $string['by'] = 'by';
+$string['cachedef_packagepath'] = 'This stores the path of visited packages in cache.';
 $string['category'] = 'Category';
 $string['category_help'] = 'Enter the category id here where published courses will be created';
 $string['category_missing'] = 'This is a required field';
@@ -59,6 +60,9 @@ $string['commercial_validateexternal'] = 'external: Licence will be validated on
 $string['commercial_validateinternal'] = 'internal: Licence must exist before import.';
 $string['commercial_validation'] = 'Licence validation';
 $string['commercial_validation_help'] = '<strong>External Validation:</strong> Content can always be imported to courses. Learning ressources remain on an external site. Validation of licence is done on the external site.<br /><strong>Internal:</strong> Content can be imported only if a licence has been stored in eduvidual (User-, Course-, oder Schoolcontext)';
+
+$string['danubeai:apikey'] = 'Danube.ai API Key';
+$string['danubeai:apikey'] = 'This is the API Key for danube.ai';
 
 $string['default__mailsubject'] = 'eduPublisher-Item handed in for inspection';
 $string['default_header'] = 'eduvidual';
