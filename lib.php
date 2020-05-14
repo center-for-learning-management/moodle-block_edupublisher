@@ -25,23 +25,23 @@ defined('MOODLE_INTERNAL') || die;
 
 // Inject the self-enrol-button
 function block_edupublisher_before_standard_html_head() {
-    global $DB, $PAGE, $USER;
+    global $CFG, $DB, $PAGE, $USER;
 
     if (strpos($_SERVER["SCRIPT_FILENAME"], '/course/view.php') > 0) {
         // Determine if we are within an edupublisher-package
         $courseid = optional_param('id', 0, PARAM_INT);
         if (!empty($courseid)) {
-            $chk = $DB->get_record('block_edupublisher_packages', array('course' => $courseid));
-            if (!empty($chk->id)) {
+            $package = $DB->get_record('block_edupublisher_packages', array('course' => $courseid));
+            if (!empty($package->id)) {
                 $context = context_course::instance($courseid);
                 $allowguests = get_config('block_edupublihser', 'allowguests');
                 if (!is_enrolled($context) && (empty($allowguests) || has_capability('block/edupublisher:canselfenrol', $context))) {
                     $PAGE->requires->js_call_amd('block_edupublisher/main', 'injectEnrolButton', array('courseid' => $courseid, 'isguestuser' => isguestuser($USER)));
                 }
 
-                // If we use danube.ai use a cache to track the visited packages.
+
                 require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
-                \block_edupublisher\get_danubeai_recommendations($package->id);
+                \block_edupublisher\lib::log_user_visit($package->id, 'viewed');
             }
         }
     }

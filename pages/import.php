@@ -241,12 +241,9 @@ try {
 
         rebuild_course_cache($targetcourse->id, true);
 
-        $DB->insert_record('block_edupublisher_uses', (object) array(
-            'userid' => $USER->id,
-            'package' => $package->id,
-            'targetcourse' => $targetcourse->id,
-            'created' => time()
-        ));
+        // Log that we cloned a package.
+        require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
+        \block_edupublisher\lib::log_user_visit($packageid, 'cloned');
 
         echo $OUTPUT->notification(get_string('importsuccess', 'backup'), 'notifysuccess');
         echo $OUTPUT->continue_button(new moodle_url('/course/view.php?id=' . $targetcourse->id));
