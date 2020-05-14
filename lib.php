@@ -38,6 +38,10 @@ function block_edupublisher_before_standard_html_head() {
                 if (!is_enrolled($context) && (empty($allowguests) || has_capability('block/edupublisher:canselfenrol', $context))) {
                     $PAGE->requires->js_call_amd('block_edupublisher/main', 'injectEnrolButton', array('courseid' => $courseid, 'isguestuser' => isguestuser($USER)));
                 }
+
+                // If we use danube.ai use a cache to track the visited packages.
+                require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
+                \block_edupublisher\get_danubeai_recommendations($package->id);
             }
         }
     }
