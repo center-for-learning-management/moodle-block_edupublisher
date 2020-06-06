@@ -204,7 +204,40 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         // Edupublisher savepoint reached.
         upgrade_block_savepoint(true, 2020010800, 'edupublisher');
     }
+    if ($oldversion < 2020051401) {
+        $table = new xmldb_table('block_edupublisher_log');
 
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('packageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('userid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('timeentered', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('viewed', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('enrolled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('unenrolled', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('cloned', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0');
+
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
+
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        $olduses = $DB->get_records('block_edupublisher_uses', array());
+        foreach ($olduses AS $olduse) {
+            $data = array(
+                'packageid' => $olduse->package,
+                'userid' => $olduse->userid,
+                'timeentered' => $olduse->created,
+                'cloned' => 1
+            );
+            $DB->insert_record('block_edupublisher_log', $data);
+        }
+
+        upgrade_block_savepoint(true, 2020051401, 'edupublisher');
+    }
+
+    // In the next version we can remove the table "block_edupublisher_uses".
+    // But we keep it after this update to avoid risk of loosing data.
 
     return true;
 }

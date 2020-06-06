@@ -68,41 +68,48 @@ class block_edupublisher extends block_base {
         } else {
             $item = new SimpleXMLElement('<item />');
         }
-
-        //$xml = array("\t<item>");
-        //print_r($package);
-        //print_r($item);
-        foreach($keys AS $key) {
-            // Exclude some fields.
-            if (in_array($key, $exclude)) continue;
-            // Exclude dummy-entries etc.
-            if (strpos($key, ':') > 0) continue;
-            if (substr($key, 0, 6) == 'rating') continue;
-            $parts = explode("_", $key);
-            if (count($parts) == 1 || in_array($parts[0], $includechannels) || count($includechannels) > 0 && $includechannels[0] == '*') {
-                self::as_xml_array($item, $key, $package[$key]);
-                /*
-                if (is_array($package[$key])) {
-                    $skeys = array_keys($package[$key]);
-                    foreach ($skeys AS $skey) {
-                        $item->addChild($skey, htmlspecialchars($package[$key][$skey]));
+        if (!empty($package['deleted'])) {
+            $item->addChild("id", $package['id']);
+            $item->addChild("active", 0);
+            $item->addChild("deleted", $package['deleted']);
+        } else {
+            //$xml = array("\t<item>");
+            //print_r($package);
+            //print_r($item);
+            foreach($keys AS $key) {
+                // Exclude some fields.
+                if (in_array($key, $exclude)) continue;
+                // Exclude dummy-entries etc.
+                if (strpos($key, ':') > 0) continue;
+                if (substr($key, 0, 6) == 'rating') continue;
+                $parts = explode("_", $key);
+                if (count($parts) == 1 || in_array($parts[0], $includechannels) || count($includechannels) > 0 && $includechannels[0] == '*') {
+                    self::as_xml_array($item, $key, $package[$key]);
+                    /*
+                    if (is_array($package[$key])) {
+                        $skeys = array_keys($package[$key]);
+                        foreach ($skeys AS $skey) {
+                            $item->addChild($skey, htmlspecialchars($package[$key][$skey]));
+                        }
+                        //$element = $item->addChild($key);
+                        //$item->addChild($key, json_encode($package[$key]));
+                    } else {
+                        $item->addChild($key, htmlspecialchars($package[$key]));
                     }
-                    //$element = $item->addChild($key);
-                    //$item->addChild($key, json_encode($package[$key]));
-                } else {
-                    $item->addChild($key, htmlspecialchars($package[$key]));
-                }
-                */
+                    */
 
-                /*
-                if (strpos($package[$key], "<") > -1) {
-                    $xml[] = "\t\t<$key><![CDATA[" . $package[$key] . "]]></$key>";
-                } else {
-                    $xml[] = "\t\t<$key>" . $package[$key] . "</$key>";
+                    /*
+                    if (strpos($package[$key], "<") > -1) {
+                        $xml[] = "\t\t<$key><![CDATA[" . $package[$key] . "]]></$key>";
+                    } else {
+                        $xml[] = "\t\t<$key>" . $package[$key] . "</$key>";
+                    }
+                    */
                 }
-                */
             }
         }
+
+
         //print_r($item);
         //$xml[] = "\t</item>";
         if (get_class($items) != 'SimpleXMLElement') {
@@ -152,14 +159,13 @@ class block_edupublisher extends block_base {
                 $parent = dom_import_simplexml($cartridge);
                 $child  = dom_import_simplexml(simplexml_load_string(file_get_contents($subtree)));
 
-                // Import the <cat> into the dictionary document
-                $child  = $parent->ownerDocument->importNode($child, TRUE);
+                if (!empty($child)) {
+                    // Import the <cat> into the dictionary document
+                    $child  = $parent->ownerDocument->importNode($child, TRUE);
 
-                // Append the <cat> to <c> in the dictionary
-                $parent->appendChild($child);
-
-                //$content =
-                //$cartridge->children = $content->children;
+                    // Append the <cat> to <c> in the dictionary
+                    $parent->appendChild($child);
+                }
             } else {
                 $element = $xml->addChild("$elementname", htmlspecialchars(str_replace("\n", "", $subtree)));
             }

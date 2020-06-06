@@ -773,6 +773,10 @@ class block_edupublisher_external extends external_api {
             block_edupublisher::toggle_guest_access($package->course, $package->active);
             $DB->update_record('block_edupublisher_packages', $package);
 
+            if (!empty($package->etapas_active) && $package->etapas_status == 'inspect') {
+                block_edupublisher::store_metadata($package, 'etapas', 'etapas_status', 'eval');
+            }
+
             global $PAGE;
             $PAGE->set_context(context_system::instance());
             require_login();

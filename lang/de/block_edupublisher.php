@@ -62,6 +62,9 @@ $string['commercial_validateinternal'] = 'intern: Lizenz muss vor dem Import vor
 $string['commercial_validation'] = 'Lizenzprüfung';
 $string['commercial_validation_help'] = '<strong>Externe Prüfung:</strong> Paket kann immer importiert werden. Lernressourcen rufen externes Tool auf. Prüfung der Lizenz erfolgt in externem Tool.<br /><strong>Intern:</strong> Lernpaket kann erst genutzt werden, nachdem eine Lizenz erfasst wurde (Nutzer-, Kurs-, oder Schulkontext)';
 
+$string['danubeai:apikey'] = 'Danube.ai API Schlüssel';
+$string['danubeai:apikey:description'] = 'Der API Schlüssel für danube.ai';
+
 $string['default__mailsubject'] = 'eduPublisher-Item eingereicht';
 $string['default_header'] = 'eduvidual';
 $string['default_authorname'] = 'Autor';

@@ -26,7 +26,6 @@ namespace block_edupublisher;
 defined('MOODLE_INTERNAL') || die;
 
 class lib {
-
     /**
      * Enrols users to specific courses
      * @param courseids array containing courseid or a single courseid
@@ -113,6 +112,86 @@ class lib {
             }
         }
         return ($failures == 0);
+    }
+
+
+    /**
+     * Hold the path of visited packages in cache and
+     * receive danube.ai-recommendations.
+     * @param packageid that is visited.
+     */
+    public static function get_danubeai_recommendations($packageid = 0) {
+        $danubeai_apikey = get_config('block_edupublisher', 'danubeai_apikey');
+        if (!empty($danubeai_apikey)) {
+            $cache = \cache::make('block_edupublisher', 'packagepath');
+            $path = explode(',', $cache->get('path'));
+            if (!empty($packageid)) {
+                $path[] = $packageid;
+                $cache->set('path', implode(',', $path));
+            }
+
+            $pathdata = array();
+            foreach ($path AS $p) {
+                $pathdata[] = array('page' => $p);
+            }
+            $data = array(
+                'query' => 'mutation ($data: RecommendationInputData!) { danubeRecommendation(data: $data) { correlatedData } }',
+                'variables' => array(
+                    'data' => array('data' => json_encode($pathdata, JSON_NUMERIC_CHECK)),
+                    'n' => 3,
+                ),
+            );
+
+            $url = "https://api.danube.ai/graphql";
+            $content = json_encode($data);
+
+            $curl = curl_init($url);
+            curl_setopt($curl, CURLOPT_HEADER, false);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-type: application/json", "apitoken: Bearer $danubeai_apikey"));
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
+            $json_response = curl_exec($curl);
+            $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            curl_close($curl);
+            $response = json_decode($json_response, true);
+        }
+    }
+
+
+    /**
+     * Log that a user visited a course-page of a package.
+     * @param packageid that is visited.
+     * @param action String, either 'viewed', 'enrolled', 'unenrolled' or 'cloned'
+     */
+    public static function log_user_visit($packageid, $action) {
+        if (empty($packageid)) return;
+        // Ensure the action is a valid value.
+        if (!in_array($action, array('viewed', 'enrolled', 'unenrolled', 'cloned'))) return;
+
+        global $DB, $USER;
+        // The viewed action is only logged if it does not double the last entry.
+        if ($action == 'viewed') {
+            // If we use danube.ai use a cache to track the visited packages.
+            self::get_danubeai_recommendations($packageid);
+            $sql = "SELECT *
+                        FROM {block_edupublisher_log}
+                        WHERE userid=?
+                            AND viewed=1
+                        ORDER BY id DESC
+                        LIMIT 0,1";
+            $lastrecord = $DB->get_record_sql($sql, array($USER->id));
+            if (!empty($lastrecord->packageid) && $lastrecord->packageid == $packageid) return;
+        }
+
+        // Log this event now.
+        $data = array(
+            'packageid' => $packageid,
+            'userid' => $USER->id,
+            'timeentered' => time(),
+            $action => 1,
+        );
+        $DB->insert_record('block_edupublisher_log', $data);
     }
 }
 

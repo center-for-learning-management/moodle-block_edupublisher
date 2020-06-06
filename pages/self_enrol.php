@@ -83,6 +83,9 @@ if (empty($defaultrolestudent)) {
     }
 
     if (!empty($unenrol)) {
+        // Log that we unenrolled from a package.
+        require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
+        \block_edupublisher\lib::log_user_visit($package->id, 'unenrolled');
         echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
             'type' => 'success',
             'content' => get_string('successfully_unenrolled', 'block_edupublisher'),
@@ -90,6 +93,9 @@ if (empty($defaultrolestudent)) {
         ));
         redirect(new moodle_url('/course/view.php', array('id' => $package->course)));
     } else {
+        // Log that we enrolled a package.
+        require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
+        \block_edupublisher\lib::log_user_visit($package->id, 'enrolled');
         // Do the enrolment and redirect.
         echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
             'type' => 'success',
