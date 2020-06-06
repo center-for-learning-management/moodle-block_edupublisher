@@ -165,6 +165,7 @@ class lib {
      * @param action String, either 'viewed', 'enrolled', 'unenrolled' or 'cloned'
      */
     public static function log_user_visit($packageid, $action) {
+        if (empty($packageid)) return;
         // Ensure the action is a valid value.
         if (!in_array($action, array('viewed', 'enrolled', 'unenrolled', 'cloned'))) return;
 
