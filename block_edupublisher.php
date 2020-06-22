@@ -754,28 +754,15 @@ class block_edupublisher extends block_base {
      * Prints header and injects other sources that are required.
     **/
     public static function print_app_header() {
-        global $CFG, $OUTPUT;
+        global $OUTPUT;
         echo $OUTPUT->header();
-        /*
-        if (self::uses_eduvidual()) {
-            require_once($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
-            block_eduvidual::print_app_header();
-        } else {
-            echo $OUTPUT->header();
-        }
-        */
     }
     /**
      * If eduvidual is used print eduvidual-footer, otherwise default footer
     **/
     public static function print_app_footer() {
-        global $CFG, $OUTPUT;
-        if (self::uses_eduvidual()) {
-            require_once($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
-            block_eduvidual::print_app_footer();
-        } else {
-            echo $OUTPUT->footer();
-        }
+        global $OUTPUT;
+        echo $OUTPUT->footer();
     }
     /**
      * Grants or revokes a role from a course.
@@ -1244,12 +1231,12 @@ class block_edupublisher extends block_base {
         return '';
     }
     /**
-     * Checks whether or not block_eduvidual is installed
+     * Checks whether or not local_eduvidual is installed
      * @return true or false
     **/
     public static function uses_eduvidual(){
         global $CFG;
-        return file_exists($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
+        return file_exists($CFG->dirroot . '/local/eduvidual/version.php');
     }
     public function init() {
         $this->title = get_string('pluginname', 'block_edupublisher');

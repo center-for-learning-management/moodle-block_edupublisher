@@ -65,7 +65,7 @@ class lib {
                 // We have to add a "manual-enrolment"-instance
                 $fields = array(
                     'status' => 0,
-                    'roleid' => get_config('block_eduvidual', 'defaultrolestudent'),
+                    'roleid' => get_config('local_eduvidual', 'defaultrolestudent'),
                     'enrolperiod' => 0,
                     'expirynotify' => 0,
                     'expirytreshold' => 0,

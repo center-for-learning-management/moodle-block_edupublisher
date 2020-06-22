@@ -78,7 +78,7 @@ if (empty($publisherid)) {
         'publisherid' => $publisherid,
         'target' => optional_param('target', 0, PARAM_INT),
         'type' => optional_param('type', 0, PARAM_INT),
-        'useseduvidual' => file_exists($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php'),
+        'useseduvidual' => file_exists($CFG->dirroot . '/local/eduvidual/version.php'),
     );
     switch ($action) {
         case 'generate':

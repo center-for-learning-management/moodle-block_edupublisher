@@ -21,8 +21,8 @@
     {{/ratingselection}}
     {{!ratingaverage}}
     {{#showpreviewbutton}}
-        {{! block_eduvidual is a specific plugin for www.eduvidual.at. This code is for a special purpose, but the plugin also works without it. }}
-        <a href="{{wwwroot}}/course/view.php?id={{course}}" onclick="if (window.self !== window.top) { require(['block_eduvidual/jquery-ba-postmessage'], function(POST) { POST.post('noback|open_preview|{{course}}'); }); } else { window.open(this.href, '_system'); } return false;" class="btn btn-primary">{{#str}} preview {{/str}}</a>
+        {{! local_eduvidual is a specific plugin for www.eduvidual.at. This code is for a special purpose, but the plugin also works without it. }}
+        <a href="{{wwwroot}}/course/view.php?id={{course}}" onclick="if (window.self !== window.top) { require(['local_eduvidual/jquery-ba-postmessage'], function(POST) { POST.post('noback|open_preview|{{course}}'); }); } else { window.open(this.href, '_system'); } return false;" class="btn btn-primary">{{#str}} preview {{/str}}</a>
     {{/showpreviewbutton}}
     <!--
     {{^showpreviewbutton}}
@@ -35,8 +35,8 @@
         <a onclick="return false;"><img src="{{wwwroot}}/blocks/edupublisher/pix/star_{{active}}_{{selected}}.png" alt="{{num}}" class="icon" style="margin-right: 0;" /></a>
     {{/ratingselection}}
     {{#showpreviewbutton}}
-        {{! block_eduvidual is a specific plugin for www.eduvidual.at. This code is for a special purpose, but the plugin also works without it. }}
-        <a href="{{wwwroot}}/course/view.php?id={{course}}" onclick="if (window.self !== window.top) { require(['block_eduvidual/jquery-ba-postmessage'], function(POST) { POST.post('noback|open_preview|{{course}}'); }); } else { window.open(this.href, '_system'); } return false;" target="_blank" class="btn btn-primary">{{#str}} preview {{/str}}</a>
+        {{! local_eduvidual is a specific plugin for www.eduvidual.at. This code is for a special purpose, but the plugin also works without it. }}
+        <a href="{{wwwroot}}/course/view.php?id={{course}}" onclick="if (window.self !== window.top) { require(['local_eduvidual/jquery-ba-postmessage'], function(POST) { POST.post('noback|open_preview|{{course}}'); }); } else { window.open(this.href, '_system'); } return false;" target="_blank" class="btn btn-primary">{{#str}} preview {{/str}}</a>
     {{/showpreviewbutton}}
     <!--
     {{^showpreviewbutton}}

@@ -79,7 +79,7 @@ $schoollevels = \block_edupublisher\get_schoollevels_sorted($schoollevel);
 
 $lic_orgids = array();
 $lic_courseids = array();
-$orgs = block_eduvidual::get_organisations('teacher', false);
+$orgs = \local_eduvidual\locallib::get_organisations('teacher', false);
 foreach ($orgs AS $org) {
     $lic_orgids[] = $org->orgid;
 }

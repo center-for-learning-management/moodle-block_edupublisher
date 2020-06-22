@@ -51,8 +51,7 @@ class block_edupublisher_external extends external_api {
 
                 if (block_edupublisher::uses_eduvidual()) {
                     // This is some functionality specific to a plugin that is not published!
-                    require_once($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
-                    $org = block_eduvidual::get_org_by_courseid($courseid);
+                    $org = \local_eduvidual\locallib::get_org_by_courseid($courseid);
                     $orgid = $org->orgid;
                 }
                 $sql = "SELECT *
@@ -309,10 +308,9 @@ class block_edupublisher_external extends external_api {
         } else {
             // Get possible targets for licencekey.
             switch ($lic->target) {
-                case 1: // org, only in use for block_eduvidual
+                case 1: // org, only in use for local_eduvidual
                     $result['heading'] = get_string('licence_target_org', 'block_edupublisher');
-                    require_once($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
-                    $orgs = block_eduvidual::get_organisations('teacher');
+                    $orgs = \local_eduvidual\locallib::get_organisations('teacher');
                     foreach ($orgs AS $org) {
                         $result['options'][] = array(
                             'id' => $org->orgid,
@@ -574,8 +572,7 @@ class block_edupublisher_external extends external_api {
 
                 if (block_edupublisher::uses_eduvidual()) {
                     // This is some functionality specific to a plugin that is not published!
-                    require_once($CFG->dirroot . '/blocks/eduvidual/block_eduvidual.php');
-                    $org = block_eduvidual::get_org_by_courseid($params['courseid']);
+                    $org = \local_eduvidual\locallib::get_org_by_courseid($params['courseid']);
                     $orgid = !empty($org->orgid) ? $org->orgid : 0;
                 }
                 $sql = "SELECT *

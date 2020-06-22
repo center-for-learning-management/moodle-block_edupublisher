@@ -113,7 +113,7 @@ class block_edupublisher_module_compiler {
                 $item->showdescriptionlaunch = 1;
                 $item->typeid = 0;
                 $item->launchcontainer = 4;
-                $item->resourcekey = get_config('block_eduvidual', 'ltiresourcekey');
+                $item->resourcekey = get_config('local_eduvidual', 'ltiresourcekey');
                 $item->instructorcustomparameters = '';
                 $item->instructorchoiceacceptgrades = 1;
                 $item->instructorchoicesendname = 1;
