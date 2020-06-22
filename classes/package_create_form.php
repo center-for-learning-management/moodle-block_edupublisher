@@ -140,6 +140,17 @@ class package_create_form extends moodleform {
                         }
                     break;
                     case 'tags':
+                        if (empty($field['tagparams'])) {
+                            $field['tagparams'] = array();
+                        }
+                        if (empty($field['tagparams']['itemtype'])) {
+                            $field['tagparams']['itemtype'] = 'packages';
+                        }
+                        if (empty($field['tagparams']['component'])) {
+                            $field['tagparams']['component'] = 'block_edupublisher';
+                        }
+                        $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label, $field['tagparams']);
+                    break;
                     case 'text':
                     case 'url':
                         $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label, array('type' => $field['type']));

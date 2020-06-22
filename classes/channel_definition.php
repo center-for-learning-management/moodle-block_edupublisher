@@ -76,7 +76,7 @@ $definition = array(
             'secondary_2' => get_string('default_schoollevel_secondary_2', 'block_edupublisher'),
             'tertiary' => get_string('default_schoollevel_tertiary', 'block_edupublisher'),
         )),
-        'tags' => array('type' => 'tags', 'datatype' => PARAM_TEXT, 'multiple' => 1),
+        'tags' => array('type' => 'tags', 'datatype' => PARAM_TEXT, 'multiple' => 1, 'tagparams' => array('itemtype' => 'packages', 'component' => 'block_edupublisher')),
         // Hidden elements
         'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
         'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
