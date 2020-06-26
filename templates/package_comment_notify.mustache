@@ -24,7 +24,12 @@
                 <img src="{{userpicturebase64}}" alt="{{userfullname}}" width="50" style="border-radius: 50%;" />
             </a>
         </td>
-        <td valign="top">{{{content}}}</td>
+        <td valign="top">
+            {{{content}}}
+            {{#forchannel}}
+                {{#str}} comment:forchannel, block_edupublisher, { "channel": {{#quote}} {{{forchannel}}} {{/quote}} } {{/str}}
+            {{/forchannel}}
+        </td>
     </tr>
     <tr>
         <td>&nbsp;</td>

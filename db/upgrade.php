@@ -235,6 +235,17 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
 
         upgrade_block_savepoint(true, 2020051401, 'edupublisher');
     }
+    if ($oldversion < 2020062600) {
+        $table = new xmldb_table('block_edupublisher_comments');
+        $field = new xmldb_field('forchannel', XMLDB_TYPE_CHAR, '50', null, XMLDB_NULL, null, null, 'ispublic');
+        // Conditionally launch add field isautocomment.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2020062600, 'edupublisher');
+    }
 
     // In the next version we can remove the table "block_edupublisher_uses".
     // But we keep it after this update to avoid risk of loosing data.

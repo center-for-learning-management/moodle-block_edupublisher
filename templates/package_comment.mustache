@@ -46,6 +46,11 @@
             </td>
             <td valign="top">
                 {{{content}}}
+                {{#forchannel}}
+                    <small>
+                        {{#str}} comment:forchannel, block_edupublisher, { "channel": {{#quote}} {{{forchannel}}} {{/quote}} } {{/str}}
+                    </small>
+                {{/forchannel}}
             </td>
         </tr>
     </table>

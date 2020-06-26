@@ -831,13 +831,15 @@ class block_edupublisher extends block_base {
      * @param text
      * @param sendto-identifiers array of identifiers how should be notified
      * @param commentlocalize languageidentifier for sending the comment localized
+     * @param channel whether this comment refers to a particular channel.
      */
-    public static function store_comment($package, $text, $sendto = array(), $isautocomment = false, $ispublic = 0) {
+    public static function store_comment($package, $text, $sendto = array(), $isautocomment = false, $ispublic = 0, $channel = "") {
         global $DB, $OUTPUT, $USER;
         if (isloggedin() && !isguestuser($USER)) {
             $comment = (object)array(
                 'content' => $text,
                 'created' => time(),
+                'forchannel' => $channel,
                 'isautocomment' => ($isautocomment) ? 1 : 0,
                 'ispublic' => ($ispublic) ? 1 : 0,
                 'package' => $package->id,

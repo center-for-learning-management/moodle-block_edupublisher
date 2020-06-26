@@ -31,6 +31,7 @@
         <FIELD NAME="permahash" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="hashcode for permalink without login"/>
         <FIELD NAME="isautocomment" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="whether this is an autotext (1) or not (0)"/>
         <FIELD NAME="ispublic" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="whether this is public (1) or not (0)"/>
+        <FIELD NAME="forchannel" TYPE="char" LENGTH="50" NOTNULL="true" SEQUENCE="false" COMMENT="whether this comment referes to a particular channel"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>

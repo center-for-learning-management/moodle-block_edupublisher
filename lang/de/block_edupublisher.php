@@ -39,6 +39,7 @@ $string['clonecourse'] = 'Veröffentliche Inhalte in neuem Kurs';
 $string['clonecourse_attention'] = '<strong>Achtung:</strong>&nbsp;Bitte beachten Sie den Hilfetext, bevor Sie dieses Feld abwählen!';
 $string['clonecourse_help'] = '<strong>Achtung:</strong>&nbsp;Falls Sie diese Checkbox abwählen, wird dieser Kurs selbst veröffentlicht. Alle Nutzer/innen (sogar Sie selbst) werden aus dem Kurs ausgetragen. Daten von Nutzer/innen könnten daher unwiederbringlich gelöscht werden!';
 $string['comment'] = 'Comment';
+$string['comment:forchannel'] = 'Dieser Kommentar bezieht sich auf den Kanal "{$a->channel}".';
 $string['comment:mail:subject'] = 'Neuer Kommentar zu Paket {$a->title}';
 $string['comment:none'] = 'Bisher keine Kommentare';
 $string['comment:notify:autotext'] = '<br /><br /><small>Achtung: dieser Text wurde automatisch generiert.</small>';

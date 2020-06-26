@@ -40,6 +40,7 @@ $string['clonecourse'] = 'Publish contents within this course';
 $string['clonecourse_attention'] = '<strong>Attention:</strong>&nbsp;Refer to help text before you uncheck this!';
 $string['clonecourse_help'] = '<strong>Attention:</strong>&nbsp;If you uncheck this box this course itself will be published. All users (even you) will be unenrolled from this course! That means, that user data may be removed unrecoverably!';
 $string['comment'] = 'Comment';
+$string['comment:forchannel'] = 'This comment refers to channel "{$a->channel}".';
 $string['comment:mail:subject'] = 'New comment on {$a->title}';
 $string['comment:none'] = 'No comments so far';
 $string['comment:notify:autotext'] = '<br /><br /><small>Attention: This text was generated automatically.</small>';

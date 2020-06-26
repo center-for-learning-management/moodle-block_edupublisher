@@ -752,13 +752,21 @@ class block_edupublisher_external extends external_api {
                     $package->default_active = $package->eduthek_active || $package->etapas_active;
                 }
                 // Trigger metadata in default channel.
-                $DB->execute("UPDATE {block_edupublisher_metadata} SET active=? WHERE field LIKE ? ESCAPE '+' AND package=?", array($package->default_active, 'default' . '+_%', $params['packageid']));
+                $sql = "UPDATE {block_edupublisher_metadata}
+                            SET active=?
+                            WHERE field LIKE ? ESCAPE '+'
+                                AND package=?";
+                $DB->execute($sql, array($package->default_active, 'default' . '+_%', $params['packageid']));
             } else {
                 $package->default_active = $active;
             }
             block_edupublisher::store_metadata($package, 'default', 'default_active', $package->default_active);
 
-            $DB->execute("UPDATE {block_edupublisher_metadata} SET active=? WHERE field LIKE ? ESCAPE '+' AND package=?", array($active, $params['type'] . '+_%', $params['packageid']));
+            $sql = "UPDATE {block_edupublisher_metadata}
+                        SET active=?
+                        WHERE field LIKE ? ESCAPE '+'
+                            AND package=?";
+            $DB->execute($sql, array($active, $params['type'] . '+_%', $params['packageid']));
             $package->modified = time();
             if ($params['type'] == 'default') {
                 block_edupublisher::store_metadata($package, 'default', 'default_active', $package->default_active);
@@ -790,9 +798,9 @@ class block_edupublisher_external extends external_api {
                 }
             }
             if ($package->active) {
-                block_edupublisher::store_comment($package, 'comment:template:package_published', $sendto, true, false);
+                block_edupublisher::store_comment($package, 'comment:template:package_published', $sendto, true, false, $params["type"]);
             } else {
-                block_edupublisher::store_comment($package, 'comment:template:package_unpublished', $sendto, true, false);
+                block_edupublisher::store_comment($package, 'comment:template:package_unpublished', $sendto, true, false, $params["type"]);
             }
             // Toggle course visibility
             $course = get_course($package->course);
