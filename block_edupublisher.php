@@ -291,7 +291,7 @@ class block_edupublisher extends block_base {
                         if (!isset($package->{$parts[0] . '_' . $parts[1]})) {
                             $package->{$parts[0] . '_' . $parts[1]} = array();
                         }
-                        $package->{$parts[0] . '_' . $parts[1]}[$parts[2]] = $field->content;
+                        $package->{$parts[0] . '_' . $parts[1]}[(int)$parts[2]] = $field->content;
                     } else {
                         $package->{$field->field} = $field->content;
                         if (preg_match('/<\s?[^\>]*\/?\s?>/i', $field->content)) {
