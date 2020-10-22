@@ -116,8 +116,8 @@ $definition = array(
         ),
         'kompetenzen' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
         'stundenablauf' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
-        'vorkenntnisse' => array('type' => 'editor', 'datatype' => PARAM_RAW),
-        'voraussetzungen' => array('type' => 'editor', 'datatype' => PARAM_RAW),
+        'vorkenntnisse' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
+        'voraussetzungen' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
         'zeitbedarf' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
             '01:00' => '01:00', '02:00' => '02:00', '03:00' => '03:00'
         )),
