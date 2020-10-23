@@ -164,6 +164,7 @@ define(
         },
         injectEnrolButton: function(courseid, isguestuser) {
             console.log('MAIN.injectEnrolButton(courseid, isguestuser)', courseid, isguestuser);
+            if (isguestuser) return;
             var context = {
                 isguestuser: isguestuser,
                 url: URL.relativeUrl('/blocks/edupublisher/pages/self_enrol.php', { id: courseid }),
