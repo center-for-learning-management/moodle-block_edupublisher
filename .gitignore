@@ -1,4 +1,3 @@
 .remote-sync.json
 composer.*
 node_modules
-vendor
