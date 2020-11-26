@@ -27,6 +27,8 @@ defined('MOODLE_INTERNAL') || die;
 function block_edupublisher_before_standard_html_head() {
     global $CFG, $DB, $PAGE, $USER;
 
+    /*
+    // Deactivated
     if (strpos($_SERVER["SCRIPT_FILENAME"], '/course/view.php') > 0) {
         // Determine if we are within an edupublisher-package
         $courseid = optional_param('id', 0, PARAM_INT);
@@ -45,6 +47,7 @@ function block_edupublisher_before_standard_html_head() {
             }
         }
     }
+    */
     return "";
 }
 
