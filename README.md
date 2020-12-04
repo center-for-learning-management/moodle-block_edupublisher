@@ -8,6 +8,8 @@ This plugin allows to build an internal course database that is taggable and sea
 
 After installation you should specify a course category where shared resources are placed. For every shared resource eduPublisher will create a course.
 
+You must grant "Authenticated users" the capability "moodle/backup:backuptargetimport" in that course category, so that they will be able to import from these courses.
+
 Please ensure that "Authenticated users" (and if you like also "Guest users") have the capability course:view, so that they can see all courses in that category. Packages that are not enabled will be hidden anyway.
 
 ### Maintainers

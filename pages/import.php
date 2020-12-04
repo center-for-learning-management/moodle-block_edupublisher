@@ -35,14 +35,15 @@ $packageid = required_param('package', PARAM_INT);
 $targetcourseid = required_param('course', PARAM_INT);
 $sectionid = optional_param('section', 0, PARAM_INT);
 
-$section = $DB->get_record('course_sections', array('course' => $targetcourseid, 'id' => $sectionid));
-$sectionnr = intval($section->section);
-
 // Require editing-permissions in targetcourse
 $targetcourse = $DB->get_record('course', array('id'=>$targetcourseid), '*', MUST_EXIST);
 $targetcontext = context_course::instance($targetcourse->id);
 require_login($targetcourse);
 require_capability('moodle/restore:restoretargetimport', $targetcontext);
+
+// Get the section number based on sectionid.
+$section = $DB->get_record('course_sections', array('course' => $targetcourseid, 'id' => $sectionid));
+$sectionnr = intval($section->section);
 
 // Set up the page
 $PAGE->set_title(get_string('import'));
@@ -66,9 +67,10 @@ $restoretarget = optional_param('target', backup::TARGET_CURRENT_ADDING, PARAM_I
 try {
     block_edupublisher::print_app_header();
     // Temporarily grant user trainer-permission in package-course
-    block_edupublisher::role_set(array($importcourse->id), array($USER->id), 'defaultroleteacher');
+    // @todo it must work without that!!!
+    //block_edupublisher::role_set(array($importcourse->id), array($USER->id), 'defaultroleteacher');
     // Make sure we have the required capabilities
-    require_capability('moodle/restore:restoretargetimport', $importcontext);
+    require_capability('moodle/backup:backuptargetimport', $importcontext);
 
     // Prepare the backup renderer
     $renderer = $PAGE->get_renderer('core','backup');
@@ -289,7 +291,7 @@ try {
     echo $e->getTraceAsString();
 } finally {
     // Withdraw user trainer-permission in package-course
-    block_edupublisher::role_set(array($importcourse->id), array($USER->id), -1);
+    //block_edupublisher::role_set(array($importcourse->id), array($USER->id), -1);
     block_edupublisher::print_app_footer();
     if (!empty($redirect)) { redirect($redirect); }
 }
