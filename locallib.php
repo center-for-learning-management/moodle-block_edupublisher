@@ -173,7 +173,8 @@ class lib {
         // The viewed action is only logged if it does not double the last entry.
         if ($action == 'viewed') {
             // If we use danube.ai use a cache to track the visited packages.
-            self::get_danubeai_recommendations($packageid);
+            // Disable danube.ai
+            // self::get_danubeai_recommendations($packageid);
             $sql = "SELECT *
                         FROM {block_edupublisher_log}
                         WHERE userid=?
