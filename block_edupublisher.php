@@ -288,10 +288,12 @@ class block_edupublisher extends block_base {
                     // Check for multi-select items.
                     $parts = explode('_', $field->field);
                     if (count($parts) == 3) {
-                        if (!isset($package->{$parts[0] . '_' . $parts[1]})) {
-                            $package->{$parts[0] . '_' . $parts[1]} = array();
+                        if (is_numeric($parts[2])) {
+                            if (!isset($package->{$parts[0] . '_' . $parts[1]})) {
+                                $package->{$parts[0] . '_' . $parts[1]} = array();
+                            }
+                            $package->{$parts[0] . '_' . $parts[1]}[(int)$parts[2]] = $field->content;
                         }
-                        $package->{$parts[0] . '_' . $parts[1]}[(int)$parts[2]] = $field->content;
                     } else {
                         $package->{$field->field} = $field->content;
                         if (preg_match('/<\s?[^\>]*\/?\s?>/i', $field->content)) {
