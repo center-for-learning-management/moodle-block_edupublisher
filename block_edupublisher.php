@@ -1342,7 +1342,7 @@ class block_edupublisher extends block_base {
         } elseif($canedit) {
             $options[] = array(
                 "title" => get_string('publish_new_package', 'block_edupublisher'),
-                "href" => '/blocks/edupublisher/pages/publish.php?sourcecourse=' . $COURSE->id,
+                "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/publish.php?sourcecourse=' . $COURSE->id,
                 "icon" => '/pix/i/publish.svg',
             );
 
