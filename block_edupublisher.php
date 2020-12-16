@@ -1279,37 +1279,37 @@ class block_edupublisher extends block_base {
                 $options[] = array(
                     "title" => $package->default_authorname,
                     "href" => 'mailto:' . $package->default_authormail,
-                    //"icon" => '/pix/i/user.svg',
+                    //"icon" => $CFG->wwwroot . '/pix/i/user.svg',
                 );
             } else {
                 $options[] = array(
                     "title" => $package->default_authorname,
                     //"href" => 'mailto:' . $package->default_authormail,
-                    //"icon" => '/pix/i/user.svg',
+                    //"icon" => $CFG->wwwroot . '/pix/i/user.svg',
                 );
             }
 
             $options[] = array(
                 "title" => $package->default_licence,
                 //"href" => 'mailto:' . $package->default_authormail,
-                "icon" => '/pix/i/publish.svg',
+                "icon" => $CFG->wwwroot . '/pix/i/publish.svg',
             );
             $options[] = array(
                 "title" => get_string('details', 'block_edupublisher'),
                 "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
-                "icon" => '/pix/i/hide.svg',
+                "icon" => $CFG->wwwroot . '/pix/i/hide.svg',
             );
             $options[] = array(
                 "title" => $OUTPUT->render_from_template('block_edupublisher/package_rating', $package),
                 //"href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
-                "icon" => '/pix/i/scales.svg',
+                "icon" => $CFG->wwwroot . '/pix/i/scales.svg',
             );
 
             if (!empty($package->etapas_subtype) && $package->etapas_subtype == 'etapa' && has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
                 $options[] = array(
                     "title" => get_string('evaluations', 'block_edupublisher'),
                     "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/evaluation.php?packageid=' . $package->id,
-                    "icon" => '/pix/i/report.svg',
+                    "icon" => $CFG->wwwroot . '/pix/i/report.svg',
                 );
             }
             // Show use package-button
@@ -1318,7 +1318,7 @@ class block_edupublisher extends block_base {
                 $options[] = array(
                     "title" => get_string('initialize_import', 'block_edupublisher'),
                     "href" => "#",
-                    //"icon" => '/pix/i/import.svg',
+                    //"icon" => $CFG->wwwroot . '/pix/i/import.svg',
                     "class" => 'btn btn-primary btn-block',
                     "onclick" => 'require([\'block_edupublisher/main\'], function(MAIN) { MAIN.initImportSelection(' . $package->id . '); }); return false;',
                     "style" => 'margin-top: 10px;',
@@ -1329,7 +1329,7 @@ class block_edupublisher extends block_base {
                 $options[] = array(
                     "title" => get_string('self_unenrol', 'block_edupublisher'),
                     "href" => $CFG->wwwroot . "/blocks/edupublisher/pages/self_enrol.php?id=" . $package->course . "&unenrol=1",
-                    //"icon" => '/pix/i/import.svg',
+                    //"icon" => $CFG->wwwroot . '/pix/i/import.svg',
                     "class" => 'btn btn-secondary btn-block',
                     "style" => 'margin-top: 10px;',
                 );
@@ -1357,8 +1357,8 @@ class block_edupublisher extends block_base {
                 }
                 $options[] = array(
                     "title" => (strlen($package->title) > 25) ? substr($package->title, 0, 23) . '...' : $package->title,
-                    "href" => '/blocks/edupublisher/pages/package.php?id=' . $package->id,
-                    "icon" => '/pix/i/edit.svg',
+                    "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
+                    "icon" => $CFG->wwwroot . '/pix/i/edit.svg',
                 );
             }
             $uses = $DB->get_records_sql('SELECT DISTINCT(package) FROM {block_edupublisher_uses} WHERE targetcourse=?', array($COURSE->id));
@@ -1373,8 +1373,8 @@ class block_edupublisher extends block_base {
                 $package = self::get_package($use->package, true);
                 if (!empty($package->id)) {
                     $options[] = array(
-                        "href" => '/blocks/edupublisher/pages/package.php?id=' . $package->id,
-                        "icon" => '/pix/i/withsubcat.svg',
+                        "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
+                        "icon" => $CFG->wwwroot . '/pix/i/withsubcat.svg',
                         "subtitle" => get_string('by', 'block_edupublisher') . ' ' . $package->default_authorname,
                         "title" => (strlen($package->title) > 25) ? substr($package->title, 0, 23) . '...' : $package->title,
                     );
