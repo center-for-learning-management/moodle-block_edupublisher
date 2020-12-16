@@ -21,11 +21,13 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace block_edupublisher;
+
 defined('MOODLE_INTERNAL') || die;
 
-class block_edupublisher_module_compiler {
+class module_compiler {
     public static function compile($type, $data, $defaults) {
-        $item = new stdClass();
+        $item = new \stdClass();
         // mandatory items according to https://github.com/moodle/moodle/blob/master/course/tests/courselib_test.php line 199
         $item->modulename = $type;
         $item->section = 0;
@@ -157,13 +159,13 @@ class block_edupublisher_module_compiler {
 
         // First we set the defaults given by payload
         $keys = array_keys((array)$item);
-        foreach($keys AS $key) {
+        foreach($keys as $key) {
             if (isset($defaults->$key))
                 $item->$key = $defaults->$key;
         }
 
         // Secondly we set the values given by the user
-        foreach($keys AS $key) {
+        foreach($keys as $key) {
             if (isset($data->$key))
                 $item->$key = $data->$key;
         }
@@ -180,24 +182,12 @@ class block_edupublisher_module_compiler {
         return $item;
     }
     public static function create($item){
-        global $CFG, $USER;
+        global $CFG;
 
-        $context = context_course::instance($item->course);
-        $roletoassign = 1; // Manager
-        $revokerole = true;
-        $roles = get_user_roles($context, $USER->id, false);
-        foreach($roles AS $role) {
-            if ($role->roleid == $roletoassign) {
-                // User had this role before - we do not revoke!
-                $revokerole = false;
-            }
-        }
-        role_assign($roletoassign, $USER->id, $context->id);
+        $context = \context_course::instance($item->course);
         require_once($CFG->dirroot . '/course/lib.php');
         $mod = create_module($item);
-        if ($revokerole) {
-            role_unassign($roletoassign, $USER->id, $context->id);
-        }
+        \rebuild_course_cache($item->course);
         return $mod;
     }
 }

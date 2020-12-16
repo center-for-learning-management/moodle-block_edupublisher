@@ -16,19 +16,22 @@
 
 /**
  * @package    block_edupublisher
- * @copyright  2018 onwards Digital Education Society (http://www.dibig.at)
+ * @copyright  2020 Center for Learningmanagement (http://www.lernmanagement.at)
  * @author     Robert Schrenk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace block_edupublisher\task;
+
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2020121602;
-$plugin->requires = 2014051200;
-$plugin->component = 'block_edupublisher';
-$plugin->release = '1.1 (Build: 2020121602)';
-$plugin->maturity = MATURITY_STABLE;
+class block_edupublisher_externalsources extends \core\task\scheduled_task {
+    public function get_name() {
+        // Shown in admin screens.
+        return get_string('task:externalsources:title', 'block_edupublisher');
+    }
 
-$plugin->dependencies = array(
-    'block_exacomp' => 2020091000,
-);
+    public function execute() {
+        global $DB;
+    }
+}

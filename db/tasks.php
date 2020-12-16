@@ -16,19 +16,30 @@
 
 /**
  * @package    block_edupublisher
- * @copyright  2018 onwards Digital Education Society (http://www.dibig.at)
+ * @copyright  2020 Center for Learningmanagement (www.lernmanagement.at)
  * @author     Robert Schrenk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2020121602;
-$plugin->requires = 2014051200;
-$plugin->component = 'block_edupublisher';
-$plugin->release = '1.1 (Build: 2020121602)';
-$plugin->maturity = MATURITY_STABLE;
-
-$plugin->dependencies = array(
-    'block_exacomp' => 2020091000,
+$tasks = array(
+    array(
+        'classname' => 'block_edupublisher\task\block_edupublisher_coursebackup',
+        'blocking' => 0,
+        'minute' => '*',
+        'hour' => '*',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*',
+    ),
+    array(
+        'classname' => 'block_edupublisher\task\block_edupublisher_externalsources',
+        'blocking' => 0,
+        'minute' => '0',
+        'hour' => '4',
+        'day' => '*',
+        'dayofweek' => '*',
+        'month' => '*',
+    ),
 );

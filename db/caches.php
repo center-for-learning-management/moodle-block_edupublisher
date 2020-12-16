@@ -26,5 +26,8 @@ defined('MOODLE_INTERNAL') || die;
 $definitions = [
     'packagepath' => [
         'mode' => cache_store::MODE_SESSION
-    ]
+    ],
+    'restore' => [
+        'mode' => cache_store::MODE_SESSION
+    ],
 ];

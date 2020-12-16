@@ -1,5 +1,21 @@
 // out: ../style/ui.css, sourcemap: false, compress: true
 
+#page-blocks-edupublisher-pages-restore {
+    #page-content {
+        div.backup_progress, #id_cancel, #id_previous {
+            display: none;
+        }
+        #id_coursesettings {
+            &>legend.ftoggler, .normal_setting {
+                display: none;
+            }
+        }
+        #id_rootsettings {
+            display: none;
+        }
+    }
+}
+
 .ui-edupublisher {
     ul[data-role="listgrid"] {
         padding-left: 0;

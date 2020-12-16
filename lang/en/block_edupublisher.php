@@ -26,12 +26,19 @@ $string['page:publisher'] = 'Publish';
 $string['privacy:metadata'] = 'This plugin does not store any personal data';
 
 $string['action'] = 'Action';
-$string['after_section'] = 'Place after section';
+$string['after_section'] = 'Place at section';
 $string['allowguests'] = 'Open for guests';
 $string['allowguests_desc'] = 'If this is on, guest users can access the search function.';
+$string['allowsubcourses'] = 'Allow subcourses';
+$string['allowsubcourses_desc'] = 'If enabled users can clone contents into a subcourse instead of the course itself.';
+$string['as_subcourse'] = 'Import package as activity';
+$string['as_subcourse:description'] = 'When this option is on, all imported contents will appear as activity in your target course. Otherwise you will get an standard import of all sections to your course.';
 $string['by'] = 'by';
 $string['cachedef_packagepath'] = 'This stores the path of visited packages in cache.';
+$string['cachedef_restore'] = 'Stores certain data when importing courses in the users session.';
 $string['category'] = 'Category';
+$string['categorysubcourses'] = 'Category for subcourses';
+$string['categorysubcourses:missing'] = 'Missing category for subcourses, an administrator needs to fix that.';
 $string['category_help'] = 'Enter the category id here where published courses will be created';
 $string['category_missing'] = 'This is a required field';
 $string['channel'] = 'Channel';
@@ -50,6 +57,9 @@ $string['comment:template:package_editing_sealed'] = 'Hello,<br /><br />I just s
 $string['comment:template:package_published'] = 'Dear author,<br /><br />I published your package "{$a->title}"!<br /><br />Kind regards';
 $string['comment:template:package_unpublished'] = 'Dear author,<br /><br />I unpublished your package "{$a->title}"!<br /><br />Kind regards';
 $string['comment:template:package_updated'] = 'Hello,<br /><br />I just updated the package "{$a->title}"!<br /><br />Kind regards';
+$string['coursebackup:importcomplete'] = 'Import completed!';
+$string['coursebackup:missing'] = 'Backup for this course has not yet been created!';
+$string['coursebackup:notfound'] = 'Backup for this course not found!';
 $string['create_channel'] = 'create channel';
 
 $string['commercial_header'] = 'Commercial content';
@@ -114,6 +124,7 @@ $string['defaultrolestudent:description'] = 'This role will be used by edupublis
 $string['defaultrolestudent:missing'] = 'Missing Admin-Setting for default role of students';
 $string['defaultroleteacher'] = 'Default role of Teachers';
 $string['defaultroleteacher:description'] = 'This role will be used by edupublisher to automatically enrol someone with teacher permissions';
+$string['defaultroleteacher:missing'] = 'Missing Admin-Setting for default role of teachers';
 
 $string['derivative'] = 'Derivative';
 $string['details'] = 'Details';
@@ -146,6 +157,9 @@ $string['eduthek_type'] = 'Type';
 
 $string['enablecommercial'] = 'Enable commercial content';
 $string['enablecommercial_desc'] = 'With this checkbox you can globally control if commercial packages can be found in edupublisher.';
+$string['enrolment:meta:notinstalled'] = 'The meta-enrolment plugin is not installed but required.';
+$string['enrolment:meta:active'] = 'The meta-enrolment plugin is not active but required.';
+
 
 $string['etapas__description'] = 'The eTapas-Initiative driven by eEducation Austria allows teachers to hand in their learning sequences as Open Educational Resource and get a reward. For more information please refer to the <a href="https://www.eeducation.at/?id=602" target="_blank">eEducation Website</a>.';
 $string['etapas__mailsubject'] = 'eTapa handed in for inspection';
@@ -263,6 +277,7 @@ $string['self_enrol_confirm_text'] = 'You are enrolling in a course. That means 
 $string['self_unenrol'] = 'Unenrol';
 $string['self_unenrol_confirm_text'] = 'If you unenrol from a course your learning progress and data may be removed from the course. If you enrol again your data may be lost and unrecoverable. Are you sure that you want to unenrol?';
 $string['settings'] = 'Settings';
+$string['subcourse'] = 'Subcourse {$a->fullname}';
 $string['successfully_enrolled'] = 'Successfully enrolled';
 $string['successfully_published_package'] = 'Successfully published package';
 $string['successfully_saved_comment'] = 'Successfully saved comment';
@@ -270,6 +285,8 @@ $string['successfully_saved_package'] = 'Successfully saved package';
 $string['successfully_saved_settings'] = 'Successfully saved settings';
 $string['successfully_unenrolled'] = 'Successfully unenrolled';
 $string['summary'] = 'Summary';
+$string['task:coursebackup:title'] = 'Backup courses';
+$string['task:externalsources:title'] = 'External sources';
 $string['title'] = 'Title';
 $string['title_missing'] = 'Missing title';
 $string['trigger_editing_permission_grant'] = 'Grant write permission to author';

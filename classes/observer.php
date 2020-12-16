@@ -16,19 +16,20 @@
 
 /**
  * @package    block_edupublisher
- * @copyright  2018 onwards Digital Education Society (http://www.dibig.at)
+ * @copyright  2020 Center for Learningmangement (www.lernmanagement.at)
  * @author     Robert Schrenk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace block_edupublisher;
+
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2020121602;
-$plugin->requires = 2014051200;
-$plugin->component = 'block_edupublisher';
-$plugin->release = '1.1 (Build: 2020121602)';
-$plugin->maturity = MATURITY_STABLE;
+class observer {
+    public static function coursechanged($event) {
+        global $DB;
 
-$plugin->dependencies = array(
-    'block_exacomp' => 2020091000,
-);
+        $entry = (object)$event->get_data();
+        $DB->set_field('block_edupublisher_packages', 'modified', time(), array('course' => $entry->courseid));
+    }
+}

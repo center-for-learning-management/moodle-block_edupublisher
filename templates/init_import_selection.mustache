@@ -24,6 +24,12 @@
         onchange="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportLoadSections('{{uniqid}}'); });">
         <option value="">{{#str}} loading {{/str}}</option>
     </select>
+    {{#allowsubcourses}}
+    <label>
+        <input type="checkbox" id="assubcourse-{{uniqid}}">
+        {{#str}} as_subcourse, block_edupublisher {{/str}}<sup>1)</sup>
+    </label>
+    {{/allowsubcourses}}
     <br />
     <label for="sectionid-{{uniqid}}">{{#str}} after_section, block_edupublisher {{/str}}</label>
     <br />
@@ -34,6 +40,13 @@
     <a href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportLoadGo('{{uniqid}}'); }); return false;" class="btn btn-primary">
         {{#str}} ok {{/str}}
     </a>
+    {{#allowsubcourses}}
+    <br />
+    <small>
+        <sup>1)</sup>
+        {{#str}} as_subcourse:description, block_edupublisher {{/str}}
+    </small>
+    {{/allowsubcourses}}
 </div></div>
 
 {{#js}}

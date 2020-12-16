@@ -50,14 +50,14 @@ define(
                 ).fail(NOTIFICATION.exception);
             }
         },
-        initImportSelection: function(packageid, courseid) {
+        initImportSelection: function(packageid, courseid, allowsubcourses) {
             var MAIN = this;
             STR.get_strings([
                     {'key' : 'import', component: 'core' },
                 ]).done(function(s) {
                     ModalFactory.create({
                         title: s[0],
-                        body: TEMPLATES.render('block_edupublisher/init_import_selection', { packageid: packageid, courseid: courseid }),
+                        body: TEMPLATES.render('block_edupublisher/init_import_selection', { packageid: packageid, courseid: courseid, allowsubcourses: allowsubcourses }),
                     }).done(function(modal) {
                         modal.show();
                     });
@@ -69,7 +69,9 @@ define(
             var courseid = $('#courseid-' + uniqid).val();
             var packageid = $('#packageid-' + uniqid).val();
             var sectionid = $('#sectionid-' + uniqid).val();
-            top.location.href = URL.fileUrl("/blocks/edupublisher/pages/import.php", "?package=" + packageid + "&course=" + courseid + "&section=" + sectionid);
+            var assubcourse = $('#assubcourse-' + uniqid).prop('checked') ? 1 : 0;
+            top.location.href = URL.fileUrl("/blocks/edupublisher/pages/import.php", "?package=" + packageid + "&course=" + courseid + "&section=" + sectionid + '&assubcourse=' + assubcourse);
+            //top.location.href = URL.fileUrl("/blocks/edupublisher/pages/restore.php", "?package=" + packageid + "&course=" + courseid + "&section=" + sectionid + '&assubcourse=' + assubcourse);
         },
         /**
          * Load list of courses we could import to.

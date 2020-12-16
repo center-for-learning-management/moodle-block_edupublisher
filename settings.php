@@ -39,6 +39,9 @@ if ($ADMIN->fulltree) {
     block_edupublisher_build_categories_tree($_CATEGORIES, 0);
     $settings->add(new admin_setting_configselect('block_edupublisher/category', get_string('category', 'block_edupublisher'), '', 1, $_CATEGORIES));
 
+    $settings->add(new admin_setting_configselect('block_edupublisher/categorysubcourses', get_string('categorysubcourses', 'block_edupublisher'), '', 1, $_CATEGORIES));
+
+
     require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
     $definition = block_edupublisher::get_channel_definition();
     $channels = array_keys($definition);
@@ -64,6 +67,9 @@ if ($ADMIN->fulltree) {
 
     // ENABLE COMMERCIAL CONTENT
     $settings->add(new admin_setting_configcheckbox('block_edupublisher/enablecommercial', get_string('enablecommercial', 'block_edupublisher'), get_string('enablecommercial_desc', 'block_edupublisher'), 1));
+
+    // Allow subcourses
+    $settings->add(new admin_setting_configcheckbox('block_edupublisher/allowsubcourses', get_string('allowsubcourses', 'block_edupublisher'), get_string('allowsubcourses_desc', 'block_edupublisher'), 0));
 
 
     $defaulttemplate = $OUTPUT->render_from_template('block_edupublisher/mail', array('content' => '{{{content}}}', 'subject' => '{{{subject}}}'));

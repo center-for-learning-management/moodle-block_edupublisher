@@ -1315,12 +1315,13 @@ class block_edupublisher extends block_base {
             // Show use package-button
             $courses = self::get_courses(null, 'moodle/course:update');
             if (count(array_keys($courses)) > 0) {
+                $allowsubcourses = \get_config('block_edupublisher', 'allowsubcourses') ? 1 : 0;
                 $options[] = array(
                     "title" => get_string('initialize_import', 'block_edupublisher'),
                     "href" => "#",
                     //"icon" => '/pix/i/import.svg',
                     "class" => 'btn btn-primary btn-block',
-                    "onclick" => 'require([\'block_edupublisher/main\'], function(MAIN) { MAIN.initImportSelection(' . $package->id . '); }); return false;',
+                    "onclick" => 'require([\'block_edupublisher/main\'], function(MAIN) { MAIN.initImportSelection(' . $package->id . ', 0, ' . $allowsubcourses . '); }); return false;',
                     "style" => 'margin-top: 10px;',
                 );
             }

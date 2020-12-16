@@ -63,10 +63,7 @@ if ($package->canedit) {
     //$form = new package_create_form(null, null, 'post', '_self', array('onsubmit' => 'this.querySelectorAll("input").forEach( i => i.disabled = false)'), true);
     // get_data as dummy to validate under mode_show_form precondition.
     $form->get_data();
-//print_r($package);
     $package = block_edupublisher::prepare_package_form($package);
-//print_r($package);
-
     $form->set_data($package);
     echo "<div class=\"skip-ui-eduvidual ui-edupublisher-skip\">";
     $form->display();

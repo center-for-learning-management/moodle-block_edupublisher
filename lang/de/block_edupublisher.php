@@ -268,6 +268,7 @@ $string['successfully_saved_package'] = 'Paket erfolgreich gespeichert';
 $string['successfully_saved_settings'] = 'Einstellungen erfolgreich gespeichert';
 $string['successfully_unenrolled'] = 'Erfolgreich ausgetragen!';
 $string['summary'] = 'Zusammenfassung';
+$string['task:externalsources:title'] = 'Externe Quellen';
 $string['title'] = 'Titel';
 $string['title_missing'] = 'Titel fehlt';
 $string['trigger_editing_permission_grant'] = 'Der/dem Autor/in Schreibrechte verleihen';

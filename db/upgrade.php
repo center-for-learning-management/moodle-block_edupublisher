@@ -249,6 +249,37 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
 
     // In the next version we can remove the table "block_edupublisher_uses".
     // But we keep it after this update to avoid risk of loosing data.
+    if ($oldversion < 2020062600) {
+        // Define table block_edupublisher_pub_ext to be created.
+        $table = new xmldb_table('block_edupublisher_pub_ext');
+
+        // Adding fields to table block_edupublisher_pub_ext.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('publisherid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('url', XMLDB_TYPE_CHAR, '250', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('active', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table block_edupublisher_pub_ext.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for block_edupublisher_pub_ext.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2020062600, 'edupublisher');
+    }
+    if ($oldversion < 2020121500) {
+        $table = new xmldb_table('block_edupublisher_packages');
+        $field = new xmldb_field('backuped', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'modified');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_block_savepoint(true, 2020121500, 'edupublisher');
+    }
 
     return true;
 }
