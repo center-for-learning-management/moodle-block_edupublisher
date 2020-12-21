@@ -989,7 +989,7 @@ class block_edupublisher extends block_base {
         foreach($competencies AS $competence) {
             $source = $DB->get_record('block_exacompdatasources', array('id' => $competence->source));
             $package->default_exacompdatasources[] = $source->source;
-            $package->default_exacompsourceids[] = $competence->id;
+            $package->default_exacompsourceids[] = $competence->sourceid;
             $package->default_exacomptitles[] = $competence->title;
         }
 
