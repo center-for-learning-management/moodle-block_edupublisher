@@ -50,7 +50,8 @@ class block_edupublisher_coursebackup extends \core\task\scheduled_task {
 
         $sql = "SELECT course
                     FROM {block_edupublisher_packages}
-                    WHERE backuped<modified";
+                    WHERE backuped<modified
+                        AND deleted=0";
         $packages = $DB->get_records_sql($sql, array());
         foreach ($packages as $package) {
             $courseid = $package->course;
