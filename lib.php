@@ -48,7 +48,7 @@ function block_edupublisher_before_standard_html_head() {
                 }
 
                 require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
-                \block_edupublisher\lib::log_user_visit($package->id, 'viewed');
+                \block_edupublisher\lib::log_user_visit($packageid, 'viewed');
             }
         }
     }
