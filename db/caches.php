@@ -30,4 +30,7 @@ $definitions = [
     'restore' => [
         'mode' => cache_store::MODE_SESSION
     ],
+    'ispackage' => [
+        'mode' => cache_store::MODE_APPLICATION
+    ],
 ];

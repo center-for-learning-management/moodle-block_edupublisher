@@ -31,9 +31,17 @@ function block_edupublisher_before_standard_html_head() {
         // Determine if we are within an edupublisher-package
         $courseid = optional_param('id', 0, PARAM_INT);
         if (!empty($courseid)) {
-            $package = $DB->get_record('block_edupublisher_packages', array('course' => $courseid));
-            if (!empty($package->id)) {
-                $context = context_course::instance($courseid);
+            $cache = cache::make('block_edupublisher', 'ispackage');
+            $packageid = $cache->get('course-' . $courseid);
+            if (empty($packageid)) {
+                $package = $DB->get_record('block_edupublisher_packages', array('course' => $courseid));
+                if (!empty($package->id)) {
+                    $packageid = $package->id;
+                    $cache->set('course-' . $courseid, $packageid);
+                }
+            }
+            if (!empty($packageid)) {
+                $context = \context_course::instance($courseid);
                 $allowguests = get_config('block_edupublihser', 'allowguests');
                 if (!is_enrolled($context) && (empty($allowguests) || has_capability('block/edupublisher:canselfenrol', $context))) {
                     $PAGE->requires->js_call_amd('block_edupublisher/main', 'injectEnrolButton', array('courseid' => $courseid, 'isguestuser' => isguestuser($USER)));
