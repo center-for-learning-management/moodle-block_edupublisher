@@ -393,7 +393,7 @@ class block_edupublisher extends block_base {
         $publisher = $DB->get_record('block_edupublisher_pub', array('id' => $publisherid), '*', IGNORE_MISSING);
         if (empty($publisher->id)) return null;
         $is_coworker = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisherid, 'userid' => $USER->id));
-        $publisher->is_coworker = ($is_coworker->userid == $USER->id);
+        $publisher->is_coworker = (!empty($is_coworker->userid) && $is_coworker->userid == $USER->id);
         // Load Logo of publisher.
         $fs = get_file_storage();
         $context = context_system::instance();
