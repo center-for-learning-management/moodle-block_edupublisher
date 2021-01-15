@@ -128,7 +128,7 @@ class module_compiler {
                 );
                 */
 
-                $item->grade = '';
+                $item->grade = 1;
 
                 $item->grade_modgrade_type = "point";
                 $item->grade_modgrade_point = 100;
