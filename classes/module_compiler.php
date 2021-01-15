@@ -114,7 +114,7 @@ class module_compiler {
                 $item->showtitlelaunch = 1;
                 $item->showdescriptionlaunch = 1;
                 $item->typeid = 0;
-                $item->launchcontainer = 4;
+                $item->launchcontainer = 2; // embedded
                 $item->resourcekey = get_config('local_eduvidual', 'ltiresourcekey');
                 $item->instructorcustomparameters = '';
                 $item->instructorchoiceacceptgrades = 1;
