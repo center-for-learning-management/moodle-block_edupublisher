@@ -188,6 +188,7 @@ $string['etapas_vorkenntnisse'] = 'Prior knowledge';
 $string['etapas_zeitbedarf'] = 'duration';
 
 $string['export'] = 'Export';
+$string['externalsources'] = 'External sources';
 
 $string['fieldextras'] = 'Extras';
 $string['fieldhelptext'] = 'Helptext';

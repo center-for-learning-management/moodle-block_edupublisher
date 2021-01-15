@@ -281,5 +281,100 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         upgrade_block_savepoint(true, 2020121500, 'edupublisher');
     }
 
+    if ($oldversion < 2021011501) {
+        // Define table block_edupublisher_externals to be created.
+        $table = new xmldb_table('block_edupublisher_externals');
+
+        // Adding fields to table block_edupublisher_externals.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('pubid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('url', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('authuser', XMLDB_TYPE_CHAR, '100', null, null, null, null);
+        $table->add_field('authpwd', XMLDB_TYPE_CHAR, '40', null, null, null, null);
+
+        // Adding keys to table block_edupublisher_externals.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for block_edupublisher_externals.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table block_edupublisher_extpack to be created.
+        $table = new xmldb_table('block_edupublisher_extpack');
+
+        // Adding fields to table block_edupublisher_extpack.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('extid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('packageid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('lasttimemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('courseid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+
+        // Adding keys to table block_edupublisher_extpack.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for block_edupublisher_extpack.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table block_edupublisher_extsect to be created.
+        $table = new xmldb_table('block_edupublisher_extsect');
+
+        // Adding fields to table block_edupublisher_extsect.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('packageid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('externalid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('coursesection', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+
+        // Adding keys to table block_edupublisher_extsect.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for block_edupublisher_extsect.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table block_edupublisher_extitem to be created.
+        $table = new xmldb_table('block_edupublisher_extitem');
+
+        // Adding fields to table block_edupublisher_extitem.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('sectionid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('cmid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+
+        // Adding keys to table block_edupublisher_extitem.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for block_edupublisher_extitem.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2021011501, 'edupublisher');
+    }
+    if ($oldversion < 2021011503) {
+        $table = new xmldb_table('block_edupublisher_extitem');
+        $field = new xmldb_field('packageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'id');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_block_savepoint(true, 2021011503, 'edupublisher');
+    }
+    if ($oldversion < 2021011504) {
+        $table = new xmldb_table('block_edupublisher_extitem');
+        $field = new xmldb_field('externalid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0', 'sectionid');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_block_savepoint(true, 2021011504, 'edupublisher');
+    }
+
+
     return true;
 }

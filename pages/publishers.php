@@ -69,6 +69,13 @@ if (block_edupublisher::is_maintainer(array('commercial'))) {
             'block_edupublisher/publisher_user',
             array('publisherid' => $id, 'users' => array())
         );
+
+        $externalsources = array_values($DB->get_records('block_edupublisher_externals', array('pubid' => $id)));
+
+        echo $OUTPUT->render_from_template(
+            'block_edupublisher/publisher_externalsources',
+            array('publisherid' => $id, 'externalsources' => $externalsources)
+        );
     } else {
         $publishers = $DB->get_records_sql('SELECT * FROM {block_edupublisher_pub} ORDER BY name ASC');
         echo $OUTPUT->render_from_template(

@@ -172,6 +172,7 @@ $string['etapas_vorkenntnisse'] = 'Vorkenntnisse';
 $string['etapas_zeitbedarf'] = 'Zeitbedarf';
 
 $string['export'] = 'Export';
+$string['externalsources'] = 'Externe Quellen';
 
 $string['fieldextras'] = 'Extras';
 $string['fieldhelptext'] = 'Hilfetext';

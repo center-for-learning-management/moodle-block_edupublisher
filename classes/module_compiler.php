@@ -118,16 +118,20 @@ class module_compiler {
                 $item->resourcekey = get_config('local_eduvidual', 'ltiresourcekey');
                 $item->instructorcustomparameters = '';
                 $item->instructorchoiceacceptgrades = 1;
-                $item->instructorchoicesendname = 1;
-                $item->instructorchoicesendemailaddr = 1;
+                $item->instructorchoicesendname = 0;
+                $item->instructorchoicesendemailaddr = 0;
+
                 /*
                 $item->grade = array(
                     'modgrade_type' => "point",
                     'modgrade_point' => 100,
                 );
                 */
-                $item->modgrade_type = "point";
-                $item->modgrade_point = 100;
+
+                $item->grade = '';
+
+                $item->grade_modgrade_type = "point";
+                $item->grade_modgrade_point = 100;
                 $item->completion =  1;
                 $item->completionusegrade = 1;
 
