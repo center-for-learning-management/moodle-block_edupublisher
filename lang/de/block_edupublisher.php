@@ -173,6 +173,9 @@ $string['etapas_zeitbedarf'] = 'Zeitbedarf';
 
 $string['export'] = 'Export';
 $string['externalsources'] = 'Externe Quellen';
+$string['externalsources:courseformat'] = 'Standard Kursformat für externe Quellen';
+$string['externalsources:courseformat:description'] = 'Standard Kursformat bei neuen Kursen für externe Quellen';
+
 
 $string['fieldextras'] = 'Extras';
 $string['fieldhelptext'] = 'Hilfetext';

@@ -374,6 +374,32 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
 
         upgrade_block_savepoint(true, 2021011504, 'edupublisher');
     }
+    if ($oldversion < 2021011800) {
+        // Define index coursesection (unique) to be added to block_edupublisher_extsect.
+        $table = new xmldb_table('block_edupublisher_extsect');
+        $index = new xmldb_index('coursesection', XMLDB_INDEX_UNIQUE, ['coursesection']);
+
+        // Conditionally launch add index coursesection.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2021011800, 'edupublisher');
+    }
+    if ($oldversion < 2021011801) {
+        // Define index packageid_externalid (unique) to be added to block_edupublisher_extsect.
+        $table = new xmldb_table('block_edupublisher_extsect');
+        $index = new xmldb_index('packageid_externalid', XMLDB_INDEX_UNIQUE, ['packageid','externalid']);
+
+        // Conditionally launch add index coursesection.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2021011801, 'edupublisher');
+    }
 
 
     return true;

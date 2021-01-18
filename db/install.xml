@@ -206,6 +206,10 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="coursesection" UNIQUE="true" FIELDS="coursesection"/>
+        <INDEX NAME="packageid_externalid" UNIQUE="true" FIELDS="packageid,externalid"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="block_edupublisher_extitem" COMMENT="Items from external source">
       <FIELDS>

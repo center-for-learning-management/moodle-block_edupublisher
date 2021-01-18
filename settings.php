@@ -85,4 +85,23 @@ if ($ADMIN->fulltree) {
             PARAM_TEXT
         )
     );
+
+
+    $options = array();
+    $formatplugins = \core_plugin_manager::instance()->get_plugins_of_type('format');
+    foreach ($formatplugins as $formatplugin) {
+        $options[] = $formatplugin->name;
+    }
+
+    //$sortorder = array_flip(array_keys($formatplugins));
+    $settings->add(
+        new admin_setting_configselect(
+            'block_edupublisher/externalsources_courseformat',
+            get_string('externalsources:courseformat', 'block_edupublisher'),
+            get_string('externalsources:courseformat:description', 'block_edupublisher'),
+            'topics',
+            $options,
+            PARAM_TEXT
+        )
+    );
 }

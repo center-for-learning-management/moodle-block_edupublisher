@@ -189,6 +189,8 @@ $string['etapas_zeitbedarf'] = 'duration';
 
 $string['export'] = 'Export';
 $string['externalsources'] = 'External sources';
+$string['externalsources:courseformat'] = 'Default course format';
+$string['externalsources:courseformat:description'] = 'Default course format when creating courses for external sources.';
 
 $string['fieldextras'] = 'Extras';
 $string['fieldhelptext'] = 'Helptext';
