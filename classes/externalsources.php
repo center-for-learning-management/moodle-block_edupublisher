@@ -286,12 +286,14 @@ class externalsources {
                         } else {
                             // Update item data.
                             if (self::$debug) echo "===========> Update item $reference as cmid $DBITEM->cmid\n";
+                            $cmitem->id = $extcm->id;
                             $cmitem->coursemodule = $extcm->id;
                             require_once($CFG->dirroot . '/course/lib.php');
-                            // @todo enable next line!!!
                             \update_module($cmitem);
                             if ($cmitem->section != $extcm->section) {
-                                if (self::$debug) echo "=============> Move item from $extcm->section to $cmitem->section\n";
+                                // We have to set the old section here.
+                                $cmitem->section = $extcm->section;
+                                if (self::$debug) echo "=============> Move item $cmitem->id from $extcm->section to $cmitem->section\n";
                                 \moveto_module($cmitem, $DBSECTION);
                             }
                         }
