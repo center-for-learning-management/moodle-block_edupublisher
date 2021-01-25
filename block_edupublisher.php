@@ -1197,22 +1197,28 @@ class block_edupublisher extends block_base {
     }
     /**
      * Enables or disables guest access to a course.
-     * @param course the course id
+     * @param courseid the course id
      * @param setto 1 (default) to enable, 0 to disable access.
      */
-    public static function toggle_guest_access($course, $setto = 1) {
-        global $DB;
-        // The logic in database is reverse. 0 means enabled.
-        $setto = ($setto == 1) ? 0 : 1;
-        // enable guest access in targetcourse
-        $guestenrol = $DB->get_record('enrol', array('enrol' => 'guest', 'courseid' => $course));
-        if ($guestenrol && $guestenrol->id > 0) {
-            $guestenrol->status = $setto;
-            $guestenrol->timemodified = time();
-            $DB->update_record('enrol', $guestenrol);
+    public static function toggle_guest_access($courseid, $setto = 1) {
+        global $CFG;
+
+        require_once($CFG->dirroot . '/enrol/guest/lib.php');
+        $course = \get_course($courseid);
+        $fields = array(
+            'status' => (empty($setto) ? 1 : 0), // status in database reversed
+            'password' => '',
+        );
+        $gp = new \enrol_guest_plugin();
+        if (!empty($setto)) {
+            $gp->add_instance($course, $fields);
         } else {
-            $guestenrol = (object) array('enrol' => 'guest', 'status' => $setto, 'courseid' => $course, 'timecreated' => time(), 'timemodified' => time());
-            $DB->insert_record('enrol', $guestenrol);
+            require_once($CFG->dirroot . '/lib/enrollib.php');
+            $instances = \enrol_get_instances($courseid, false);
+            foreach ($instances as $instance) {
+                if ($instance->enrol != 'guest') continue;
+                $gp->delete_instance($instance);
+            }
         }
     }
     /**

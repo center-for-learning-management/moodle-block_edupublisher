@@ -738,7 +738,7 @@ class block_edupublisher_external extends external_api {
 
         $statusses = array();
         $statusses['cantriggeractive' . $params['type']] = $package->{'cantriggeractive' . $params['type']};
-        if (isset($package->{'cantriggeractive' . $params['type']}) && $package->{'cantriggeractive' . $params['type']}) {
+        if (!empty($package->{'cantriggeractive' . $params['type']})) {
             $active = ($params['to'] >= 1) ? 1 : 0;
             $package->{$params['type'] .'_active'} = $active;
             if ($params['type'] != 'default') {
