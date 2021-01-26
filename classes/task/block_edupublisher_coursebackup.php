@@ -57,7 +57,7 @@ class block_edupublisher_coursebackup extends \core\task\scheduled_task {
             $courseid = $package->course;
             $course = $DB->get_record('course', array('id' => $courseid), '*', IGNORE_MISSING);
             if (empty($course->id)) {
-                echo "ERROR: COURSE #$courseid DOES NOT EXIST<br />";
+                echo "ERROR: COURSE #$courseid DOES NOT EXIST<br />\n";
                 continue;
             }
             $targetfilename = "coursebackup.mbz";
