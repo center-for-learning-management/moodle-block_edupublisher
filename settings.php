@@ -23,23 +23,17 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
-    if (!function_exists('block_edupublisher_build_categories_tree')) {
-        function block_edupublisher_build_categories_tree(&$tree, $categoryid) {
-            global $DB;
-            $items = $DB->get_records_sql('SELECT id,name,depth FROM {course_categories} WHERE parent=? ORDER BY name ASC', array($categoryid));
-            foreach($items AS $item) {
-                $tree[$item->id] = str_pad('', ($item->depth - 1) * 2, '>') . $item->name;
-                block_edupublisher_build_categories_tree($tree, $item->id);
-            }
-        }
-    }
-
-    //$settings = new admin_settingpage('blockedupublisher', get_string('pluginname', 'block_edupublisher'), 'moodle/site:config');
-    $_CATEGORIES = array();
-    block_edupublisher_build_categories_tree($_CATEGORIES, 0);
-    $settings->add(new admin_setting_configselect('block_edupublisher/category', get_string('category', 'block_edupublisher'), '', 1, $_CATEGORIES));
-
-    $settings->add(new admin_setting_configselect('block_edupublisher/categorysubcourses', get_string('categorysubcourses', 'block_edupublisher'), '', 1, $_CATEGORIES));
+    $link = implode("\n", array(
+        '<div class="form-item row">',
+        '  <div class="form-label col-sm-3 text-sm-right">' . get_string('category', 'block_edupublisher') . '</div>',
+        '  <div class="form-setting col-sm-9">',
+        '    <a class="btn btn-secondary btn-block" href="' . $CFG->wwwroot . '/blocks/edupublisher/categories.php">' . get_string('show') . '</a>',
+        '  </div>',
+        '  <div class="form-defaultinfo"></div>',
+        '  <div class="form-description mt-3"></div>',
+        '</div>',
+    ));
+    $settings->add(new admin_setting_heading('block_edupublisher_category', '', $link));
 
 
     require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
@@ -48,7 +42,6 @@ if ($ADMIN->fulltree) {
     foreach($channels AS $channel) {
         $settings->add(new admin_setting_configtext('block_edupublisher/channelkey_' . $channel, get_string($channel . '_fetchchannel', 'block_edupublisher'), '', md5(time() . rand(0, 1000)), PARAM_TEXT, 32));
     }
-
 
     $roles = $DB->get_records_sql('SELECT r.* FROM {role} AS r, {role_context_levels} AS rcl WHERE r.id=rcl.roleid  AND rcl.contextlevel = 50 ORDER BY r.name ASC', array());
     $options = array();
