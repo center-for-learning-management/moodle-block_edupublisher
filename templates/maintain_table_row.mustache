@@ -15,7 +15,20 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 }}
-<tr>
+<tr class="{{#exclamation}} exclamation {{/exclamation}}">
+    <td>
+        {{#exclamation}}
+            <i class="fa fa-exclamation"></i>
+        {{/exclamation}}
+    </td>
+    <td>
+        {{#authoreditingpermission}}
+            <i class="fa fa-unlock"></i>
+        {{/authoreditingpermission}}
+        {{^authoreditingpermission}}
+            <i class="fa fa-lock"></i>
+        {{/authoreditingpermission}}
+    </td>
     <td>
         <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}">
             <img src="{{default_image}}" alt="{{title}}" style="width: 40px;"/>

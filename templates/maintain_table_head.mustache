@@ -15,30 +15,56 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 }}
-<div class="ui-edupublisher" style="text-align: center;"><div>
-    <a href="{{wwwroot}}/blocks/edupublisher/pages/list.php" class="btn btn-primary">{{#str}} back {{/str}}</a>
-    <p>
-        {{#str}} sort {{/str}}:
-        [<a href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel={{channel}}&sort=date">{{#str}} date {{/str}}</a>]
-        [<a href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel={{channel}}&sort=name">{{#str}} name {{/str}}</a>]
-    </p>
-    <table width="100%" class="generaltable">
+<div id="edupublisher-list-{{uniqid}}" class="_ui-edupublisher" style="text-align: center;"><div>
+    <div class="grid-eq-3">
+        <div>
+            <a href="{{wwwroot}}/blocks/edupublisher/pages/list.php" class="btn btn-primary">
+                {{#str}} back {{/str}}
+            </a>
+        </div>
+        <div>
+            <i class="fa fa-sort"></i>&nbsp;
+            [<a href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel={{channel}}&sort=date">{{#str}} date {{/str}}</a>]
+            [<a href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel={{channel}}&sort=name">{{#str}} name {{/str}}</a>]
+        </div>
+        <div>
+            <i class="fa fa-filter"></i>&nbsp;<input type="text" value="{{filter}}" id="edupublisher-list-filter-{{uniqid}}" />
+        </div>
+    </div>
+
+    <table width="100%" class="generaltable" id="edupublisher-list-table-{{uniqid}}">
         <colgroup>
+            <col style="width: 50px; text-align: center;" />
+            <col style="width: 50px; text-align: center;" />
             <col style="width: 50px; text-align: center;" />
             <col style="text-align: center;" />
             {{#maintainer_default}} <col style="width: 30px; text-align: center;" span="2"/>{{/maintainer_default}}
             {{#maintainer_etapas}} <col style="width: 30px; text-align: center;" span="2"/>{{/maintainer_etapas}}
             {{#maintainer_eduthek}} <col style="width: 30px; text-align: center;" span="2"/>{{/maintainer_eduthek}}
-            <col style="width: 100px; text-align: center;" />
+            <col style="width: 120px; text-align: center;" />
         </colgroup>
         <thead>
             <tr>
+                <th class="cell c0">
+                    <input type="checkbox" value="off" onclick="$('#edupublisher-list-table-{{uniqid}} tbody tr:not(.exclamation)').toggleClass('hidden');" />
+                </th>
+                <th class="cell c1"><i class="fa fa-lock"></i></th>
                 <th class="cell c0">#</th>
                 <th class="cell c1">{{#str}} title, block_edupublisher {{/str}}</th>
                 {{#maintainer_default}}<th colspan="2">{{#str}} default_header, block_edupublisher {{/str}}</th>{{/maintainer_default}}
                 {{#maintainer_etapas}}<th colspan="2">{{#str}} etapas_header, block_edupublisher {{/str}}</th>{{/maintainer_etapas}}
                 {{#maintainer_eduthek}}<th colspan="2">{{#str}} eduthek_header, block_edupublisher {{/str}}</th>{{/maintainer_eduthek}}
-                <th width="100" class="cell lastcol">{{#str}} rating, block_edupublisher {{/str}}</th>
+                <th width="120" class="cell lastcol">{{#str}} rating, block_edupublisher {{/str}}</th>
             </tr>
         </thead>
         <tbody>
+
+
+{{#js}}
+    $('#edupublisher-list-filter-{{uniqid}}').on("keyup", function() {
+        var filter = $(this).val().toLowerCase();
+        $('#edupublisher-list-table-{{uniqid}} tbody tr').filter(function() {
+            $(this).toggle($(this).text().toLowerCase().indexOf(filter) > -1);
+        });
+    });
+{{/js}}
