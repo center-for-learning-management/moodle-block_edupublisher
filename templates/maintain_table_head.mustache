@@ -17,7 +17,7 @@
 }}
 <div id="edupublisher-list-{{uniqid}}" class="_ui-edupublisher" style="text-align: center;"><div>
     <div class="grid-eq-3">
-        <div>
+        <div style="text-align: left;">
             <a href="{{wwwroot}}/blocks/edupublisher/pages/list.php" class="btn btn-primary">
                 {{#str}} back {{/str}}
             </a>
@@ -27,7 +27,7 @@
             [<a href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel={{channel}}&sort=date">{{#str}} date {{/str}}</a>]
             [<a href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel={{channel}}&sort=name">{{#str}} name {{/str}}</a>]
         </div>
-        <div>
+        <div style="text-align: right;">
             <i class="fa fa-filter"></i>&nbsp;<input type="text" value="{{filter}}" id="edupublisher-list-filter-{{uniqid}}" />
         </div>
     </div>
