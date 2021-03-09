@@ -295,7 +295,7 @@ class externalsources {
                             $cmitem->id = $extcm->id;
                             $cmitem->coursemodule = $extcm->id;
                             require_once($CFG->dirroot . '/course/lib.php');
-                            //\update_module($cmitem);
+                            \update_module($cmitem);
                             if ($cmitem->section != $extcm->section) {
                                 // We have to set the old section here.
                                 $cmitem->section = $extcm->section;
