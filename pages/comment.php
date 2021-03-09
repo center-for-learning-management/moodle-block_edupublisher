@@ -105,7 +105,7 @@ if (!empty($id)) {
     $package = block_edupublisher::get_package($comments[0]->package);
 } else {
     $showsingle = false;
-    $comments = block_edupublisher::load_comments($packageid, $package->canmoderate, 'DESC');
+    $comments = block_edupublisher::load_comments($packageid, $package->canmoderate || $package->userid == $USER->id, 'DESC');
 }
 
 if (!$showsingle && isloggedin() && !isguestuser($USER)) {
