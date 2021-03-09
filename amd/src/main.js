@@ -370,8 +370,9 @@ define(
             var active = $('#active-' + uniqid).prop('checked') ? 1 : 0;
             var id = parseInt($('#id-' + uniqid).val());
             var name = $('#name-' + uniqid).val();
+            var mail = $('#mail-' + uniqid).val();
             if (name.length == 0) return;
-            var data = { active: active, id: id, name: name };
+            var data = { active: active, id: id, name: name, mail: mail };
             console.log(data, sender);
             AJAX.call([{
                 methodname: 'block_edupublisher_store_publisher',
@@ -400,6 +401,7 @@ define(
                                 var uniqid = $(form).attr('data-uniqid');
                                 $(form).find('#active-' + uniqid).prop('checked', publisher.active);
                                 $(form).find('#name-' + uniqid).val(publisher.name);
+                                $(form).find('#mail-' + uniqid).val(publisher.mail);
                             }
 
                         }

@@ -24,6 +24,9 @@
             <td>
                 {{#str}} name {{/str}}
             </td>
+            <td>
+                {{#str}} email {{/str}}
+            </td>
             <td width="50" align="center">
                 {{#str}} edit {{/str}}
             </td>
@@ -41,6 +44,10 @@
                 </td>
                 <td>
                     <input type="text" id="name-{{uniqid}}" value="{{name}}" placeholder="{{#str}} name {{/str}}"
+                           onblur="var inp = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.storePublisher('{{uniqid}}', inp); });" />
+                </td>
+                <td>
+                    <input type="text" id="mail-{{uniqid}}" value="{{mail}}" placeholder="{{#str}} email {{/str}}"
                            onblur="var inp = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.storePublisher('{{uniqid}}', inp); });" />
                 </td>
                 <td width="50" align="center" id="edit-{{uniqid}}">

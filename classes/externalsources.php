@@ -33,6 +33,12 @@ class externalsources {
 
         self::$debug = true; //($CFG->debug == 32767); // Developer debugging
 
+        $PUBLISHER = $DB->get_record('block_edupublisher_pub', array('id' => $external->pubid));
+        if (empty($PUBLISHER->id)) {
+            echo "<strong>Invalid publisher for external #$external->id</strong>\n";
+            return;
+        }
+
         $CATEGORY = intval(\get_config('block_edupublisher', 'category'));
         if (empty($CATEGORY)) {
             echo "<strong>eduPublisher has not configured a valid category</strong>\n";
@@ -122,7 +128,7 @@ class externalsources {
                 // Update course data.
                 $course = \get_course($courserec->courseid);
                 $course->fullname = self::shortenname($package['name']);
-                $course->summary = $package['name'];
+                $course->summary = $package['summary'] = $package['name'];
                 $DB->update_record('course', $course);
                 $DB->set_field('block_edupublisher_extpack', 'lasttimemodified', time(), array('id' => $courserec->id));
             }
@@ -289,7 +295,7 @@ class externalsources {
                             $cmitem->id = $extcm->id;
                             $cmitem->coursemodule = $extcm->id;
                             require_once($CFG->dirroot . '/course/lib.php');
-                            \update_module($cmitem);
+                            //\update_module($cmitem);
                             if ($cmitem->section != $extcm->section) {
                                 // We have to set the old section here.
                                 $cmitem->section = $extcm->section;
@@ -310,6 +316,79 @@ class externalsources {
                 }
 
                 rebuild_course_cache($course->id);
+
+                // Ensure package exists.
+                require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
+                include($CFG->dirroot . '/blocks/edupublisher/classes/channel_definition.php');
+                $channels = array_keys($definition);
+                $pubpackage = \block_edupublisher::get_package_by_courseid($course->id, IGNORE_MISSING);
+                if (self::$debug) echo "=====> Loading pubpackage data for course $course->id\n";
+                if (empty($pubpackage->id)) {
+                    if (self::$debug) echo "=====> Nothing found - getting pubpackage data from course $course->id\n";
+                    $pubpackage = \block_edupublisher::get_package_from_course($course->id);
+                    // The course itself is the package!
+                    $pubpackage->course = $pubpackage->sourcecourse;
+                    $pubpackage = \block_edupublisher::store_package($pubpackage);
+                }
+
+                if (self::$debug) echo "=====> Loading pubpackage data from xml\n";
+                // Translate certain xml fields.
+                $pubpackage->default_publishas = 1;
+                $pubpackage->commercial_publishas = 1;
+                $pubpackage->commercial_publisher = $PUBLISHER->id;
+                $pubpackage->commercial_published = $package['commercial_published'] = 1;
+                $pubpackage->commercial_shoplink = $package['commercial_shoplink'] = '';
+                $pubpackage->commercial_validation = $package['commercial_validation'] = 'external';
+
+                $pubpackage->default_title = $package['name'];
+                $pubpackage->default_summary = $package['summary'] = $package['name'];
+                $pubpackage->default_authorname = $package['author'] = $PUBLISHER->name;
+                $pubpackage->default_authormail = $package['mail'] = $PUBLISHER->mail;
+                if (in_array($package['licence'], array_keys($definition['default']['licence']['options']))) {
+                    $pubpackage->default_licence = $package['licence'];
+                } else {
+                    $pubpackage->default_licence = 'other';
+                }
+                if (!empty($package['previewimage'])) {
+                    $filerecord = (object) array(
+                        'contextid' => $context->id,
+                        'component' => 'block_edupublisher',
+                        'filearea' => 'default_image',
+                        'itemid' => $pubpackage->id,
+                    );
+
+                    $curldata = $external;
+                    $curldata->url = $package['previewimage'];
+                    if (self::$debug) echo "=======> Loading course image from $curldata->url for pubpackage info\n";
+
+                    $pubpackage->default_image = self::filearea_replace($curldata, $filerecord);
+                }
+
+                // Enter additional metadata provided from xml-file
+                $required_missing = array();
+                foreach ($channels as $channel) {
+                    $fields = array_keys($definition[$channel]);
+                    foreach ($fields as $field) {
+                        if (!empty($package->{$channel . '_' . $field})) {
+                            if (self::$debug) echo "=======> Set $channel_$field from xml\n";
+                            $pubpackage->{$channel . '_' . $field} = $package[$channel . '_' . $field];
+                        }
+                        if ($channel == 'default' && !empty($package->{$field})) {
+                            if (self::$debug) echo "=======> Set $channel_$field from xml\n";
+                            $pubpackage->{$channel . '_' . $field} = $package[$field];
+                        }
+                        if (!empty($pubpackage->{$channel . '_publishas'}) && !empty($definition[$channel][$field]['required']) && empty($pubpackage->{$channel . '_' . $field})) {
+                            $required_missing[] = $channel . '_' . $field;
+                        }
+                    }
+                }
+
+                \block_edupublisher::store_package($pubpackage);
+                if (self::$debug) echo "=====> Store pubpackage\n";
+                if (count($required_missing) > 0) {
+                    if (self::$debug) echo "=====> WARNING: Missing data " . implode(", ", $required_missing) . "</strong>\n";
+                }
+
             }
 
         }
@@ -389,6 +468,8 @@ class externalsources {
             echo "=========> Store image as $filename$filesuffix\n";
             $fs = get_file_storage();
             $fs->create_file_from_pathname($filerecord, $tmppath);
+            $file = $fs->get_file($filerecord->contextid, $filerecord->component, $filerecord->filearea, $filerecord->itemid, $filerecord->filepath, $filerecord->filename);
+            return \moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename(), false)->__toString();
         }
     }
     /**

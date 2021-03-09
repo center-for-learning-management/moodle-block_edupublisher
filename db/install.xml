@@ -87,6 +87,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="name" TYPE="char" LENGTH="250" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="mail" TYPE="char" LENGTH="250" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="active" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false" COMMENT="triggers if active or not"/>
       </FIELDS>
       <KEYS>

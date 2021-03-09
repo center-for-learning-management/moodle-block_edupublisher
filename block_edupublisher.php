@@ -360,9 +360,9 @@ class block_edupublisher extends block_base {
      * Gets an existing package by its courseid.
      * @param courseid the courseid.
      */
-    public static function get_package_by_courseid($courseid) {
+    public static function get_package_by_courseid($courseid, $strictness = MUST_EXIST) {
         global $DB;
-        $item = $DB->get_record('block_edupublisher_packages', array('course' => $courseid), '*', MUST_EXIST);
+        $item = $DB->get_record('block_edupublisher_packages', array('course' => $courseid), '*', $strictness);
         if (!empty($item->id)) {
             return self::get_package($item->id);
         }
@@ -1043,11 +1043,11 @@ class block_edupublisher extends block_base {
                 if (isset($package->{$dbfield}) && (is_array($package->{$dbfield}) || !empty($package->{$dbfield})  || is_numeric($package->{$dbfield}))) {
                     unset($allowedoptions);
                     unset($allowedkeys);
-                    if (isset($definition[$channel][$field]['options'])) {
+                    if (!empty($definition[$channel][$field]['options'])) {
                         $allowedoptions = $definition[$channel][$field]['options'];
                         $allowedkeys = array_keys($allowedoptions);
                     }
-                    if (isset($definition[$channel][$field]['multiple']) && $definition[$channel][$field]['multiple']) {
+                    if (!empty($definition[$channel][$field]['multiple'])) {
                         //$options = array_keys($definition[$channel][$field]['options']);
                         //error_log($dbfield . ' => ' . $package->{$dbfield});
                         if (!is_array($package->{$dbfield})) {

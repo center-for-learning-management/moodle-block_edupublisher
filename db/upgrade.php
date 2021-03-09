@@ -400,6 +400,18 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         // Edupublisher savepoint reached.
         upgrade_block_savepoint(true, 2021011801, 'edupublisher');
     }
+    if ($oldversion < 2021030901) {
+        // Define index packageid_externalid (unique) to be added to block_edupublisher_extsect.
+        $table = new xmldb_table('block_edupublisher_pub');
+        $field = new xmldb_field('mail', XMLDB_TYPE_CHAR, '250', null, null, null, '', 'name');
+
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2021030901, 'edupublisher');
+    }
 
 
     return true;

@@ -572,7 +572,7 @@ class block_edupublisher_external extends external_api {
 
                 if (block_edupublisher::uses_eduvidual()) {
                     // This is some functionality specific to a plugin that is not published!
-                    $org = \local_eduvidual\locallib::get_org_by_courseid($params['courseid']);
+                    $org = \local_eduvidual\locallib::get_org_by_courseid($params['courseid'], IGNORE_MISSING);
                     $orgid = !empty($org->orgid) ? $org->orgid : 0;
                 }
                 $sql = "SELECT *
@@ -594,7 +594,7 @@ class block_edupublisher_external extends external_api {
                 //$reply['sql'] = $sql;
                 //$reply['params'] = array($package->id, $USER->id, $params['courseid'], $orgid);
                 $licence = $DB->get_records_sql($sql, array($package->id, $USER->id, $params['courseid'], $orgid));
-                $addpackage = (!empty($licence->id) && $licence->id > 0);
+                $addpackage = ($package->commercial_validation == 'external' || (!empty($licence->id) && $licence->id > 0));
             }
             if ($addpackage) {
                 $reply['relevance'][$relevant->cnt][] = $relevant->package;
@@ -620,6 +620,7 @@ class block_edupublisher_external extends external_api {
             'active' => new external_value(PARAM_INT, 'whether it is active (1) or not (0)'),
             'id' => new external_value(PARAM_INT, 'id of publisher, if 0 will create new one'),
             'name' => new external_value(PARAM_TEXT, 'name of publisher'),
+            'mail' => new external_value(PARAM_EMAIL, 'email of publisher', VALUE_OPTIONAL),
         ));
     }
 
@@ -627,11 +628,11 @@ class block_edupublisher_external extends external_api {
      * Store data of a publisher
      * @return list of packages as json encoded string.
      */
-    public static function store_publisher($active, $id, $name) {
+    public static function store_publisher($active, $id, $name, $mail) {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         if (block_edupublisher::is_admin()) {
-            $params = self::validate_parameters(self::store_publisher_parameters(), array('active' => $active, 'id' => $id, 'name' => $name));
+            $params = self::validate_parameters(self::store_publisher_parameters(), array('active' => $active, 'id' => $id, 'name' => $name, 'mail' => $mail));
 
             if (!empty($params['name'])) {
                 if ($params['id'] > 0) {
@@ -641,6 +642,7 @@ class block_edupublisher_external extends external_api {
                 }
                 $obj->active = $params['active'];
                 $obj->name = $params['name'];
+                $obj->mail = $params['mail'];
                 if ($obj->id > 0) {
                     $DB->update_record('block_edupublisher_pub', $obj);
                 } else {
