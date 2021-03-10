@@ -244,7 +244,7 @@ class externalsources {
                     foreach ($useitems as $useitem) {
                         $reference = $useitem['@attributes']['reference'];
                         $XMLITEM = $ITEMS[$reference];
-                        $DBITEM = $DBITEMS[$reference];
+                        $DBITEM = @$DBITEMS[$reference];
 
                         $type = $XMLITEM['@attributes']['type'];
 
