@@ -101,15 +101,26 @@ class externalsources {
                 $course->fullname = self::shortenname($package['name']);
                 $course->summary = $package['name'];
                 $course->visible = 0;
-                $course->shortname = '[p' . $external->pubid . '-' . $packageid . '-' . md5(date('Ymd')) . ']';
+                $course->shortname = '[p' . $external->pubid . '-' . $packageid . '-' . md5(date('YmdHis')) . ']';
                 $course->idnumber = '';
                 $course->format = $DEFAULT_FORMAT;
                 $course->enablecompletion = 1;
                 $course->showgrades = 1;
                 $course->showreports = 1;
+                $course->newsitems = 0;
+                $course->enablecompletion = 1;
+
                 require_once($CFG->dirroot . '/course/lib.php');
                 $course = \create_course($course);
                 if (!empty($course->id)) {
+                    // Set format-specific settings
+                    switch ($course->format) {
+                        case 'tiles':
+                            // Show progress on each tile.
+                            $DB->set_field('course_format_options', 'value', 2, array('courseid' => $course->id, 'format' => 'tiles', 'name' => 'courseshowtileprogress'));
+                        break;
+                    }
+
                     // Make this course really empty.
                     require_once($CFG->dirroot . '/course/modlib.php');
                     $cms = $DB->get_records('course_modules', array('course' => $course->id));
@@ -133,26 +144,19 @@ class externalsources {
                 $DB->set_field('block_edupublisher_extpack', 'lasttimemodified', time(), array('id' => $courserec->id));
             }
 
-            /*
             // Adjust grading.
             require_once($CFG->dirroot . '/lib/grade/grade_category.php');
             require_once($CFG->dirroot . '/lib/grade/grade_item.php');
             require_once($CFG->dirroot . '/lib/gradelib.php');
             $gc = \grade_category::fetch(array('courseid'=>$course->id));
-            $gradeinfo = (object) array('id' => $gc->id, 'aggregation' => 11, 'aggregateonlygraded' => 1, 'courseid' => $course->id);
+            $gradeinfo = (object) array('id' => $gc->id, 'aggregation' => 10, 'aggregateonlygraded' => 1, 'courseid' => $course->id);
             \grade_category::set_properties($gc, $gradeinfo);
             \rebuild_course_cache($course->id);
-            return;
-            */
-
-            // @todo fields licence and author are required when publishing the package.
 
             if (self::$debug) echo "=====> Course is #<a href=\"$CFG->wwwroot/course/view.php?id=$course->id\">$course->id</a>\n";
             if (self::$debug) echo "=======> Timelastmodified $timelastmodified || $courserec->lasttimemodified < $timelastmodified\n";
             if (empty($timelastmodified) || $courserec->lasttimemodified < $timelastmodified) {
                 $context = \context_course::instance($course->id);
-
-
                 if (!empty($package['previewimage'])) {
                     $filerecord = (object) array(
                         'contextid' => $context->id,
@@ -193,14 +197,21 @@ class externalsources {
                 }
                 \rebuild_course_cache($course->id);
 
-
                 // Ensure enough sections are in course.
                 $xmlsections = self::flattened_element($package, 'usesections', 'usesection');
                 $amount = count($xmlsections);
-                if (self::$debug) echo "=======> Ensure that $amount sections are in course\n";
-                \course_create_sections_if_missing($course, $amount);
-
-                $sql = "SELECT s.section,s.* FROM {course_sections} s WHERE s.course=? ORDER BY s.section ASC";
+                if (self::$debug) echo "=======> Ensure that $amount sections are in course $course->id\n";
+                $sql = "SELECT s.section,s.*
+                            FROM {course_sections} s
+                            WHERE s.course=?
+                            ORDER BY s.section ASC";
+                $dbsections = $DB->get_records_sql($sql, array($course->id));
+                for ($a = 0; $a <= $amount; $a++) {
+                    if (empty($dbsections[$a])) {
+                        $dbsections[$a] = \course_create_section($course, $a);
+                    }
+                }
+                \rebuild_course_cache($course->id);
                 $dbsections = $DB->get_records_sql($sql, array($course->id));
 
                 foreach ($xmlsections as $xmlnr => $xmlsection) {
@@ -214,7 +225,7 @@ class externalsources {
                     $DBSECTION->name = $XMLSECTION['name'];
 
                     if (self::$debug) echo "=========> Update Section $DBSECTION->name (#$xmlnr) and id $DBSECTION->id\n";
-                    \course_update_section($course, $DBSECTION, $DBSECTION);
+                    \course_update_section($course, $DBSECTION, array('name' => $XMLSECTION['name']));
 
                     if (!empty($XMLSECTION['previewimage'])) {
                         $filerecord = (object) array(
@@ -255,7 +266,7 @@ class externalsources {
                             // Item is known, but may have been deleted.
                             $extcm = \get_coursemodule_from_id($type, $DBITEM->cmid, 0, false, IGNORE_MISSING);
                             if (empty($extcm->id)) {
-                                if (self::$debug) echo "=============> Item was known but is now removed\n";
+                                if (self::$debug) echo "=============> Item $DBITEM->id cmid $DBITEM->cmid externalid $DBITEM->externalid was known but is now removed\n";
                                 $DB->delete_records('block_edupublisher_extitem', array('id' => $DBITEM->id));
                                 unset($DBITEM);
                             }
@@ -263,7 +274,7 @@ class externalsources {
 
                         $data = (object)$item;
                         $data->course = $course->id;
-                        $data->section = $DBSECTION->id;
+                        $data->section = $DBSECTION->section;
                         $data->name = $XMLITEM['name'];
                         switch ($type) {
                             case 'lti':
@@ -299,12 +310,13 @@ class externalsources {
                             require_once($CFG->dirroot . '/course/lib.php');
                             if ($cmitem->section != $extcm->section) {
                                 // We have to set the old section here.
-                                $cmitem->section = $extcm->section;
                                 if (self::$debug) echo "=============> Move item $cmitem->id from $extcm->section to $cmitem->section\n";
+                                $cmitem->section = $extcm->section;
                                 \moveto_module($cmitem, $DBSECTION);
                             }
                             \update_module($cmitem);
                         }
+                        $DB->set_field('grade_items', 'grademax', 100, array('courseid' => $course->id, 'itemtype' => 'course'));
                     }
                     // Rebuild cache after each section.
                     rebuild_course_cache($course->id);

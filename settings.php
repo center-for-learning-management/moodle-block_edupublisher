@@ -83,7 +83,7 @@ if ($ADMIN->fulltree) {
     $options = array();
     $formatplugins = \core_plugin_manager::instance()->get_plugins_of_type('format');
     foreach ($formatplugins as $formatplugin) {
-        $options[] = $formatplugin->name;
+        $options[$formatplugin->name] = get_string('pluginname', 'format_' . $formatplugin->name);
     }
 
     //$sortorder = array_flip(array_keys($formatplugins));
@@ -94,7 +94,7 @@ if ($ADMIN->fulltree) {
             get_string('externalsources:courseformat:description', 'block_edupublisher'),
             'topics',
             $options,
-            PARAM_TEXT
+            PARAM_ALPHANUM
         )
     );
 }

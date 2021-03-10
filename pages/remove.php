@@ -61,6 +61,12 @@ if ($package->candelete) {
         * $DB->delete_records('block_edupublisher_metadata', array('package' => $id));
         * $DB->delete_records('block_edupublisher_packages', array('id' => $id));
         **/
+
+        // Check if this is an external source.
+        $DB->delete_records('block_edupublisher_extitem', array('packageid' => $package->id));
+        $DB->delete_records('block_edupublisher_extsect', array('packageid' => $package->id));
+        $DB->delete_records('block_edupublisher_extpack', array('packageid' => $package->id));
+
         $p = $DB->get_record('block_edupublisher_packages', array('id' => $package->id));
         $p->deleted = time();
         $p->modified = time();
