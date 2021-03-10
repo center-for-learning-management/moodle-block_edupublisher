@@ -239,7 +239,9 @@ class externalsources {
                         $useitems = array($useitems);
                     }
 
-                    $sql = "SELECT i.externalid,i.* FROM {block_edupublisher_extitem} i WHERE packageid=?";
+                    $sql = "SELECT i.externalid,i.*
+                                FROM {block_edupublisher_extitem} i
+                                WHERE packageid=?";
                     $DBITEMS = $DB->get_records_sql($sql, array($packageid));
                     foreach ($useitems as $useitem) {
                         $reference = $useitem['@attributes']['reference'];
@@ -295,15 +297,17 @@ class externalsources {
                             $cmitem->id = $extcm->id;
                             $cmitem->coursemodule = $extcm->id;
                             require_once($CFG->dirroot . '/course/lib.php');
-                            \update_module($cmitem);
                             if ($cmitem->section != $extcm->section) {
                                 // We have to set the old section here.
                                 $cmitem->section = $extcm->section;
                                 if (self::$debug) echo "=============> Move item $cmitem->id from $extcm->section to $cmitem->section\n";
                                 \moveto_module($cmitem, $DBSECTION);
                             }
+                            \update_module($cmitem);
                         }
                     }
+                    // Rebuild cache after each section.
+                    rebuild_course_cache($course->id);
                 }
 
                 // Remove unneeded sections.
@@ -314,7 +318,7 @@ class externalsources {
                     if (self::$debug) echo "=========> Remove Section $removesection->name (#$removesection->section) and id $removesection->id\n";
                     \course_delete_section($course, $removesection, true);
                 }
-
+                // Rebuild cache after deleting sections.
                 rebuild_course_cache($course->id);
 
                 // Ensure package exists.
