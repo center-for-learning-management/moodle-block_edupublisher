@@ -28,30 +28,6 @@ require_once($CFG->dirroot . '/blocks/moodleblock.class.php');
 
 class block_edupublisher extends block_base {
     /**
-     * Ensures that within a context an instance of block_edupublisher exists.
-     * @param
-    **/
-    public static function add_to_context($context) {
-        global $DB;
-        $count = $DB->count_records('block_instances', array('blockname' => 'edupublisher', 'parentcontextid' => $context->id));
-        if ($count == 0) {
-            // Create edupublisher-block in targetcourse.
-            $blockdata = (object) array(
-                'blockname' => 'edupublisher',
-                'parentcontextid' => $context->id,
-                'showinsubcontexts' => 1,
-                'requiredbytheme' => 0,
-                'pagetypepattern' => 'course-view-*',
-                'defaultregion' => 'side-post',
-                'defaultweight' => -10,
-                'configdata' => '',
-                'timecreated' => time(),
-                'timemodified' => time(),
-            );
-            $DB->insert_record('block_instances', $blockdata);
-        }
-    }
-    /**
      * return package item as XML
      * @param package to print.
      * @param includechannels list of channel-data to include, * as first element means 'all'.

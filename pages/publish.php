@@ -329,8 +329,8 @@ if ($package->id > 0 && $PREVENTFORM) {
         if ($DOPOSTTASKS) {
             // Create edupublisher-block in sourcecontext & targetcourse.
             $sourcecontext = context_course::instance($importcourseid);
-            block_edupublisher::add_to_context($targetcontext);
-            block_edupublisher::add_to_context($sourcecontext);
+            \block_edupublisher\lib::add_to_context($targetcontext);
+            \block_edupublisher\lib::add_to_context($sourcecontext);
 
             // Flatten sections and remove empty ones.
             $sections = $DB->get_records('course_sections', array('course' => $targetcourse->id));

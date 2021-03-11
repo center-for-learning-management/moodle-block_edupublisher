@@ -30,7 +30,6 @@ class externalsources {
 
     public static function do_sync($external) {
         global $CFG, $DB;
-
         self::$debug = true; //($CFG->debug == 32767); // Developer debugging
 
         $PUBLISHER = $DB->get_record('block_edupublisher_pub', array('id' => $external->pubid));
@@ -143,6 +142,8 @@ class externalsources {
                 $DB->update_record('course', $course);
                 $DB->set_field('block_edupublisher_extpack', 'lasttimemodified', time(), array('id' => $courserec->id));
             }
+            $coursectx = \context_course::instance($course->id);
+            \block_edupublisher\lib::add_to_context($coursectx);
 
             // Adjust grading.
             require_once($CFG->dirroot . '/lib/grade/grade_category.php');
