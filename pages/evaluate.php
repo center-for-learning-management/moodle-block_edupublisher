@@ -27,13 +27,11 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 require_once($CFG->dirroot . '/blocks/edupublisher/classes/etapas_evaluation_form.php');
 
 $packageid = required_param('packageid', PARAM_INT);
-
-$id = optional_param('id', 0, PARAM_INT);
 $perma = optional_param('perma', '', PARAM_TEXT);
 
 $package = \block_edupublisher::get_package($packageid, false);
 
-$PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/evaluate.php', array('id' => $id, 'packageid' => $packageid, 'perma' => $perma)));
+$PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/evaluate.php', array('packageid' => $packageid, 'perma' => $perma)));
 
 $context = \context_course::instance($package->course);
 $PAGE->set_context($context);
@@ -51,6 +49,8 @@ if (!has_capability('block/edupublisher:canevaluate', \context_system::instance(
     ));
 } else {
     //Instantiate etapas_evaluation_form
+    $backurl = new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $packageid));
+    echo "<a href=\"$backurl\" class=\"btn btn-secondary\">" . get_string("back") . "</a>\n";
     echo "<h3>$package->title</h3>\n";
     $package->packageid = $package->id;
     $mform = new block_edupublisher\etapas_evaluation_form();
@@ -60,12 +60,33 @@ if (!has_capability('block/edupublisher:canevaluate', \context_system::instance(
     if ($mform->is_cancelled()) {
         redirect($PAGE->url);
     } else if ($dataobject = $mform->get_data()) {
-        $DB->insert_record('block_edupublisher_evaluatio', $dataobject);
-        echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
-            'type' => 'success',
-            'content' => get_string('saved_successfully', 'block_edupublisher'),
-            'url' => new moodle_url('/blocks/edupublisher/pages/evaluate.php', array('id' => $id, 'packageid' => $packageid, 'perma' => $perma)),
-        ));
+        $dataobject->userid = $USER->id;
+        $dataobject->improvement_specification = nl2br($dataobject->improvement_specification);
+        $dataobject->comments = nl2br($dataobject->comments);
+        $dataobject->timecreated = time();
+        if (empty($dataobject->evaluated_on)) {
+            $dataobject->evaluated_on = time();
+        }
+        $id = $DB->insert_record('block_edupublisher_evaluatio', $dataobject);
+        $backurl = new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $packageid));
+        if (!empty($id)) {
+            require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
+            $sendto = array('allmaintainers', 'author', 'self');
+            $linkurl = "/blocks/edupublisher/pages/evaluation.php?packageid=$packageid&id=$id";
+            \block_edupublisher::store_comment($package, 'comment:evaluation:added', $sendto, true, true, "etapas", $linkurl);
+            echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
+                'type' => 'success',
+                'content' => get_string('successfully_saved_evaluation', 'block_edupublisher'),
+                'url' => $backurl->__toString(),
+            ));
+        } else {
+            echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
+                'type' => 'danger',
+                'content' => get_string('error'),
+                'url' => $backurl->__toString(),
+            ));
+        }
+
     } else {
         $mform->display();
     }

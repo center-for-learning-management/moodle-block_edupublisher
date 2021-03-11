@@ -16,17 +16,18 @@
 
 /**
  * @package    block_edupublisher
- * @copyright  2018 onwards Digital Education Society (http://www.dibig.at)
+ * @copyright  2018-2019 Digital Education Society (http://www.dibig.at)
+ *             2020 onwards Center for Learning Management (http://www.lernmanagement.at)
  * @author     Robert Schrenk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2021030901;
+$plugin->version  = 2021031103;
 $plugin->requires = 2014051200;
 $plugin->component = 'block_edupublisher';
-$plugin->release = '1.3 (Build: 2021030901)';
+$plugin->release = '1.3 (Build: 2021031103)';
 $plugin->maturity = MATURITY_STABLE;
 
 $plugin->dependencies = array(

@@ -557,6 +557,9 @@ class block_edupublisher extends block_base {
         $comment = $DB->get_record('block_edupublisher_comments', array('id' => $id));
         $user = $DB->get_record('user', array('id' => $comment->userid));
         $comment->userfullname = fullname($user);
+        if (!empty($comment->linkurl)) {
+            $comment->linkurl = new \moodle_url($comment->linkurl);
+        }
         $ctx = context_user::instance($comment->userid);
         $comment->userpictureurl = $CFG->wwwroot . '/pluginfile.php/' . $ctx->id . '/user/icon';
         $comment->wwwroot = $CFG->wwwroot;
@@ -810,8 +813,9 @@ class block_edupublisher extends block_base {
      * @param sendto-identifiers array of identifiers how should be notified
      * @param commentlocalize languageidentifier for sending the comment localized
      * @param channel whether this comment refers to a particular channel.
+     * @param linkurl if comment should link to a url.
      */
-    public static function store_comment($package, $text, $sendto = array(), $isautocomment = false, $ispublic = 0, $channel = "") {
+    public static function store_comment($package, $text, $sendto = array(), $isautocomment = false, $ispublic = 0, $channel = "", $linkurl = "") {
         global $DB, $OUTPUT, $USER;
         if (isloggedin() && !isguestuser($USER)) {
             $comment = (object)array(
@@ -823,6 +827,7 @@ class block_edupublisher extends block_base {
                 'package' => $package->id,
                 'permahash' => md5(date('YmdHis') . time() . $USER->firstname),
                 'userid' => $USER->id,
+                'linkurl' => $linkurl,
             );
             $comment->id = $DB->insert_record('block_edupublisher_comments', $comment);
 
@@ -881,6 +886,9 @@ class block_edupublisher extends block_base {
                 foreach($recipients AS $_recipient) {
                     $recipient = $DB->get_record('user', array('id' => $_recipient));
                     if (!isset($subjects[$recipient->lang])) {
+                        if (!empty($comment->linkurl)) {
+                            $package->commentlink = $comment->linkurl->__toString();
+                        }
                         if ($isautocomment) {
                             $comments[$recipient->lang] = get_string_manager()->get_string($text, 'block_edupublisher', $package, $recipient->lang);
                             $comments[$recipient->lang] .= get_string_manager()->get_string('comment:notify:autotext', 'block_edupublisher', $package, $recipient->lang);

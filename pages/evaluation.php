@@ -42,12 +42,6 @@ $PAGE->set_pagelayout('incourse');
 
 block_edupublisher::print_app_header();
 
-if (has_capability('block/edupublisher:canevaluate', \context_system::instance())) {
-    // Attach wwwroot of this site for the template.
-    $package->wwwroot = $CFG->wwwroot;
-    echo $OUTPUT->render_from_template('block_edupublisher/evaluation_createbtn', $package);
-}
-
 if (!has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
     echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
         'type' => 'danger',
@@ -55,7 +49,48 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
         'url' => $CFG->wwwroot . '/my',
     ));
 } else {
-    // List existing evaluations here.
+    if (!empty($id)) {
+        $backurl = new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $packageid));
+        echo "<a href=\"$backurl\" class=\"btn btn-secondary\">" . get_string("back") . "</a>\n";
+        echo "<h3>$package->title</h3>\n";
+
+        $evaluation = $DB->get_record('block_edupublisher_evaluatio', array('packageid' => $packageid, 'id' => $id));
+        if (!empty($evaluation->id)) {
+            $fromuser = \core_user::get_user($evaluation->userid);
+            $evaluation->userfullname = \fullname($fromuser);
+            $usercontext = \context_user::instance($evaluation->userid);
+            $evaluation->userpicture = new \moodle_url('/pluginfile.php/' . $usercontext->id . '/user/icon');
+            $evaluation->userurl = new \moodle_url('/user/profile.php', array('id' => $evaluation->userid));
+            $evaluation->linkurl = new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $packageid, 'id' => $evaluation->id));
+            $evaluation->evaluated_on_readable = date("Y-m-d", $evaluation->evaluated_on);
+            $evaluation->technology = get_string($evaluation->technology_application, 'block_edupublisher');
+            echo $OUTPUT->render_from_template('block_edupublisher/evaluation_single', $evaluation);
+        }
+    } else {
+        $backurl = new \moodle_url('/course/view.php', array('id' => $package->course));
+        echo "<a href=\"$backurl\" class=\"btn btn-secondary\">" . get_string("back") . "</a>\n";
+        echo "<h3>$package->title</h3>\n";
+
+        if (has_capability('block/edupublisher:canevaluate', \context_system::instance())) {
+            // Attach wwwroot of this site for the template.
+            $package->wwwroot = $CFG->wwwroot;
+            echo $OUTPUT->render_from_template('block_edupublisher/evaluation_createbtn', $package);
+        }
+        // List existing evaluations here.
+        $evaluations = array_values($DB->get_records('block_edupublisher_evaluatio', array('packageid' => $packageid), 'timecreated DESC'));
+        foreach ($evaluations as &$evaluation) {
+            $fromuser = \core_user::get_user($evaluation->userid);
+            $evaluation->userfullname = \fullname($fromuser);
+            $usercontext = \context_user::instance($evaluation->userid);
+            $evaluation->userpicture = new \moodle_url('/pluginfile.php/' . $usercontext->id . '/user/icon');
+            $evaluation->userurl = new \moodle_url('/user/profile.php', array('id' => $evaluation->userid));
+            $evaluation->linkurl = new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $packageid, 'id' => $evaluation->id));
+            $evaluation->evaluated_on_readable = date("Y-m-d", $evaluation->timecreated); // $evaluation->evaluated_on
+        }
+        if (count($evaluations) > 0) {
+            echo $OUTPUT->render_from_template('block_edupublisher/evaluation_list', array('evaluations' => $evaluations));
+        }
+    }
 }
 
 block_edupublisher::print_app_footer();

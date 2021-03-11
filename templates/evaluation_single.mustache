@@ -1,0 +1,83 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+
+}}
+
+<div id="edupublisher-evaluationsingle-{{id}}" class="_ui-edupublisher"><div>
+    <div class="row">
+        <div class="col-md-3" style="display: table-cell; text-align: center; vertical-align: middle;">
+            <a href="{{{userurl}}}" target="_blank">
+                <img src="{{userpicture}}" style="width: 100px;" />
+            </a>
+        </div>
+        <div class="col-md-9">
+            <figure class="quote">
+                <blockquote style="font-size: 2em; font-style: italic;">
+                    {{technology}}
+                </blockquote>
+                <figcaption>
+                    &mdash;
+                    <a href="{{{userurl}}}" target="_blank">
+                        {{userfullname}}, <cite>{{evaluated_at}}</cite>, {{evaluated_on_readable}}
+                    </a>
+                </figcaption>
+            </figure>
+        </div>
+    </div>
+
+    <h4>{{#str}} evaluation_general, block_edupublisher{{/str}}</h4>
+    <table class="generaltable">
+        <tr>
+            <td width="50" style="text-align: center; font-weight: bold; font-size: 4em;">
+                {{comprehensible_description}}
+            </td>
+            <td style="vertical-align: middle;">
+                {{#str}} rating_coherent, block_edupublisher {{/str}}
+            </td>
+        </tr>
+        <tr>
+            <td width="50" style="text-align: center; font-weight: bold; font-size: 4em;">
+                {{suitable_workflow}}
+            </td>
+            <td style="vertical-align: middle;">
+                {{#str}} rating_plausible, block_edupublisher {{/str}}
+            </td>
+        </tr>
+        <tr>
+            <td width="50" style="text-align: center; font-weight: bold; font-size: 4em;">
+                {{reasonable_preconditions}}
+            </td>
+            <td style="vertical-align: middle;">
+                {{#str}} rating_preconditions, block_edupublisher {{/str}}
+            </td>
+        </tr>
+        <tr>
+            <td width="50" style="text-align: center; font-weight: bold; font-size: 4em;">
+                {{correct_content}}
+            </td>
+            <td style="vertical-align: middle;">
+                {{#str}} rating_content, block_edupublisher {{/str}}
+            </td>
+        </tr>
+    </table>
+    <h4>{{#str}} reason, block_edupublisher {{/str}}</h4>
+    <p>{{{improvement_specification}}}</p>
+
+    <h4>{{#str}} feedback, block_edupublisher {{/str}}</h4>
+    <p>{{{comments}}}</p>
+
+
+</div></div><!-- ui-edupublisher -->

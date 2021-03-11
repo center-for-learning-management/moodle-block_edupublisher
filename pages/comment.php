@@ -17,6 +17,8 @@
 /**
  * @package    block_edupublisher
  * @copyright  2018 Digital Education Society (http://www.dibig.at)
+ *             2020 onwards Center for Learningmanagement (http://www.lernmanagement.at)
+ * @author     Robert Schrenk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -157,9 +159,13 @@ if (count($comments) == 0) {
     require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
     foreach ($comments AS $comment) {
         if ($comment->isautocomment) {
+            if (!empty($comment->linkurl)) {
+                $package->commentlink = $comment->linkurl->__toString();
+            }
             $comment->content = get_string($comment->content, 'block_edupublisher', $package);
             $comment->content .= get_string('comment:notify:autotext', 'block_edupublisher', $package);
         }
+
         echo $OUTPUT->render_from_template(
             'block_edupublisher/package_comment',
             $comment

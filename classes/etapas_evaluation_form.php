@@ -16,7 +16,7 @@
 
 /**
  * @package    block_edupublisher
- * @copyright  2019 Zentrum für Lernmanagement
+ * @copyright  2019+ Zentrum für Lernmanagement
  * @author     Julia Laßnig & Robert Schrenk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -27,46 +27,20 @@ defined('MOODLE_INTERNAL') || die;
 require_once($CFG->libdir . "/formslib.php");
 class etapas_evaluation_form extends \moodleform {
     function definition() {
-        global $USER;
-        if(isloggedin()  && !isguestuser()) {
-            $first_name = $USER->firstname;
-            $first_name_value = $first_name;
-        }
-        else {
-            $first_name = get_string('evaluator_first_name', 'block_edupublisher');
-            $first_name_value = '';
-        }
-
-        if(isloggedin()  && !isguestuser()) {
-            $last_name = $USER->lastname;
-            $last_name_value = $last_name;
-        }
-        else {
-            $last_name = get_string('evaluator_last_name', 'block_edupublisher');
-            $last_name_value = '';
-        }
-
-        if(isloggedin()  && !isguestuser()) {
-            $email = $USER->email;
-            $email_value = $email;
-        }
-        else {
-            $email = get_string('evaluator_email', 'block_edupublisher');
-            $email_value = '';
-        }
-
         $mform = $this->_form;
 
         $mform->addElement('hidden', 'packageid', 0);
         $mform->setType('packageid', PARAM_INT);
 
+        /*
         $mform->addElement('date_selector', 'evaluated_on', get_string('evaluated_on', "block_edupublisher"));
         $mform->addRule('evaluated_on', get_string('required', 'block_edupublisher'), 'required', 'extraruledata', 'client', false, false);
+        */
 
-        $attributes=array('size' => '150',
-                          'placeholder'=>get_string('name_of_school', 'block_edupublisher'),
-                          'maxlength' => '150',
-                          'required' => 'required');
+        $attributes = array(
+            'size' => '150', 'maxlength' => '150', 'required' => 'required',
+            'placeholder' => get_string('name_of_school', 'block_edupublisher'),
+        );
         $mform->addElement('text', 'evaluated_at', get_string('school', 'block_edupublisher'), $attributes);
         $mform->setType('evaluated_at', PARAM_TEXT);
         $mform->addRule('evaluated_at', get_string('required', 'block_edupublisher'), 'required', 'extraruledata', 'client', false, false);
@@ -127,19 +101,32 @@ class etapas_evaluation_form extends \moodleform {
         $mform->addGroup($ratingcontent, 'correct_content', '', array(' '), false);
         $mform->addRule('correct_content', get_string('required'), 'required', 'extraruledata', 'client', false, false);
 
-        $technology = array();
-        $technology[] = $mform->createElement('radio', 'substitution', '',
-            get_string('substitution', 'block_edupublisher'), 'substitution');
-        $technology[] = $mform->createElement('radio', 'augmentation', '',
-            get_string('augmentation', 'block_edupublisher'), 'augmentation');
-        $technology[] = $mform->createElement('radio', 'modification', '',
-            get_string('modification', 'block_edupublisher'), 'modification');
-        $technology[] = $mform->createElement('radio', 'redefinition', '',
-            get_string('redefinition', 'block_edupublisher'), 'redefinition');
+        $mform->createElement(
+            'radio', 'substitution', get_string('technology', "block_edupublisher"),
+            get_string('substitution', 'block_edupublisher'), 'substitution'
+        );
 
-        $mform->addGroup($technology, 'technology_application', get_string('technology', "block_edupublisher"), array(' '), false);
-        $mform->addHelpButton('technology_application', 'technology', 'block_edupublisher');
-        $mform->addRule('technology_application', get_string('required'), 'required', 'extraruledata', 'client', false, false);
+        $technology = array(
+            $mform->createElement(
+                'radio', 'technology_application', '', get_string('substitution', 'block_edupublisher'),
+                'substitution', array()
+            ),
+            $mform->createElement(
+                'radio', 'technology_application', '', get_string('augmentation', 'block_edupublisher'),
+                'augmentation', array()
+            ),
+            $mform->createElement(
+                'radio', 'technology_application', '', get_string('modification', 'block_edupublisher'),
+                'modification', array()
+            ),
+            $mform->createElement(
+                'radio', 'technology_application', '', get_string('redefinition', 'block_edupublisher'),
+                'redefinition', array()
+            )
+        );
+        $mform->addGroup($technology, 'technology', get_string('technology', "block_edupublisher"), array('<br />', '<br />', '<br />', '<br />'), false);
+        $mform->addHelpButton('technology', 'technology', 'block_edupublisher');
+        $mform->addRule('technology', get_string('required'), 'required', 'extraruledata', 'client', false, false);
 
         $mform->addElement('textarea', 'improvement_specification', get_string('reason', "block_edupublisher"), 'wrap="virtual" rows="10" cols="70"');
         $mform->setType('improvement_specification', PARAM_TEXT);

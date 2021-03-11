@@ -412,6 +412,59 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         // Edupublisher savepoint reached.
         upgrade_block_savepoint(true, 2021030901, 'edupublisher');
     }
+    if ($oldversion < 2021031100) {
+        // Define field evaluator_first_name to be dropped from block_edupublisher_evaluatio.
+        $table = new xmldb_table('block_edupublisher_evaluatio');
+        $fields = array(
+            new xmldb_field('evaluator_first_name'),
+            new xmldb_field('evaluator_last_name'),
+            new xmldb_field('e_tapa_name'),
+            new xmldb_field('e_tapa_link'),
+            new xmldb_field('evaluator_email'),
+            new xmldb_field('author_contact'),
+        );
+
+        foreach ($fields as $field) {
+            if ($dbman->field_exists($table, $field)) {
+                $dbman->drop_field($table, $field);
+            }
+        }
+        $field = new xmldb_field('packageid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null, 'id');
+
+        // Conditionally launch add field packageid.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        upgrade_block_savepoint(true, 2021031100, 'edupublisher');
+    }
+    if ($oldversion < 2021031101) {
+        $table = new xmldb_table('block_edupublisher_comments');
+        $field = new xmldb_field('linkurl', XMLDB_TYPE_CHAR, '250', null, null, null, null, 'forchannel');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        upgrade_block_savepoint(true, 2021031101, 'edupublisher');
+    }
+    if ($oldversion < 2021031102) {
+        $table = new xmldb_table('block_edupublisher_evaluatio');
+        $field = new xmldb_field('userid', XMLDB_TYPE_INTEGER, '20', null, XMLDB_NOTNULL, null, null, 'packageid');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $index = new xmldb_index('idx_packageid', XMLDB_INDEX_NOTUNIQUE, ['packageid']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        upgrade_block_savepoint(true, 2021031102, 'edupublisher');
+    }
+    if ($oldversion < 2021031103) {
+        $table = new xmldb_table('block_edupublisher_evaluatio');
+        $field = new xmldb_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'comments');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        upgrade_block_savepoint(true, 2021031103, 'edupublisher');
+    }
 
 
     return true;
