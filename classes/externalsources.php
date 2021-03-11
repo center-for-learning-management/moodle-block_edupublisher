@@ -272,10 +272,11 @@ class externalsources {
                             }
                         }
 
-                        $data = (object)$item;
+                        $data = (object)$XMLITEM;
                         $data->course = $course->id;
                         $data->section = $DBSECTION->section;
                         $data->name = $XMLITEM['name'];
+                        $data->description = $XMLITEM['description'] = '';
                         switch ($type) {
                             case 'lti':
                                 if (substr($XMLITEM['ltiurl'], 0, 8) == 'https://') {
@@ -308,7 +309,9 @@ class externalsources {
                             $cmitem->id = $extcm->id;
                             $cmitem->coursemodule = $extcm->id;
                             require_once($CFG->dirroot . '/course/lib.php');
-                            if ($cmitem->section != $extcm->section) {
+                            // ATTENTION: cmitem->section is section number, extcm->section is sectionid!
+                            // Therefore we compare cmitem->section with DBSECTION->section
+                            if ($cmitem->section != $DBSECTION->section) {
                                 // We have to set the old section here.
                                 if (self::$debug) echo "=============> Move item $cmitem->id from $extcm->section to $cmitem->section\n";
                                 $cmitem->section = $extcm->section;
