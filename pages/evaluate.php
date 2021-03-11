@@ -51,7 +51,10 @@ if (!has_capability('block/edupublisher:canevaluate', \context_system::instance(
     ));
 } else {
     //Instantiate etapas_evaluation_form
+    echo "<h3>$package->title</h3>\n";
+    $package->packageid = $package->id;
     $mform = new block_edupublisher\etapas_evaluation_form();
+    $mform->set_data($package);
 
     //Form processing and displaying is done here
     if ($mform->is_cancelled()) {
