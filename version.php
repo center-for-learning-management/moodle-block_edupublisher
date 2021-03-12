@@ -32,4 +32,5 @@ $plugin->maturity = MATURITY_STABLE;
 
 $plugin->dependencies = array(
     'block_exacomp' => 2020091000,
+    'local_komettranslator' => 2021031200,
 );
