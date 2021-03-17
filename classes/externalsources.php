@@ -86,7 +86,14 @@ class externalsources {
         $_packages = self::flattened_element($array, 'packages', 'package');
         foreach ($_packages as $package) {
             $packageid = $package['@attributes']['uniqueid'];
-            $timelastmodified = strtotime($package['@attributes']['changed']);
+            if (strpos($package['@attributes']['changed'], ' ') > 0) {
+                // In prior versions we used a date time string.
+                // By documentation it should be a unix timestamp.
+                $timelastmodified = strtotime($package['@attributes']['changed']);
+            } else {
+                $timelastmodified = $package['@attributes']['changed'];
+            }
+
             // Fake empty timelastmodified
             $timelastmodified = 0;
             if (self::$debug) echo "===> Analyzing package $packageid\n";
@@ -150,9 +157,11 @@ class externalsources {
             require_once($CFG->dirroot . '/lib/grade/grade_item.php');
             require_once($CFG->dirroot . '/lib/gradelib.php');
             $gc = \grade_category::fetch(array('courseid'=>$course->id));
-            $gradeinfo = (object) array('id' => $gc->id, 'aggregation' => 10, 'aggregateonlygraded' => 1, 'courseid' => $course->id);
-            \grade_category::set_properties($gc, $gradeinfo);
-            \rebuild_course_cache($course->id);
+            if (!empty($gc->id)) {
+                $gradeinfo = (object) array('id' => $gc->id, 'aggregation' => 10, 'aggregateonlygraded' => 1, 'courseid' => $course->id);
+                \grade_category::set_properties($gc, $gradeinfo);
+                \rebuild_course_cache($course->id);
+            }
 
             if (self::$debug) echo "=====> Course is #<a href=\"$CFG->wwwroot/course/view.php?id=$course->id\">$course->id</a>\n";
             if (self::$debug) echo "=======> Timelastmodified $timelastmodified || $courserec->lasttimemodified < $timelastmodified\n";
@@ -215,115 +224,119 @@ class externalsources {
                 \rebuild_course_cache($course->id);
                 $dbsections = $DB->get_records_sql($sql, array($course->id));
 
-                foreach ($xmlsections as $xmlnr => $xmlsection) {
-                    $dbsectionnr = $xmlnr+1;
-                    $externalsectionid = intval($xmlsection['@attributes']['reference']);
+                if (!empty($xmlsections)) {
+                    for ($xmlnr = 0; $xmlnr < count($xmlsections); $xmlnr++) {
+                        $xmlsection = $xmlsections[$xmlnr];
+                        $dbsectionnr = $xmlnr+1;
+                        $externalsectionid = intval($xmlsection['@attributes']['reference']);
 
-                    $XMLSECTION = $SECTIONS[$externalsectionid];
-                    $DBSECTION = $dbsections[$dbsectionnr];
+                        $XMLSECTION = $SECTIONS[$externalsectionid];
+                        $DBSECTION = $dbsections[$dbsectionnr];
 
-                    // Update section data.
-                    $DBSECTION->name = $XMLSECTION['name'];
+                        // Update section data.
+                        $DBSECTION->name = $XMLSECTION['name'];
 
-                    if (self::$debug) echo "=========> Update Section $DBSECTION->name (#$xmlnr) and id $DBSECTION->id\n";
-                    \course_update_section($course, $DBSECTION, array('name' => $XMLSECTION['name']));
+                        if (self::$debug) echo "=========> Update Section $DBSECTION->name (#$xmlnr) and id $DBSECTION->id\n";
+                        \course_update_section($course, $DBSECTION, array('name' => $XMLSECTION['name']));
 
-                    if (!empty($XMLSECTION['previewimage'])) {
-                        $filerecord = (object) array(
-                            'contextid' => $context->id,
-                            'component' => 'format_files',
-                            'filearea' => 'tilephoto',
-                            'filepath' => '/tilephoto',
-                            'itemid' => $DBSECTION->id, // section id
-                        );
-
-                        $curldata = $external;
-                        $curldata->url = $XMLSECTION['previewimage'];
-                        if (self::$debug) echo "===========> Loading section image from $curldata->url\n";
-
-                        self::filearea_replace($curldata, $filerecord);
-                    }
-                    $useitems = $XMLSECTION['useitem'];
-                    if (empty($useitems)) {
-                        continue;
-                    } elseif(!is_array($useitems)) {
-                        // only a single child.
-                        $useitems = array($useitems);
-                    }
-
-                    $sql = "SELECT i.externalid,i.*
-                                FROM {block_edupublisher_extitem} i
-                                WHERE packageid=?";
-                    $DBITEMS = $DB->get_records_sql($sql, array($packageid));
-                    foreach ($useitems as $useitem) {
-                        $reference = $useitem['@attributes']['reference'];
-                        $XMLITEM = $ITEMS[$reference];
-                        $DBITEM = @$DBITEMS[$reference];
-
-                        $type = $XMLITEM['@attributes']['type'];
-
-
-                        if (!empty($DBITEM->cmid)) {
-                            // Item is known, but may have been deleted.
-                            $extcm = \get_coursemodule_from_id($type, $DBITEM->cmid, 0, false, IGNORE_MISSING);
-                            if (empty($extcm->id)) {
-                                if (self::$debug) echo "=============> Item $DBITEM->id cmid $DBITEM->cmid externalid $DBITEM->externalid was known but is now removed\n";
-                                $DB->delete_records('block_edupublisher_extitem', array('id' => $DBITEM->id));
-                                unset($DBITEM);
-                            }
-                        }
-
-                        $data = (object)$XMLITEM;
-                        $data->course = $course->id;
-                        $data->section = $DBSECTION->section;
-                        $data->name = $XMLITEM['name'];
-                        $data->description = $XMLITEM['description'] = '';
-                        switch ($type) {
-                            case 'lti':
-                                if (substr($XMLITEM['ltiurl'], 0, 8) == 'https://') {
-                                    $data->securetoolurl = $XMLITEM['ltiurl'];
-                                } else {
-                                    $data->toolurl = $XMLITEM['ltiurl'];
-                                }
-                                $data->password = $XMLITEM['ltisecret'];
-                            break;
-                        }
-
-                        $cmitem = \block_edupublisher\module_compiler::compile($type, $data, array());
-
-                        if (empty($DBITEM->cmid)) {
-                            // Item is actually new, we create it and store relation to DBITEM.
-                            if (self::$debug) echo "===========> Create item $reference\n";
-
-                            $module = \block_edupublisher\module_compiler::create($cmitem);
-                            $extcm = \get_coursemodule_from_id($type, $module->coursemodule, 0, false, IGNORE_MISSING);
-                            $DBITEM = (object) array(
-                                'packageid' => $packageid,
-                                'sectionid' => $DBSECTION->id,
-                                'externalid' => $reference,
-                                'cmid' => $extcm->id,
+                        if (!empty($XMLSECTION['previewimage'])) {
+                            $filerecord = (object) array(
+                                'contextid' => $context->id,
+                                'component' => 'format_files',
+                                'filearea' => 'tilephoto',
+                                'filepath' => '/tilephoto',
+                                'itemid' => $DBSECTION->id, // section id
                             );
-                            $DBITEM->id = $DB->insert_record('block_edupublisher_extitem', $DBITEM);
-                        } else {
-                            // Update item data.
-                            if (self::$debug) echo "===========> Update item $reference as cmid $DBITEM->cmid\n";
-                            $cmitem->id = $extcm->id;
-                            $cmitem->coursemodule = $extcm->id;
-                            require_once($CFG->dirroot . '/course/lib.php');
-                            // ATTENTION: cmitem->section is section number, extcm->section is sectionid!
-                            // Therefore we compare cmitem->section with DBSECTION->section
-                            if ($cmitem->section != $DBSECTION->section) {
-                                // We have to set the old section here.
-                                if (self::$debug) echo "=============> Move item $cmitem->id from $extcm->section to $cmitem->section\n";
-                                $cmitem->section = $extcm->section;
-                                \moveto_module($cmitem, $DBSECTION);
-                            }
-                            \update_module($cmitem);
+
+                            $curldata = $external;
+                            $curldata->url = $XMLSECTION['previewimage'];
+                            if (self::$debug) echo "===========> Loading section image from $curldata->url\n";
+
+                            self::filearea_replace($curldata, $filerecord);
                         }
-                        $DB->set_field('grade_items', 'grademax', 100, array('courseid' => $course->id, 'itemtype' => 'course'));
+                        $useitems = @$XMLSECTION['useitem'];
+                        if (empty($useitems)) {
+                            continue;
+                        } elseif(!is_array($useitems)) {
+                            // only a single child.
+                            $useitems = array($useitems);
+                        }
+
+                        $sql = "SELECT i.externalid,i.*
+                                    FROM {block_edupublisher_extitem} i
+                                    WHERE packageid=?";
+                        $DBITEMS = $DB->get_records_sql($sql, array($packageid));
+                        foreach ($useitems as $useitem) {
+                            if (empty($useitem['@attributes']) || empty($useitem['@attributes']['reference'])) continue;
+                            $reference = $useitem['@attributes']['reference'];
+                            $XMLITEM = $ITEMS[$reference];
+                            $DBITEM = @$DBITEMS[$reference];
+
+                            $type = $XMLITEM['@attributes']['type'];
+
+
+                            if (!empty($DBITEM->cmid)) {
+                                // Item is known, but may have been deleted.
+                                $extcm = \get_coursemodule_from_id($type, $DBITEM->cmid, 0, false, IGNORE_MISSING);
+                                if (empty($extcm->id)) {
+                                    if (self::$debug) echo "=============> Item $DBITEM->id cmid $DBITEM->cmid externalid $DBITEM->externalid was known but is now removed\n";
+                                    $DB->delete_records('block_edupublisher_extitem', array('id' => $DBITEM->id));
+                                    unset($DBITEM);
+                                }
+                            }
+
+                            $data = (object)$XMLITEM;
+                            $data->course = $course->id;
+                            $data->section = $DBSECTION->section;
+                            $data->name = $XMLITEM['name'];
+                            $data->description = $XMLITEM['description'] = '';
+                            switch ($type) {
+                                case 'lti':
+                                    if (substr($XMLITEM['ltiurl'], 0, 8) == 'https://') {
+                                        $data->securetoolurl = $XMLITEM['ltiurl'];
+                                    } else {
+                                        $data->toolurl = $XMLITEM['ltiurl'];
+                                    }
+                                    $data->password = $XMLITEM['ltisecret'];
+                                break;
+                            }
+
+                            $cmitem = \block_edupublisher\module_compiler::compile($type, $data, array());
+
+                            if (empty($DBITEM->cmid)) {
+                                // Item is actually new, we create it and store relation to DBITEM.
+                                if (self::$debug) echo "===========> Create item $reference\n";
+
+                                $module = \block_edupublisher\module_compiler::create($cmitem);
+                                $extcm = \get_coursemodule_from_id($type, $module->coursemodule, 0, false, IGNORE_MISSING);
+                                $DBITEM = (object) array(
+                                    'packageid' => $packageid,
+                                    'sectionid' => $DBSECTION->id,
+                                    'externalid' => $reference,
+                                    'cmid' => $extcm->id,
+                                );
+                                $DBITEM->id = $DB->insert_record('block_edupublisher_extitem', $DBITEM);
+                            } else {
+                                // Update item data.
+                                if (self::$debug) echo "===========> Update item $reference as cmid $DBITEM->cmid\n";
+                                $cmitem->id = $extcm->id;
+                                $cmitem->coursemodule = $extcm->id;
+                                require_once($CFG->dirroot . '/course/lib.php');
+                                // ATTENTION: cmitem->section is section number, extcm->section is sectionid!
+                                // Therefore we compare cmitem->section with DBSECTION->section
+                                if ($cmitem->section != $DBSECTION->section) {
+                                    // We have to set the old section here.
+                                    if (self::$debug) echo "=============> Move item $cmitem->id from $extcm->section to $cmitem->section\n";
+                                    $cmitem->section = $extcm->section;
+                                    \moveto_module($cmitem, $DBSECTION);
+                                }
+                                \update_module($cmitem);
+                            }
+                            $DB->set_field('grade_items', 'grademax', 100, array('courseid' => $course->id, 'itemtype' => 'course'));
+                        }
+                        // Rebuild cache after each section.
+                        rebuild_course_cache($course->id);
                     }
-                    // Rebuild cache after each section.
-                    rebuild_course_cache($course->id);
                 }
 
                 // Remove unneeded sections.
