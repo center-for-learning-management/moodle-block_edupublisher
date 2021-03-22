@@ -36,13 +36,17 @@ $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/evaluation.php', array
 
 $context = \context_course::instance($package->course);
 $PAGE->set_context($context);
-$PAGE->set_title(get_string('etapas_evaluation', 'block_edupublisher'));
-$PAGE->set_heading(get_string('etapas_evaluation', 'block_edupublisher'));
+$title = !empty($package->id) ? $package->title : get_string('etapas_evaluation', 'block_edupublisher');
+$PAGE->set_title($title);
+$PAGE->set_heading($title);
 $PAGE->set_pagelayout('incourse');
 
-block_edupublisher::print_app_header();
+$PAGE->navbar->add(get_string('resource_catalogue', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/search.php', array()));
+$PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id' => $package->course)));
+$PAGE->navbar->add(get_string('etapas_evaluation', 'block_edupublisher'), new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $package->id)));
 
 if (!has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
+    block_edupublisher::print_app_header();
     echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
         'type' => 'danger',
         'content' => get_string('no_permission', 'block_edupublisher'),
@@ -50,14 +54,12 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
     ));
 } else {
     if (!empty($id)) {
-        $backurl = new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $packageid));
-        echo "<a href=\"$backurl\" class=\"btn btn-secondary\">" . get_string("back") . "</a>\n";
-        echo "<h3>$package->title</h3>\n";
-
         $evaluation = $DB->get_record('block_edupublisher_evaluatio', array('packageid' => $packageid, 'id' => $id));
         if (!empty($evaluation->id)) {
             $fromuser = \core_user::get_user($evaluation->userid);
             $evaluation->userfullname = \fullname($fromuser);
+            $PAGE->navbar->add(get_string('evaluation_by', 'block_edupublisher', array('fullname' => $evaluation->userfullname)), new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $package->id, 'id' => $id)));
+            block_edupublisher::print_app_header();
             $usercontext = \context_user::instance($evaluation->userid);
             $evaluation->userpicture = new \moodle_url('/pluginfile.php/' . $usercontext->id . '/user/icon');
             $evaluation->userurl = new \moodle_url('/user/profile.php', array('id' => $evaluation->userid));
@@ -65,11 +67,16 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
             $evaluation->evaluated_on_readable = date("Y-m-d", $evaluation->evaluated_on);
             $evaluation->technology = get_string($evaluation->technology_application, 'block_edupublisher');
             echo $OUTPUT->render_from_template('block_edupublisher/evaluation_single', $evaluation);
+        } else {
+            block_edupublisher::print_app_header();
+            echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
+                'type' => 'danger',
+                'content' => get_string('invalid_evaluation', 'block_edupublisher'),
+                'url' => $CFG->wwwroot . '/my',
+            ));
         }
     } else {
-        $backurl = new \moodle_url('/course/view.php', array('id' => $package->course));
-        echo "<a href=\"$backurl\" class=\"btn btn-secondary\">" . get_string("back") . "</a>\n";
-        echo "<h3>$package->title</h3>\n";
+        block_edupublisher::print_app_header();
 
         if (has_capability('block/edupublisher:canevaluate', \context_system::instance())) {
             // Attach wwwroot of this site for the template.
@@ -89,6 +96,12 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
         }
         if (count($evaluations) > 0) {
             echo $OUTPUT->render_from_template('block_edupublisher/evaluation_list', array('evaluations' => $evaluations));
+        } else {
+            echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
+                'type' => 'info',
+                'content' => get_string('evaluation_be_first', 'block_edupublisher'),
+                'url' => $CFG->wwwroot . '/blocks/edupublisher/pages/evaluate.php?packageid=' . $package->id,
+            ));
         }
     }
 }

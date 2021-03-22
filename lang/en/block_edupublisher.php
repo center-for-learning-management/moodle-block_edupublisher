@@ -200,6 +200,7 @@ $string['fieldtype'] = 'Type';
 $string['go_back_to_dashboard'] = 'Go back zu Dashboard';
 $string['guest_not_allowed'] = 'Guests are not allowed to do this!';
 $string['initialize_import'] = 'Use package';
+$string['invalid_evaluation'] = 'Invalid evaluation id';
 $string['issued_by_user'] = 'Published by';
 
 $string['licence'] = 'Licence';
@@ -273,6 +274,7 @@ $string['removed_everything'] = 'Removed all packages';
 $string['removed_package'] = 'Removed package #{$a->id} {$a->title}';
 $string['removing_package_course'] = 'Removing course of package #{$a->id} {$a->title}';
 $string['reply'] = 'Reply';
+$string['resource_catalogue'] = 'Resource catalogue';
 $string['search'] = 'Search';
 $string['search_in_edupublisher'] = 'Search in eduPublisher';
 $string['search:enter_term'] = 'Please enter your search term(s)';
@@ -300,6 +302,8 @@ $string['trigger_editing_permission_remove'] = 'Remove write permission for auth
 $string['type'] = 'Type';
 $string['votes'] = 'Vote(s)';
 
+$string['evaluation_be_first'] = 'No evaluation was made by now - be the first!';
+$string['evaluation_by'] = 'Evaluation of {$a->fullname}';
 $string['etapas_evaluation'] = 'eTapa evaluation';
 $string['required'] = 'This is a required field';
 $string['max_length'] = 'Maximum length reached.';

@@ -35,9 +35,14 @@ $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/evaluate.php', array('
 
 $context = \context_course::instance($package->course);
 $PAGE->set_context($context);
-$PAGE->set_title(get_string('etapas_evaluation', 'block_edupublisher'));
-$PAGE->set_heading(get_string('etapas_evaluation', 'block_edupublisher'));
+$title = !empty($package->id) ? $package->title : get_string('etapas_evaluation', 'block_edupublisher');
+$PAGE->set_title($title);
+$PAGE->set_heading($title);
 $PAGE->set_pagelayout('incourse');
+
+$PAGE->navbar->add(get_string('resource_catalogue', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/search.php', array()));
+$PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id' => $package->course)));
+$PAGE->navbar->add(get_string('etapas_evaluation', 'block_edupublisher'), new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $package->id)));
 
 block_edupublisher::print_app_header();
 
@@ -50,8 +55,6 @@ if (!has_capability('block/edupublisher:canevaluate', \context_system::instance(
 } else {
     //Instantiate etapas_evaluation_form
     $backurl = new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $packageid));
-    echo "<a href=\"$backurl\" class=\"btn btn-secondary\">" . get_string("back") . "</a>\n";
-    echo "<h3>$package->title</h3>\n";
     $package->packageid = $package->id;
     $mform = new block_edupublisher\etapas_evaluation_form();
     $mform->set_data($package);

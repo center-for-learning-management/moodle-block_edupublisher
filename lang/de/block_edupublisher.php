@@ -185,6 +185,7 @@ $string['fieldtype'] = 'Typ';
 $string['go_back_to_dashboard'] = 'Zurück zum Dashboard';
 $string['guest_not_allowed'] = 'Für Gäste ist diese Aktion nicht gestattet!';
 $string['initialize_import'] = 'Lernpaket verwenden';
+$string['invalid_evaluation'] = 'Ungültige Evaluations-ID';
 $string['issued_by_user'] = 'Veröffentlicht von Nutzer/in ';
 
 $string['licence'] = 'Lizenz';
@@ -257,6 +258,7 @@ $string['removed_everything'] = 'Alle Pakete entfernt';
 $string['removed_package'] = 'Paket #{$a->id} {$a->title} entfernt';
 $string['removing_package_course'] = 'Entferne Kurs zum Paket #{$a->id} {$a->title}';
 $string['reply'] = 'Antworten';
+$string['resource_catalogue'] = 'Ressourcenkatalog';
 $string['search'] = 'Suche';
 $string['search_in_edupublisher'] = 'Suche in eduPublisher';
 $string['search:enter_term'] = 'Bitte geben Sie Suchworte ein!';
@@ -282,6 +284,8 @@ $string['trigger_editing_permission_remove'] = 'Der/dem Autor/in Schreibrechte w
 $string['type'] = 'Typ';
 $string['votes'] = 'Stimme(n)';
 
+$string['evaluation_be_first'] = 'Bisher wurde keine Evaluation durchgeführt - seien Sie der/die Erste!';
+$string['evaluation_by'] = 'Evaluation von {$a->fullname}';
 $string['etapas_evaluation'] = 'eTapa Evaluierung';
 $string['required'] = 'Dies ist ein Pflichtfeld';
 $string['max_length'] = 'Maximale Anzahl an Buchstaben erreicht';
