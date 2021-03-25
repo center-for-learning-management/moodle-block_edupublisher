@@ -1310,7 +1310,7 @@ class block_edupublisher extends block_base {
             }
 
             $options[] = array(
-                "title" => $package->default_licence,
+                "title" => ($package->default_licence == 'other') ? get_string('default_licenceother', 'block_edupublisher') : $package->default_licence,
                 //"href" => 'mailto:' . $package->default_authormail,
                 "icon" => '/pix/i/publish.svg',
             );

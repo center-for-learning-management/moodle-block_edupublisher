@@ -95,7 +95,7 @@ $string['default_image_help'] = 'Preview image to be shown.';
 $string['default_image_label'] = 'Please choose an image that represents the topic of your package. Be aware of copyright! We recommend <a href="http://www.pixabay.com" target="_blank">pixabay.com</a> as source for images.';
 $string['default_licence'] = 'Licence';
 $string['default_licence_missing'] = 'You have to choose a licence';
-$string['default_licenceother'] = 'Other';
+$string['default_licenceother'] = 'Other licence';
 $string['default_publish_as'] = 'Publish on this site';
 $string['default_schoollevel_primary'] = 'Primary level';
 $string['default_schoollevel_secondary_1'] = 'Secondary 1';
