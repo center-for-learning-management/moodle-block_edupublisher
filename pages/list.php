@@ -119,11 +119,11 @@ if (empty($channel)) {
         $package->maintainer_etapas = $maintainer_etapas;
         $package->maintainer_eduthek = $maintainer_eduthek;
         $package->exclamation = (
-            !empty($package->default_publishas) && empty($package->default_active)
+            $maintainer_default && !empty($package->default_publishas) && empty($package->default_active)
             ||
-            !empty($package->etapas_publishas) && empty($package->etapas_active)
+            $maintainer_etapas && !empty($package->etapas_publishas) && empty($package->etapas_active)
             ||
-            !empty($package->eduthek_publishas) && empty($package->eduthek_active)
+            $maintainer_eduthek && !empty($package->eduthek_publishas) && empty($package->eduthek_active)
         );
         echo $OUTPUT->render_from_template(
             'block_edupublisher/maintain_table_row',
