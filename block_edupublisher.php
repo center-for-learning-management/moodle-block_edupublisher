@@ -1320,6 +1320,11 @@ class block_edupublisher extends block_base {
                 "icon" => '/pix/i/hide.svg',
             );
             $options[] = array(
+                "title" => get_string('comments'),
+                "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/comment.php?packageid=' . $package->id,
+                "icon" => '/pix/t/messages.svg',
+            );
+            $options[] = array(
                 "title" => $OUTPUT->render_from_template('block_edupublisher/package_rating', $package),
                 //"href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
                 "icon" => '/pix/i/scales.svg',
