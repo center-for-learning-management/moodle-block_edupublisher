@@ -88,7 +88,7 @@ $definition = array(
     ),
     'etapas' => array(
         'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
-        'erprobungen' => array('type' => 'filemanager', 'multiple' => 1, 'hidden_on_init' => 1, 'maxfiles' => 20, 'accepted_types' => 'document'),
+        //'erprobungen' => array('type' => 'filemanager', 'multiple' => 1, 'hidden_on_init' => 1, 'maxfiles' => 20, 'accepted_types' => 'document'),
         'ltiurl' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
         'lticartridge' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
         'ltisecret' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
@@ -114,7 +114,7 @@ $definition = array(
             6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11,
             12 => 12, 13 => 13)
         ),
-        'kompetenzen' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
+        'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_RAW, 'required' => 0, 'default' => get_string('etapas_kompetenzen_help', 'block_edupublisher')),
         'stundenablauf' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
         'vorkenntnisse' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
         'voraussetzungen' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),

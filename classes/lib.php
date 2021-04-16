@@ -194,6 +194,62 @@ class lib {
         }
     }
     /**
+     * Load exacomp competencies for this package.
+     * @param package object.
+     */
+    public static function exacompetencies(&$package) {
+        global $CFG, $DB;
+        // Get competencies.
+        $package->default_exacompdatasources = array();
+        $package->default_exacompids = array();
+        $package->default_exacomptitles = array();
+        $flagfound = array();
+
+        // 1. Moodle competencies
+        $sql = "SELECT c.id,c.*
+                    FROM {competency} c, {competency_modulecomp} mc, {course_modules} cm
+                    WHERE cm.course=? AND cm.id=mc.cmid AND mc.competencyid=c.id";
+        $competencies = $DB->get_records_sql($sql, array($package->course));
+        $supportstranslator = file_exists($CFG->dirroot . '/local/komettranslator/version.php');
+        foreach ($competencies as $competence) {
+            $nr = count($package->default_exacompdatasources);
+            $package->default_exacompdatasources[$nr] = "";
+            $package->default_exacompsourceids[$nr] = 0;
+            $package->default_exacomptitles[$nr] = !empty($competence->description) ? $competence->description : $competence->shortname;
+            if ($supportstranslator) {
+                // Try mapping to exacomp.
+                $mapping = \local_komettranslator\locallib::mapping_internal('descriptor', $competence->id);
+                if (!empty($mapping->id) && empty($flagfound[$mapping->sourceid . '_' . $mapping->itemid])) {
+                    $package->default_exacompdatasources[$nr] = $mapping->sourceid;
+                    $package->default_exacompsourceids[$nr] = $mapping->itemid;
+                    $flagfound[$mapping->sourceid . '_' . $mapping->itemid] = true;
+                }
+            }
+        }
+        // 2. Exacomp competencies
+        $sql = "SELECT ecd.id id,ecd.title title, ecd.sourceid sourceid, ecd.source source
+                    FROM {block_exacompdescriptors} ecd,
+                         {block_exacompdescrexamp_mm} ecde,
+                         {block_exacompexamples} ecex
+                    WHERE ecex.courseid=?
+                        AND ecex.id=ecde.exampid
+                        AND ecde.descrid=ecd.id
+                    ORDER BY ecd.title ASC";
+        $competencies = $DB->get_records_sql($sql, array($package->course));
+
+        foreach($competencies AS $competence) {
+            $source = $DB->get_record('block_exacompdatasources', array('id' => $competence->source));
+            if (!empty($source->id) && empty($flagfound[$source->source . '_' . $competence->sourceid])) {
+                $package->default_exacompdatasources[] = $source->source;
+                $package->default_exacompsourceids[] = $competence->sourceid;
+                $package->default_exacomptitles[] = $competence->title;
+                $flagfound[$source->source . '_' . $competence->sourceid] = true;
+            }
+        }
+
+        $package->etapas_kompetenzen = nl2br(implode("\n", $package->default_exacomptitles));
+    }
+    /**
      * Log that a user visited a course-page of a package.
      * @param packageid that is visited.
      * @param action String, either 'viewed', 'enrolled', 'unenrolled' or 'cloned'

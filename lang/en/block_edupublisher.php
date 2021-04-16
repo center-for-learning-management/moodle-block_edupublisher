@@ -175,6 +175,7 @@ $string['etapas_ltisecret'] = 'LTI secret';
 $string['etapas_ltiurl'] = 'LTI URL';
 $string['etapas_publish_as'] = 'Publish as eTapa';
 $string['etapas_kompetenzen'] = 'Competencies';
+$string['etapas_kompetenzen_help'] = '<p class="alert alert-danger">The linking of resources from the moodle course with competencies is essential, when you want to publish an eTapa. Please use either the Moodle competencies or exacomp.</p>';
 $string['etapas_vonschule'] = 'From school';
 $string['etapas_schulstufe'] = 'Academic year';
 $string['etapas_status'] = 'Status';

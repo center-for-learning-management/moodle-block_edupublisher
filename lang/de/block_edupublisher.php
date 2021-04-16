@@ -159,6 +159,7 @@ $string['etapas_ltisecret'] = 'LTI Secret';
 $string['etapas_ltiurl'] = 'LTI URL';
 $string['etapas_publish_as'] = 'Als eTapa veröffentlichen';
 $string['etapas_kompetenzen'] = 'Kompetenzen';
+$string['etapas_kompetenzen_help'] = '<p class="alert alert-danger">Die Verlinkung von Ressourcen des Moodle-Kurses mit Kompetenzen ist erforderlich, um ein Lernpaket als eTapa einreichen zu können. Bitte verwenden Sie dazu entweder die Moodle-Kompetenzen oder den Block "Kompetenzraster" (exacomp).</p>';
 $string['etapas_vonschule'] = 'Von Schule';
 $string['etapas_schulstufe'] = 'Schulstufe';
 $string['etapas_status'] = 'Status';

@@ -139,6 +139,10 @@ class package_create_form extends moodleform {
                             $addedfield->setMultiple(true);
                         }
                     break;
+                    case 'static':
+                        $default = !empty($field['default']) ? $field['default'] : '';
+                        $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label, $default);
+                    break;
                     case 'tags':
                         if (empty($field['tagparams'])) {
                             $field['tagparams'] = array();
@@ -152,9 +156,6 @@ class package_create_form extends moodleform {
                         $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label, $field['tagparams']);
                     break;
                     case 'text':
-                    case 'url':
-                        $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label, array('type' => $field['type']));
-                    break;
                     case 'url':
                         $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label, array('type' => $field['type']));
                     break;
@@ -277,11 +278,17 @@ class package_create_form extends moodleform {
         $channels = array_keys($definition);
         foreach ($channels AS $channel) {
             if ($channel != 'default' && (!isset($data[$channel . '_publishas']) || !$data[$channel . '_publishas'])) continue;
+
             //echo $channel . '_publishas' . ' is ' . $data[$channel . '_publishas'] . '<br />';
             // 'check <br/>';
             $fields = array_keys($definition[$channel]);
             foreach($fields AS $field) {
                 $ofield = &$definition[$channel][$field];
+                if ($channel == 'etapas' && $field == 'kompetenzen') {
+                    $package = (object) array('course' => $data['course']);
+                    \block_edupublisher\lib::exacompetencies($package);
+                    $data['etapas_kompetenzen'] = $package->etapas_kompetenzen;
+                }
                 if (!isset($ofield['type']) || empty($ofield['required'])) continue;
                 $haserror = false;
                 if (isset($ofield['multiple']) && $ofield['multiple']) {

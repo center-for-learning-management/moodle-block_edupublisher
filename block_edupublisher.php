@@ -966,46 +966,7 @@ class block_edupublisher extends block_base {
             $package->id = $DB->insert_record('block_edupublisher_packages', $package, true);
         }
 
-        // Get competencies.
-        $package->default_exacompdatasources = array();
-        $package->default_exacompids = array();
-        $package->default_exacomptitles = array();
-        $flagfound = array();
-
-        // 1. Moodle competencies
-        $sql = "SELECT c.id,c.*
-                    FROM {competency} c, {competency_modulecomp} mc, {course_modules} cm
-                    WHERE cm.course=? AND cm.id=mc.cmid AND mc.competencyid=c.id";
-        $competencies = $DB->get_records_sql($sql, array($package->course));
-        $supportstranslator = file_exists($CFG->dirroot . '/local/komettranslator/version.php');
-        foreach ($competencies as $competence) {
-            $nr = count($package->default_exacompdatasources);
-            $package->default_exacompdatasources[$nr] = "";
-            $package->default_exacompsourceids[$nr] = 0;
-            $package->default_exacomptitles[$nr] = !empty($competence->description) ? $competence->description : $competence->shortname;
-            if ($supportstranslator) {
-                // Try mapping to exacomp.
-                $mapping = \local_komettranslator\locallib::mapping_internal('competency', $competence->id);
-                if (!empty($mapping->id) && empty($flagfound[$mapping->sourceid . '_' . $mapping->itemid])) {
-                    $package->default_exacompdatasources[$nr] = $mapping->sourceid;
-                    $package->default_exacompsourceids[$nr] = $mapping->itemid;
-                    $flagfound[$mapping->sourceid . '_' . $mapping->itemid] = true;
-                }
-            }
-        }
-
-        // 2. Exacomp competencies
-        $competencies = $DB->get_records_sql('SELECT ecd.id id,ecd.title title, ecd.sourceid sourceid, ecd.source source FROM {block_exacompdescriptors} ecd, {block_exacompcompactiv_mm} ecca, {course_modules} cm WHERE cm.course=? AND cm.id=ecca.activityid AND ecca.compid=ecd.id ORDER BY ecd.title ASC', array($package->course));
-
-        foreach($competencies AS $competence) {
-            $source = $DB->get_record('block_exacompdatasources', array('id' => $competence->source));
-            if (!empty($source->id) && empty($flagfound[$source->source . '_' . $competence->sourceid])) {
-                $package->default_exacompdatasources[] = $source->source;
-                $package->default_exacompsourceids[] = $competence->sourceid;
-                $package->default_exacomptitles[] = $competence->title;
-                $flagfound[$source->source . '_' . $competence->sourceid] = true;
-            }
-        }
+        \block_edupublisher\lib::exacompetencies($package);
 
         // Now store all data.
         $definition = self::get_channel_definition();
