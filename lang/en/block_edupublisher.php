@@ -303,8 +303,9 @@ $string['trigger_editing_permission_remove'] = 'Remove write permission for auth
 $string['type'] = 'Type';
 $string['votes'] = 'Vote(s)';
 
-$string['evaluation_be_first'] = 'No evaluation was made by now - be the first!';
 $string['evaluation_by'] = 'Evaluation of {$a->fullname}';
+$string['evaluation_introtext'] = 'Prior to making an evaluation, you should have tested the resource with an actual class and real students. Please share your insights into the quality and the improvements made to the learning process with others by filling out the linked evaulation form.';
+$string['evaluation_none'] = 'No evaluation was made by now!';
 $string['etapas_evaluation'] = 'eTapa evaluation';
 $string['required'] = 'This is a required field';
 $string['max_length'] = 'Maximum length reached.';

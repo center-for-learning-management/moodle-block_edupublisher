@@ -465,6 +465,19 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
         upgrade_block_savepoint(true, 2021031103, 'edupublisher');
     }
+    if ($oldversion < 2021041600) {
+        $table = new xmldb_table('block_edupublisher_evaluatio');
+        $field = new xmldb_field('schoollevel', XMLDB_TYPE_INTEGER, '4', null, null, null, null, 'comments');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $field = new xmldb_field('evaldate', XMLDB_TYPE_INTEGER, '10', null, null, null, null, 'schoollevel');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        upgrade_block_savepoint(true, 2021041600, 'edupublisher');
+    }
+
 
 
     return true;

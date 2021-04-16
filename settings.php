@@ -79,7 +79,6 @@ if ($ADMIN->fulltree) {
         )
     );
 
-
     $options = array();
     $formatplugins = \core_plugin_manager::instance()->get_plugins_of_type('format');
     foreach ($formatplugins as $formatplugin) {

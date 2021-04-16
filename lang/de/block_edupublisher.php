@@ -285,8 +285,9 @@ $string['trigger_editing_permission_remove'] = 'Der/dem Autor/in Schreibrechte w
 $string['type'] = 'Typ';
 $string['votes'] = 'Stimme(n)';
 
-$string['evaluation_be_first'] = 'Bisher wurde keine Evaluation durchgeführt - seien Sie der/die Erste!';
 $string['evaluation_by'] = 'Evaluation von {$a->fullname}';
+$string['evaluation_introtext'] = 'Bevor Sie eine Evaluation erfassen, sollten Sie das Lernpaket mit einer tatsächlichen Klasse und echten Schüler/innen ausprobiert haben. Bitte teilen Sie danach anderen Lehrer/innen mit, wie die Qualität dieser Lernressource war und welche Verbesserungen für den Lernprozess damit möglich wurden, indem Sie das folgende Evaluationsformular ausfüllen.';
+$string['evaluation_none'] = 'Bisher wurde keine Evaluation durchgeführt.';
 $string['etapas_evaluation'] = 'eTapa Evaluierung';
 $string['required'] = 'Dies ist ein Pflichtfeld';
 $string['max_length'] = 'Maximale Anzahl an Buchstaben erreicht';

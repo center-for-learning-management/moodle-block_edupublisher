@@ -17,6 +17,16 @@
 }}
 
 <div id="edupublisher-evaluationlist-{{packageid}}" class="_ui-edupublisher"><div>
+    <p>{{#str}} evaluation_introtext, block_edupublisher {{/str}}</p>
+    {{^hasevaluations}}
+        <p class="alert alert-warning">{{#str}} evaluation_none, block_edupublisher {{/str}}</p>
+    {{/hasevaluations}}
+    {{#canevaluate}}
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/evaluate.php?packageid={{packageid}}" class="btn btn-primary">
+            {{#str}} evaluate, block_edupublisher {{/str}}
+        </a>
+    {{/canevaluate}}
+    {{#hasevaluations}}
     <table width="100%" class="generaltable">
         <thead>
             <tr>
@@ -49,7 +59,7 @@
                 </td>
             </tr>
             {{/evaluations}}
-
         </tbody>
     </table>
+    {{/hasevaluations}}
 </div></div><!-- ui-edupublisher -->

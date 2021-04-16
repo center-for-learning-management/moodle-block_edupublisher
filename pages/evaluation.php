@@ -64,7 +64,7 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
             $evaluation->userpicture = new \moodle_url('/pluginfile.php/' . $usercontext->id . '/user/icon');
             $evaluation->userurl = new \moodle_url('/user/profile.php', array('id' => $evaluation->userid));
             $evaluation->linkurl = new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $packageid, 'id' => $evaluation->id));
-            $evaluation->evaluated_on_readable = date("Y-m-d", $evaluation->evaluated_on);
+            $evaluation->evaluated_on_readable = date("Y-m-d", $evaluation->evaldate);
             $evaluation->technology = get_string($evaluation->technology_application, 'block_edupublisher');
             echo $OUTPUT->render_from_template('block_edupublisher/evaluation_single', $evaluation);
         } else {
@@ -78,12 +78,8 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
     } else {
         block_edupublisher::print_app_header();
 
-        if (has_capability('block/edupublisher:canevaluate', \context_system::instance())) {
-            // Attach wwwroot of this site for the template.
-            $package->wwwroot = $CFG->wwwroot;
-            echo $OUTPUT->render_from_template('block_edupublisher/evaluation_createbtn', $package);
-        }
         // List existing evaluations here.
+        $canevaluate = has_capability('block/edupublisher:canevaluate', \context_system::instance());
         $evaluations = array_values($DB->get_records('block_edupublisher_evaluatio', array('packageid' => $packageid), 'timecreated DESC'));
         foreach ($evaluations as &$evaluation) {
             $fromuser = \core_user::get_user($evaluation->userid);
@@ -92,17 +88,14 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
             $evaluation->userpicture = new \moodle_url('/pluginfile.php/' . $usercontext->id . '/user/icon');
             $evaluation->userurl = new \moodle_url('/user/profile.php', array('id' => $evaluation->userid));
             $evaluation->linkurl = new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $packageid, 'id' => $evaluation->id));
-            $evaluation->evaluated_on_readable = date("Y-m-d", $evaluation->timecreated); // $evaluation->evaluated_on
+            $evaluation->evaluated_on_readable = date("Y-m-d", $evaluation->evaldate); // $evaluation->evaluated_on
         }
-        if (count($evaluations) > 0) {
-            echo $OUTPUT->render_from_template('block_edupublisher/evaluation_list', array('evaluations' => $evaluations));
-        } else {
-            echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
-                'type' => 'info',
-                'content' => get_string('evaluation_be_first', 'block_edupublisher'),
-                'url' => $CFG->wwwroot . '/blocks/edupublisher/pages/evaluate.php?packageid=' . $package->id,
-            ));
-        }
+        echo $OUTPUT->render_from_template('block_edupublisher/evaluation_list', array(
+            'canevaluate' => $canevaluate,
+            'evaluations' => $evaluations,
+            'hasevaluations' => count($evaluations) > 0,
+            'packageid' => $packageid,
+        ));
     }
 }
 

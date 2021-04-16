@@ -46,6 +46,18 @@ class etapas_evaluation_form extends \moodleform {
         $mform->addRule('evaluated_at', get_string('required', 'block_edupublisher'), 'required', 'extraruledata', 'client', false, false);
         $mform->addRule('evaluated_at', get_string('max_length', 'block_edupublisher'), 'maxlength', 150, 'client');
 
+        $options = array();
+        for ($a = 1; $a < 14; $a++) {
+            $options[$a] = $a;
+        }
+        $mform->addElement('select', 'schoollevel', get_string('default_schoollevel', 'block_edupublisher'), $options);
+        $mform->setType('schoollevel', PARAM_INT);
+        $mform->addRule('schoollevel', get_string('required', 'block_edupublisher'), 'required', 'extraruledata', 'client', false, false);
+
+        $mform->addElement('date_selector', 'evaldate', get_string('date'));
+        $mform->setType('evaldate', PARAM_INT);
+        $mform->addRule('evaldate', get_string('required', 'block_edupublisher'), 'required', 'extraruledata', 'client', false, false);
+
         $verytrue = get_string('evaluated_verytrue', 'block_edupublisher');
         $nottrue = get_string('evaluated_nottrue', 'block_edupublisher');
 
