@@ -49,7 +49,7 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
     block_edupublisher::print_app_header();
     echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
         'type' => 'danger',
-        'content' => get_string('no_permission', 'block_edupublisher'),
+        'content' => get_string('permission_denied', 'block_edupublisher'),
         'url' => $CFG->wwwroot . '/my',
     ));
 } else {

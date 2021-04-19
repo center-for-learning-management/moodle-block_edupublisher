@@ -54,19 +54,16 @@ if ($package->candelete) {
         echo $OUTPUT->render_from_template('block_edupublisher/alert', (object) $params);
         delete_course($package->course, false);
 
-        /**
-        * Removing all data may create inconsistencies. We just flag as removed.
-        * $DB->delete_records('block_edupublisher_uses', array('package' => $id));
-        * $DB->delete_records('block_edupublisher_rating', array('package' => $id));
-        * $DB->delete_records('block_edupublisher_metadata', array('package' => $id));
-        * $DB->delete_records('block_edupublisher_packages', array('id' => $id));
-        **/
+        $DB->delete_records('block_edupublisher_uses', array('package' => $id));
+        $DB->delete_records('block_edupublisher_rating', array('package' => $id));
+        $DB->delete_records('block_edupublisher_metadata', array('package' => $id));
 
         // Check if this is an external source.
         $DB->delete_records('block_edupublisher_extitem', array('packageid' => $package->id));
         $DB->delete_records('block_edupublisher_extsect', array('packageid' => $package->id));
         $DB->delete_records('block_edupublisher_extpack', array('packageid' => $package->id));
 
+        // Removing the package itself may create inconsistencies. We just flag as removed.
         $p = $DB->get_record('block_edupublisher_packages', array('id' => $package->id));
         $p->deleted = time();
         $p->modified = time();

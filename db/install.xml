@@ -140,6 +140,7 @@
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="packageid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="20" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="evaluated_on" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
         <FIELD NAME="evaluated_at" TYPE="text" NOTNULL="true" SEQUENCE="false" COMMENT="Name of the school the eTapa was evaluated"/>
         <FIELD NAME="comprehensible_description" TYPE="int" LENGTH="1" NOTNULL="true" SEQUENCE="false"/>

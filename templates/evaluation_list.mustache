@@ -17,7 +17,9 @@
 }}
 
 <div id="edupublisher-evaluationlist-{{packageid}}" class="_ui-edupublisher"><div>
-    <p>{{#str}} evaluation_introtext, block_edupublisher {{/str}}</p>
+    {{#canevaluate}}
+        <p>{{#str}} evaluation_introtext, block_edupublisher {{/str}}</p>
+    {{/canevaluate}}
     {{^hasevaluations}}
         <p class="alert alert-warning">{{#str}} evaluation_none, block_edupublisher {{/str}}</p>
     {{/hasevaluations}}

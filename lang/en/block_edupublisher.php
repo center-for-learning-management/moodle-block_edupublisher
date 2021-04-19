@@ -23,7 +23,6 @@
 
 $string['pluginname'] = 'edupublisher';
 $string['page:publisher'] = 'Publish';
-$string['privacy:metadata'] = 'This plugin does not store any personal data';
 
 $string['action'] = 'Action';
 $string['after_section'] = 'Place at section';
@@ -260,6 +259,17 @@ $string['parts_based_upon'] = 'Parts based upon';
 $string['parts_published'] = 'Parts published as';
 $string['permalink'] = 'Permalink';
 $string['permission_denied'] = 'Permission denied';
+
+$string['privacy:metadata'] = 'This plugin does not store any personal data';
+$string['privacy:export:comments'] = 'Comments';
+$string['privacy:export:evaluatio'] = 'Evaluations';
+$string['privacy:export:lic'] = 'Licences';
+$string['privacy:export:log'] = 'Log';
+$string['privacy:export:packages'] = 'Users packages';
+$string['privacy:export:pub_user'] = 'Publisher users';
+$string['privacy:export:rating'] = 'Ratings';
+$string['privacy:export:uses'] = 'Used packages';
+
 $string['public'] = 'Public';
 $string['publish_new_package'] = 'Publish something';
 $string['publisher'] = 'Publisher';

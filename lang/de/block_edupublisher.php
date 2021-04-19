@@ -23,7 +23,6 @@
 
 $string['pluginname'] = 'eduPublisher';
 $string['page:publisher'] = 'veröffentlichen';
-$string['privacy:metadata'] = 'Dieses Plugin speichert keine personenbezogenen Daten';
 
 $string['action'] = 'Aktion';
 $string['after_section'] = 'Nach folgendem Abschnitt einfügen';
@@ -244,6 +243,17 @@ $string['parts_based_upon'] = 'Inhalte basieren auf';
 $string['parts_published'] = 'Inhalte veröffentlicht als';
 $string['permalink'] = 'Permalink';
 $string['permission_denied'] = 'Zugriff verweigert';
+
+$string['privacy:metadata'] = 'Dieses Plugin speichert keine personenbezogenen Daten';
+$string['privacy:export:comments'] = 'Kommentare';
+$string['privacy:export:evaluatio'] = 'Evaluationen';
+$string['privacy:export:lic'] = 'Lizenzen';
+$string['privacy:export:log'] = 'Log';
+$string['privacy:export:packages'] = 'Eigene Lernressourcen';
+$string['privacy:export:pub_user'] = 'Verlagsnutzer';
+$string['privacy:export:rating'] = 'Bewertungen';
+$string['privacy:export:uses'] = 'Genutzte Ressourcen';
+
 $string['public'] = 'Öffentlich';
 $string['publish_new_package'] = 'Inhalte veröffentlichen';
 $string['publisher'] = 'Anbieter';
