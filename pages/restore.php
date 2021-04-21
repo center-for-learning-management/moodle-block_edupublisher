@@ -326,7 +326,7 @@ if (!$restore->is_independent()) {
                 // We just import - do nothing else.
                 $restore->execute();
             }
-            fulldelete($CFG->backuptempdir . '/' . $filpath);
+            fulldelete($CFG->backuptempdir . '/' . $filepath);
 
             // Log that we cloned a package.
             require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
