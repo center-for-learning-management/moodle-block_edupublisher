@@ -1,6 +1,6 @@
 // out: ../style/ui.css, sourcemap: false, compress: true
 
-#page-blocks-edupublisher-pages-restore {
+#page-blocks-edupublisher-pages-publish, #page-blocks-edupublisher-pages-restore {
     #page-content {
         div.backup_progress, #id_cancel, #id_previous {
             display: none;
@@ -9,9 +9,55 @@
             &>legend.ftoggler, .normal_setting {
                 display: none;
             }
+            .include_setting.section_level .fitem:not(.backup_selector) {
+                font-weight: bold;
+                font-size: 1.5em;
+            }
+            .include_setting.activity_level .fitem:not(.backup_selector) {
+                margin-left: 60px;
+            }
+            .checkbox .form-check img {
+                float: left;
+            }
         }
         #id_rootsettings {
             display: none;
+        }
+        #executionprogress .continuebutton {
+            display: none;
+        }
+    }
+}
+
+.publish_navbar {
+    .progressbar {
+        display: grid;
+
+        &>div {
+            text-align: center;
+            &.active {
+                font-weight: bold;
+                .circle {
+                    background-color: #EFEFEF;
+                }
+            }
+            .circle {
+                display: inline-block;
+                padding: 0;
+                width: 50px;
+                height: 50px;
+                line-height: 50px;
+                color: rgba(16,80,127,1);
+                font-weight: bold;
+                font-size: 30px;
+                border-radius: 50%;
+                border: 1px solid rgba(16,80,127,1);
+                -webkit-box-shadow: 4px 4px 5px 0px rgba(16,80,127,1);
+                -moz-box-shadow: 4px 4px 5px 0px rgba(16,80,127,1);
+                box-shadow: 4px 4px 5px 0px rgba(16,80,127,1);
+                clear: both;
+                margin-bottom: 10px;
+            }
         }
     }
 }

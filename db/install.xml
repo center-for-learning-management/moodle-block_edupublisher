@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/edupublisher/db" VERSION="20210416" COMMENT="XMLDB file for Moodle blocks/edupublisher"
+<XMLDB PATH="blocks/edupublisher/db" VERSION="20210422" COMMENT="XMLDB file for Moodle blocks/edupublisher"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -150,8 +150,6 @@
         <FIELD NAME="improvement_specification" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="technology_application" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="comments" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="schoollevel" TYPE="int" LENGTH="4" NOTNULL="false" SEQUENCE="false"/>
-        <FIELD NAME="evaldate" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="date of evaluation"/>
       </FIELDS>
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
@@ -222,6 +220,26 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+    </TABLE>
+    <TABLE NAME="block_edupublisher_publish" COMMENT="guide the publication process">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="sourcecourseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="targetcourseid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="importcompleted" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="packageid" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="payload" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="contains serialized formdata"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_sourcecourseid" UNIQUE="true" FIELDS="sourcecourseid"/>
+        <INDEX NAME="idx_targetcourseid" UNIQUE="false" FIELDS="targetcourseid"/>
+        <INDEX NAME="idx_packageid" UNIQUE="false" FIELDS="packageid"/>
+      </INDEXES>
     </TABLE>
   </TABLES>
 </XMLDB>

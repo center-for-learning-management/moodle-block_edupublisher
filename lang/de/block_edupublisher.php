@@ -159,6 +159,7 @@ $string['etapas_ltiurl'] = 'LTI URL';
 $string['etapas_publish_as'] = 'Als eTapa veröffentlichen';
 $string['etapas_kompetenzen'] = 'Kompetenzen';
 $string['etapas_kompetenzen_help'] = '<p class="alert alert-danger">Die Verlinkung von Ressourcen des Moodle-Kurses mit Kompetenzen ist erforderlich, um ein Lernpaket als eTapa einreichen zu können. Bitte verwenden Sie dazu entweder die Moodle-Kompetenzen oder den Block "Kompetenzraster" (exacomp).</p>';
+$string['etapas_kompetenzen_missing'] = 'Bitte Kompetenzen zu Aktivitäten und Ressourcen zuordnen';
 $string['etapas_vonschule'] = 'Von Schule';
 $string['etapas_schulstufe'] = 'Schulstufe';
 $string['etapas_status'] = 'Status';
@@ -241,6 +242,7 @@ $string['overview'] = 'Überblick';
 $string['package'] = 'Paket';
 $string['parts_based_upon'] = 'Inhalte basieren auf';
 $string['parts_published'] = 'Inhalte veröffentlicht als';
+$string['pending_publication'] = 'Offene Publikation von Kurs {$a->courseid}';
 $string['permalink'] = 'Permalink';
 $string['permission_denied'] = 'Zugriff verweigert';
 
@@ -256,6 +258,48 @@ $string['privacy:export:uses'] = 'Genutzte Ressourcen';
 
 $string['public'] = 'Öffentlich';
 $string['publish_new_package'] = 'Inhalte veröffentlichen';
+$string['publish_new_package_proceed'] = 'Veröffentlichung fortsetzen';
+$string['publish_missing_sourcecourseid'] = 'Eine Fortsetzung ist ohne Quellkurs nicht möglich!';
+$string['publish_proceed_label'] = '
+    <h3>Veröffentlichung von Ressourcen</h3>
+    <p>
+        Dieser Kurs wurde im Rahmen der Veröffentlichungsprozesses von offenen
+        Bildungsressourcen für den Ressourcenkatalog erstellt. Sie können mit der
+        Veröffentlichung fortfahren, indem Sie den folgenden Link anklicken:
+    </p>
+    <a href="{$a->wwwroot}/blocks/edupublisher/pages/publish.php?sourcecourseid={$a->sourcecourseid}" class="btn btn-primary">
+        Mit Veröffentlichung fortfahren
+    </a>
+';
+$string['publish_stage_confirm'] = 'Start';
+$string['publish_stage_confirm_text'] = '
+    <p>
+        Mittels dieser Funktion können Sie Teile Ihres Kurses für andere als
+        offene Bildungsressource freigeben. Der Freigabeprozess besteht aus
+        vier Schritten:
+    </p>
+    <ol>
+        <li>Bestätigen Sie, dass Sie Inhalte freigeben möchten.</li>
+        <li>
+            Wählen Sie die Aktivitäten und Ressourcen aus, die Sie teilen möchten.
+            Diese werden in einen neuen Kurs ohne Nutzerdaten importiert.
+        </li>
+        <li>Beschreiben Sie den Inhalt in einem kurzen Webformular.</li>
+        <li>Unsere Redaktion schaltet das Lernpaket frei.</li>
+    </ol>';
+$string['publish_stage_confirm_button'] = 'Ok, fortsetzen!';
+$string['publish_stage_import'] = 'Inhalte auswählen';
+$string['publish_stage_metadata'] = 'Metadaten angeben';
+$string['publish_stage_finish'] = 'Fertig';
+$string['publish_stage_finish_text'] = '
+    <h3>Veröffentlichung erfolgreich</h3>
+    <p>
+        Vielen Dank für die Veröffentlichung dieser Inhalte als offene Bildungsressource!
+    </p>
+    <p>
+        Unser Redaktionsteam wird das Lernpaket nach einer kurzen Prüfung freigeben.
+    </p>';
+$string['publish_stage_finish_button'] = 'Zum Lernpaket';
 $string['publisher'] = 'Anbieter';
 $string['publisher_logo'] = 'Logo';
 $string['rating'] = 'Bewertung';

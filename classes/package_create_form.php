@@ -313,6 +313,9 @@ class package_create_form extends moodleform {
                 }
             }
         }
+        if (!empty($data['etapas_publishas']) && empty($data['etapas_kompetenzen'])) {
+            $errors['etapas_kompetenzen'] = get_string('etapas_kompetenzen_missing', 'block_edupublisher');
+        }
         return $errors;
     }
 }

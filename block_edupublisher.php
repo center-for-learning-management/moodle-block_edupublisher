@@ -1327,11 +1327,35 @@ class block_edupublisher extends block_base {
                 );
             }
         } elseif($canedit) {
-            $options[] = array(
-                "title" => get_string('publish_new_package', 'block_edupublisher'),
-                "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/publish.php?sourcecourse=' . $COURSE->id,
-                "icon" => '/pix/i/publish.svg',
-            );
+            $cache = cache::make('block_edupublisher', 'publish');
+            $pendingpublication = $cache->get("pending_publication_$COURSE->id");
+            if (empty($pendingpublication)) {
+                $cache->set("pending_publication_$COURSE->id", -1);
+                $sql = "SELECT *
+                            FROM {block_edupublisher_publish}
+                            WHERE sourcecourseid = ?
+                                OR targetcourseid = ?";
+                $pendingpublications = $DB->get_records_sql($sql, [ $COURSE->id, $COURSE->id ]);
+                foreach ($pendingpublications as $pendingpublication) {
+                    $pendingpublication = $pendingpublication->sourcecourseid;
+                    $cache->set("pending_publication_$COURSE->id", $pendingpublication);
+                    break;
+                }
+            }
+            if ($pendingpublication > 0) {
+                $options[] = array(
+                    "title" => get_string('publish_new_package_proceed', 'block_edupublisher'),
+                    "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/publish.php?sourcecourseid=' . $pendingpublication,
+                    "icon" => '/pix/i/publish.svg',
+                );
+            } else {
+                $options[] = array(
+                    "title" => get_string('publish_new_package', 'block_edupublisher'),
+                    "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/publish.php?sourcecourseid=' . $COURSE->id,
+                    "icon" => '/pix/i/publish.svg',
+                );
+            }
+
 
             $packages = $DB->get_records_sql('SELECT * FROM {block_edupublisher_packages} WHERE sourcecourse=? AND (active=1 OR userid=?)', array($COURSE->id, $USER->id));
             $haspackages = false;

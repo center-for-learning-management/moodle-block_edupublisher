@@ -35,6 +35,7 @@ $string['as_subcourse:description'] = 'When this option is on, all imported cont
 $string['by'] = 'by';
 $string['cachedef_ispackage'] = 'Stores whether a certain course is a learning resource.';
 $string['cachedef_packagepath'] = 'This stores the path of visited packages in cache.';
+$string['cachedef_publish'] = 'Stores whether a certain course is currently being published.';
 $string['cachedef_restore'] = 'Stores certain data when importing courses in the users session.';
 $string['category'] = 'Category';
 $string['categorysubcourses'] = 'Category for subcourses';
@@ -175,6 +176,7 @@ $string['etapas_ltiurl'] = 'LTI URL';
 $string['etapas_publish_as'] = 'Publish as eTapa';
 $string['etapas_kompetenzen'] = 'Competencies';
 $string['etapas_kompetenzen_help'] = '<p class="alert alert-danger">The linking of resources from the moodle course with competencies is essential, when you want to publish an eTapa. Please use either the Moodle competencies or exacomp.</p>';
+$string['etapas_kompetenzen_missing'] = 'Please add competencies to activities and resources';
 $string['etapas_vonschule'] = 'From school';
 $string['etapas_schulstufe'] = 'Academic year';
 $string['etapas_status'] = 'Status';
@@ -257,6 +259,7 @@ $string['overview'] = 'Overview';
 $string['package'] = 'Package';
 $string['parts_based_upon'] = 'Parts based upon';
 $string['parts_published'] = 'Parts published as';
+$string['pending_publication'] = 'Pending publication of course {$a->courseid}';
 $string['permalink'] = 'Permalink';
 $string['permission_denied'] = 'Permission denied';
 
@@ -272,6 +275,47 @@ $string['privacy:export:uses'] = 'Used packages';
 
 $string['public'] = 'Public';
 $string['publish_new_package'] = 'Publish something';
+$string['publish_new_package_proceed'] = 'Proceed publication process';
+$string['publish_missing_sourcecourseid'] = 'Cannot proceed without source course!';
+$string['publish_proceed_label'] = '
+    <h3>Publish resources</h3>
+    <p>
+        This course has been created in regard of the publication process
+        of eduPublisher. You can proceed the publication process using the
+        following link.
+    </p>
+    <a href="{$a->wwwroot}/blocks/edupublisher/pages/publish.php?sourcecourseid={$a->sourcecourseid}" class="btn btn-primary">
+        Proceed with publication
+    </a>
+';
+$string['publish_stage_confirm'] = 'Start';
+$string['publish_stage_confirm_text'] = '
+    <p>
+        Using this feature, you can publish parts of your course as open
+        educational resource. The publishing process consists of four stages:
+    </p>
+    <ol>
+        <li>Confirm that you wish to publish some parts of your course.</li>
+        <li>
+            Select the activities and resources you want to share.
+            These will be automatically imported into a fresh course without any user data.
+        </li>
+        <li>Fill in the metadata that describe your learning package.</li>
+        <li>Our editorial team unlocks the learning package.</li>
+    </ol>';
+$string['publish_stage_confirm_button'] = 'Ok, proceed!';
+$string['publish_stage_import'] = 'Select resources';
+$string['publish_stage_metadata'] = 'Enter metadata';
+$string['publish_stage_finish'] = 'Finish';
+$string['publish_stage_finish_text'] = '
+    <h3>Publication finished</h3>
+    <p>
+        Thank you very much for publishing this as open educational resource!
+    </p>
+    <p>
+        Our editorial team will have a look and publish this learning package soon.
+    </p>';
+$string['publish_stage_finish_button'] = 'Zum Lernpaket';
 $string['publisher'] = 'Publisher';
 $string['publisher_logo'] = 'Logo';
 $string['rating'] = 'Rating';

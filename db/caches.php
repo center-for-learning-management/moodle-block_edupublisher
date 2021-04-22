@@ -30,6 +30,9 @@ $definitions = [
     'restore' => [
         'mode' => cache_store::MODE_SESSION
     ],
+    'publish' => [
+        'mode' => cache_store::MODE_SESSION
+    ],
     'application' => [
         'mode' => cache_store::MODE_APPLICATION
     ],

@@ -23,384 +23,465 @@
 define('NO_OUTPUT_BUFFERING', true);
 
 require_once('../../../config.php');
+
 require_once($CFG->dirroot . '/backup/util/includes/backup_includes.php');
 require_once($CFG->dirroot . '/backup/moodle2/backup_plan_builder.class.php');
 require_once($CFG->dirroot . '/backup/util/includes/restore_includes.php');
-require_once($CFG->dirroot . '/backup/util/ui/import_extensions.php');
 require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
+
+// Backup of large courses requires extra memory. Use the amount configured
+// in admin settings.
+raise_memory_limit(MEMORY_EXTRA);
 
 require_login();
 
-$packageid = optional_param('package', 0, PARAM_INT);
-$sourcecourseid = optional_param('sourcecourse', 0, PARAM_INT);
+$sourcecourseid = optional_param('sourcecourseid', 0, PARAM_INT);
+$targetcourseid = optional_param('targetcourseid', 0, PARAM_INT);
+$packageid = optional_param('packageid', 0, PARAM_INT);
 
-$package = block_edupublisher::get_package($packageid, false);
-
-// The id of the course we are importing FROM (will only be set if past first stage
-$importcourseid = $sourcecourseid;
-$targetcourseid = 0;
-// If package exist take importcourseid from package-sourcecourse and targetcourseid from package-course.
-if ($package && $package->sourcecourse > 0) {
-    $importcourseid = $package->sourcecourse;
-    $targetcourseid = $package->course;
+if (!empty($sourcecourseid)) {
+    $publish = $DB->get_record('block_edupublisher_publish', array('sourcecourseid' => $sourcecourseid));
+} elseif (!empty($targetcourseid)) {
+    $publish = $DB->get_record('block_edupublisher_publish', array('targetcourseid' => $targetcourseid));
+} elseif (!empty($packageid)) {
+    $publish = $DB->get_record('block_edupublisher_publish', array('packageid' => $packageid));
 }
-$restoretarget = optional_param('target', backup::TARGET_CURRENT_ADDING, PARAM_INT);
 
-// Load the course and context
-$importcourse = get_course($importcourseid);
-$importcontext = context_course::instance($importcourse->id);
-// Must pass login
-require_login($importcourse);
-// Must hold restoretargetimport in the current course
-require_capability('moodle/restore:restoretargetimport', $importcontext);
+if (empty($publish->id)) {
+    $sourcecoureid = required_param('sourcecourseid', PARAM_INT);
+    $publish = (object) array(
+        'sourcecourseid' => $sourcecourseid,
+        'targetcourseid' => 0,
+        'packageid' => 0,
+        'timecreated' => time(),
+        'timemodified' => time(),
+        'payload' => '',
+    );
+    $publish->id = $DB->insert_record('block_edupublisher_publish', $publish);
+}
+$publish->timemodified = time();
+$DB->set_field('block_edupublisher_publish', 'timemodified', $publish->timemodified, array('id' => $publish->id));
+
+$packageid      = $publish->packageid;
+$sourcecourseid = $publish->sourcecourseid;
+$targetcourseid = $publish->targetcourseid;
 
 // Set up the page
-$PAGE->set_title($importcourse->shortname . ': ' . get_string('import'));
-$PAGE->set_heading($importcourse->fullname);
-if ($package->id > 0) {
-    $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/publish.php?package=' . $package->id, array()));
-} else {
-    $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/publish.php?sourcecourse=' . $sourcecourseid, array()));
-}
-
-$PAGE->set_context($importcontext);
+$PAGE->set_title(get_string('publish_new_package', 'block_edupublisher'));
+$PAGE->set_heading(get_string('publish_new_package', 'block_edupublisher'));
 $PAGE->set_pagelayout('incourse');
-$PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
-
+$urlparams = [
+    'packageid' => $packageid,
+    'sourcecourseid' => $sourcecourseid,
+    'targetcourseid' => $targetcourseid,
+];
+$PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/publish.php', $urlparams));
 $PAGE->navbar->add(get_string('publish_new_package', 'block_edupublisher'), $PAGE->url);
-block_edupublisher::check_requirements();
 
-if (optional_param('cancel', 0, PARAM_INT) == 1) {
-    block_edupublisher::print_app_header();
-    if (block_edupublisher::is_admin() || $package->userid == $USER->id) {
-        if ($package->active == 0) {
-            if ($package->course > 0) {
-                delete_course($package->course, false);
-            }
-            $DB->delete_records('block_edupublisher_metadata', array('package' => $package->id));
-            $DB->delete_records('block_edupublisher_packages', array('id' => $package->id));
-            echo $OUTPUT->render_from_template(
-                'block_edupublisher/alert',
-                (object)array('type' => 'success', 'content' => 'Package was removed!', 'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->sourcecourse)
-            );
-        } else {
-            echo $OUTPUT->render_from_template(
-                'block_edupublisher/alert',
-                (object)array('type' => 'warning', 'content' => 'Sorry, package is already activated!', 'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->sourcecourse)
-            );
-        }
-    } else {
-        echo $OUTPUT->render_from_template(
-            'block_edupublisher/alert',
-            (object)array('type' => 'warning', 'content' => get_string('permission_denied', 'block_edupublisher'), 'url' => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->sourcecourse)
-        );
-    }
-    block_edupublisher::print_app_footer();
+$sourcecontext = \context_course::instance($sourcecourseid, 'IGNORE_MISSING');
+if (empty($publish->sourcecourseid) || empty($sourcecontext->id)) {
+    echo $OUTPUT->header();
+    echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
+        'content' => get_string('publish_missing_sourcecourseid', 'block_edupublisher'),
+        'type' => 'danger',
+        'url' => $CFG->wwwroot . '/my',
+    ));
+    echo $OUTPUT->footer();
     die();
 }
 
+if (!empty($targetcourseid)) {
+    $targetcontext = \context_course::instance($targetcourseid);
+    $PAGE->set_context($targetcontext);
+    require_login($targetcourseid);
+} else {
+    $PAGE->set_context($sourcecontext);
+    require_login($sourcecourseid);
+}
 
-// Attempt to load the existing backup controller (backupid will be false if there isn't one)
-$backupid = optional_param('backup', false, PARAM_ALPHANUM);
-//print_r($package);
-$PREVENTFORM = !empty($backupid);
-/**
- * Create a package & course
-**/
-if (empty($backupid)) {
-    // We did not start backup - go through form.
-    //if ((!$package || $package->id == 0) && $importcourseid > 0) {
-    if (empty($package->id)) {
-        $package = block_edupublisher::get_package_from_course($importcourseid);
-    }
+block_edupublisher::check_requirements();
 
-    require_once($CFG->dirroot . '/blocks/edupublisher/classes/package_create_form.php');
-    $form = new package_create_form();
-    if ($data = $form->get_data()) {
-        $data->title = $data->default_title;
-
-        // Create the target course if necessary
-        $category = get_config('block_edupublisher', 'category');
-        $targetcourse = $importcourse;
-        $targetcourse->category = intval($category);
-        $targetcourse->fullname = $data->title;
-        $targetcourse->summary = $data->default_summary['text']; // At this stage the editor is represented as array with fields text and format
-        $targetcourse->visible = 1;
-        $targetcourse->shortname = '[' . $USER->id . '-' . date('YmdHis') . ']';
-        $targetcourse->idnumber = '';
-        if (!empty($data->clonecourse) && $data->clonecourse == 1) {
-            // Create a target course
-            $targetcourse->id = 0;
-            $targetcourse = create_course($targetcourse);
-        } else {
-            require_once($CFG->dirroot . '/course/lib.php');
-            update_course($targetcourse);
-            move_courses(array($targetcourse->id), intval($category));
-        }
-
-        $targetcontext = context_course::instance($targetcourse->id);
-        $targetcourseid = $targetcourse->id;
-
-        $data->course = $targetcourse->id;
-        $data->default_weblink = $CFG->wwwroot . '/course/view.php?id=' . $targetcourse->id;
-
-        if ($targetcourse->id == 0) {
-            block_edupublisher::print_app_header();
-            echo "<p class=\"alert alert-failure\">Package-Course could not be created, will not store anything.</p>";
-            block_edupublisher::print_app_footer();
-            die();
-        } else {
-            $package = block_edupublisher::store_package($data);
-            //redirect($CFG->wwwroot . '/blocks/edupublisher/pages/publish.php?package=' . $package->id);
-            //echo "<p class=\"alert alert-success\">" . get_string('successfully_saved_package', 'block_edupublisher') . "</p>";
-            $PREVENTFORM = true;
-        }
-    }
-    if (!$PREVENTFORM) {
-        block_edupublisher::print_app_header();
-
-        $package = block_edupublisher::prepare_package_form($package);
-        $form->set_data($package);
-        $form->display();
-        block_edupublisher::print_app_footer();
-        die();
+if (!empty($packageid)) {
+    $publish->publishstage_finish = 1;
+    $publishstage = 5;
+} elseif(!empty($publish->importcompleted)) {
+    $publish->publishstage_metadata = 1;
+    $publishstage = 4;
+} elseif(!empty($targetcourseid) && file_exists("$CFG->backuptempdir/source$sourcecourseid/moodle_backup.xml")) {
+    $publish->publishstage_import = 1;
+    $publishstage = 3;
+} else {
+    $confirmed = optional_param('confirmed', 0, PARAM_INT);
+    if ($confirmed == 0) {
+        $publish->publishstage_confirm = 1;
+        $publishstage = 0;
+    } elseif (!file_exists("$CFG->backuptempdir/source$sourcecourseid/moodle_backup.xml")) {
+        $publish->publishstage_import = 1;
+        $publishstage = 1;
+    } else {
+        $publish->publishstage_import = 1;
+        $publishstage = 2;
     }
 }
 
-/**
- * Import contents
-**/
-if ($package->id > 0 && $PREVENTFORM) {
-    try {
-        $PAGE->set_url($CFG->wwwroot . '/blocks/edupublisher/pages/publish.php?package=' . $package->id);
-        block_edupublisher::print_app_header();
+echo $OUTPUT->header();
+echo $OUTPUT->render_from_template('block_edupublisher/publish_navbar', $publish);
 
-        // If they are the NOT the same we need the import-function
-        $DOIMPORT = ($package->sourcecourse != $package->course);
-        if (!$DOIMPORT) {
-            $DOPOSTTASKS = true;
-        } else {
-            if (empty($targetcourse) || empty($targetcourse->id)) {
-                $targetcourse = get_course($targetcourseid);
+switch($publishstage) {
+    case 0:
+        echo get_string('publish_stage_confirm_text', 'block_edupublisher');
+        $url = new \moodle_url('/blocks/edupublisher/pages/publish.php', $urlparams + ['confirmed' => 1]);
+        $label = get_string('publish_stage_confirm_button', 'block_edupublisher');
+        echo "<div style=\"text-align: center;\"><a href=\"$url\" class=\"btn btn-primary\">$label</a></div>\n";
+    break;
+    case 1:
+        // 1.) Create a backup.
+        require_capability('moodle/backup:backuptargetimport', $sourcecontext);
+        $bc = new \backup_controller(
+                    \backup::TYPE_1COURSE, $sourcecourseid, \backup::FORMAT_MOODLE,
+                    \backup::INTERACTIVE_YES, \backup::MODE_SAMESITE, $USER->id
+                );
+        $format = $bc->get_format();
+        $type = $bc->get_type();
+        $id = $bc->get_id();
+
+        $targetfilename = "backup$sourcecourseid.mbz";
+
+        $settings = array(
+            'users' => 0,
+            'filename' => $targetfilename,
+        );
+        foreach ($settings as $setting => $value) {
+            try {
+                $bc->get_plan()->get_setting($setting)->set_value($value);
+            } catch(Exception $e) {
+
             }
-            $targetcontext = context_course::instance($targetcourseid);
-            // Load the course +context to import from
-            $importcourse = get_course($importcourseid);
-            $importcontext = context_course::instance($importcourseid);
-            // Make sure the user can backup from that course, otherwise we are not entitle to publish something!
-            require_capability('moodle/backup:backuptargetimport', $importcontext);
+        }
 
-            block_edupublisher::role_set(array($targetcourse->id), array($USER->id), 'defaultroleteacher');
-            require_capability('moodle/restore:restoretargetimport', $targetcontext);
-            // Prepare the backup renderer
-            $renderer = $PAGE->get_renderer('core','backup');
+        $bc->finish_ui();
+        $bc->execute_plan();
+        $results = $bc->get_results();
+        $file = $results['backup_destination'];
 
-            // Attempt to load the existing backup controller (backupid will be false if there isn't one)
-            $backupid = optional_param('backup', false, PARAM_ALPHANUM);
-            if (!($bc = backup_ui::load_controller($backupid))) {
-                $bc = new backup_controller(backup::TYPE_1COURSE, $importcourse->id, backup::FORMAT_MOODLE,
-                                        backup::INTERACTIVE_YES, backup::MODE_IMPORT, $USER->id);
-                $bc->get_plan()->get_setting('users')->set_status(backup_setting::LOCKED_BY_CONFIG);
-                $settings = $bc->get_plan()->get_settings();
-                $settings_enable = array( 'blocks');
-                $settings_disable = array( 'calendarevents', 'filters', 'users');
+        $fp = \get_file_packer('application/vnd.moodle.backup');
+        $backuptempdir = \make_backup_temp_directory("source$sourcecourseid");
+        $file->extract_to_pathname($fp, $backuptempdir);
+        // Free system resources.
+        $file->delete();
+    case 2:
+        // 2.) Create new course and import.
+        if (empty($targetcourseid)) {
+            // Create a target.
+            $category = \get_config('block_edupublisher', 'category');
+            $targetcourse = (object) array();
+            $targetcourse->category = intval($category);
+            $targetcourse->fullname = get_string('pending_publication', 'block_edupublisher', array('courseid' => $sourcecourseid));
+            $targetcourse->summary = '';
+            $targetcourse->visible = 1;
+            $targetcourse->shortname = '[' . $USER->id . '-' . date('YmdHis') . ']';
+            $targetcourse->idnumber = '';
+            $targetcourse->newsitems = 0;
+            $targetcourse = \create_course($targetcourse);
+            $targetcourseid = $targetcourse->id;
+            $publish->targetcourseid = $targetcourseid;
+            $DB->set_field('block_edupublisher_publish', 'targetcourseid', $publish->targetcourseid, array('id' => $publish->id));
 
-                // For the initial stage we want to hide all locked settings and if there are
-                // no visible settings move to the next stage
-                $visiblesettings = false;
-                foreach ($settings as $setting) {
-                    // Disable undesired settings
-                    if (in_array($setting->get_name(), $settings_disable) && $setting->get_status() == backup_setting::NOT_LOCKED) {
-                        $setting->set_value(0);
-                        $setting->set_status(backup_setting::LOCKED_BY_CONFIG);
-                    }
-                    if (in_array($setting->get_name(), $settings_enable) && $setting->get_status() == backup_setting::NOT_LOCKED) {
-                        $setting->set_value(1);
-                        $setting->set_status(backup_setting::LOCKED_BY_CONFIG);
-                    }
-                    if ($setting->get_status() !== backup_setting::NOT_LOCKED) {
-                        $setting->set_visibility(backup_setting::HIDDEN);
-                    } else {
-                        $visiblesettings = true;
-                    }
+            // we will do this using the block!
+            /*
+            $labeldata = array(
+                'course' => $targetcourseid,
+                'description' => get_string(
+                    'publish_proceed_label',
+                    'block_edupublisher',
+                    [ 'sourcecourseid' => $sourcecourseid, 'wwwroot' => $CFG->wwwroot ]
+                ),
+                'name' => '',
+                'section' => 0,
+            );
+            $label = \block_edupublisher\module_compiler::compile('label', $labeldata);
+            $module = \block_edupublisher\module_compiler::create($label);
+            */
+        }
+        // Grant the user editor permission to do the import.
+        $roleid = \get_config('local_eduvidual', 'defaultroleteacher');
+        \block_edupublisher\lib::course_manual_enrolments([$targetcourseid], [$USER->id], $roleid);
+    case 3:
+        // Ensure block_edupublisher is active in both courses.
+        $targetcontext = \context_course::instance($targetcourseid);
+        \block_edupublisher\lib::add_to_context($targetcontext);
+        $sourcecontext = \context_course::instance($sourcecourseid);
+        \block_edupublisher\lib::add_to_context($sourcecontext);
+
+        // Must hold restoretargetimport in the current course
+        require_capability('moodle/restore:restoretargetimport', $sourcecontext);
+
+        $renderer = $PAGE->get_renderer('core','backup');
+
+        $cancel      = optional_param('cancel', '', PARAM_ALPHA);
+        $contextid   = optional_param('contextid', $targetcontext->id, PARAM_INT);
+        $stage       = optional_param('stage', restore_ui::STAGE_DESTINATION, PARAM_INT);
+        $restore     = optional_param('restore', '', PARAM_ALPHANUM);
+
+        // Prepare a progress bar which can display optionally during long-running
+        // operations while setting up the UI.
+        $slowprogress = new \core\progress\display_if_slow(get_string('preparingui', 'backup'));
+        // Overall, allow 10 units of progress.
+        $slowprogress->start_progress('', 10);
+        // This progress section counts for loading the restore controller.
+        $slowprogress->start_progress('', 1, 1);
+
+        $filepath = "source$sourcecourseid";
+        $_POST['filepath'] = $filepath;
+        $_POST['stage'] = $stage;
+        $_POST['sesskey'] = \sesskey();
+        $_POST['targetid'] = $targetcourseid;
+        $_POST['target'] = 1; // merge courses.
+
+        if ($stage == \restore_ui::STAGE_DESTINATION) {
+            $_POST['stage'] = restore_ui::STAGE_SETTINGS;
+            $_POST['target'] = backup::TARGET_CURRENT_DELETING;
+            $restore = \restore_ui::engage_independent_stage($stage, $contextid);
+            /*
+            $url = new \moodle_url('/blocks/edupublisher/pages/publish.php', $urlparams + array(
+                'contextid' => $contextid,
+                'filepath' => $filepath,
+                'sesskey' => \sesskey(),
+                'stage' => restore_ui::STAGE_SETTINGS,
+                'target' => backup::TARGET_CURRENT_DELETING,
+                'targetid' => $targetcourseid,
+            ));
+            redirect($url->__toString());
+            */
+
+            $stage = restore_ui::STAGE_SETTINGS;
+        }
+
+        if ($stage == restore_ui::STAGE_SETTINGS) {
+            $restoreid = optional_param('restore', false, PARAM_ALPHANUM);
+            $rc = restore_ui::load_controller($restoreid);
+
+            if (!$rc) {
+                $restore = restore_ui::engage_independent_stage($stage/2, $contextid);
+
+                if ($restore->process()) {
+                    $rc = new restore_controller($restore->get_filepath(), $restore->get_course_id(), backup::INTERACTIVE_YES,
+                            backup::MODE_SAMESITE, $USER->id, $restore->get_target(), null, backup::RELEASESESSION_YES);
                 }
-                // @rschrenk: We will always skip this step!
-                //import_ui::skip_current_stage(!$visiblesettings);
-                import_ui::skip_current_stage(true);
             }
-            // Prepare the import UI
-            $backup = new import_ui($bc, array('importid'=>$importcourse->id, 'target'=>$restoretarget));
-            // Process the current stage
-            $backup->process();
-            // If this is the confirmation stage remove the filename setting
-            if ($backup->get_stage() == backup_ui::STAGE_CONFIRMATION) {
-                //echo '<p class="alert alert-warning">Consent that you have permission to publish</p>';
-                $backup->get_setting('filename')->set_visibility(backup_setting::HIDDEN);
-                import_ui::skip_current_stage(true);
-            }
-            // If it's the final stage process the import
-            if ($backup->get_stage() == backup_ui::STAGE_FINAL) {
-                // Display an extra progress bar so that we can show the current stage.
-                echo html_writer::start_div('', array('id' => 'executionprogress'));
-                echo $renderer->progress_bar($backup->get_progress_bar());
-                // Start the progress display - we split into 2 chunks for backup and restore.
-                $progress = new \core\progress\display();
-                $progress->start_progress('', 2);
-                $backup->get_controller()->set_progress($progress);
-                // Prepare logger for backup.
-                $logger = new core_backup_html_logger($CFG->debugdeveloper ? backup::LOG_DEBUG : backup::LOG_INFO);
-                $backup->get_controller()->add_logger($logger);
-                // First execute the backup
-                $backup->execute();
-                $backup->destroy();
-                unset($backup);
-                // Note that we've done that progress.
-                $progress->progress(1);
-                // Check whether the backup directory still exists. If missing, something
-                // went really wrong in backup, throw error. Note that backup::MODE_IMPORT
-                // backups don't store resulting files ever
-                $tempdestination = make_backup_temp_directory($backupid, false);
-                if (!file_exists($tempdestination) || !is_dir($tempdestination)) {
-                    print_error('unknownbackupexporterror'); // shouldn't happen ever
-                }
-                // Prepare the restore controller. We don't need a UI here as we will just use what
-                // ever the restore has (the user has just chosen).
-                $rc = new restore_controller($backupid, $targetcourse->id, backup::INTERACTIVE_NO, backup::MODE_IMPORT, $USER->id, $restoretarget);
-                // Start a progress section for the restore, which will consist of 2 steps
-                // (the precheck and then the actual restore).
-                $progress->start_progress('Restore process', 2);
-                $rc->set_progress($progress);
-                // Set logger for restore.
-                $rc->add_logger($logger);
-                // Convert the backup if required.... it should NEVER happed
+            if ($rc) {
+                // check if the format conversion must happen first
                 if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
                     $rc->convert();
                 }
-                // Mark the UI finished.
-                //$rc->finish_ui();
-                // Execute prechecks
-                $warnings = false;
-                if (!$rc->execute_precheck()) {
-                    $precheckresults = $rc->get_precheck_results();
-                    if (is_array($precheckresults)) {
-                        if (!empty($precheckresults['errors'])) { // If errors are found, terminate the import.
-                            fulldelete($tempdestination);
-                            echo $renderer->precheck_notices($precheckresults);
-                            echo $OUTPUT->continue_button(new moodle_url('/course/view.php', array('id'=>$importcourseid)));
-                            block_edupublisher::print_app_footer();
-                            die();
-                        }
-                        if (!empty($precheckresults['warnings'])) { // If warnings are found, go ahead but display warnings later.
-                            $warnings = $precheckresults['warnings'];
+
+                $restore = new restore_ui($rc, array('contextid'=>$context->id));
+            }
+
+            $restore->save_controller();
+            $_POST['contextid'] = $context->id;
+            $_POST['restore'] = $restore->get_restoreid();
+            $_POST['sectionid'] = $sectionid;
+            $_POST['stage'] = restore_ui::STAGE_SCHEMA;
+            $_POST['sesskey'] = \sesskey();
+            /*
+
+            $url = new \moodle_url('/blocks/edupublisher/pages/publish.php', $urlparams + array(
+                'contextid' => $context->id,
+                'packageid' => $package->id,
+                'restore' => $restore->get_restoreid(),
+                'sectionid' => $sectionid,
+                'stage' => restore_ui::STAGE_SCHEMA,
+                'sesskey' => \sesskey(),
+            ));
+
+            redirect($url->__toString());
+            */
+
+            $stage = restore_ui::STAGE_SCHEMA;
+        }
+        if ($stage >= restore_ui::STAGE_SCHEMA) {
+            $restoreid = optional_param('restore', false, PARAM_ALPHANUM);
+            $rc = restore_ui::load_controller($restoreid);
+
+            if (!$rc) {
+                $restore = restore_ui::engage_independent_stage($stage/2, $contextid);
+                if ($restore->process()) {
+                    $rc = new restore_controller($restore->get_filepath(), $restore->get_course_id(), backup::INTERACTIVE_YES,
+                            backup::MODE_SAMESITE, $USER->id, $restore->get_target(), null, backup::RELEASESESSION_YES);
+                }
+            }
+            if ($rc) {
+                // check if the format conversion must happen first
+                if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
+                    $rc->convert();
+                }
+
+                $restore = new restore_ui($rc, array('contextid'=>$context->id));
+            }
+            $stage = restore_ui::STAGE_REVIEW;
+        }
+
+        if ($stage == restore_ui::STAGE_REVIEW) {
+            /*
+            $url = new \moodle_url('/blocks/edupublisher/pages/publish.php', $urlparams + array(
+                'contextid' => $contextid,
+                'stage' => $stage,
+                'restore' => $restore->get_restoreid(),
+                'sesskey' => \sesskey(),
+            ));
+            */
+        }
+
+        // End progress section for loading restore controller.
+        $slowprogress->end_progress();
+
+        // This progress section is for the 'process' function below.
+        $slowprogress->start_progress('', 1, 9);
+
+        // Depending on the code branch above, $restore may be a restore_ui or it may
+        // be a restore_ui_independent_stage. Either way, this function exists.
+        $restore->set_progress_reporter($slowprogress);
+        $outcome = $restore->process();
+
+        if (!$restore->is_independent() && $restore->enforce_changed_dependencies()) {
+            debugging('Your settings have been altered due to unmet dependencies', DEBUG_DEVELOPER);
+        }
+
+        $loghtml = '';
+        // Finish the 'process' progress reporting section, and the overall count.
+        $slowprogress->end_progress();
+        $slowprogress->end_progress();
+
+        if (!$restore->is_independent()) {
+            // Use a temporary (disappearing) progress bar to show the precheck progress if any.
+            $precheckprogress = new \core\progress\display_if_slow(get_string('preparingdata', 'backup'));
+            $restore->get_controller()->set_progress($precheckprogress);
+            if ($restore->get_stage() == restore_ui::STAGE_PROCESS && !$restore->requires_substage() && $backupmode != backup::MODE_ASYNC) {
+                try {
+                    // Div used to hide the 'progress' step once the page gets onto 'finished'.
+                    echo html_writer::start_div('', array('id' => 'executionprogress'));
+                    // Show the current restore state (header with bolded item).
+                    echo $renderer->progress_bar($restore->get_progress_bar());
+                    // Start displaying the actual progress bar percentage.
+                    $restore->get_controller()->set_progress(new \core\progress\display());
+                    // Prepare logger.
+                    $logger = new core_backup_html_logger($CFG->debugdeveloper ? backup::LOG_DEBUG : backup::LOG_INFO);
+                    $restore->get_controller()->add_logger($logger);
+                    // Do actual restore.
+                    $restore->execute();
+
+                    // Now remove empty sections.
+                    $sections = $DB->get_records('course_sections', array('course' => $targetcourseid));
+                    $nr = 0;
+                    foreach ($sections as $section) {
+                        if ($section->section > 0 && empty($section->sequence)) {
+                            $DB->delete_records('course_sections', array('id' => $section->id));
+                        } else {
+                            $DB->set_field('course_sections', 'section', $nr++, array('id' => $section->id));
                         }
                     }
-                }
-                if ($restoretarget == backup::TARGET_CURRENT_DELETING || $restoretarget == backup::TARGET_EXISTING_DELETING) {
-                    restore_dbops::delete_course_content($targetcourse->id);
-                }
-                // Execute the restore.
-                $rc->execute_plan();
-                // Delete the temp directory now
-                fulldelete($tempdestination);
-                // End restore section of progress tracking (restore/precheck).
-                $progress->end_progress();
-                // All progress complete. Hide progress area.
-                $progress->end_progress();
-                echo html_writer::end_div();
-                echo html_writer::script('document.getElementById("executionprogress").style.display = "none";');
-                // Display a notification and a continue button
-                if ($warnings) {
-                    echo $OUTPUT->box_start();
-                    echo $OUTPUT->notification(get_string('warning'), 'notifyproblem');
-                    echo html_writer::start_tag('ul', array('class'=>'list'));
-                    foreach ($warnings as $warning) {
-                        echo html_writer::tag('li', $warning);
+                    rebuild_course_cache($targetcourseid, true);
+
+                    fulldelete($CFG->backuptempdir . '/' . $filepath);
+                    $publish->importcompleted = time();
+                    $DB->set_field('block_edupublisher_publish', 'importcompleted', $publish->importcompleted, array('id' => $publish->id));
+                    redirect($PAGE->url->__toString());
+
+                    echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
+                        'type' => 'success',
+                        'content' => get_string('publish_stage_confirm_button', 'block_edupublisher'),
+                        'url' => $PAGE->url->__toString(),
+                    ));
+
+                    // Get HTML from logger.
+                    if ($CFG->debugdisplay) {
+                        $loghtml = $logger->get_html();
                     }
-                    echo html_writer::end_tag('ul');
-                    echo $OUTPUT->box_end();
+                    echo html_writer::end_div();
+                } catch(Exception $e) {
+                    $restore->cleanup();
+                    throw $e;
                 }
-                $DOPOSTTASKS = true;
             } else {
-                // Otherwise save the controller and progress
-                $backup->save_controller();
+                $restore->save_controller();
             }
         }
-        if ($DOPOSTTASKS) {
-            // Create edupublisher-block in sourcecontext & targetcourse.
-            $sourcecontext = context_course::instance($importcourseid);
-            \block_edupublisher\lib::add_to_context($targetcontext);
-            \block_edupublisher\lib::add_to_context($sourcecontext);
 
-            // Flatten sections and remove empty ones.
-            $sections = $DB->get_records('course_sections', array('course' => $targetcourse->id));
-            $i = 0;
-            foreach($sections AS $section) {
-                if (empty($section->sequence)) {
-                    $DB->delete_records('course_sections', array('id' => $section->id));
-                } else {
-                    $section->section = $i++;
-                    $DB->update_record('course_sections', $section);
-                }
-            }
-            rebuild_course_cache($package->course, true);
+        echo $renderer->progress_bar($restore->get_progress_bar());
 
-            // Activate package
-            $package = block_edupublisher::get_package($package->id, true);
-
-            // Unenrol all users from targetcourse
-            $users = get_enrolled_users($targetcontext);
-            $instances = $DB->get_records('enrol', array('courseid' => $package->course));
-            foreach ($instances as $instance) {
-                $plugin = enrol_get_plugin($instance->enrol);
-                foreach($users AS $_user) {
-                    $plugin->unenrol_user($instance, $_user->id);
-                }
-            }
-
-            block_edupublisher::store_package($package);
-            // Create the comment.
-            $sendto = array('allmaintainers');
-            block_edupublisher::store_comment($package, 'comment:template:package_created', $sendto, true, false);
-
-            echo $OUTPUT->notification(get_string('successfully_published_package', 'block_edupublisher'), 'notifysuccess');
-            echo $OUTPUT->continue_button(new moodle_url('/blocks/edupublisher/pages/package.php?id=' . $package->id));
-            // Get and display log data if there was any.
-            if (isset($loghtml)) {
-                $loghtml = $logger->get_html();
-                if ($loghtml != '') {
-                    echo $renderer->log_display($loghtml);
-                }
-            }
-            block_edupublisher::print_app_footer();
-            die();
+        if ($restore->get_stage() != restore_ui::STAGE_PROCESS) {
+            echo $restore->display($renderer);
+        } else if ($restore->get_stage() == restore_ui::STAGE_PROCESS && $restore->requires_substage()) {
+            echo $restore->display($renderer);
         }
-        if ($backup) {
-            // Display the current stage
-            if ($backup->enforce_changed_dependencies()) {
-                debugging('Your settings have been altered due to unmet dependencies', DEBUG_DEVELOPER);
-            }
 
-            if (!class_exists('phpQuery', true)) {
-                require_once($CFG->dirroot . '/blocks/edupublisher/vendor/somesh/php-query/phpQuery/phpQuery.php');
-            }
-            $doc = phpQuery::newDocument($backup->display($renderer));
-            $cbox = pq('#id_previous')->parent()->parent()->parent();
-            if ($backup->get_stage() <= 2) {
-                pq('#id_previous')->parent()->parent()->remove();
-            }
-            pq('#id_cancel')->remove();
-            pq($cbox)->append(pq('<input>')->attr('type', 'button')->attr('value', get_string('cancel'))->attr('class', 'ui-btn btn')->attr('onclick', "require(['block_edupublisher/main'], function(MAIN) { MAIN.cancelPackageForm('" . $CFG->wwwroot . "/blocks/edupublisher/pages/publish.php?package=" . $package->id . "&cancel=1') }); return false;"));
-            pq($cbox)->append(pq($cbox)->find('#id_submitbutton')->parent()->parent());
+        $restore->destroy();
+        unset($restore);
 
-            echo $doc->htmlOuter();
-
-            $backup->destroy();
-            unset($backup);
+        // Display log data if there was any.
+        if ($loghtml != '') {
+            echo $renderer->log_display($loghtml);
         }
-        block_edupublisher::print_app_footer();
-    } finally {
-        // Unenrol user from targetcourse
-        block_edupublisher::role_set(array($package->course), array($USER->id), -1);
-    }
+    break;
+    case 4:
+        // 3.) Enter metadata.
+        require_once($CFG->dirroot . '/blocks/edupublisher/classes/package_create_form.php');
+
+        if (empty($packageid)) {
+            $sourcecourse = \get_course($sourcecourseid);
+            $package = \block_edupublisher::get_package_from_course($sourcecourseid);
+            $package->course = $targetcourseid;
+        }
+
+        \block_edupublisher\lib::exacompetencies($package);
+
+        // @todo Unserialize and serialize data and story as payload in $publish
+
+        $form = new package_create_form($PAGE->url, $package);
+        if ($form->is_submitted()) {
+            // Serialize form data and store to payload.
+            $publish->payload = serialize($form->get_submitted_data());
+            $DB->set_field('block_edupublisher_publish', 'payload', $publish->payload, array('id' => $publish->id));
+        } elseif (!empty($publish->payload)) {
+            $data = unserialize($publish->payload);
+            $form->set_data($data);
+        }
+
+        if ($data = $form->get_data()) {
+            $data->title = $data->default_title;
+            $package = \block_edupublisher::store_package($data);
+
+            $publish->packageid = $package->id;
+            $DB->set_field('block_edupublisher_publish', 'packageid', $publish->packageid, array('id' => $publish->id));
+
+            echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
+                'content' => get_string('publish_stage_confirm_button', 'block_edupublisher'),
+                'type' => 'success',
+                'url' => $PAGE->url->__toString(),
+            ));
+
+            redirect($PAGE->url->__toString());
+        } else {
+            $form->set_data($package);
+            $form->display();
+        }
+    break;
+    case 5:
+        // Deny the user editor permission afterthe import.
+        $roleid = \get_config('local_eduvidual', 'defaultroleteacher');
+        block_edupublisher\lib::course_manual_enrolments([$targetcourseid], [$USER->id], $roleid, true);
+
+        $cache = cache::make('block_edupublisher', 'publish');
+        $cache->delete("pending_publication_$COURSE->id");
+
+        echo get_string('publish_stage_finish_text', 'block_edupublisher');
+        $url = new \moodle_url('/blocks/edupublisher/pages/package.php', ['id' => $publish->packageid]);
+        $label = get_string('publish_stage_finish_button', 'block_edupublisher');
+        echo "<div style=\"text-align: center;\"><a href=\"$url\" class=\"btn btn-primary\">$label</a></div>\n";
+        $DB->delete_records('block_edupublisher_publish', array('id' => $publish->id));
+    break;
 }
+
+echo $OUTPUT->footer();

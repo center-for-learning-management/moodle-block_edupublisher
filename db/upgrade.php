@@ -477,7 +477,31 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
         upgrade_block_savepoint(true, 2021041600, 'edupublisher');
     }
+    if ($oldversion < 2021042200) {
+        $table = new xmldb_table('block_edupublisher_publish');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('sourcecourseid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('targetcourseid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('importcompleted', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('packageid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('payload', XMLDB_TYPE_TEXT, null, null, null, null, null);
 
+        // Adding keys to table block_edupublisher_publish.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table block_edupublisher_publish.
+        $table->add_index('idx_sourcecourseid', XMLDB_INDEX_UNIQUE, ['sourcecourseid']);
+        $table->add_index('idx_targetcourseid', XMLDB_INDEX_NOTUNIQUE, ['targetcourseid']);
+        $table->add_index('idx_packageid', XMLDB_INDEX_NOTUNIQUE, ['packageid']);
+        // Conditionally launch create table for block_edupublisher_publish.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        upgrade_block_savepoint(true, 2021042200, 'edupublisher');
+    }
 
 
     return true;
