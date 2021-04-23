@@ -92,9 +92,20 @@ if (empty($publish->sourcecourseid) || empty($sourcecontext->id)) {
 }
 
 if (!empty($targetcourseid)) {
-    $targetcontext = \context_course::instance($targetcourseid);
-    $PAGE->set_context($targetcontext);
-    require_login($targetcourseid);
+    $targetcontext = \context_course::instance($targetcourseid, IGNORE_MISSING);
+    if (empty($targetcontext->id)) {
+        $publish->targetcourseid = 0;
+        $publish->importcompleted = 0;
+        $publish->packageid = 0;
+        $DB->set_field('block_edupublisher_publish', 'targetcourseid', 0, array('id' => $publish->id));
+        $DB->set_field('block_edupublisher_publish', 'importcompleted', 0, array('id' => $publish->id));
+        $DB->set_field('block_edupublisher_publish', 'packageid', 0, array('id' => $publish->id));
+        $PAGE->set_context($sourcecontext);
+        require_login($sourcecourseid);
+    } else {
+        $PAGE->set_context($targetcontext);
+        require_login($targetcourseid);
+    }
 } else {
     $PAGE->set_context($sourcecontext);
     require_login($sourcecourseid);
@@ -179,7 +190,7 @@ switch($publishstage) {
             $targetcourse->category = intval($category);
             $targetcourse->fullname = get_string('pending_publication', 'block_edupublisher', array('courseid' => $sourcecourseid));
             $targetcourse->summary = '';
-            $targetcourse->visible = 1;
+            $targetcourse->visible = 0;
             $targetcourse->shortname = '[' . $USER->id . '-' . date('YmdHis') . ']';
             $targetcourse->idnumber = '';
             $targetcourse->newsitems = 0;
