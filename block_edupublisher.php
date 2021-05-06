@@ -61,26 +61,37 @@ class block_edupublisher extends block_base {
                 $parts = explode("_", $key);
                 if (count($parts) == 1 || in_array($parts[0], $includechannels) || count($includechannels) > 0 && $includechannels[0] == '*') {
                     self::as_xml_array($item, $key, $package[$key]);
-                    /*
-                    if (is_array($package[$key])) {
-                        $skeys = array_keys($package[$key]);
-                        foreach ($skeys AS $skey) {
-                            $item->addChild($skey, htmlspecialchars($package[$key][$skey]));
-                        }
-                        //$element = $item->addChild($key);
-                        //$item->addChild($key, json_encode($package[$key]));
-                    } else {
-                        $item->addChild($key, htmlspecialchars($package[$key]));
+                }
+            }
+            if (in_array('etapas', $includechannels)) {
+                $sql = "SELECT bee.*,u.firstname,u.lastname
+                            FROM {block_edupublisher_evaluatio} bee, {user} u
+                            WHERE bee.packageid = :packageid
+                                AND u.id = bee.userid
+                            ORDER BY evaluated_on DESC";
+                $params = [ 'packageid' => $package['id'] ];
+                global $DB;
+                $evaluations = $DB->get_records_sql($sql, $params);
+                if (count($evaluations) > 0) {
+                    $evalsitem = $item->addChild('evaluations');
+                    foreach ($evaluations as $e) {
+                        $evalitem = $evalsitem->addChild('evaluation');
+                        // The evaluation
+                        $evalitem->addChild('id', $e->id);
+                        $evalitem->addChild('evaluated_on', $e->evaluated_on);
+                        $evalitem->addChild('evaluated_at', $e->evaluated_at);
+                        $evalitem->addChild('comprehensible_description', $e->comprehensible_description);
+                        $evalitem->addChild('suitable_workflow', $e->suitable_workflow);
+                        $evalitem->addChild('reasonable_preconditions', $e->reasonable_preconditions);
+                        $evalitem->addChild('correct_content', $e->correct_content);
+                        $evalitem->addChild('improvement_specification', $e->improvement_specification);
+                        $evalitem->addChild('technology_application', $e->technology_application);
+                        $evalitem->addChild('comments', $e->comments);
+                        // User data
+                        $evalitem->addChild('userid', $e->userid);
+                        $evalitem->addChild('firstname', $e->firstname);
+                        $evalitem->addChild('lastname', $e->lastname);
                     }
-                    */
-
-                    /*
-                    if (strpos($package[$key], "<") > -1) {
-                        $xml[] = "\t\t<$key><![CDATA[" . $package[$key] . "]]></$key>";
-                    } else {
-                        $xml[] = "\t\t<$key>" . $package[$key] . "</$key>";
-                    }
-                    */
                 }
             }
         }
