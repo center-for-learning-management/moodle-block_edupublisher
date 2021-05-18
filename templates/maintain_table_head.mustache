@@ -37,6 +37,7 @@
             <col style="width: 50px; text-align: center;" />
             <col style="width: 50px; text-align: center;" />
             <col style="width: 50px; text-align: center;" />
+            <col style="width: 50px; text-align: center;" />
             <col style="text-align: center;" />
             {{#maintainer_default}} <col style="width: 30px; text-align: center;" span="2"/>{{/maintainer_default}}
             {{#maintainer_etapas}} <col style="width: 30px; text-align: center;" span="2"/>{{/maintainer_etapas}}
@@ -48,6 +49,7 @@
                 <th class="cell c0">
                     <input type="checkbox" value="off" onclick="$('#edupublisher-list-table-{{uniqid}} tbody tr:not(.exclamation)').toggleClass('hidden');" />
                 </th>
+                <th class="cell c1"><i class="fa fa-certificate" title="{{#str}} competencies, competency {{/str}}"></i></th>
                 <th class="cell c1"><i class="fa fa-lock"></i></th>
                 <th class="cell c0">#</th>
                 <th class="cell c1">{{#str}} title, block_edupublisher {{/str}}</th>

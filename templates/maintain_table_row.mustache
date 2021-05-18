@@ -22,6 +22,16 @@
         {{/exclamation}}
     </td>
     <td>
+        {{#hasexacompsourceids}}
+            <i class="fa fa-certificate" style="color: green;"
+               title="{{#str}} competencies, competency {{/str}}"></i>
+        {{/hasexacompsourceids}}
+        {{^hasexacompsourceids}}
+            <i class="fa fa-certificate" style="color: darkred;"
+               title="{{#str}} competencies, competency {{/str}}"></i>
+        {{/hasexacompsourceids}}
+    </td>
+    <td>
         {{#authoreditingpermission}}
             <i class="fa fa-unlock"></i>
         {{/authoreditingpermission}}
