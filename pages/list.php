@@ -40,7 +40,7 @@ if (!empty($channel) && in_array($channel, $channels)) {
 }
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
-$PAGE->set_pagelayout('mydashboard');
+$PAGE->set_pagelayout('standard');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
