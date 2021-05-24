@@ -156,12 +156,16 @@ class externalsources {
             require_once($CFG->dirroot . '/lib/grade/grade_category.php');
             require_once($CFG->dirroot . '/lib/grade/grade_item.php');
             require_once($CFG->dirroot . '/lib/gradelib.php');
+            \grade_regrade_final_grades_if_required($course);
             $gc = \grade_category::fetch(array('courseid'=>$course->id));
             if (!empty($gc->id)) {
                 $gradeinfo = (object) array('id' => $gc->id, 'aggregation' => 10, 'aggregateonlygraded' => 1, 'courseid' => $course->id);
+                $gc->aggregation = 10;
+                $DB->update_record('grade_categories', $gc);
                 \grade_category::set_properties($gc, $gradeinfo);
                 \rebuild_course_cache($course->id);
             }
+
 
             if (self::$debug) echo "=====> Course is #<a href=\"$CFG->wwwroot/course/view.php?id=$course->id\">$course->id</a>\n";
             if (self::$debug) echo "=======> Timelastmodified $timelastmodified || $courserec->lasttimemodified < $timelastmodified\n";
@@ -226,6 +230,7 @@ class externalsources {
 
                 if (!empty($xmlsections)) {
                     for ($xmlnr = 0; $xmlnr < count($xmlsections); $xmlnr++) {
+                        if (empty($xmlsections[$xmlnr])) continue;
                         $xmlsection = $xmlsections[$xmlnr];
                         $dbsectionnr = $xmlnr+1;
                         $externalsectionid = intval($xmlsection['@attributes']['reference']);
@@ -316,6 +321,7 @@ class externalsources {
                                     'cmid' => $extcm->id,
                                 );
                                 $DBITEM->id = $DB->insert_record('block_edupublisher_extitem', $DBITEM);
+                                // @todo set aggregationcoef to 1
                             } else {
                                 // Update item data.
                                 if (self::$debug) echo "===========> Update item $reference as cmid $DBITEM->cmid\n";
@@ -331,6 +337,7 @@ class externalsources {
                                     \moveto_module($cmitem, $DBSECTION);
                                 }
                                 \update_module($cmitem);
+                                // @todo set aggregationcoef to 1
                             }
                             $DB->set_field('grade_items', 'grademax', 100, array('courseid' => $course->id, 'itemtype' => 'course'));
                         }
