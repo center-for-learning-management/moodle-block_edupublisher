@@ -212,16 +212,13 @@ class lib {
         $competencies = $DB->get_records_sql($sql, array($package->course));
         $supportstranslator = file_exists($CFG->dirroot . '/local/komettranslator/version.php');
         foreach ($competencies as $competence) {
-            $nr = count($package->default_exacompdatasources);
-            $package->default_exacompdatasources[$nr] = "";
-            $package->default_exacompsourceids[$nr] = 0;
-            $package->default_exacomptitles[$nr] = !empty($competence->description) ? $competence->description : $competence->shortname;
             if ($supportstranslator) {
                 // Try mapping to exacomp.
                 $mapping = \local_komettranslator\locallib::mapping_internal('descriptor', $competence->id);
                 if (!empty($mapping->id) && empty($flagfound[$mapping->sourceid . '_' . $mapping->itemid])) {
-                    $package->default_exacompdatasources[$nr] = $mapping->sourceid;
-                    $package->default_exacompsourceids[$nr] = $mapping->itemid;
+                    $package->default_exacomptitles[] = !empty($competence->description) ? $competence->description : $competence->shortname;
+                    $package->default_exacompdatasources[] = $mapping->sourceid;
+                    $package->default_exacompsourceids[] = $mapping->itemid;
                     $flagfound[$mapping->sourceid . '_' . $mapping->itemid] = true;
                 }
             }

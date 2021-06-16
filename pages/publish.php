@@ -66,7 +66,10 @@ $packageid      = $publish->packageid;
 $sourcecourseid = $publish->sourcecourseid;
 $targetcourseid = $publish->targetcourseid;
 
+$sourcecontext = \context_course::instance($sourcecourseid, 'IGNORE_MISSING');
+
 // Set up the page
+$PAGE->set_context($sourcecontext);
 $PAGE->set_title(get_string('publish_new_package', 'block_edupublisher'));
 $PAGE->set_heading(get_string('publish_new_package', 'block_edupublisher'));
 $PAGE->set_pagelayout('incourse');
@@ -79,7 +82,6 @@ $urlparams = [
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/publish.php', $urlparams));
 $PAGE->navbar->add(get_string('publish_new_package', 'block_edupublisher'), $PAGE->url);
 
-$sourcecontext = \context_course::instance($sourcecourseid, 'IGNORE_MISSING');
 if (empty($publish->sourcecourseid) || empty($sourcecontext->id)) {
     echo $OUTPUT->header();
     echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
@@ -287,13 +289,13 @@ switch($publishstage) {
                     $rc->convert();
                 }
 
-                $restore = new restore_ui($rc, array('contextid'=>$context->id));
+                $restore = new restore_ui($rc, array('contextid'=>$targetcontext->id));
             }
 
             $restore->save_controller();
-            $_POST['contextid'] = $context->id;
+            $_POST['contextid'] = $targetcontext->id;
             $_POST['restore'] = $restore->get_restoreid();
-            $_POST['sectionid'] = $sectionid;
+            $_POST['sectionid'] = 0; // $sectionid;
             $_POST['stage'] = restore_ui::STAGE_SCHEMA;
             $_POST['sesskey'] = \sesskey();
             /*
@@ -329,7 +331,7 @@ switch($publishstage) {
                     $rc->convert();
                 }
 
-                $restore = new restore_ui($rc, array('contextid'=>$context->id));
+                $restore = new restore_ui($rc, array('contextid'=>$targetcontext->id));
             }
             $stage = restore_ui::STAGE_REVIEW;
         }
@@ -369,7 +371,7 @@ switch($publishstage) {
             // Use a temporary (disappearing) progress bar to show the precheck progress if any.
             $precheckprogress = new \core\progress\display_if_slow(get_string('preparingdata', 'backup'));
             $restore->get_controller()->set_progress($precheckprogress);
-            if ($restore->get_stage() == restore_ui::STAGE_PROCESS && !$restore->requires_substage() && $backupmode != backup::MODE_ASYNC) {
+            if ($restore->get_stage() == restore_ui::STAGE_PROCESS && !$restore->requires_substage()) {
                 try {
                     // Div used to hide the 'progress' step once the page gets onto 'finished'.
                     echo html_writer::start_div('', array('id' => 'executionprogress'));
