@@ -426,6 +426,7 @@ switch($publishstage) {
 
         if ($restore->get_stage() != restore_ui::STAGE_PROCESS) {
             echo $restore->display($renderer);
+            echo "<script> document.getElementById('id_submitbutton').value = '" . get_string("confirm") . "'; </script>";
         } else if ($restore->get_stage() == restore_ui::STAGE_PROCESS && $restore->requires_substage()) {
             echo $restore->display($renderer);
         }
