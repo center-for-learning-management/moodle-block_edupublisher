@@ -956,6 +956,7 @@ class block_edupublisher extends block_base {
         }
         $package->channels = ',' . implode(',', $package->_channels) . ',';
 
+        $wordpressaction = 'updated';
         if ($package->id > 0) {
             $original = self::get_package($package->id, true);
             // Save all keys from package to original
@@ -975,6 +976,7 @@ class block_edupublisher extends block_base {
             $package->created = time();
             $package->deleted = 0;
             $package->id = $DB->insert_record('block_edupublisher_packages', $package, true);
+            $wordpressaction = 'created';
         }
 
         \block_edupublisher\lib::exacompetencies($package);
@@ -1144,6 +1146,8 @@ class block_edupublisher extends block_base {
 
         $package->modified = time();
         $DB->update_record('block_edupublisher_packages', $package);
+
+        \block_edupublisher\wordpress::action($wordpressaction, $package);
 
         // Deactivated because of comment-system.
         //block_edupublisher::notify_maintainers($package);

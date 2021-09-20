@@ -74,6 +74,7 @@ if ($package->candelete) {
             'url' => $CFG->wwwroot . '/my'
         );
         echo $OUTPUT->render_from_template('block_edupublisher/alert', (object) $params);
+        \block_edupublisher\wordpress::action('deleted', $package);
     } else {
         $params = array(
             'title' => get_string('removal:title', 'block_edupublisher'),

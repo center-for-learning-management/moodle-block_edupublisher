@@ -358,6 +358,58 @@ $string['trigger_editing_permission_remove'] = 'Remove write permission for auth
 $string['type'] = 'Type';
 $string['votes'] = 'Vote(s)';
 
+$string['wordpress:notification:subject_created'] = 'A new learning package "{$a->title}" was created!';
+$string['wordpress:notification:subject_published'] = 'A new learning package "{$a->title}" was published!';
+$string['wordpress:notification:subject_unpublished'] = '{$a->title} was unpublished!';
+$string['wordpress:notification:subject_updated'] = '{$a->title} was updated!';
+$string['wordpress:notification:subject_deleted'] = '{$a->title} was deleted!';
+
+$string['wordpress:notification:text_created'] = '
+    <p>Dear users,</p>
+    <p>a new learning package with the title <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a> was created. It will be published soon, so please stay tuned!</p>
+    <p>The description of this learning package is as follows:</p>
+    <p>{$a->default_description}</p>
+    <p>Best regards,<br />Your team of {$a->moodlesitename}</p>
+    {$a->wpshortcodes}';
+$string['wordpress:notification:text_published'] = '
+    <p>Dear users,</p>
+    <p>a new learning package with the title <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a> was published.</p>
+    <p>The description of this learning package is as follows:</p>
+    <p>{$a->default_description}</p>
+    <p>Best regards,<br />Your team of {$a->moodlesitename}</p>
+    {$a->wpshortcodes}';
+$string['wordpress:notification:text_unpublished'] = '
+    <p>Dear users,</p>
+    <p>the learning package with the title <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a> was unpublished.</p>
+    <p>Best regards,<br />Your team of {$a->moodlesitename}</p>
+    {$a->wpshortcodes}';
+$string['wordpress:notification:text_updated'] = '
+    <p>Dear users,</p>
+    <p>the data of the learning package with the title <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a> was update.</p>
+    <p>Best regards,<br />Your team of {$a->moodlesitename}</p>
+    {$a->wpshortcodes}';
+$string['wordpress:notification:text_deleted'] = '
+    <p>Dear users,</p>
+    <p>unfortunately, we had to remove the learning package <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a>.</p>
+    <p>Best regards,<br />Your team of {$a->moodlesitename}</p>
+    {$a->wpshortcodes}';
+
+$string['wordpress:settings'] = 'Wordpress settings';
+$string['wordpress:settings:email'] = 'E-Mail';
+$string['wordpress:settings:email:description'] = 'Indicate the e-mail to which updates for edupublisher packages are sent.';
+$string['wordpress:settings:postifcreated'] = 'Post if created';
+$string['wordpress:settings:postifcreated:description'] = 'Notify wordpress if a package was created.';
+$string['wordpress:settings:postifpublished'] = 'Post if published';
+$string['wordpress:settings:postifpublished:description'] = 'Notify wordpress if a package was published.';
+$string['wordpress:settings:postifunpublished'] = 'Post if unpublished';
+$string['wordpress:settings:postifunpublished:description'] = 'Notify wordpress if a package was unpublished.';
+$string['wordpress:settings:postifupdated'] = 'Post if updated';
+$string['wordpress:settings:postifupdated:description'] = 'Notify wordpress if meta data of a package was updated.';
+$string['wordpress:settings:postifdeleted'] = 'Post if deleted';
+$string['wordpress:settings:postifdeleted:description'] = 'Notify wordpress if a package was deleted.';
+$string['wordpress:settings:shortcodes'] = 'Shortcodes';
+$string['wordpress:settings:shortcodes:description'] = 'Shortcodes can be used to customize how wordpress handles your posts. Please refer to the following <a href="https://wordpress.com/support/post-by-email/" target="_blank">page</a>.';
+
 $string['evaluation_by'] = 'Evaluation of {$a->fullname}';
 $string['evaluation_introtext'] = 'Prior to making an evaluation, you should have tested the resource with an actual class and real students. Please share your insights into the quality and the improvements made to the learning process with others by filling out the linked evaulation form.';
 $string['evaluation_none'] = 'No evaluation was made by now!';

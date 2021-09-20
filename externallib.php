@@ -779,6 +779,7 @@ class block_edupublisher_external extends external_api {
             $package->active = $package->default_active;
             block_edupublisher::toggle_guest_access($package->course, $package->active);
             $DB->update_record('block_edupublisher_packages', $package);
+            \block_edupublisher\wordpress::action((!empty($package->active) ? 'published' : 'unpublished'), $package);
 
             if (!empty($package->etapas_active) && $package->etapas_status == 'inspect') {
                 block_edupublisher::store_metadata($package, 'etapas', 'etapas_status', 'eval');
