@@ -118,7 +118,7 @@ if (empty($channel)) {
         $package->maintainer_default = $maintainer_default;
         $package->maintainer_etapas = $maintainer_etapas;
         $package->maintainer_eduthek = $maintainer_eduthek;
-        $package->hasexacompsourceids = count($package->default_exacompsourceids) > 0;
+        $package->hasexacompsourceids = !empty($package->default_exacompsourceids) && count($package->default_exacompsourceids) > 0;
         $package->exclamation = (
             $maintainer_default && !empty($package->default_publishas) && empty($package->default_active)
             ||
