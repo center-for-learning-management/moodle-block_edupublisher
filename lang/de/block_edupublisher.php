@@ -376,22 +376,25 @@ $string['wordpress:notification:text_deleted'] = '
     <p>Mit besten Grüßen,<br />Ihr Team von {$a->moodlesitename}</p>
     {$a->wpshortcodes}';
 
-$string['wordpress:settings'] = 'Wordpress Einstellungen';
+$string['wordpress:settings'] = 'Wordpress settings';
+$string['wordpress:settings:description'] = 'For each kind of action, you can set a particular e-mail address to which a notification will be sent. If it is empty, no e-mail will be send whatsover. Also, for each kind of action you can customize shortcodes. Shortcodes can be used to customize how wordpress handles your posts. Please refer to the following <a href="https://wordpress.com/support/post-by-email/" target="_blank">page</a>.';
 $string['wordpress:settings:email'] = 'E-Mail';
-$string['wordpress:settings:email:description'] = 'Geben Sie die E-Mailadresse an, an die Beiträge geschickt werden sollen.';
-$string['wordpress:settings:postifcreated'] = 'Beitrag bei Erstellung';
-$string['wordpress:settings:postifcreated:description'] = 'Einen Beitrag erstellen, wenn ein neues Lernpaket angelegt wird.';
-$string['wordpress:settings:postifpublished'] = 'Beitrag bei Veröffentlichung';
-$string['wordpress:settings:postifpublished:description'] = 'Einen Beitrag erstellen, wenn ein Lernpaket veröffentlicht wird.';
-$string['wordpress:settings:postifunpublished'] = 'Beitrag bei Inaktivschaltung';
-$string['wordpress:settings:postifunpublished:description'] = 'Einen Beitrag erstellen, wenn ein Lernpaket inaktiv gestellt wird.';
-$string['wordpress:settings:postifupdated'] = 'Beitrag bei Aktualisierung';
-$string['wordpress:settings:postifupdated:description'] = 'Einen Beitrag erstellen, wenn ein Lernpaket aktualisiert wird.';
-$string['wordpress:settings:postifdeleted'] = 'Beitrag bei Löschung';
-$string['wordpress:settings:postifdeleted:description'] = 'Einen Beitrag erstellen, wenn ein Lernpaket gelöscht wird.';
+$string['wordpress:settings:postifcreated'] = 'Post if created';
+$string['wordpress:settings:postifpublished'] = 'Post if published';
+$string['wordpress:settings:postifunpublished'] = 'Post if unpublished';
+$string['wordpress:settings:postifupdated'] = 'Post if updated';
+$string['wordpress:settings:postifdeleted'] = 'Post if deleted';
 $string['wordpress:settings:shortcodes'] = 'Shortcodes';
-$string['wordpress:settings:shortcodes:description'] = 'Mit Shortcodes kann gesteuert werden, wie Wordpress mit den Beiträgen umgeht. Mehr Informationen finden Sie auf der folgenden <a href="https://wordpress.com/support/post-by-email/" target="_blank">Seite</a>.';
 
+$string['wordpress:settings'] = 'Wordpress Einstellungen';
+$string['wordpress:settings:description'] = 'Für jede Art von Aktion können Sie eine separate E-Mailadresse angeben, an die eine Benachrichtigung geschickt wird. Sofern keine E-Mailadresse angegeben wird, wird keine Benachrichtigung geschickt. Außerdem können Sie für jede Art von Aktion unterschiedliche Shortcodes eingeben. Mit Shortcodes kann gesteuert werden, wie Wordpress mit den Beiträgen umgeht. Mehr Informationen finden Sie auf der folgenden <a href="https://wordpress.com/support/post-by-email/" target="_blank">Seite</a>.';
+$string['wordpress:settings:email'] = 'E-Mail';
+$string['wordpress:settings:postifcreated'] = 'Beitrag bei Erstellung';
+$string['wordpress:settings:postifpublished'] = 'Beitrag bei Veröffentlichung';
+$string['wordpress:settings:postifunpublished'] = 'Beitrag bei Inaktivschaltung';
+$string['wordpress:settings:postifupdated'] = 'Beitrag bei Aktualisierung';
+$string['wordpress:settings:postifdeleted'] = 'Beitrag bei Löschung';
+$string['wordpress:settings:shortcodes'] = 'Shortcodes';
 
 
 $string['evaluation_by'] = 'Evaluation von {$a->fullname}';

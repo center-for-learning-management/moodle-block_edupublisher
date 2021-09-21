@@ -36,12 +36,8 @@ class wordpress {
         if (!in_array($type, $types)) {
             return;
         }
-        $email = get_config('block_edupublisher', 'wordpress_email');
+        $email = get_config('block_edupublisher', 'wordpress_email_if_' . $type);
         if (empty($email)) {
-            return;
-        }
-        $enabled = get_config('block_edupublisher', 'wordpress_postif' . $type);
-        if (empty($enabled)) {
             return;
         }
 
@@ -50,7 +46,7 @@ class wordpress {
         $package->moodlesitename = $SITE->fullname;
         $moodlecourseurl = new \moodle_url('/course/view.php', [ 'id' => $package->course ]);
         $package->moodlecourseurl = $moodlecourseurl->__toString();
-        $package->wpshortcodes = get_config('block_edupublisher', 'wordpress_shortcodes');
+        $package->wpshortcodes = get_config('block_edupublisher', 'wordpress_shortcodes_if_' . $type);
 
         $messagehtml = get_string('wordpress:notification:text_' . $type, 'block_edupublisher', $package);
         $messagetext = html_to_text($messagehtml);
@@ -94,72 +90,31 @@ class wordpress {
         }
 
         $heading = get_string('wordpress:settings', 'block_edupublisher');
-        $settings->add(new \admin_setting_heading('block_edupublisher_wordpress', '', "<h3>$heading</h3>"));
+        $text    = get_string('wordpress:settings:description', 'block_edupublisher');
+        $settings->add(new \admin_setting_heading('block_edupublisher_wordpress', '', "<h3>$heading</h3><p>$text</p>"));
 
-        $settings->add(
-            new \admin_setting_configtext(
-                'block_edupublisher/wordpress_email',
-                get_string('wordpress:settings:email', 'block_edupublisher'),
-                get_string('wordpress:settings:email:description', 'block_edupublisher'),
-                '',
-                PARAM_EMAIL
-            )
-        );
-
-        $settings->add(
-            new \admin_setting_configtextarea(
-                'block_edupublisher/wordpress_shortcodes',
-                get_string('wordpress:settings:shortcodes', 'block_edupublisher'),
-                get_string('wordpress:settings:shortcodes:description', 'block_edupublisher'),
-                '',
-                PARAM_TEXT
-            )
-        );
-
-        $settings->add(
-            new \admin_setting_configcheckbox(
-                'block_edupublisher/wordpress_postifcreated',
-                get_string('wordpress:settings:postifcreated', 'block_edupublisher'),
-                get_string('wordpress:settings:postifcreated:description', 'block_edupublisher'),
-                0
-            )
-        );
-
-        $settings->add(
-            new \admin_setting_configcheckbox(
-                'block_edupublisher/wordpress_postifpublished',
-                get_string('wordpress:settings:postifpublished', 'block_edupublisher'),
-                get_string('wordpress:settings:postifpublished:description', 'block_edupublisher'),
-                1
-            )
-        );
-
-        $settings->add(
-            new \admin_setting_configcheckbox(
-                'block_edupublisher/wordpress_postifunpublished',
-                get_string('wordpress:settings:postifunpublished', 'block_edupublisher'),
-                get_string('wordpress:settings:postifunpublished:description', 'block_edupublisher'),
-                1
-            )
-        );
-
-        $settings->add(
-            new \admin_setting_configcheckbox(
-                'block_edupublisher/wordpress_postifupdated',
-                get_string('wordpress:settings:postifupdated', 'block_edupublisher'),
-                get_string('wordpress:settings:postifupdated:description', 'block_edupublisher'),
-                0
-            )
-        );
-
-        $settings->add(
-            new \admin_setting_configcheckbox(
-                'block_edupublisher/wordpress_postifdeleted',
-                get_string('wordpress:settings:postifdeleted', 'block_edupublisher'),
-                get_string('wordpress:settings:postifdeleted:description', 'block_edupublisher'),
-                0
-            )
-        );
+        $types = [ 'created', 'published', 'unpublished', 'updated', 'deleted'];
+        foreach ($types as $type) {
+            $heading = get_string('wordpress:settings:postif' . $type, 'block_edupublisher');
+            $settings->add(new \admin_setting_heading('block_edupublisher_wordpress_' . $type, '', "<h4>$heading</h4>"));
+            $settings->add(
+                new \admin_setting_configtext(
+                    'block_edupublisher/wordpress_email_if_' . $type,
+                    get_string('wordpress:settings:email', 'block_edupublisher'),
+                    '',
+                    '',
+                    PARAM_EMAIL
+                )
+            );
+            $settings->add(
+                new \admin_setting_configtextarea(
+                    'block_edupublisher/wordpress_shortcodes_if_' . $type,
+                    get_string('wordpress:settings:shortcodes', 'block_edupublisher'),
+                    '',
+                    '',
+                    PARAM_TEXT
+                )
+            );
+        }
     }
-
 }
