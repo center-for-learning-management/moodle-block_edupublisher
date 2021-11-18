@@ -33,6 +33,7 @@ $string['allowsubcourses_desc'] = 'If enabled users can clone contents into a su
 $string['as_subcourse'] = 'Import package as activity';
 $string['as_subcourse:description'] = 'When this option is on, all imported contents will appear as activity in your target course. Otherwise you will get an standard import of all sections to your course.';
 $string['by'] = 'by';
+$string['cachedef_application'] = 'Application cache for  block_edupublisher';
 $string['cachedef_ispackage'] = 'Stores whether a certain course is a learning resource.';
 $string['cachedef_packagepath'] = 'This stores the path of visited packages in cache.';
 $string['cachedef_publish'] = 'Stores whether a certain course is currently being published.';
