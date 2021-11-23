@@ -800,6 +800,7 @@ class block_edupublisher_external extends external_api {
                     block_edupublisher::store_metadata($package, $channel, $channel . '_published', time());
                 }
             }
+
             if ($package->active) {
                 block_edupublisher::store_comment($package, 'comment:template:package_published', $sendto, true, false, $params["type"]);
             } else {

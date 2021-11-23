@@ -88,10 +88,11 @@ block_edupublisher::print_app_header();
 require_once($CFG->dirroot . '/blocks/edupublisher/classes/comment_create_form.php');
 $form = new block_edupublisher\comment_create_form();
 if ($data = $form->get_data()) {
-    $data->content = $data->content['text'];
-    $data->created = time();
-    $data->userid = $USER->id;
-    $data->id = $DB->insert_record('block_edupublisher_comments', $data);
+    $sendto = [ 'author', 'allmaintainers' ];
+    if (!empty($data->ispublic)) {
+        $sendto[] = 'commentors';
+    }
+    $data->id = \block_edupublisher::store_comment($package, $data->content['text'], $sendto, false, $data->ispublic, "", "");
     if (empty($data->id)) {
         echo "<p class=\"alert alert-error\">" . get_string('error') . "</p>";
     } else {

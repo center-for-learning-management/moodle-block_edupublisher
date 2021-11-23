@@ -323,6 +323,7 @@ $string['self_enrol'] = 'Selbsteinschreibung';
 $string['self_enrol_confirm_text'] = 'Sie sind dabei sich in diesen Kurs einzuschreiben. Dadurch wird es möglich, dass Ihr Lernfortschritt gespeichert wird. Andere Lernende könnten in bestimmten Aktivitäten Ihren Namen sehen. Ihre Kursbewertungen (bspw. in Quizzes) sind für andere Lernende nicht sichtbar.';
 $string['self_unenrol'] = 'Austragen';
 $string['self_unenrol_confirm_text'] = 'Wenn Sie sich aus einem Kurs austragen, werden Ihre Lernfortschritte und Daten möglicherweise gelöscht. Selbst wenn Sie sich wieder in den Kurs einschreiben, sind diese Daten möglicherweise für immer verloren. Sind Sie sicher, dass Sie das machen wollen?';
+$string['send_email_failed'] = 'Fehler beim Versand einer E-Mail an "{$a->email}".';
 $string['settings'] = 'Einstellungen';
 $string['successfully_enrolled'] = 'Erfolgreich eingeschrieben';
 $string['successfully_published_package'] = 'Paket erfolgreich veröffentlicht';
@@ -350,14 +351,14 @@ $string['wordpress:notification:text_created'] = '
     <p>Lieber Nutzer/innen,</p>
     <p>Das neue Lernpaket mit dem Titel <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a> wurde erstellt. Wir werden es so rasch als möglich veröffentlichen!</p>
     <p>Die Beschreibung dieses Lernpakets lautet wie folgt:</p>
-    <p>{$a->default_description}</p>
+    <p>{$a->default_summary}</p>
     <p>Mit besten Grüßen,<br />Ihr Team von {$a->moodlesitename}</p>
     {$a->wpshortcodes}';
 $string['wordpress:notification:text_published'] = '
     <p>Lieber Nutzer/innen,</p>
     <p>Das Lernpaket mit dem Titel <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a> wurde soeben veröffentlicht!</p>
     <p>Die Beschreibung dieses Lernpakets lautet wie folgt:</p>
-    <p>{$a->default_description}</p>
+    <p>{$a->default_summary}</p>
     <p>Mit besten Grüßen,<br />Ihr Team von {$a->moodlesitename}</p>
     {$a->wpshortcodes}';
 $string['wordpress:notification:text_unpublished'] = '

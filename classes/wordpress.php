@@ -47,6 +47,14 @@ class wordpress {
         $moodlecourseurl = new \moodle_url('/course/view.php', [ 'id' => $package->course ]);
         $package->moodlecourseurl = $moodlecourseurl->__toString();
         $package->wpshortcodes = get_config('block_edupublisher', 'wordpress_shortcodes_if_' . $type);
+        $channels = [];
+        $_channels = explode(',', $package->channels);
+        foreach ($_channels as $channel) {
+            if (!empty($channel) && $package->{$channel . '_active'}) {
+                $channels[] = $channel;
+            }
+        }
+        $package->wpshortcodes = str_replace('{channels}', implode(' ', $channels), $package->wpshortcodes);
 
         $messagehtml = get_string('wordpress:notification:text_' . $type, 'block_edupublisher', $package);
         $messagetext = html_to_text($messagehtml);

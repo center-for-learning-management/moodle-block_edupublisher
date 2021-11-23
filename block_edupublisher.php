@@ -825,6 +825,7 @@ class block_edupublisher extends block_base {
      * @param commentlocalize languageidentifier for sending the comment localized
      * @param channel whether this comment refers to a particular channel.
      * @param linkurl if comment should link to a url.
+     * @return id of comment.
      */
     public static function store_comment($package, $text, $sendto = array(), $isautocomment = false, $ispublic = 0, $channel = "", $linkurl = "") {
         global $DB, $OUTPUT, $USER;
@@ -919,9 +920,12 @@ class block_edupublisher extends block_base {
 
                     try {
                         email_to_user($recipient, $fromuser, $subjects[$recipient->lang], $messagetexts[$recipient->lang], $messagehtmls[$recipient->lang], '', '', true);
-                    } catch(Exception $e) {}
+                    } catch(Exception $e) {
+                        throw new \moodle_exception('send_email_failed', 'block_edupublisher', $PAGE->url->__toString(), $recipient, $e->getMessage());
+                    }
                 }
             }
+            return $comment->id;
         }
     }
     /**

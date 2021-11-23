@@ -340,6 +340,7 @@ $string['self_enrol'] = 'Self enrolment';
 $string['self_enrol_confirm_text'] = 'You are enrolling in a course. That means that your learning process will be stored. Other learners within that course may see your name in particular activities. Learning data, e.g. grades in a quiz, will not be visible to other learners.';
 $string['self_unenrol'] = 'Unenrol';
 $string['self_unenrol_confirm_text'] = 'If you unenrol from a course your learning progress and data may be removed from the course. If you enrol again your data may be lost and unrecoverable. Are you sure that you want to unenrol?';
+$string['send_email_failed'] = 'Sending an email to "{$a->email}" failed.';
 $string['settings'] = 'Settings';
 $string['subcourse'] = 'Subcourse {$a->fullname}';
 $string['successfully_enrolled'] = 'Successfully enrolled';
@@ -369,14 +370,14 @@ $string['wordpress:notification:text_created'] = '
     <p>Dear users,</p>
     <p>a new learning package with the title <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a> was created. It will be published soon, so please stay tuned!</p>
     <p>The description of this learning package is as follows:</p>
-    <p>{$a->default_description}</p>
+    <p>{$a->default_summary}</p>
     <p>Best regards,<br />Your team of {$a->moodlesitename}</p>
     {$a->wpshortcodes}';
 $string['wordpress:notification:text_published'] = '
     <p>Dear users,</p>
     <p>a new learning package with the title <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a> was published.</p>
     <p>The description of this learning package is as follows:</p>
-    <p>{$a->default_description}</p>
+    <p>{$a->default_summary}</p>
     <p>Best regards,<br />Your team of {$a->moodlesitename}</p>
     {$a->wpshortcodes}';
 $string['wordpress:notification:text_unpublished'] = '
