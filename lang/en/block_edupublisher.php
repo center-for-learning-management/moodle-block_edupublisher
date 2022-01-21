@@ -164,7 +164,6 @@ $string['enablecommercial_desc'] = 'With this checkbox you can globally control 
 $string['enrolment:meta:notinstalled'] = 'The meta-enrolment plugin is not installed but required.';
 $string['enrolment:meta:active'] = 'The meta-enrolment plugin is not active but required.';
 
-
 $string['etapas__description'] = 'The eTapas-Initiative driven by eEducation Austria allows teachers to hand in their learning sequences as Open Educational Resource and get a reward. For more information please refer to the <a href="https://www.eeducation.at/?id=602" target="_blank">eEducation Website</a>.';
 $string['etapas__mailsubject'] = 'eTapa handed in for inspection';
 $string['etapas_erprobungen'] = 'Inspections';
@@ -211,9 +210,12 @@ $string['groups:domains_desc'] = 'Users can be either granted access by using th
 $string['groups:enabled'] = 'Enable group creation';
 $string['groups:enabled_desc'] = 'This turns the whole feature on and off.';
 $string['groups:login_other_account'] = 'Login with another user account';
+$string['groups:longtext'] = 'Creating a group allows teachers to see and interact with their students. This ensures learning monitoring and progress control without the need to create and fill your own courses.<br /><br />Share the "<strong>URL for teachers</strong>" with other teachers or follow this URL if you want to use a second user account as a teacher. You can give the "<strong>URL for students</strong>" to your students so that they can join your group.';
 $string['groups:name'] = 'Name of group';
 $string['groups:no_permission'] = 'Only teachers are allowed to create groups within learning packages. It seems that your account does not have the required capability. Please switch to an authorized account!';
 $string['groups:no_permission_domains'] = 'In addition to the usual role system, a user account have an e-mail with one of the following domains is also appropriate:';
+$string['groups:remove:title'] = 'Confirm removal';
+$string['groups:remove:text'] = 'Do you really want to remove this group? You will loose access to your students data!';
 $string['groups:rolestudent'] = 'Student-Role';
 $string['groups:rolestudent_desc'] = 'Specify which role shall be assigned to students.';
 $string['groups:roleteacher'] = 'Teacher-Role';

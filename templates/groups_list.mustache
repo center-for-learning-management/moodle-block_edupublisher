@@ -18,15 +18,18 @@
 <table class="generaltable">
     <thead>
         <tr>
-            <td>
+            <th>
                 {{#str}} groups:name, block_edupublisher {{/str}}
-            </td>
-            <td style="text-align: center;">
+            </th>
+            <th style="text-align: center;">
                 {{#str}} groups:urlstudent, block_edupublisher {{/str}}
-            </td>
-            <td style="text-align: center;">
+            </th>
+            <th style="text-align: center;">
                 {{#str}} groups:urlteacher, block_edupublisher {{/str}}
-            </td>
+            </th>
+            <th style="text-align: center;">
+                {{#str}} delete {{/str}}
+            </th>
         </tr>
     </thead>
     <tbody>
@@ -43,6 +46,11 @@
                 <a href="{{urlteacher}}" target="_blank">
                     <i class="fa fa-external-link"></i>
                     {{codeteacher}}
+                </a>
+            </td>
+            <td style="text-align: center;">
+                <a href="#" onclick="require(['block_edupublisher/main'], function(M) { M.confirmDeleteGroup('{{urldelete}}'); }); return false;">
+                    <i class="fa fa-trash"></i>
                 </a>
             </td>
         </tr>

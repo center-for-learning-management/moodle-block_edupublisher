@@ -89,6 +89,15 @@ if (!\block_edupublisher\lib::can_create_groups()) {
 
     echo $OUTPUT->render_from_template('block_edupublisher/groups_create', []);
     $groups = \groups_get_all_groups($package->course, $USER->id);
+    if (!empty(optional_param('deletegroup', 0, PARAM_INT))) {
+        foreach ($groups as $group) {
+            if ($group->id == optional_param('deletegroup', 0, PARAM_INT)) {
+                \groups_delete_group($group);
+                $groups = \groups_get_all_groups($package->course, $USER->id);
+                break;
+            }
+        }
+    }
 
     foreach ($groups as &$group) {
         $stud = $DB->get_record('block_enrolcode', [ 'courseid' => $package->course, 'groupid' => $group->id, 'roleid' => $rolestudent ]);
@@ -101,6 +110,7 @@ if (!\block_edupublisher\lib::can_create_groups()) {
             $group->codeteacher = $teac->code;
             $group->urlteacher = "$CFG->wwwroot/blocks/enrolcode/enrol.php?code=$teac->code";
         }
+        $group->urldelete = "$CFG->wwwroot/blocks/edupublisher/pages/groups.php?id=$id&deletegroup=$group->id";
     }
 
     echo $OUTPUT->render_from_template('block_edupublisher/groups_list', [

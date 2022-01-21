@@ -1285,7 +1285,6 @@ class block_edupublisher extends block_base {
                 $package->can_import = true;
                 $package->allow_subcourses = $allowsubcourses = \get_config('block_edupublisher', 'allowsubcourses') ? 1 : 0;
             }
-            $package->can_create_groups = (\block_edupublisher\lib::can_create_groups()) ? 1 : 0;
             $package->can_unenrol = (is_enrolled($context, null, 'block/edupublisher:canselfenrol')) ? 1 : 0;
 
             if (!empty($package->etapas_active) && !empty($package->etapas_subtype)) {

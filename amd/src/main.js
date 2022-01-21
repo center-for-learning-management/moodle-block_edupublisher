@@ -21,6 +21,20 @@ define(
         clickImportConfirmation: function() {
             $('#page-content div[role="main"] form[action*="/edupublisher/pages/import.php"]').submit();
         },
+        confirmDeleteGroup: function(url) {
+            var MAIN = this;
+            STR.get_strings([
+                    {'key' : 'groups:remove:title', component: 'block_edupublisher' },
+                    {'key' : 'groups:remove:text', component: 'block_edupublisher' },
+                    {'key' : 'yes' },
+                    {'key': 'no'}
+                ]).done(function(s) {
+                    NOTIFICATION.confirm(s[0], s[1], s[2], s[3], function() {
+                        top.location.href = url;
+                    });
+                }
+            ).fail(NOTIFICATION.exception);
+        },
         confirmRemoval: function(url) {
             var MAIN = this;
             STR.get_strings([

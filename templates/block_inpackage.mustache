@@ -66,13 +66,11 @@
     </a>
 </div>
 {{/can_import}}
-{{#can_create_groups}}
 <div class="row" style="margin-top: 10px;">
     <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/groups.php?id={{id}}" class="btn btn-primary btn-block">
         {{#str}} groups:create, block_edupublisher {{/str}}
     </a>
 </div>
-{{/can_create_groups}}
 {{#can_unenrol}}
 <div class="row" style="margin-top: 10px;">
     <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/self_enrol.php?id={{course}}&unenrol=1" class="btn btn-primary btn-block">
