@@ -24,13 +24,14 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2021112300;
+$plugin->version  = 2022012100;
 $plugin->requires = 2014051200;
 $plugin->component = 'block_edupublisher';
 $plugin->release = '1.4 (Build: 2021112300)';
 $plugin->maturity = MATURITY_STABLE;
 
 $plugin->dependencies = array(
+    'block_enrolcode' => 2021111801,
     'block_exacomp' => 2020091000,
     'local_komettranslator' => 2021031200,
 );

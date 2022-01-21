@@ -51,6 +51,23 @@ class lib {
         }
     }
     /**
+     * Determines whether or not the user can create groups.
+     * @return boolean
+     */
+    public static function can_create_groups() {
+        if (has_capability('block/edupublisher:cancreategroups', \context_system::instance())) {
+            return true;
+        }
+        // Test if users e-mail domain matches.
+        global $DB, $USER;
+        $domains = get_config('block_edupublisher', 'groupsdomains');
+        $usermail = explode('@', $USER->email);
+        if (strpos("@{$usermail[1]}", $domains) > -1) {
+            return true;
+        }
+        return false;
+    }
+    /**
      * Create a temporary directory and return its path.
      * @return path to tempdir.
      */

@@ -201,9 +201,30 @@ $string['fieldextras'] = 'Extras';
 $string['fieldhelptext'] = 'Helptext';
 $string['fieldname'] = 'Name';
 $string['fieldtype'] = 'Type';
+
 $string['go_back_to_dashboard'] = 'Go back zu Dashboard';
+$string['groups:create'] = 'Create group';
+$string['groups:create:error'] = 'Group "{$a->name}" was <strong>not</strong> successfully created!';
+$string['groups:create:success'] = 'Group "{$a->name}" was successfully created!';
+$string['groups:domains'] = 'E-Maildomains';
+$string['groups:domains_desc'] = 'Users can be either granted access by using the capability "<i>block/edupublisher:cancreategroups</i>" or if the users e-mail has a particular domain. You can specify various domains line by line. Each domain <strong>must</strong> start with a "@"-sign!';
+$string['groups:enabled'] = 'Enable group creation';
+$string['groups:enabled_desc'] = 'This turns the whole feature on and off.';
+$string['groups:login_other_account'] = 'Login with another user account';
+$string['groups:name'] = 'Name of group';
+$string['groups:no_permission'] = 'Only teachers are allowed to create groups within learning packages. It seems that your account does not have the required capability. Please switch to an authorized account!';
+$string['groups:no_permission_domains'] = 'In addition to the usual role system, a user account have an e-mail with one of the following domains is also appropriate:';
+$string['groups:rolestudent'] = 'Student-Role';
+$string['groups:rolestudent_desc'] = 'Specify which role shall be assigned to students.';
+$string['groups:roleteacher'] = 'Teacher-Role';
+$string['groups:roleteacher_desc'] = 'Specify which role shall be assigned to teachers.';
+$string['groups:settings'] = 'Group creation';
+$string['groups:settings:description'] = 'Allow creation of groups in learning packages.';
+$string['groups:urlstudent'] = 'URL for students';
+$string['groups:urlteacher'] = 'URL for teachers';
 $string['guest_not_allowed'] = 'Guests are not allowed to do this!';
-$string['initialize_import'] = 'Use package';
+
+$string['initialize_import'] = 'Clone package';
 $string['invalid_evaluation'] = 'Invalid evaluation id';
 $string['issued_by_user'] = 'Published by';
 

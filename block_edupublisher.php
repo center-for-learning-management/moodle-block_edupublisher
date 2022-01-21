@@ -1275,76 +1275,23 @@ class block_edupublisher extends block_base {
         $options = array();
         if (!empty($package->id)) {
             $package = self::get_package($package->id, true);
-            if (!empty($package->default_authormailshow) && $package->default_authormailshow == 1) {
-                $options[] = array(
-                    "title" => $package->default_authorname,
-                    "href" => 'mailto:' . $package->default_authormail,
-                    //"icon" => '/pix/i/user.svg',
-                );
-            } else {
-                $options[] = array(
-                    "title" => $package->default_authorname,
-                    //"href" => 'mailto:' . $package->default_authormail,
-                    //"icon" => '/pix/i/user.svg',
-                );
-            }
-
-            $options[] = array(
-                "title" => ($package->default_licence == 'other') ? get_string('default_licenceother', 'block_edupublisher') : $package->default_licence,
-                //"href" => 'mailto:' . $package->default_authormail,
-                "icon" => '/pix/i/publish.svg',
-            );
-            $options[] = array(
-                "title" => get_string('details', 'block_edupublisher'),
-                "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
-                "icon" => '/pix/i/hide.svg',
-            );
-            $options[] = array(
-                "title" => get_string('comments'),
-                "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/comment.php?packageid=' . $package->id,
-                "icon" => '/pix/t/messages.svg',
-            );
-            $options[] = array(
-                "title" => $OUTPUT->render_from_template('block_edupublisher/package_rating', $package),
-                //"href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
-                "icon" => '/pix/i/scales.svg',
-            );
-
+            if ($package->default_licence == 'other') $package->default_licence = get_string('default_licenceother', 'block_edupublisher');
             if (!empty($package->etapas_subtype) && $package->etapas_subtype == 'etapa' && has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
-                $options[] = array(
-                    "title" => get_string('evaluations', 'block_edupublisher'),
-                    "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/evaluation.php?packageid=' . $package->id,
-                    "icon" => '/pix/i/report.svg',
-                );
+                $package->can_see_evaluation = true;
             }
             // Show use package-button
             $courses = self::get_courses(null, 'moodle/course:update');
             if (count(array_keys($courses)) > 0) {
-                $allowsubcourses = \get_config('block_edupublisher', 'allowsubcourses') ? 1 : 0;
-                $options[] = array(
-                    "title" => get_string('initialize_import', 'block_edupublisher'),
-                    "href" => "#",
-                    //"icon" => '/pix/i/import.svg',
-                    "class" => 'btn btn-primary btn-block',
-                    "onclick" => 'require([\'block_edupublisher/main\'], function(MAIN) { MAIN.initImportSelection(' . $package->id . ', 0, ' . $allowsubcourses . '); }); return false;',
-                    "style" => 'margin-top: 10px;',
-                );
+                $package->can_import = true;
+                $package->allow_subcourses = $allowsubcourses = \get_config('block_edupublisher', 'allowsubcourses') ? 1 : 0;
             }
-            // If we are enrolled let check if we can selfunenrol
-            if (is_enrolled($context, null, 'block/edupublisher:canselfenrol')) {
-                $options[] = array(
-                    "title" => get_string('self_unenrol', 'block_edupublisher'),
-                    "href" => $CFG->wwwroot . "/blocks/edupublisher/pages/self_enrol.php?id=" . $package->course . "&unenrol=1",
-                    //"icon" => '/pix/i/import.svg',
-                    "class" => 'btn btn-secondary btn-block',
-                    "style" => 'margin-top: 10px;',
-                );
-            }
+            $package->can_create_groups = (\block_edupublisher\lib::can_create_groups()) ? 1 : 0;
+            $package->can_unenrol = (is_enrolled($context, null, 'block/edupublisher:canselfenrol')) ? 1 : 0;
+
             if (!empty($package->etapas_active) && !empty($package->etapas_subtype)) {
-                $options[] = array(
-                    "title" => "<img src=\"" . $CFG->wwwroot . "/blocks/edupublisher/pix/channel/" . str_replace(array(' ', '.'), '', $package->etapas_subtype) . ".png\" style=\"width: 100%; max-width: 170px; margin-top: 20px;\" />",
-                );
+                $package->etapas_graphic = str_replace(array(' ', '.'), '', $package->etapas_subtype);
             }
+            $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_inpackage', $package);
         } elseif($canedit) {
             $cache = cache::make('block_edupublisher', 'publish');
             $pendingpublication = $cache->get("pending_publication_$COURSE->id");
@@ -1361,66 +1308,16 @@ class block_edupublisher extends block_base {
                     break;
                 }
             }
-            if ($pendingpublication > 0) {
-                $options[] = array(
-                    "title" => get_string('publish_new_package_proceed', 'block_edupublisher'),
-                    "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/publish.php?sourcecourseid=' . $pendingpublication,
-                    "icon" => '/pix/i/publish.svg',
-                );
-            } else {
-                $options[] = array(
-                    "title" => get_string('publish_new_package', 'block_edupublisher'),
-                    "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/publish.php?sourcecourseid=' . $COURSE->id,
-                    "icon" => '/pix/i/publish.svg',
-                );
-            }
+            $params = (object) [
+                'courseid' => $COURSE->id,
+                'packages' => array_values($DB->get_records_sql('SELECT * FROM {block_edupublisher_packages} WHERE sourcecourse=? AND (active=1 OR userid=?)', array($COURSE->id, $USER->id))),
+                'pendingpublication' => $pendingpublication,
+                'uses'     => array_values($DB->get_records_sql('SELECT DISTINCT(package) FROM {block_edupublisher_uses} WHERE targetcourse=?', array($COURSE->id))),
+            ];
+            $params->haspackages = (count($params->packages) > 0) ? 1 : 0;
+            $params->hasuses     = (count($params->uses)     > 0) ? 1 : 0;
 
-
-            $packages = $DB->get_records_sql('SELECT * FROM {block_edupublisher_packages} WHERE sourcecourse=? AND (active=1 OR userid=?)', array($COURSE->id, $USER->id));
-            $haspackages = false;
-            foreach($packages AS $package) {
-                if (!$haspackages) {
-                    $options[] = array(
-                        "title" => get_string('parts_published', 'block_edupublisher') . ':',
-                    );
-                    $haspackages = true;
-                }
-                $options[] = array(
-                    "title" => (strlen($package->title) > 25) ? substr($package->title, 0, 23) . '...' : $package->title,
-                    "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
-                    "icon" => '/pix/i/edit.svg',
-                );
-            }
-            $uses = $DB->get_records_sql('SELECT DISTINCT(package) FROM {block_edupublisher_uses} WHERE targetcourse=?', array($COURSE->id));
-            $hasuses = false;
-            foreach($uses AS $use) {
-                if (!$hasuses) {
-                    $options[] = array(
-                        "title" => get_string('parts_based_upon', 'block_edupublisher') . ':',
-                    );
-                    $hasuses = true;
-                }
-                $package = self::get_package($use->package, true);
-                if (!empty($package->id)) {
-                    $options[] = array(
-                        "href" => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
-                        "icon" => '/pix/i/withsubcat.svg',
-                        "subtitle" => get_string('by', 'block_edupublisher') . ' ' . $package->default_authorname,
-                        "title" => (strlen($package->title) > 25) ? substr($package->title, 0, 23) . '...' : $package->title,
-                    );
-                }
-            }
-        }
-        foreach($options AS $option) {
-            $tx = $option["title"];
-            if (!empty($option["icon"])) $tx = "<img src='" . $CFG->wwwroot . $option["icon"] . "' class='icon'>" . $tx;
-            if (!empty($option["href"])) $tx = "
-                <a href='" . $option["href"] . "' " . ((!empty($option["onclick"])) ? " onclick=\"" . $option["onclick"] . "\"" : "") . "
-                    " . ((!empty($option["class"])) ? " class=\"" . $option["class"] . "\"" : "") . "
-                    " . ((!empty($option["style"])) ? " style=\"" . $option["style"] . "\"" : "") . "
-                    " . ((!empty($option["target"])) ? " target=\"" . $option["target"] . "\"" : "") . "'>" . $tx . "</a>";
-            else  $tx = "<a>" . $tx . "</a>";
-            $this->content->text .= $tx . "<br />";
+            $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_canedit', $params);
         }
         return $this->content;
     }

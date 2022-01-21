@@ -179,14 +179,34 @@ $string['externalsources'] = 'Externe Quellen';
 $string['externalsources:courseformat'] = 'Standard Kursformat für externe Quellen';
 $string['externalsources:courseformat:description'] = 'Standard Kursformat bei neuen Kursen für externe Quellen';
 
-
 $string['fieldextras'] = 'Extras';
 $string['fieldhelptext'] = 'Hilfetext';
 $string['fieldname'] = 'Name';
 $string['fieldtype'] = 'Typ';
+
 $string['go_back_to_dashboard'] = 'Zurück zum Dashboard';
+$string['groups:create'] = 'Gruppe anlegen';
+$string['groups:create:error'] = 'Gruppe "{$a->name}" wurde <strong>nicht</strong> erfolgreich erstellt!';
+$string['groups:create:success'] = 'Gruppe "{$a->name}" wurde erfolgreich erstellt!';
+$string['groups:domains'] = 'E-Maildomains';
+$string['groups:domains_desc'] = 'Nutzer/innen kann die Funktion entweder über die Capability "<i>block/edupublisher:cancreategroups</i>" vergeben werden, oder indem die E-Mailadresse eine bestimmte Domain aufweist. Mehrere Domains können zeilenweise angegeben werden. Jede Zeile muss mit einem "@"-Zeichen beginnen!';
+$string['groups:enabled'] = 'Erlaube Gruppenerstellung';
+$string['groups:enabled_desc'] = 'Diese Einstellung schaltet das ganze Feature an und aus.';
+$string['groups:login_other_account'] = 'Mit anderem Konto anmelden';
+$string['groups:name'] = 'Gruppenname';
+$string['groups:no_permission'] = 'Nur Lehrer/innen können Gruppen in Lernpaketen erstellen. Leider verfügt Ihr Nutzerkonto nicht über die erforderliche Berechtigung. Bitte wechseln Sie auf ein berechtigtes Nutzerkonto!';
+$string['groups:no_permission_domains'] = 'Zusätzlich zum üblichen Berechtigungssystem wird jedes Nutzerkonto akzeptiert, dessen E-Mailadresse zu einer der folgenden Domains gehört:';
+$string['groups:rolestudent'] = 'Lernenden-Rolle';
+$string['groups:rolestudent_desc'] = 'Welche Rolle soll Lernenden vergeben werden?';
+$string['groups:roleteacher'] = 'Lehrenden-Rolle';
+$string['groups:roleteacher_desc'] = 'Welche Rolle soll Lehrenden vergeben werden?';
+$string['groups:settings'] = 'Gruppenerstellung';
+$string['groups:settings:description'] = 'Gruppenerstellung in zentralen Lernpaketen konfigurieren.';
+$string['groups:urlstudent'] = 'URL für Lernende';
+$string['groups:urlteacher'] = 'URL für Lehrende';
 $string['guest_not_allowed'] = 'Für Gäste ist diese Aktion nicht gestattet!';
-$string['initialize_import'] = 'Lernpaket verwenden';
+
+$string['initialize_import'] = 'Lernpaket klonen';
 $string['invalid_evaluation'] = 'Ungültige Evaluations-ID';
 $string['issued_by_user'] = 'Veröffentlicht von Nutzer/in ';
 

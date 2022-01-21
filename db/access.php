@@ -34,6 +34,12 @@ $capabilities = array(
         ),
         'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
+    'block/edupublisher:cancreategroups' => array(
+        'riskbitmask' => RISK_XSS,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(),
+    ),
     'block/edupublisher:canuse' => array(
         'riskbitmask' => RISK_XSS,
         'captype' => 'write',
