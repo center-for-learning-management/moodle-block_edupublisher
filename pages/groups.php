@@ -60,6 +60,9 @@ if (!\block_edupublisher\lib::can_create_groups()) {
     $roleteacher = get_config('block_edupublisher', 'groupsroleteacher');
 
     if (!empty(optional_param('edupublisher_group_name', '', PARAM_TEXT))) {
+        // Set group mode of course
+        $DB->set_field('course', 'groupmode', 1, [ 'id' => $package->course ]);
+
         $data = (object) [
             'courseid' => $package->course,
             'name' => optional_param('edupublisher_group_name', '', PARAM_TEXT),
