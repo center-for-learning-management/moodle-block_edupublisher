@@ -47,7 +47,7 @@ function block_edupublisher_before_standard_html_head() {
                 $packageactive = $cache->get('package-active-' . $courseid);
                 $context = \context_course::instance($courseid);
                 $allowguests = get_config('block_edupublisher', 'allowguests');
-                if (!empty($packageactive) && !is_enrolled($context) && (empty($allowguests) || has_capability('block/edupublisher:canselfenrol', $context))) {
+                if (!empty($packageactive) && !is_enrolled($context) && (empty($allowguests) || isguestuser($USER) || has_capability('block/edupublisher:canselfenrol', $context))) {
                     $PAGE->requires->js_call_amd('block_edupublisher/main', 'injectEnrolButton', array('courseid' => $courseid, 'isguestuser' => isguestuser($USER)));
                 }
 
