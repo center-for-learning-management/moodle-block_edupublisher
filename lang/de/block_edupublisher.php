@@ -119,6 +119,7 @@ $string['derivative'] = 'Derivat';
 $string['details'] = 'Details';
 
 $string['edupublisher:addinstance'] = 'Block hinzufügen';
+$string['edupublisher:cancreategroups'] = 'Kann Gruppen erstellen';
 $string['edupublisher:canevaluate'] = 'Kann evaluieren';
 $string['edupublisher:canuse'] = 'Kann eduPublisher verwenden';
 $string['edupublisher:canselfenrol'] = 'Kann sich selbst in eduPublisher-Kurse einschreiben';

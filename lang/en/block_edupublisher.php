@@ -134,6 +134,7 @@ $string['derivative'] = 'Derivative';
 $string['details'] = 'Details';
 
 $string['edupublisher:addinstance'] = 'Add edupublisher-block';
+$string['edupublisher:cancreategroups'] = 'Can create groups';
 $string['edupublisher:canevaluate'] = 'Can evaluate';
 $string['edupublisher:canuse'] = 'Can use edupublisher';
 $string['edupublisher:canseeevaluation'] = 'Can see evaluations';
