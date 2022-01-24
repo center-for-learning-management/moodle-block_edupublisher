@@ -62,7 +62,7 @@ class lib {
         global $DB, $USER;
         $domains = get_config('block_edupublisher', 'groupsdomains');
         $usermail = explode('@', $USER->email);
-        if (strpos("@{$usermail[1]}", $domains) > -1) {
+        if (strpos($domains, '@' . $usermail[1]) > -1) {
             return true;
         }
         return false;
