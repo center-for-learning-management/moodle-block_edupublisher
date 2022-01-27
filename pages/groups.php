@@ -74,7 +74,7 @@ if (!\block_edupublisher\lib::can_create_groups()) {
                 'content' => get_string('groups:create:success', 'block_edupublisher', [ 'name' => $data->name ]),
                 'type' => 'success',
             ]);
-            if (!is_enrolled($context, $USER->id)) {
+            if (!\block_edupublisher\lib::has_role($context, $roleteacher, $USER)) {
                 \block_edupublisher\lib::course_manual_enrolments([ $package->course ], $USER->id, $roleteacher);
             }
             \groups_add_member($newgroup, $USER->id);
@@ -108,10 +108,12 @@ if (!\block_edupublisher\lib::can_create_groups()) {
         if (!empty($stud->code)) {
             $group->codestudent = $stud->code;
             $group->urlstudent = "$CFG->wwwroot/blocks/enrolcode/enrol.php?code=$stud->code";
+            $group->qrstudent = "$CFG->wwwroot/blocks/enrolcode/pix/qr.php?format=base64&txt=" . base64_encode($group->urlstudent);
         }
         if (!empty($teac->code)) {
             $group->codeteacher = $teac->code;
             $group->urlteacher = "$CFG->wwwroot/blocks/enrolcode/enrol.php?code=$teac->code";
+            $group->qrteacher = "$CFG->wwwroot/blocks/enrolcode/pix/qr.php?format=base64&txt=" . base64_encode($group->urlteacher);
         }
         $group->urldelete = "$CFG->wwwroot/blocks/edupublisher/pages/groups.php?id=$id&deletegroup=$group->id";
     }

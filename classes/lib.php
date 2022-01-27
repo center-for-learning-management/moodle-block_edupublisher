@@ -263,6 +263,25 @@ class lib {
 
         $package->etapas_kompetenzen = nl2br(implode("\n", $package->default_exacomptitles));
     }
+
+    /**
+     * Load all roles of a user in a context and check if it contains a given roleid.
+     * @param context the context to check.
+     * @param roleid the roleid to search for.
+     * @param userorid the user as integer or object. If non given, use $USER->id.
+     */
+    public static function has_role($context, $roleid, $userorid = null) {
+        global $USER;
+        if (is_object($userorid)) $userid = $userorid->id;
+        elseif (is_numeric($userorid)) $userid = $userorid;
+        else $userid = $USER->id;
+        $roles = \get_user_roles($context, $userid);
+        foreach ($roles as $role) {
+            if ($role->roleid == $roleid) return true;
+        }
+        return false;
+    }
+
     /**
      * Log that a user visited a course-page of a package.
      * @param packageid that is visited.

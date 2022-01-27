@@ -215,6 +215,7 @@ $string['groups:longtext'] = 'Creating a group allows teachers to see and intera
 $string['groups:name'] = 'Name of group';
 $string['groups:no_permission'] = 'Only teachers are allowed to create groups within learning packages. It seems that your account does not have the required capability. Please switch to an authorized account!';
 $string['groups:no_permission_domains'] = 'In addition to the usual role system, a user account have an e-mail with one of the following domains is also appropriate:';
+$string['groups:not_member'] = 'You are no member of this group!';
 $string['groups:remove:title'] = 'Confirm removal';
 $string['groups:remove:text'] = 'Do you really want to remove this group? You will loose access to your students data!';
 $string['groups:rolestudent'] = 'Student-Role';

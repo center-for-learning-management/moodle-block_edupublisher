@@ -25,6 +25,14 @@ defined('MOODLE_INTERNAL') || die;
 
 // We define the web service functions to install.
 $functions = array(
+    'block_edupublisher_group_rename' => array(
+        'classname'   => 'block_edupublisher_external',
+        'methodname'  => 'group_rename',
+        'classpath'   => 'blocks/edupublisher/externallib.php',
+        'description' => 'Renames a group.',
+        'type'        => 'write',
+        'ajax'        => 1,
+    ),
     'block_edupublisher_init_import_load_courses' => array(
         'classname'   => 'block_edupublisher_external',
         'methodname'  => 'init_import_load_courses',

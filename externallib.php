@@ -27,6 +27,52 @@ require_once($CFG->libdir . "/externallib.php");
 require_once($CFG->dirroot . "/blocks/edupublisher/block_edupublisher.php");
 
 class block_edupublisher_external extends external_api {
+    public static function group_rename_parameters() {
+        return new external_function_parameters(array(
+            'groupid' => new external_value(PARAM_INT, 'the groupid'),
+            'name'    => new external_value(PARAM_TEXT, 'the new name'),
+        ));
+    }
+
+    /**
+     * Return all courses the user has trainer capabilities in.
+     * @return list of courses as json encoded string.
+     */
+    public static function group_rename($groupid, $name) {
+        $params = self::validate_parameters(
+            self::group_rename_parameters(),
+            [ 'groupid' => $groupid, 'name' => $name ]
+        );
+
+        $result = (object)[];
+
+        $group = \groups_get_group($params['groupid'], 'id,courseid', MUST_EXIST);
+        $context = \context_course::instance($group->courseid);
+
+        $roleteacher = \get_config('block_edupublisher', 'groupsroleteacher');
+        //$result->error = get_string('groups:not_member', 'block_edupublisher');
+        if (!\block_edupublisher\lib::has_role($context, $roleteacher)) {
+            $result->error = get_string('groups:no_permission', 'block_edupublisher');
+        } elseif (!\groups_is_member($group->id, $USER->id)) {
+            $result->error = get_string('groups:not_member', 'block_edupublisher');
+        } else {
+            global $CFG;
+            require_once("$CFG->dirroot/group/lib.php");
+            $group->name = $params['name'];
+            \groups_update_group($group, false);
+            $result->id = $group->id;
+        }
+
+        return json_encode($result);
+    }
+    /**
+     * Return definition.
+     * @return external_value
+     */
+    public static function group_rename_returns() {
+        return new external_value(PARAM_RAW, 'The result as JSON-string');
+    }
+
     public static function init_import_load_courses_parameters() {
         return new external_function_parameters(array(
             'packageid' => new external_value(PARAM_INT, 'id of package'),

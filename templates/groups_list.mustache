@@ -18,28 +18,47 @@
 <table class="generaltable">
     <thead>
         <tr>
-            <th>
-                {{#str}} groups:name, block_edupublisher {{/str}}
-            </th>
-            <th style="text-align: center;">
-                {{#str}} groups:urlstudent, block_edupublisher {{/str}}
-            </th>
-            <th style="text-align: center;">
-                {{#str}} groups:urlteacher, block_edupublisher {{/str}}
-            </th>
             <th style="text-align: center;">
                 {{#str}} delete {{/str}}
+            </th>
+            <th style="border-right: 1px solid darkgray;">
+                {{#str}} groups:name, block_edupublisher {{/str}}
+            </th>
+            <th style="border-right: 1px solid darkgray;text-align: center;" colspan="2">
+                {{#str}} groups:urlstudent, block_edupublisher {{/str}}
+            </th>
+            <th style="text-align: center;" colspan="2">
+                {{#str}} groups:urlteacher, block_edupublisher {{/str}}
             </th>
         </tr>
     </thead>
     <tbody>
         {{#groups}}
         <tr>
-            <td>{{name}}</td>
-            <td style="text-align: center;">
+            <td style="text-align: center; vertical-align: middle;" rowspan="2">
+                <a href="#" onclick="require(['block_edupublisher/main'], function(M) { M.confirmDeleteGroup('{{urldelete}}'); }); return false;">
+                    <i class="fa fa-trash"></i>
+                </a>
+            </td>
+            <td rowspan="2" style="border-right: 1px solid darkgray; vertical-align: middle;">
+                <input data-groupid="{{id}}" type="text" value="{{name}}"
+                       minlength="3" maxlength="50" style="width: 100%;"
+                       onkeyup="var inp = this; require(['block_edupublisher/groups'], function(G) { G.rename(inp); });" />
+            </td>
+            <td rowspan="2" style="text-align: center;">
+                <a href="{{urlstudent}}" target="_blank">
+                    <img src="{{qrstudent}}" class="qr" height="60"/>
+                </a>
+            </td>
+            <td style="border-right: 1px solid darkgray;text-align: center;">
                 <a href="{{urlstudent}}" target="_blank">
                     <i class="fa fa-external-link"></i>
                     {{codestudent}}
+                </a>
+            </td>
+            <td rowspan="2" style="text-align: center;">
+                <a href="{{urlteacher}}" target="_blank">
+                    <img src="{{qrteacher}}" class="qr" height="60"/>
                 </a>
             </td>
             <td style="text-align: center;">
@@ -48,9 +67,16 @@
                     {{codeteacher}}
                 </a>
             </td>
+        </tr>
+        <tr>
+            <td style="border-right: 1px solid darkgray;text-align: center;">
+                <a href="{{urlstudent}}" target="_blank">
+                    {{urlstudent}}
+                </a>
+            </td>
             <td style="text-align: center;">
-                <a href="#" onclick="require(['block_edupublisher/main'], function(M) { M.confirmDeleteGroup('{{urldelete}}'); }); return false;">
-                    <i class="fa fa-trash"></i>
+                <a href="{{urlteacher}}" target="_blank">
+                    {{urlteacher}}
                 </a>
             </td>
         </tr>
