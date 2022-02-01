@@ -76,7 +76,7 @@ class groups {
                 get_string('groups:rolestudent', 'block_edupublisher'),
                 get_string('groups:rolestudent_desc', 'block_edupublisher'),
                 get_config('block_edupublisher', 'groupsrolestudent'),
-                $options,
+                $options
             )
         );
 
@@ -86,7 +86,7 @@ class groups {
                 get_string('groups:roleteacher', 'block_edupublisher'),
                 get_string('groups:roleteacher_desc', 'block_edupublisher'),
                 get_config('block_edupublisher', 'groupsroleteacher'),
-                $options,
+                $options
             )
         );
     }
