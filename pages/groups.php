@@ -80,8 +80,8 @@ if (!\block_edupublisher\lib::can_create_groups()) {
             \groups_add_member($newgroup, $USER->id);
             require_once("$CFG->dirroot/blocks/enrolcode/locallib.php");
             $expiration = strtotime("31.12.2099");
-            \block_enrolcode_lib::create_code($package->course, $rolestudent, $newgroup, true, $expiration, 0, 0);
-            \block_enrolcode_lib::create_code($package->course, $roleteacher, $newgroup, true, $expiration, 0, 0);
+            \block_enrolcode_lib::create_code($package->course, $rolestudent, $newgroup, true, $expiration, 0, 0, true);
+            \block_enrolcode_lib::create_code($package->course, $roleteacher, $newgroup, true, $expiration, 0, 0, true);
         } else {
             echo $OUTPUT->render_from_template('block_edupublisher/alert', [
                 'content' => get_string('groups:create:error', 'block_edupublisher', [ 'name' => $data->name ]),
