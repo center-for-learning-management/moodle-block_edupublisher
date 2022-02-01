@@ -59,7 +59,12 @@ class groups {
             )
         );
 
-        $roles = $DB->get_records_sql('SELECT r.* FROM {role} AS r, {role_context_levels} AS rcl WHERE r.id=rcl.roleid  AND rcl.contextlevel = 50 ORDER BY r.name ASC', array());
+        $sql = "SELECT r.*
+                FROM {role} AS r, {role_context_levels} AS rcl
+                WHERE r.id=rcl.roleid
+                    AND rcl.contextlevel = 50
+                ORDER BY r.name ASC";
+        $roles = $DB->get_records_sql($sql, []);
         $options = array();
         foreach($roles AS $role) {
             $options[$role->id] = (!empty($role->name) ? $role->name : $role->shortname);
