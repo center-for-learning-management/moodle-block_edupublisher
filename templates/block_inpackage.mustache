@@ -16,73 +16,93 @@
 }}
 
 <div class="row">
-    {{#pix}} i/user, core {{/pix}}
-    {{#authormailshow}}
-    <a href="mailto:{{default_authormail}}">
-        {{default_authorname}}
-    </a>
-    {{/authormailshow}}
-    {{^authormailshow}}
-        {{default_authorname}}
-    {{/authormailshow}}
+    <div class="col-md-12">
+        <i class="fa fa-users icon"></i>
+        {{#authormailshow}}
+        <a href="mailto:{{default_authormail}}">
+            {{default_authorname}}
+        </a>
+        {{/authormailshow}}
+        {{^authormailshow}}
+            {{default_authorname}}
+        {{/authormailshow}}
+    </div>
 </div>
 <div class="row">
-    <a>
-        {{#pix}} i/publish, core {{/pix}}
-        {{default_licence}}
-    </a>
+    <div class="col-md-12">
+        <a>
+            <i class="fa fa-clipboard icon"></i>
+            {{default_licence}}
+        </a>
+    </div>
 </div>
 <div class="row">
-    <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}">
-        {{#pix}} i/hide, core {{/pix}}
-        {{#str}} details, block_edupublisher {{/str}}
-    </a>
+    <div class="col-md-12">
+        <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}">
+            <i class="fa fa-eye icon"></i>
+            {{#str}} details, block_edupublisher {{/str}}
+        </a>
+    </div>
 </div>
 <div class="row">
-    <a href="https://t1.eduvidual.org/blocks/edupublisher/pages/comment.php?packageid=4">
-        {{#pix}} t/messages, core {{/pix}}
-        {{#str}} comments {{/str}}
-    </a>
+    <div class="col-md-12">
+        <a href="https://t1.eduvidual.org/blocks/edupublisher/pages/comment.php?packageid=4">
+            <i class="fa fa-comments icon"></i>
+            {{#str}} comments {{/str}}
+        </a>
+    </div>
 </div>
 <div class="row">
-    <a>
-        {{#pix}} i/scales, core {{/pix}}
-    </a>
-    {{>block_edupublisher/package_rating}}
+    <div class="col-md-12">
+        <a>
+            <i class="fa fa-balance-scale icon"></i>
+        </a>
+        {{>block_edupublisher/package_rating}}
+    </div>
 </div>
 {{#can_see_evaluation}}
 <div class="row">
-    <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/evaluation.php?packageid={{id}}">
-        {{#pix}} i/report, core {{/pix}}
-        {{#str}} evaluations, block_edupublisher {{/str}}
-    </a>
+    <div class="col-md-12">
+        <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/evaluation.php?packageid={{id}}">
+            <i class="fa fa-area-chart icon"></i>
+            {{#str}} evaluations, block_edupublisher {{/str}}
+        </a>
+    </div>
 </div>
 {{/can_see_evaluation}}
 {{#can_import}}
 <div class="row" style="margin-top: 10px;">
-    <a href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportSelection({{id}}, 0, {{allow_subcourses}}); }); return false;"
-       class="btn btn-primary btn-block" style="margin-top: 10px;">
-       {{#str}} initialize_import, block_edupublisher {{/str}}
-    </a>
+    <div class="col-md-12">
+        <a href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportSelection({{id}}, 0, {{allow_subcourses}}); }); return false;"
+           class="btn btn-primary btn-block" style="margin-top: 10px;">
+           {{#str}} initialize_import, block_edupublisher {{/str}}
+        </a>
+    </div>
 </div>
 {{/can_import}}
 <div class="row" style="margin-top: 10px;">
-    <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/groups.php?id={{id}}" class="btn btn-primary btn-block">
-        {{#str}} groups:create, block_edupublisher {{/str}}
-    </a>
+    <div class="col-md-12">
+        <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/groups.php?id={{id}}" class="btn btn-primary btn-block">
+            {{#str}} groups:create, block_edupublisher {{/str}}
+        </a>
+    </div>
 </div>
 {{#can_unenrol}}
 <div class="row" style="margin-top: 10px;">
-    <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/self_enrol.php?id={{course}}&unenrol=1" class="btn btn-primary btn-block">
-        {{#str}} self_unenrol, block_edupublisher {{/str}}
-    </a>
+    <div class="col-md-12">
+        <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/self_enrol.php?id={{course}}&unenrol=1" class="btn btn-primary btn-block">
+            {{#str}} self_unenrol, block_edupublisher {{/str}}
+        </a>
+    </div>
 </div>
 {{/can_unenrol}}
 {{#etapas_graphic}}
 <div class="row">
-    <a>
-        <img src="{{CFG.wwwroot}}/blocks/edupublisher/pix/channel/{{etapas_graphic}}.png"
-             style="width: 100%; max-width: 170px; margin-top: 20px;">
-    </a>
+    <div class="col-md-12">
+        <a>
+            <img src="{{CFG.wwwroot}}/blocks/edupublisher/pix/channel/{{etapas_graphic}}.png"
+                 style="width: 100%; max-width: 170px; margin-top: 20px;">
+        </a>
+    </div>
 </div>
 {{/etapas_graphic}}
