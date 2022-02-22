@@ -52,7 +52,8 @@
                 </a>
             </td>
             <td style="text-align: center; vertical-align: middle;">
-                <a href="#" target="_blank">
+                <a href="#" target="_blank"
+                   onclick="var a = this; require(['block_edupublisher/groups'], function(G) { G.enlargeQR(a); }); return false;">
                     <img src="{{qrteacher}}" class="qr" height="60"/>
                 </a>
             </td>
