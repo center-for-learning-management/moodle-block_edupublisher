@@ -63,8 +63,8 @@ if (!empty($course)) {
 }
 
 // Set up the page
-$PAGE->set_title(get_string('search'));
-$PAGE->set_heading(get_string('search'));
+$PAGE->set_title(get_string('resource_catalogue', 'block_edupublisher'));
+$PAGE->set_heading(get_string('resource_catalogue', 'block_edupublisher'));
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/search.php', array('courseid' => $course, 'search' => $search, 'sectionid' => $section, 'layout' => $layout)));
 $PAGE->set_pagelayout($layout);
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');

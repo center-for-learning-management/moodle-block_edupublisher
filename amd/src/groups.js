@@ -2,6 +2,20 @@ define(
     ['jquery', 'core/ajax', 'core/notification', 'core/str', 'core/templates', 'core/url', 'core/modal_factory', 'core/modal_events'],
     function($, Ajax, Notification, Str, Templates, Url, ModalFactory, ModalEvents) {
     return {
+        /**
+         * Enlarge a QR-Code.
+         */
+        enlargeQR: function(a) {
+            var qr = $(a).html();
+            ModalFactory.create({
+                title: 'QR Code',
+                body: $(qr).css('width', '450px').css('height', '450px'),
+                footer: '',
+            }).done(function(modal) {
+                modal.show();
+                $(modal.getRoot()).css('text-align', 'center');
+            });
+        },
         rename: function(inp) {
             var groupid = $(inp).attr('data-groupid');
             var name = $(inp).val();

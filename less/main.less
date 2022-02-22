@@ -1,4 +1,17 @@
 // out: ../style/main.css, sourcemap: false, compress: true
+
+section.block_edupublisher.block {
+    div.row {
+        a[href^="mailto"]::before {
+            /* Moodle places an envelope-icon by itself */
+            display: none;
+        }
+        i.fa {
+            color: gray;
+        }
+    }
+}
+
 .block-edupublisher-success {
     background-color: rgba(0, 255, 0, 0.3);
 }

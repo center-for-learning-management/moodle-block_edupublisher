@@ -16,36 +16,59 @@
 
     @param type: success, warning, danger
 }}
-<div class="ui-edupublisher"><div>
+<div class="_ui-edupublisher"><div>
     <input type="hidden" id="packageid-{{uniqid}}" value="{{packageid}}" />
-    <label for="courseid-{{uniqid}}">{{#str}} course {{/str}}</label>
-    <br />
-    <select id="courseid-{{uniqid}}" disabled="disabled"
-        onchange="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportLoadSections('{{uniqid}}'); });">
-        <option value="">{{#str}} loading {{/str}}</option>
-    </select>
+    <div class="row">
+        <div class="col-md-12">
+            <label for="courseid-{{uniqid}}">{{#str}} clone_to_course, block_edupublisher {{/str}}</label>
+        </div>
+        <div class="col-md-12">
+            <select id="courseid-{{uniqid}}" disabled="disabled" style="width: 100%;"
+                onchange="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportLoadSections('{{uniqid}}'); });">
+                <option value="">{{#str}} loading {{/str}}</option>
+            </select>
+        </div>
+    </div>
+
     {{#allowsubcourses}}
-    <label>
-        <input type="checkbox" id="assubcourse-{{uniqid}}">
-        {{#str}} as_subcourse, block_edupublisher {{/str}}<sup>1)</sup>
-    </label>
+    <div class="row">
+        <div class="col-md-12">
+            <label>
+                <input type="checkbox" id="assubcourse-{{uniqid}}">
+                {{#str}} as_subcourse, block_edupublisher {{/str}}<sup>1)</sup>
+            </label>
+        </div>
+    </div>
     {{/allowsubcourses}}
-    <br />
-    <label for="sectionid-{{uniqid}}">{{#str}} after_section, block_edupublisher {{/str}}</label>
-    <br />
-    <select id="sectionid-{{uniqid}}" disabled="disabled">
-        <option value="">{{#str}} loading {{/str}}</option>
-    </select>
-    <br />
-    <a href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportLoadGo('{{uniqid}}'); }); return false;" class="btn btn-primary">
-        {{#str}} ok {{/str}}
-    </a>
+
+    <div class="row">
+        <div class="col-md-12">
+            <label for="sectionid-{{uniqid}}">{{#str}} after_section, block_edupublisher {{/str}}</label>
+        </div>
+        <div class="col-md-12">
+            <select id="sectionid-{{uniqid}}" disabled="disabled" style="width: 100%;">
+                <option value="">{{#str}} loading {{/str}}</option>
+            </select>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <a href="#" class="btn btn-primary" style="width: 100%; margin-top: 10px;"
+               onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportLoadGo('{{uniqid}}'); }); return false;">
+                {{#str}} ok {{/str}}
+            </a>
+        </div>
+    </div>
+
     {{#allowsubcourses}}
-    <br />
-    <small>
-        <sup>1)</sup>
-        {{#str}} as_subcourse:description, block_edupublisher {{/str}}
-    </small>
+    <div class="row-fluid">
+        <div class="col-md-12">
+            <small>
+                <sup>1)</sup>
+                {{#str}} as_subcourse:description, block_edupublisher {{/str}}
+            </small>
+        </div>
+    </div>
     {{/allowsubcourses}}
 </div></div>
 

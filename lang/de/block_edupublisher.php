@@ -25,7 +25,7 @@ $string['pluginname'] = 'eduPublisher';
 $string['page:publisher'] = 'veröffentlichen';
 
 $string['action'] = 'Aktion';
-$string['after_section'] = 'Nach folgendem Abschnitt einfügen';
+$string['after_section'] = 'Nach folgendem Abschnitt einfügen:';
 $string['allowguests'] = 'Offen für Gäste';
 $string['allowguests_desc'] = 'Wenn diese Option an ist, können Gäste die Suchfunktion verwenden.';
 $string['by'] = 'von';
@@ -34,6 +34,7 @@ $string['category_help'] = 'Geben Sie hier die Kategorie ein, in der veröffentl
 $string['category_missing'] = 'Die Kategorie ist erforderlich';
 $string['channel'] = 'Kanal';
 $string['channels'] = 'Kanäle';
+$string['clone_to_course'] = 'In folgenden Kurs kopieren:';
 $string['clonecourse'] = 'Veröffentliche Inhalte in neuem Kurs';
 $string['clonecourse_attention'] = '<strong>Achtung:</strong>&nbsp;Bitte beachten Sie den Hilfetext, bevor Sie dieses Feld abwählen!';
 $string['clonecourse_help'] = '<strong>Achtung:</strong>&nbsp;Falls Sie diese Checkbox abwählen, wird dieser Kurs selbst veröffentlicht. Alle Nutzer/innen (sogar Sie selbst) werden aus dem Kurs ausgetragen. Daten von Nutzer/innen könnten daher unwiederbringlich gelöscht werden!';
@@ -194,7 +195,7 @@ $string['groups:domains_desc'] = 'Nutzer/innen kann die Funktion entweder über 
 $string['groups:enabled'] = 'Erlaube Gruppenerstellung';
 $string['groups:enabled_desc'] = 'Diese Einstellung schaltet das ganze Feature an und aus.';
 $string['groups:login_other_account'] = 'Mit anderem Konto anmelden';
-$string['groups:longtext'] = 'Die Erstellung einer Gruppe ermöglicht es, dass Lehrer/innen ihre Schüler/innen sehen und mit ihnen in Kontakt treten können. Damit ist eine Lernbegleitung und Lernfortschrittskontrolle gewährleistet, ohne dass eigene Kurse erstellt und befüllt werden müssen.<br /><br />Geben Sie die URL "<strong>für Lehrer/innen</strong>" an andere Lehrpersonen weiter, oder folgen Sie dieser URL falls Sie ein zweites Nutzerkonto als Lehrperson verwenden möchten. Die URL "<strong>für Schüler/innen</strong>" können Sie Ihren Schüler/innen geben, damit diese Ihrer Gruppe beitreten können.';
+$string['groups:longtext'] = 'Die Erstellung einer Gruppe ermöglicht es, dass Lehrer/innen ihre Schüler/innen sehen und mit ihnen in Kontakt treten können. Damit ist eine Lernbegleitung und Lernfortschrittskontrolle gewährleistet, ohne dass eigene Kurse erstellt und befüllt werden müssen.<br /><br />Geben Sie die URL "<strong>für Lehrer/innen</strong>" an andere Lehrpersonen weiter, oder folgen Sie dieser URL falls Sie ein zweites Nutzerkonto als Lehrperson verwenden möchten. Die URL "<strong>für Schüler/innen</strong>" können Sie Ihren Schüler/innen geben, damit diese Ihrer Gruppe beitreten können. Um den QR-Code zu vergrößeren, können Sie diesen anklicken.';
 $string['groups:name'] = 'Gruppenname';
 $string['groups:no_permission'] = 'Nur Lehrer/innen können Gruppen in Lernpaketen erstellen. Leider verfügt Ihr Nutzerkonto nicht über die erforderliche Berechtigung. Bitte wechseln Sie auf ein berechtigtes Nutzerkonto!';
 $string['groups:no_permission_domains'] = 'Zusätzlich zum üblichen Berechtigungssystem wird jedes Nutzerkonto akzeptiert, dessen E-Mailadresse zu einer der folgenden Domains gehört:';
@@ -211,7 +212,7 @@ $string['groups:urlstudent'] = 'Für Schüler/innen';
 $string['groups:urlteacher'] = 'Für Lehrer/innen';
 $string['guest_not_allowed'] = 'Für Gäste ist diese Aktion nicht gestattet!';
 
-$string['initialize_import'] = 'Lernpaket klonen';
+$string['initialize_import'] = 'Lernpaket kopieren';
 $string['invalid_evaluation'] = 'Ungültige Evaluations-ID';
 $string['issued_by_user'] = 'Veröffentlicht von Nutzer/in ';
 

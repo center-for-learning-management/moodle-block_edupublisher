@@ -17,15 +17,15 @@
 
 <div class="row">
     <div class="col-md-12">
-        <i class="fa fa-users icon"></i>
-        {{#authormailshow}}
+        <i class="fa fa-envelope icon"></i>
+        {{#default_authormailshow}}
         <a href="mailto:{{default_authormail}}">
             {{default_authorname}}
         </a>
-        {{/authormailshow}}
-        {{^authormailshow}}
+        {{/default_authormailshow}}
+        {{^default_authormailshow}}
             {{default_authorname}}
-        {{/authormailshow}}
+        {{/default_authormailshow}}
     </div>
 </div>
 <div class="row">
@@ -55,7 +55,7 @@
 <div class="row">
     <div class="col-md-12">
         <a>
-            <i class="fa fa-balance-scale icon"></i>
+            <i class="fa fa-line-chart icon"></i>
         </a>
         {{>block_edupublisher/package_rating}}
     </div>
