@@ -503,6 +503,162 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         upgrade_block_savepoint(true, 2021042200, 'edupublisher');
     }
 
+    if ($oldversion < 2022022500) {
+        // Define table block_edupublisher_md_def to be created.
+        $table = new xmldb_table('block_edupublisher_md_def');
+
+        // Adding fields to table block_edupublisher_md_def.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('package', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('authormail', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('authormailshow', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('authorname', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('imageurl', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('licence', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('origins', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('publishas', XMLDB_TYPE_INTEGER, '1', null, null, null, '1');
+        $table->add_field('published', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('schoollevel_primary', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schoollevel_secondary_1', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schoollevel_secondary_2', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schoollevel_tertiary', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('sourcecourse', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('subjectarea_arts', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('subjectarea_economics', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('subjectarea_geography', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('subjectarea_history', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('subjectarea_informatics', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('subjectarea_languages', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('subjectarea_mathematics', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('subjectarea_naturalsciences', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('subjectarea_other', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('subjectarea_philosophy', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('subjectarea_physicaleducation', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('summary', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('tags', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('title', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+
+        // Adding keys to table block_edupublisher_md_def.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for block_edupublisher_md_def.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table block_edupublisher_md_com to be created.
+        $table = new xmldb_table('block_edupublisher_md_com');
+
+        // Adding fields to table block_edupublisher_md_com.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('package', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('publishas', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('published', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('publisher', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('shoplink', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('validation', XMLDB_TYPE_CHAR, '20', null, null, null, null);
+
+        // Adding keys to table block_edupublisher_md_com.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for block_edupublisher_md_com.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table block_edupublisher_md_edu to be created.
+        $table = new xmldb_table('block_edupublisher_md_edu');
+
+        // Adding fields to table block_edupublisher_md_edu.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('package', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('curriculum', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('educationallevel', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('language', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('lticartridge', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('ltisecret', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('ltiurl', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('publishas', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('published', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('schooltype', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('type', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table block_edupublisher_md_edu.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for block_edupublisher_md_edu.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table block_edupublisher_md_eta to be created.
+        $table = new xmldb_table('block_edupublisher_md_eta');
+
+        // Adding fields to table block_edupublisher_md_eta.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('package', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('gegenstand', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('kompetenzen', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('lticartridge', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('ltisecret', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('ltiurl', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('publishas', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('published', XMLDB_TYPE_INTEGER, '10', null, null, null, '0');
+        $table->add_field('schulstufe_1', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schulstufe_2', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schulstufe_3', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schulstufe_4', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schulstufe_5', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schulstufe_6', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schulstufe_7', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schulstufe_8', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schulstufe_9', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schulstufe_10', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schulstufe_11', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schulstufe_12', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('schulstufe_13', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
+        $table->add_field('status', XMLDB_TYPE_CHAR, '50', null, null, null, null);
+        $table->add_field('subtype', XMLDB_TYPE_CHAR, '20', null, null, null, null);
+        $table->add_field('stundenablauf', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('type', XMLDB_TYPE_CHAR, '20', null, null, null, null);
+        $table->add_field('voraussetzungen', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('vorkenntnisse', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('zeitbedarf', XMLDB_TYPE_CHAR, '20', null, null, null, null);
+
+        // Adding keys to table block_edupublisher_md_eta.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for block_edupublisher_md_eta.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // Define table block_edupublisher_md_exa to be created.
+        $table = new xmldb_table('block_edupublisher_md_exa');
+
+        // Adding fields to table block_edupublisher_md_exa.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('package', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('datasource', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('sourceid', XMLDB_TYPE_INTEGER, '10', null, null, null, null);
+        $table->add_field('title', XMLDB_TYPE_TEXT, null, null, null, null, null);
+
+        // Adding keys to table block_edupublisher_md_exa.
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Conditionally launch create table for block_edupublisher_md_exa.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // \block_edupublisher\locallib::atomize_database();
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2022022500, 'edupublisher');
+
+    }
+
+
 
     return true;
 }
