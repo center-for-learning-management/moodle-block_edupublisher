@@ -51,9 +51,11 @@ class block_edupublisher_external extends external_api {
 
         $roleteacher = \get_config('block_edupublisher', 'groupsroleteacher');
         //$result->error = get_string('groups:not_member', 'block_edupublisher');
-        if (!\block_edupublisher\lib::has_role($context, $roleteacher)) {
+        if (empty($params['name'])) {
+            throw new \moodle_exception('exception:name_must_not_be_empty', 'block_edupublisher');
+        } else if (!\block_edupublisher\lib::has_role($context, $roleteacher)) {
             $result->error = get_string('groups:no_permission', 'block_edupublisher');
-        } elseif (!\groups_is_member($group->id, $USER->id)) {
+        } else if (!\groups_is_member($group->id, $USER->id)) {
             $result->error = get_string('groups:not_member', 'block_edupublisher');
         } else {
             global $CFG;

@@ -20,7 +20,7 @@ define(
             var groupid = $(inp).attr('data-groupid');
             var name = $(inp).val();
 
-            if (name.length < 4) return;
+            if (name.length < 1) return;
             if (name.length > 50) return;
 
             Ajax.call([{

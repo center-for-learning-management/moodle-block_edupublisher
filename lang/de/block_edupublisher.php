@@ -176,6 +176,7 @@ $string['etapas_voraussetzungen'] = 'Voraussetzungen';
 $string['etapas_vorkenntnisse'] = 'Vorkenntnisse';
 $string['etapas_zeitbedarf'] = 'Zeitbedarf';
 
+$string['exception:name_must_not_be_empty'] = 'Der Name darf nicht leer sein!';
 $string['export'] = 'Export';
 $string['externalsources'] = 'Externe Quellen';
 $string['externalsources:courseformat'] = 'Standard Kursformat für externe Quellen';

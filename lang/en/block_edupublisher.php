@@ -193,6 +193,7 @@ $string['etapas_voraussetzungen'] = 'Prerequisites';
 $string['etapas_vorkenntnisse'] = 'Prior knowledge';
 $string['etapas_zeitbedarf'] = 'duration';
 
+$string['exception:name_must_not_be_empty'] = 'Name must not be empty!';
 $string['export'] = 'Export';
 $string['externalsources'] = 'External sources';
 $string['externalsources:courseformat'] = 'Default course format';
