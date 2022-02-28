@@ -44,10 +44,12 @@ $PAGE->set_pagelayout('standard');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
+$PAGE->navbar->add(get_string('resource_catalogue', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/search.php', array()));
 $PAGE->navbar->add(get_string('channels', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/list.php', array()));
 if (!empty($channel)) {
     $PAGE->navbar->add($title, $PAGE->url);
 }
+
 
 block_edupublisher::check_requirements();
 block_edupublisher::print_app_header();
@@ -82,19 +84,14 @@ if (empty($channel)) {
         )
     );
 } else {
-    if (!block_edupublisher::is_maintainer(array($channel))) {
-        echo $OUTPUT->render_from_template(
-            'block_edupublisher/alert',
-            array(
-                'content' => get_string('permission_denied', 'block_edupublisher'),
-                'type' => 'warning',
-                'url' => $CFG->wwwroot . '/my',
-            )
-        );
-
-        block_edupublisher::print_app_footer();
-        die();
+    if (!$maintainer_default && !$maintainer_etapas && !$maintainer_eduthek) {
+        throw new \moodle_exception('permission_denied', 'block_edupublisher');
     }
+    /*
+    if (!block_edupublisher::is_maintainer(array($channel))) {
+        throw new \moodle_exception('permission_denied', 'block_edupublisher');
+    }
+    */
     echo $OUTPUT->render_from_template('block_edupublisher/maintain_table_head', array(
         'channel' => $channel,
         'maintainer_default' => $maintainer_default,

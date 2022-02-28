@@ -17,13 +17,19 @@
 }}
 <div class="ui-edupublisher"><div>
     <h3>{{#str}} channel, block_edupublisher {{/str}}</h3>
-    {{#maintainer_default}}
-        <a class="btn btn-secondary" href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel=default">{{#str}} default_header, block_edupublisher {{/str}}</a>
-    {{/maintainer_default}}
-    {{#maintainer_etapas}}
-        <a class="btn btn-secondary" href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel=etapas">{{#str}} etapas_header, block_edupublisher {{/str}}</a>
-    {{/maintainer_etapas}}
-    {{#maintainer_eduthek}}
-        <a class="btn btn-secondary" href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel=eduthek">{{#str}} eduthek_header, block_edupublisher {{/str}}</a>
-    {{/maintainer_eduthek}}
-</div></div><!-- ui-edupublisher -->
+        <a class="btn btn-secondary" href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel=default">
+            {{#str}} default_header, block_edupublisher {{/str}} <br />
+            {{#maintainer_default}}[editing permission]{{/maintainer_default}}
+            {{^maintainer_default}}[view only]{{/maintainer_default}}
+        </a>
+        <a class="btn btn-secondary" href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel=etapas">
+            {{#str}} etapas_header, block_edupublisher {{/str}} <br />
+            {{#maintainer_etapas}}[editing permission]{{/maintainer_etapas}}
+            {{^maintainer_etapas}}[view only]{{/maintainer_etapas}}
+        </a>
+        <a class="btn btn-secondary" href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel=eduthek">
+            {{#str}} eduthek_header, block_edupublisher {{/str}} <br />
+            {{#maintainer_eduthek}}[editing permission]{{/maintainer_eduthek}}
+            {{^maintainer_eduthek}}[view only]{{/maintainer_eduthek}}
+        </a>
+</div></div>

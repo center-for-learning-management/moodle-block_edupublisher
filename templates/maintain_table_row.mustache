@@ -45,7 +45,6 @@
         </a>
     </td>
     <td>{{title}} (<i>{{default_authorname}}</i>)</td>
-    {{#maintainer_default}}
     <td>
         {{#default_publishas}} {{#pix}} i/completion-auto-y, core, requested publishing {{/pix}} {{/default_publishas}}
         {{^default_publishas}} {{#pix}} i/completion-auto-fail, core, NO require publishing {{/pix}} {{/default_publishas}}
@@ -54,8 +53,6 @@
         {{#default_active}} {{#pix}} i/completion-auto-pass, core, is published {{/pix}} {{/default_active}}
         {{^default_active}} {{#pix}} i/completion-auto-fail, core, is NOT published {{/pix}} {{/default_active}}
     </td>
-    {{/maintainer_default}}
-    {{#maintainer_etapas}}
     <td>
         {{#etapas_publishas}} {{#pix}} i/completion-auto-y, core, requested publishing {{/pix}} {{/etapas_publishas}}
         {{^etapas_publishas}} {{#pix}} i/completion-auto-fail, core, NO require publishing {{/pix}} {{/etapas_publishas}}
@@ -64,8 +61,6 @@
         {{#etapas_active}} {{#pix}} i/completion-auto-pass, core, is published {{/pix}} {{/etapas_active}}
         {{^etapas_active}} {{#pix}} i/completion-auto-fail, core, is NOT published {{/pix}} {{/etapas_active}}
     </td>
-    {{/maintainer_etapas}}
-    {{#maintainer_eduthek}}
     <td>
         {{#eduthek_publishas}} {{#pix}} i/completion-auto-y, core, requested publishing {{/pix}} {{/eduthek_publishas}}
         {{^eduthek_publishas}} {{#pix}} i/completion-auto-fail, core, NO require publishing {{/pix}} {{/eduthek_publishas}}
@@ -74,7 +69,6 @@
         {{#eduthek_active}} {{#pix}} i/completion-auto-pass, core, is published {{/pix}} {{/eduthek_active}}
         {{^eduthek_active}} {{#pix}} i/completion-auto-fail, core, is NOT published {{/pix}} {{/eduthek_active}}
     </td>
-    {{/maintainer_eduthek}}
     <td>
         {{> block_edupublisher/package_rating }}
     </td>
