@@ -30,7 +30,7 @@ $id = optional_param('id', 0, PARAM_INT);
 $packageid = optional_param('packageid', 0, PARAM_INT);
 $perma = optional_param('perma', '', PARAM_TEXT);
 
-$package = \block_edupublisher::get_package($packageid, false);
+$package = \new \block_edupublisher\package($packageid, false);
 
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/evaluation.php', array('id' => $id, 'packageid' => $packageid, 'perma' => $perma)));
 
@@ -46,7 +46,7 @@ $PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id
 $PAGE->navbar->add(get_string('etapas_evaluation', 'block_edupublisher'), new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $package->id)));
 
 if (!has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
-    block_edupublisher::print_app_header();
+    echo $OUTPUT->header();
     echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
         'type' => 'danger',
         'content' => get_string('permission_denied', 'block_edupublisher'),
@@ -59,7 +59,7 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
             $fromuser = \core_user::get_user($evaluation->userid);
             $evaluation->userfullname = \fullname($fromuser);
             $PAGE->navbar->add(get_string('evaluation_by', 'block_edupublisher', array('fullname' => $evaluation->userfullname)), new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $package->id, 'id' => $id)));
-            block_edupublisher::print_app_header();
+            echo $OUTPUT->header();
             $usercontext = \context_user::instance($evaluation->userid);
             $evaluation->userpicture = new \moodle_url('/pluginfile.php/' . $usercontext->id . '/user/icon');
             $evaluation->userurl = new \moodle_url('/user/profile.php', array('id' => $evaluation->userid));
@@ -68,7 +68,7 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
             $evaluation->technology = get_string($evaluation->technology_application, 'block_edupublisher');
             echo $OUTPUT->render_from_template('block_edupublisher/evaluation_single', $evaluation);
         } else {
-            block_edupublisher::print_app_header();
+            echo $OUTPUT->header();
             echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
                 'type' => 'danger',
                 'content' => get_string('invalid_evaluation', 'block_edupublisher'),
@@ -76,7 +76,7 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
             ));
         }
     } else {
-        block_edupublisher::print_app_header();
+        echo $OUTPUT->header();
 
         // List existing evaluations here.
         $canevaluate = has_capability('block/edupublisher:canevaluate', \context_system::instance());
@@ -99,4 +99,4 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
     }
 }
 
-block_edupublisher::print_app_footer();
+echo $OUTPUT->footer();

@@ -41,9 +41,9 @@ $PAGE->navbar->add(get_string('publisher', 'block_edupublisher'), new moodle_url
 if (!empty($publisher->name)) {
     $PAGE->navbar->add($publisher->name, $PAGE->url);
 }
-block_edupublisher::print_app_header();
+echo $OUTPUT->header();
 
-if (block_edupublisher::is_maintainer(array('commercial'))) {
+if (\block_edupublisher\lib::is_maintainer(array('commercial'))) {
     // if id > 0 show publisher
     // else show list of publishers
     if ($id > 0) {
@@ -104,4 +104,4 @@ if (block_edupublisher::is_maintainer(array('commercial'))) {
     );
 }
 
-block_edupublisher::print_app_footer();
+echo $OUTPUT->footer();

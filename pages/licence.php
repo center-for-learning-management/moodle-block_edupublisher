@@ -42,18 +42,18 @@ $PAGE->navbar->add(get_string('publisher', 'block_edupublisher'), new moodle_url
 $PAGE->navbar->add($publisher->name, new moodle_url('/blocks/edupublisher/pages/publishers.php', array('publisherid' => $publisher->id)));
 $PAGE->navbar->add(get_string('licence', 'block_edupublisher'), $PAGE->url);
 
-block_edupublisher::check_requirements();
-block_edupublisher::print_app_header();
+\block_edupublisher\lib::check_requirements();
+echo $OUTPUT->header();
 
 if (empty($publisherid)) {
     $options = array();
-    if (block_edupublisher::is_admin()) {
+    if (\block_edupublisher\lib::is_admin()) {
         $allpublishers = $DB->get_records_sql('SELECT * FROM {block_edupublisher_pub} ORDER BY name ASC', array());
     } else {
         $allpublishers = $DB->get_records_sql('SELECT ep.* FROM {block_edupublisher_pub} ep, {block_edupublisher_pub_user} epu WHERE ep.id=epu.publisherid AND epu.userid=? ORDER BY name ASC', array($USER->id));
     }
     foreach($allpublishers AS $publisher) {
-        if (block_edupublisher::is_admin()) {
+        if (\block_edupublisher\lib::is_admin()) {
             $chk = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisher->id, 'userid' => $USER->id));
             if (!$chk) $publisher->name = '! ' . $publisher->name;
         }
@@ -66,7 +66,7 @@ if (empty($publisherid)) {
         'block_edupublisher/licence_publisherselect',
         array('options' => $options)
     );
-} elseif (block_edupublisher::is_maintainer(array('commercial')) || $publisher->is_coworker) {
+} elseif (\block_edupublisher\lib::is_maintainer(array('commercial')) || $publisher->is_coworker) {
     $action = optional_param('action', '', PARAM_TEXT);
     $data = (object) array(
         'action' => $action,
@@ -93,7 +93,7 @@ if (empty($publisherid)) {
             $allpackages = $DB->get_records_sql($sql, array('commercial_publisher', $publisherid));
             $data->packages = array();
             foreach ($allpackages AS $package) {
-                $package = block_edupublisher::get_package($package->id, true);
+                $package = new \block_edupublisher\package($package->id, true);
                 $package->_isselected = (!empty($data->selectedpackages[$package->id]));
                 $package->{'type_' . $data->type} = 1;
                 $package->amount = $data->amountpackages[$package->id];
@@ -188,4 +188,4 @@ if (empty($publisherid)) {
     );
 }
 
-block_edupublisher::print_app_footer();
+echo $OUTPUT->footer();

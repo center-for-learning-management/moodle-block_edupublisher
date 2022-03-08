@@ -28,7 +28,7 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 $id = required_param('id', PARAM_INT);
 $confirmed = optional_param('confirmed', 0, PARAM_INT);
-$package = block_edupublisher::get_package($id, true);
+$package = new \block_edupublisher\package($id, true);
 $context = context_course::instance($package->course);
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/remove.php?id=' . $id);
@@ -42,8 +42,8 @@ $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
 $PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->id)));
 $PAGE->navbar->add(get_string('removal:title', 'block_edupublisher'), $PAGE->url);
-block_edupublisher::check_requirements();
-block_edupublisher::print_app_header();
+\block_edupublisher\lib::check_requirements();
+echo $OUTPUT->header();
 
 if ($package->candelete) {
     if ($confirmed) {
@@ -93,4 +93,4 @@ if ($package->candelete) {
     echo $OUTPUT->render_from_template('block_edupublisher/alert', (object) $params);
 }
 
-block_edupublisher::print_app_footer();
+echo $OUTPUT->footer();

@@ -31,7 +31,7 @@ defined('MOODLE_INTERNAL') || die;
  **/
 function get_subjectareas_sorted($selectedarea = "") {
     global $CFG;
-    require($CFG->dirroot . '/blocks/edupublisher/classes/channel_definition.php');
+    $definition = \block_edupublisher\lib::get_channel_definition();
     $locs = array();
     $loc_key = array();
 
@@ -58,7 +58,7 @@ function get_subjectareas_sorted($selectedarea = "") {
 function get_schoollevels_sorted($selectedarea = "") {
     global $CFG;
 
-    require($CFG->dirroot . '/blocks/edupublisher/classes/channel_definition.php');
+    $definition = \block_edupublisher\lib::get_channel_definition();
     $locs = array();
     $loc_key = array();
 

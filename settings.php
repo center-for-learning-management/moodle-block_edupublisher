@@ -38,7 +38,7 @@ if ($hassiteconfig) {
 
 
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
-        $definition = block_edupublisher::get_channel_definition();
+        $definition = \block_edupublisher\lib::get_channel_definition();
         $channels = array_keys($definition);
         foreach($channels AS $channel) {
             $settings->add(new admin_setting_configtext('block_edupublisher/channelkey_' . $channel, get_string($channel . '_fetchchannel', 'block_edupublisher'), '', md5(time() . rand(0, 1000)), PARAM_TEXT, 32));

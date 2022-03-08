@@ -57,9 +57,9 @@ class package_create_form extends moodleform {
         $mform->setType('__possible_origins', PARAM_RAW);
         */
 
-        //$ALLOW_COMMERCIAL = get_config('block_edupublisher', 'enablecommercial') && block_edupublisher::is_publisher();
-        $ALLOW_COMMERCIAL = block_edupublisher::is_publisher();
-        $definition = block_edupublisher::get_channel_definition();
+        //$ALLOW_COMMERCIAL = get_config('block_edupublisher', 'enablecommercial') && \block_edupublisher\lib::is_publisher();
+        $ALLOW_COMMERCIAL = \block_edupublisher\lib::is_publisher();
+        $definition = \block_edupublisher\lib::get_channel_definition();
         //print_r($definition);
         $channels = array_keys($definition);
         $stringman = get_string_manager();
@@ -77,7 +77,7 @@ class package_create_form extends moodleform {
                 $field = $definition[$channel][$_field];
                 $required = isset($field['required']) && $field['required'];
                 $hiddenexceptmaintainer = isset($field['hidden_except_maintainer']) && $field['hidden_except_maintainer'];
-                if ($hiddenexceptmaintainer && !block_edupublisher::is_maintainer()) {
+                if ($hiddenexceptmaintainer && !\block_edupublisher\lib::is_maintainer()) {
                     continue;
                 }
 
@@ -92,7 +92,7 @@ class package_create_form extends moodleform {
                         /* Drag & Drop did not work properly.
                         if ($channel == 'default' && $_field == 'image') {
                             $course = get_course($COURSE->id);
-                            $courseimage = block_edupublisher::get_course_image($course);
+                            $courseimage = \block_edupublisher\lib::get_course_image($course);
                             if (!empty($courseimage->imagepath)) {
                                 $label .= '<center><img src="' . $courseimage->imagepath . '" style="width: 50%;" /></center>';
                             }
@@ -118,20 +118,20 @@ class package_create_form extends moodleform {
                     case 'select':
                         $options = (isset($field['options'])) ? $field['options'] : array();
                         if ($channel == 'commercial' && $_field == 'publisher') {
-                            if (block_edupublisher::is_admin()) {
+                            if (\block_edupublisher\lib::is_admin()) {
                                 $allpublishers = $DB->get_records_sql('SELECT * FROM {block_edupublisher_pub} ORDER BY name ASC', array());
                             } else {
                                 $allpublishers = $DB->get_records_sql('SELECT ep.* FROM {block_edupublisher_pub} ep, {block_edupublisher_pub_user} epu WHERE ep.id=epu.publisherid AND epu.userid=? ORDER BY name ASC', array($USER->id));
                             }
                             foreach($allpublishers AS $publisher) {
-                                if (block_edupublisher::is_admin()) {
+                                if (\block_edupublisher\lib::is_admin()) {
                                     $chk = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisher->id, 'userid' => $USER->id));
                                     if (!$chk) $publisher->name = '! ' . $publisher->name;
                                 }
                                 $options[$publisher->id] = $publisher->name;
                             }
                         }
-                        if ($channel == 'default' && $_field == 'licence' && !block_edupublisher::is_publisher()) {
+                        if ($channel == 'default' && $_field == 'licence' && !\block_edupublisher\lib::is_publisher()) {
                             unset($options['other']);
                         }
                         $addedfield = $mform->addElement('select', $channel . '_' . $_field, $label, $options);
@@ -274,7 +274,7 @@ class package_create_form extends moodleform {
     function validation($data, $files) {
         $stringman = get_string_manager();
         $errors = array();
-        $definition = block_edupublisher::get_channel_definition();
+        $definition = \block_edupublisher\lib::get_channel_definition();
         $channels = array_keys($definition);
         foreach ($channels AS $channel) {
             if ($channel != 'default' && (!isset($data[$channel . '_publishas']) || !$data[$channel . '_publishas'])) continue;

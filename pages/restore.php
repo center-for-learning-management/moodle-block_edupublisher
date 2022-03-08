@@ -52,7 +52,7 @@ if (!empty($restore)) {
 
 $sectionid   = optional_param('sectionid', 0, PARAM_INT);
 $packageid   = required_param('packageid', PARAM_INT);
-$package = block_edupublisher::get_package($packageid, false);
+$package = new \block_edupublisher\package($packageid, false);
 
 // Determine if we are performing realtime for asynchronous backups.
 $backupmode = backup::MODE_GENERAL;

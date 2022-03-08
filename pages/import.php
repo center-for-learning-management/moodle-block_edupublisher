@@ -42,7 +42,7 @@ $targetcourseid = required_param('course', PARAM_INT);
 $filepath       = optional_param('filepath', '', PARAM_ALPHANUM);
 
 // Load package and importcourse + context
-$package = block_edupublisher::get_package($packageid, false);
+$package = new \block_edupublisher\package($packageid, false);
 
 $targetcourse   = $DB->get_record('course', array('id'=>$targetcourseid), '*', MUST_EXIST);
 $targetcontext  = \context_course::instance($targetcourse->id);
@@ -186,7 +186,7 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
-block_edupublisher::check_requirements();
+\block_edupublisher\lib::check_requirements();
 
 if (empty($filepath)) {
     $filepath = \block_edupublisher\lib::prepare_restore($package);
@@ -371,5 +371,5 @@ if (!empty($filepath)) {
     $redirect = $CFG->wwwroot . '/course/view.php?id=' . $targetcourse->id;
 }
 
-block_edupublisher::print_app_footer();
+echo $OUTPUT->footer();
 if (!empty($redirect)) { redirect($redirect); }

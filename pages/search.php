@@ -71,8 +71,8 @@ $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 $PAGE->navbar->add(get_string('search_in_edupublisher', 'block_edupublisher'), $PAGE->url);
 
-block_edupublisher::check_requirements();
-block_edupublisher::print_app_header();
+\block_edupublisher\lib::check_requirements();
+echo $OUTPUT->header();
 
 $subjectareas = \block_edupublisher\get_subjectareas_sorted($subjectarea);
 $schoollevels = \block_edupublisher\get_schoollevels_sorted($schoollevel);
@@ -114,7 +114,7 @@ foreach ($lics AS $lic) {
         $publishers[$lic->publishername]->items = array();
     }
     if (!isset($publishers[$lic->publishername]->items[$lic->packageid])) {
-        $publishers[$lic->publishername]->items[$lic->packageid] = block_edupublisher::get_package($lic->packageid, true);
+        $publishers[$lic->publishername]->items[$lic->packageid] = new \block_edupublisher\package($lic->packageid, true);
         //$publishers[$lic->publishername]->items[$lic->packageid]->importtocourseid = $course;
     }
 }
@@ -143,4 +143,4 @@ echo $OUTPUT->render_from_template(
     )
 );
 
-block_edupublisher::print_app_footer();
+echo $OUTPUT->footer();

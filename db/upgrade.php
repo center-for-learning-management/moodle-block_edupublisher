@@ -651,13 +651,140 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
             $dbman->create_table($table);
         }
 
-        // \block_edupublisher\locallib::atomize_database();
+        \block_edupublisher\locallib::atomize_database();
 
         // Edupublisher savepoint reached.
         upgrade_block_savepoint(true, 2022022500, 'edupublisher');
-
     }
+    if ($oldversion < 2022030802) {
+        /*
+         * ATTENTION!!!! Creating indices on text-columns did not work in MySQL.
+         * Therefore a working SQL-Query is executed manually for these columns.
+         */
+        global $CFG, $DB;
+        // Define index idx_schoollevel_primary (not unique) to be added to block_edupublisher_md_def.
+        $table = new xmldb_table('block_edupublisher_md_def');
+        $indices = [
+            new xmldb_index('idx_package', XMLDB_INDEX_UNIQUE, ['package']),
+            new xmldb_index('idx_authormail', XMLDB_INDEX_NOTUNIQUE, ['authormail']),
+            new xmldb_index('idx_authorname', XMLDB_INDEX_NOTUNIQUE, ['authorname']),
+            new xmldb_index('idx_licence', XMLDB_INDEX_NOTUNIQUE, ['licence']),
+            new xmldb_index('idx_schoollevel_primary', XMLDB_INDEX_NOTUNIQUE, ['schoollevel_primary']),
+            new xmldb_index('idx_schoollevel_secondary_1', XMLDB_INDEX_NOTUNIQUE, ['schoollevel_secondary_1']),
+            new xmldb_index('idx_schoollevel_secondary_2', XMLDB_INDEX_NOTUNIQUE, ['schoollevel_secondary_2']),
+            new xmldb_index('idx_schoollevel_tertiary', XMLDB_INDEX_NOTUNIQUE, ['schoollevel_tertiary']),
+            new xmldb_index('idx_subjectarea_arts', XMLDB_INDEX_NOTUNIQUE, ['subjectarea_arts']),
+            new xmldb_index('idx_subjectarea_economics', XMLDB_INDEX_NOTUNIQUE, ['subjectarea_economics']),
+            new xmldb_index('idx_subjectarea_geography', XMLDB_INDEX_NOTUNIQUE, ['subjectarea_geography']),
+            new xmldb_index('idx_subjectarea_history', XMLDB_INDEX_NOTUNIQUE, ['subjectarea_history']),
+            new xmldb_index('idx_subjectarea_informatics', XMLDB_INDEX_NOTUNIQUE, ['subjectarea_informatics']),
+            new xmldb_index('idx_subjectarea_languages', XMLDB_INDEX_NOTUNIQUE, ['subjectarea_languages']),
+            new xmldb_index('idx_subjectarea_mathematics', XMLDB_INDEX_NOTUNIQUE, ['subjectarea_mathematics']),
+            new xmldb_index('idx_subjectarea_naturalsciences', XMLDB_INDEX_NOTUNIQUE, ['subjectarea_naturalsciences']),
+            new xmldb_index('idx_subjectarea_other', XMLDB_INDEX_NOTUNIQUE, ['subjectarea_other']),
+            new xmldb_index('idx_subjectarea_philosophy', XMLDB_INDEX_NOTUNIQUE, ['subjectarea_philosophy']),
+            new xmldb_index('idx_subjectarea_physicaleducation', XMLDB_INDEX_NOTUNIQUE, ['subjectarea_physicaleducation']),
+            //new xmldb_index('idx_summary', XMLDB_INDEX_NOTUNIQUE, ['summary']),
+            //new xmldb_index('idx_tags', XMLDB_INDEX_NOTUNIQUE, ['tags']),
+            new xmldb_index('idx_title', XMLDB_INDEX_NOTUNIQUE, ['title']),
+        ];
+        foreach ($indices as $index) {
+            if (!$dbman->index_exists($table, $index)) {
+                $dbman->add_index($table, $index);
+            }
+        }
+        $tabname = "{$CFG->prefix}block_edupublisher_md_def";
+        $shortname = "{$CFG->prefix}blocedupmddef";
+        $fulltexts = [ 'summary', 'tags' ];
+        foreach ($fulltexts as $col) {
+            $sql = "CREATE FULLTEXT INDEX
+                        {$shortname}_{$col}_ix
+                        ON $tabname ($col)";
+            try {
+                $DB->execute($sql);
+            } catch (Exception $ex) {
+                throw new \moodle_exception("Unable to create index for $col in $tabname");
+            }
+        }
 
+        $table = new xmldb_table('block_edupublisher_md_edu');
+        $indices = [
+            new xmldb_index('idx_package', XMLDB_INDEX_UNIQUE, ['package']),
+            //new xmldb_index('idx_curriculum', XMLDB_INDEX_NOTUNIQUE, ['curriculum']),
+            //new xmldb_index('idx_educationallevel', XMLDB_INDEX_NOTUNIQUE, ['educationallevel']),
+            new xmldb_index('idx_language', XMLDB_INDEX_NOTUNIQUE, ['language']),
+            new xmldb_index('idx_publishas', XMLDB_INDEX_NOTUNIQUE, ['publishas']),
+            new xmldb_index('idx_published', XMLDB_INDEX_NOTUNIQUE, ['published']),
+            //new xmldb_index('idx_schooltype', XMLDB_INDEX_NOTUNIQUE, ['schooltype']),
+            //new xmldb_index('idx_type', XMLDB_INDEX_NOTUNIQUE, ['type']),
+        ];
+        foreach ($indices as $index) {
+            if (!$dbman->index_exists($table, $index)) {
+                $dbman->add_index($table, $index);
+            }
+        }
+        $tabname = "{$CFG->prefix}block_edupublisher_md_edu";
+        $shortname = "{$CFG->prefix}blocedupmdedu";
+        $fulltexts = [ 'curriculum', 'educationallevel', 'schooltype', 'type' ];
+        foreach ($fulltexts as $col) {
+            $sql = "CREATE FULLTEXT INDEX
+                        {$shortname}_{$col}_ix
+                        ON $tabname ($col)";
+            try {
+                $DB->execute($sql);
+            } catch (Exception $ex) {
+                throw new \moodle_exception("Unable to create index for $col in $tabname");
+            }
+        }
+
+        $table = new xmldb_table('block_edupublisher_md_eta');
+        $indices = [
+            new xmldb_index('idx_package', XMLDB_INDEX_UNIQUE, ['package']),
+            new xmldb_index('idx_gegenstand', XMLDB_INDEX_NOTUNIQUE, ['gegenstand']),
+            //new xmldb_index('idx_kompetenzen', XMLDB_INDEX_NOTUNIQUE, ['kompetenzen']),
+            new xmldb_index('idx_publishas', XMLDB_INDEX_NOTUNIQUE, ['publishas']),
+            new xmldb_index('idx_published', XMLDB_INDEX_NOTUNIQUE, ['published']),
+            new xmldb_index('idx_schulstufe_1', XMLDB_INDEX_NOTUNIQUE, ['schulstufe_1']),
+            new xmldb_index('idx_schulstufe_2', XMLDB_INDEX_NOTUNIQUE, ['schulstufe_2']),
+            new xmldb_index('idx_schulstufe_3', XMLDB_INDEX_NOTUNIQUE, ['schulstufe_3']),
+            new xmldb_index('idx_schulstufe_4', XMLDB_INDEX_NOTUNIQUE, ['schulstufe_4']),
+            new xmldb_index('idx_schulstufe_5', XMLDB_INDEX_NOTUNIQUE, ['schulstufe_5']),
+            new xmldb_index('idx_schulstufe_6', XMLDB_INDEX_NOTUNIQUE, ['schulstufe_6']),
+            new xmldb_index('idx_schulstufe_7', XMLDB_INDEX_NOTUNIQUE, ['schulstufe_7']),
+            new xmldb_index('idx_schulstufe_8', XMLDB_INDEX_NOTUNIQUE, ['schulstufe_8']),
+            new xmldb_index('idx_schulstufe_9', XMLDB_INDEX_NOTUNIQUE, ['schulstufe_9']),
+            new xmldb_index('idx_schulstufe_10', XMLDB_INDEX_NOTUNIQUE, ['schulstufe_10']),
+            new xmldb_index('idx_schulstufe_11', XMLDB_INDEX_NOTUNIQUE, ['schulstufe_11']),
+            new xmldb_index('idx_schulstufe_12', XMLDB_INDEX_NOTUNIQUE, ['schulstufe_12']),
+            new xmldb_index('idx_schulstufe_13', XMLDB_INDEX_NOTUNIQUE, ['schulstufe_13']),
+            new xmldb_index('idx_subtype', XMLDB_INDEX_NOTUNIQUE, ['subtype']),
+            //new xmldb_index('idx_stundenablauf', XMLDB_INDEX_NOTUNIQUE, ['stundenablauf']),
+            new xmldb_index('idx_type', XMLDB_INDEX_NOTUNIQUE, ['type']),
+            //new xmldb_index('idx_voraussetzungen', XMLDB_INDEX_NOTUNIQUE, ['voraussetzungen']),
+            //new xmldb_index('idx_vorkenntnisse', XMLDB_INDEX_NOTUNIQUE, ['vorkenntnisse']),
+            new xmldb_index('idx_zeitbedarf', XMLDB_INDEX_NOTUNIQUE, ['zeitbedarf']),
+        ];
+        foreach ($indices as $index) {
+            if (!$dbman->index_exists($table, $index)) {
+                $dbman->add_index($table, $index);
+            }
+        }
+        $tabname = "{$CFG->prefix}block_edupublisher_md_eta";
+        $shortname = "{$CFG->prefix}blocedupmdeta";
+        $fulltexts = [ 'kompetenzen', 'stundenablauf', 'voraussetzungen', 'vorkenntnisse' ];
+        foreach ($fulltexts as $col) {
+            $sql = "CREATE FULLTEXT INDEX
+                        {$shortname}_{$col}_ix
+                        ON $tabname ($col)";
+            try {
+                $DB->execute($sql);
+            } catch (Exception $ex) {
+                throw new \moodle_exception("Unable to create index for $col in $tabname");
+            }
+        }
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2022030802, 'edupublisher');
+    }
 
 
     return true;

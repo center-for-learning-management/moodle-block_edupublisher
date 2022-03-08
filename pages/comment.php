@@ -47,7 +47,7 @@ if (!empty($comment->package)) {
     $packageid = required_param('packageid', PARAM_INT);
 }
 
-$package = block_edupublisher::get_package($packageid, true);
+$package = new \block_edupublisher\package($packageid, true);
 if (empty($package->id) && empty($id)) {
     // No such package exists.
     $PAGE->set_context(context_system::instance());
@@ -82,8 +82,7 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
-//block_edupublisher::check_requirements();
-block_edupublisher::print_app_header();
+echo $OUTPUT->header();
 
 require_once($CFG->dirroot . '/blocks/edupublisher/classes/comment_create_form.php');
 $form = new block_edupublisher\comment_create_form();
@@ -105,7 +104,7 @@ if (!empty($id)) {
     $comments = array(
         block_edupublisher::load_comment($id)
     );
-    $package = block_edupublisher::get_package($comments[0]->package);
+    $package = new \block_edupublisher\package($comments[0]->package);
 } else {
     $showsingle = false;
     $comments = block_edupublisher::load_comments($packageid, $package->canmoderate || $package->userid == $USER->id, 'DESC');
@@ -174,4 +173,4 @@ if (count($comments) == 0) {
     }
 }
 
-block_edupublisher::print_app_footer();
+echo $OUTPUT->footer();

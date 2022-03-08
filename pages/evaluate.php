@@ -29,7 +29,7 @@ require_once($CFG->dirroot . '/blocks/edupublisher/classes/etapas_evaluation_for
 $packageid = required_param('packageid', PARAM_INT);
 $perma = optional_param('perma', '', PARAM_TEXT);
 
-$package = \block_edupublisher::get_package($packageid, false);
+$package = \new \block_edupublisher\package($packageid, false);
 
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/evaluate.php', array('packageid' => $packageid, 'perma' => $perma)));
 
@@ -44,7 +44,7 @@ $PAGE->navbar->add(get_string('resource_catalogue', 'block_edupublisher'), new m
 $PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id' => $package->course)));
 $PAGE->navbar->add(get_string('etapas_evaluation', 'block_edupublisher'), new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $package->id)));
 
-block_edupublisher::print_app_header();
+echo $OUTPUT->header();
 
 if (!has_capability('block/edupublisher:canevaluate', \context_system::instance())) {
     echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
@@ -95,4 +95,4 @@ if (!has_capability('block/edupublisher:canevaluate', \context_system::instance(
     }
 }
 
-block_edupublisher::print_app_footer();
+echo $OUTPUT->footer();

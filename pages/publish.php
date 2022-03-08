@@ -113,7 +113,7 @@ if (!empty($targetcourseid)) {
     require_login($sourcecourseid);
 }
 
-block_edupublisher::check_requirements();
+\block_edupublisher\lib::check_requirements();
 
 if (!empty($packageid)) {
     $publish->publishstage_finish = 1;
@@ -445,7 +445,7 @@ switch($publishstage) {
 
         if (empty($packageid)) {
             $sourcecourse = \get_course($sourcecourseid);
-            $package = \block_edupublisher::get_package_from_course($sourcecourseid);
+            $package = \new \block_edupublisher\package_from_course($sourcecourseid);
             $package->course = $targetcourseid;
         }
 

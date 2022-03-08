@@ -51,10 +51,10 @@ if (!empty($channel)) {
 }
 
 
-block_edupublisher::check_requirements();
-block_edupublisher::print_app_header();
+\block_edupublisher\lib::check_requirements();
+echo $OUTPUT->header();
 
-if (empty($channel) && !block_edupublisher::is_maintainer() || !empty($channel) && !block_edupublisher::is_maintainer(array($channel))) {
+if (empty($channel) && !\block_edupublisher\lib::is_maintainer() || !empty($channel) && !\block_edupublisher\lib::is_maintainer(array($channel))) {
     echo $OUTPUT->render_from_template(
         'block_edupublisher/alert',
         array(
@@ -63,7 +63,7 @@ if (empty($channel) && !block_edupublisher::is_maintainer() || !empty($channel) 
             'url' => $CFG->wwwroot . '/my',
         )
     );
-    block_edupublisher::print_app_footer();
+    echo $OUTPUT->footer();
     die();
 }
 
@@ -88,7 +88,7 @@ if (empty($channel)) {
         throw new \moodle_exception('permission_denied', 'block_edupublisher');
     }
     /*
-    if (!block_edupublisher::is_maintainer(array($channel))) {
+    if (!\block_edupublisher\lib::is_maintainer(array($channel))) {
         throw new \moodle_exception('permission_denied', 'block_edupublisher');
     }
     */
@@ -111,7 +111,7 @@ if (empty($channel)) {
 
     $packages = $DB->get_records_sql($sql, array($channel . '+_publishas'));
     foreach($packages AS $p) {
-        $package = block_edupublisher::get_package($p->package, true);
+        $package = new \block_edupublisher\package($p->package, true);
         $package->maintainer_default = $maintainer_default;
         $package->maintainer_etapas = $maintainer_etapas;
         $package->maintainer_eduthek = $maintainer_eduthek;
@@ -132,4 +132,4 @@ if (empty($channel)) {
 
 }
 
-block_edupublisher::print_app_footer();
+echo $OUTPUT->footer();

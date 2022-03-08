@@ -31,12 +31,12 @@ $PAGE->set_url('/blocks/edupublisher/pages/reset.php', array());
 $PAGE->set_title('Atomize DB');
 $PAGE->set_heading('Atomize DB');
 
-if (!block_edupublisher::is_admin()) {
+if (!\block_edupublisher\lib::is_admin()) {
     throw new \moodle_exception('permission denied');
 }
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 
-block_edupublisher::print_app_header();
+echo $OUTPUT->header();
 \block_edupublisher\locallib::atomize_database();
 echo "<p class=\"alert alert-success\">Everything was atomized. Please check and remove the table {block_edupublisher_metadata}.</p>";
-block_edupublisher::print_app_footer();
+echo $OUTPUT->footer();

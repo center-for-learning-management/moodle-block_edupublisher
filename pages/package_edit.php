@@ -26,7 +26,7 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 
 $id = required_param('id', PARAM_INT);
-$package = block_edupublisher::get_package($id, true);
+$package = new \block_edupublisher\package($id, true);
 $context = context_course::instance($package->course);
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/package_edit.php?id=' . $id);
@@ -41,12 +41,12 @@ $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 $PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->id)));
 $PAGE->navbar->add(get_string('edit'), $PAGE->url);
 
-block_edupublisher::check_requirements();
+\block_edupublisher\lib::check_requirements();
 
-block_edupublisher::print_app_header();
+echo $OUTPUT->header();
 
 if ($package->canedit) {
-    $package = block_edupublisher::load_origins($package);
+    $package->load_origins();
 
     require_once($CFG->dirroot . '/blocks/edupublisher/classes/package_create_form.php');
     //$form = new package_create_form(null, null, 'post', '_self', array('onsubmit' => 'this.querySelectorAll("input").forEach(i => i.disabled = false)'), true);
@@ -79,4 +79,4 @@ if ($package->canedit) {
     );
 }
 
-block_edupublisher::print_app_footer();
+echo $OUTPUT->footer();

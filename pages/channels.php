@@ -37,9 +37,9 @@ foreach($_channels AS $channel) {
 }
 
 if (count($channels) == 0) {
-    block_edupublisher::print_app_header();
+    echo $OUTPUT->header();
     echo 'No valid token';
-    block_edupublisher::print_app_footer();
+    echo $OUTPUT->footer();
     die();
 }
 header('Content-type: application/xml');
@@ -67,8 +67,8 @@ if (!in_array('default', $channels)) $channels[] = 'default';
 $items = new SimpleXMLElement('<items />');
 $packageids = $DB->get_records_sql($sql, array($modified, $modified));
 foreach($packageids AS $packageid) {
-    block_edupublisher::as_xml($packageid->id, $channels, $items);
+    $package = new \block_edupublisher\package($packageid->id, true);
+    $package->as_xml($channels, $items);
 }
 
 echo $items->asXML();
-?>

@@ -26,7 +26,7 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 $courseid = required_param('id', PARAM_INT);
 $unenrol = optional_param('unenrol', 0, PARAM_INT);
-$package = block_edupublisher::get_package_by_courseid($courseid);
+$package = new \block_edupublisher\package_by_courseid($courseid);
 if (empty($package->course)) {
     // Show a warning that this is not a package.
     echo $OUTPUT->header();
@@ -52,11 +52,11 @@ $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
 $PAGE->navbar->add(get_string('self_enrol', 'block_edupublisher'), $PAGE->url);
 
-block_edupublisher::check_requirements();
-block_edupublisher::print_app_header();
+\block_edupublisher\lib::check_requirements();
+echo $OUTPUT->header();
 
 // determine if we are a maintainer of this package!
-$ismaintainer = block_edupublisher::is_maintainer(explode(',',$package->channels));
+$ismaintainer = \block_edupublisher\lib::is_maintainer(explode(',',$package->channels));
 if (!empty($ismaintainer)) {
     $defaultroleteacher = get_config('block_edupublisher', 'defaultroleteacher');
 }
@@ -113,4 +113,4 @@ if (empty($defaultrolestudent)) {
     );
 }
 
-block_edupublisher::print_app_footer();
+echo $OUTPUT->footer();

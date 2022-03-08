@@ -26,7 +26,7 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 
 $id = required_param('id', PARAM_INT);
-$package = block_edupublisher::get_package($id, true);
+$package = new \block_edupublisher\package($id, true);
 $context = context_course::instance($package->course);
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/package.php?id=' . $id);
@@ -42,7 +42,7 @@ $PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id
 $PAGE->navbar->add(get_string('details', 'block_edupublisher'), $PAGE->url);
 
 block_edupublisher::check_requirements(false);
-block_edupublisher::print_app_header();
+echo $OUTPUT->header();
 
 $act = optional_param('act', '', PARAM_TEXT);
 switch ($act) {
@@ -61,7 +61,7 @@ switch ($act) {
                 $sendto = array('author');
                 block_edupublisher::store_comment($package, 'comment:template:package_editing_sealed', $sendto, true, false);
             }
-            $package = block_edupublisher::get_package($package->id, true);
+            $package = new \block_edupublisher\package($package->id, true);
             echo $OUTPUT->render_from_template(
                 'block_edupublisher/alert',
                 array(
@@ -82,7 +82,7 @@ switch ($act) {
     break;
 }
 
-$package = block_edupublisher::load_origins($package);
+$package->load_origins();
 $package->comments = $DB->get_records('block_edupublisher_comments', array('package' => $package->id));
 
 //print_r($package);
@@ -91,4 +91,4 @@ echo $OUTPUT->render_from_template(
     $package
 );
 
-block_edupublisher::print_app_footer();
+echo $OUTPUT->footer();

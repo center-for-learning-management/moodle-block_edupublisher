@@ -25,7 +25,7 @@ require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 $id = required_param('id', PARAM_INT);
-$package = block_edupublisher::get_package($id, true);
+$package = new \block_edupublisher\package($id, true);
 $context = context_course::instance($package->course);
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/groups.php?id=' . $id);

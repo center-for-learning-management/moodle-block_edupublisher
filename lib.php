@@ -75,7 +75,7 @@ function block_edupublisher_before_standard_html_head() {
 function block_edupublisher_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
     global $CFG;
     require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
-    $definition = block_edupublisher::get_channel_definition();
+    $definition = \block_edupublisher\lib::get_channel_definition();
     $areas = array('publisher_logo');
     $channels = array_keys($definition);
     foreach($channels AS $channel) {

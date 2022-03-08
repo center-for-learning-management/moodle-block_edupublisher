@@ -38,11 +38,11 @@ $PAGE->set_pagelayout('mydashboard');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
-block_edupublisher::check_requirements();
+\block_edupublisher\lib::check_requirements();
 
 $is_coworker = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisherid, 'userid' => $USER->id));
 
-if (!empty($publisherid) && block_edupublisher::is_maintainer(array('commercial')) || $is_coworker->userid == $USER->id) {
+if (!empty($publisherid) && \block_edupublisher\lib::is_maintainer(array('commercial')) || $is_coworker->userid == $USER->id) {
     require_once($CFG->dirroot . '/blocks/edupublisher/classes/licence_list_form.php');
     $form = new block_edupublisher\licence_list_form('download.php');
     if ($data = $form->get_data()) {
@@ -70,7 +70,7 @@ if (!empty($publisherid) && block_edupublisher::is_maintainer(array('commercial'
                 $packages = $DB->get_records('block_edupublisher_lic_pack', array('licenceid' => $lic->id));
                 $lic->packages = array();
                 foreach ($packages AS $package) {
-                    $package = block_edupublisher::get_package($package->packageid, false);
+                    $package = new \block_edupublisher\package($package->packageid, false);
                     $lic->packages[] = $package->title;
                 }
                 $lic->packages = implode(', ', $lic->packages);
@@ -96,7 +96,7 @@ if (!empty($publisherid) && block_edupublisher::is_maintainer(array('commercial'
         fclose($out);
     }
 } else {
-    block_edupublisher::print_app_header();
+    echo $OUTPUT->header();
     echo $OUTPUT->render_from_template(
         'block_edupublisher/alert',
         (object) array(
@@ -105,5 +105,5 @@ if (!empty($publisherid) && block_edupublisher::is_maintainer(array('commercial'
             'type' => 'danger',
         )
     );
-    block_edupublisher::print_app_footer();
+    echo $OUTPUT->footer();
 }

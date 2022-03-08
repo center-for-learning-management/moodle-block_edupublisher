@@ -24,7 +24,6 @@
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir . "/externallib.php");
-require_once($CFG->dirroot . "/blocks/edupublisher/block_edupublisher.php");
 
 class block_edupublisher_external extends external_api {
     public static function group_rename_parameters() {
@@ -89,15 +88,15 @@ class block_edupublisher_external extends external_api {
         global $CFG, $DB, $USER;
         $params = self::validate_parameters(self::init_import_load_courses_parameters(), array('packageid' => $packageid));
 
-        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
-        $courses = block_edupublisher::get_courses(null, 'moodle/course:update');
-        $package = block_edupublisher::get_package($params['packageid']);
-        if (!empty($package->commercial_publishas) && $package->commercial_publishas) {
+        require_once("$CFG->dirroot/blocks/edupublisher/block_edupublisher.php");
+        $courses = \block_edupublisher\lib::get_courses(null, 'moodle/course:update');
+        $package = new \block_edupublisher\package($params['packageid']);
+        if (!empty($package->get('publishas', 'commercial'))) {
             // The licence must allow us to import into certain courses.
             foreach ($courses AS $courseid => $course) {
                 $orgid = 0;
 
-                if (block_edupublisher::uses_eduvidual()) {
+                if (\block_edupublisher\lib::uses_eduvidual()) {
                     // This is some functionality specific to a plugin that is not published!
                     $org = \local_eduvidual\locallib::get_org_by_courseid($courseid);
                     $orgid = $org->orgid;
@@ -118,9 +117,7 @@ class block_edupublisher_external extends external_api {
                                 OR
                                 (l.target = 1 AND l.redeemid>0 AND l.redeemid = ?)
                             )";
-                //$reply['sql'] = $sql;
-                //$reply['params'] = array($package->id, $USER->id, $params['courseid'], $orgid);
-                $licence = $DB->get_records_sql($sql, array($package->id, $USER->id, $courseid, $orgid));
+                $licence = $DB->get_records_sql($sql, array($package->get('id'), $USER->id, $courseid, $orgid));
                 if (empty($licence->id)) {
                     // No licence for this course.
                     unset($courses[$courseid]);
@@ -193,9 +190,8 @@ class block_edupublisher_external extends external_api {
      */
     public static function licence_generate($amount, $publisherid) {
         global $CFG, $DB;
-        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         $params = self::validate_parameters(self::licence_generate_parameters(), array('amount' => $amount, 'publisherid' => $publisherid));
-        if (block_edupublisher::is_admin() || block_edupublisher::is_publisher($params['publisherid'])) {
+        if (\block_edupublisher\lib::is_admin() || \block_edupublisher\lib::is_publisher($params['publisherid'])) {
             $licencekeys = array();
             $pre = $params['publisherid'];
             while(count($licencekeys) < $params['amount']) {
@@ -204,7 +200,6 @@ class block_edupublisher_external extends external_api {
                 $chk = $DB->get_record('block_edupublisher_lic', array('licencekey' => $licencekey));
                 if (!$chk) $licencekeys[] = $licencekey;
             }
-
             return implode(' ', $licencekeys);
         } else {
             return json_encode(array('error' => 'no permission'));
@@ -237,9 +232,8 @@ class block_edupublisher_external extends external_api {
      */
     public static function licence_generatenow($amount, $licencekeys, $type, $publisherid) {
         global $CFG, $DB, $USER;
-        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         $params = self::validate_parameters(self::licence_generatenow_parameters(), array('amount' => $amount, 'licencekeys' => $licencekeys, 'type' => $type, 'publisherid' => $publisherid));
-        if (block_edupublisher::is_admin() || block_edupublisher::is_publisher($params['publisherid'])) {
+        if (\block_edupublisher\lib::is_admin() || \block_edupublisher\lib::is_publisher($params['publisherid'])) {
             $types = array('course', 'org', 'user');
             if (in_array($params['type'], $types)) {
                 $licencekeys = explode(' ', $params['licencekeys']);
@@ -255,8 +249,6 @@ class block_edupublisher_external extends external_api {
                             'type' => $params['type'],
                             'amount' => $params['amount']
                         ));
-                    } else {
-
                     }
                 }
                 $licencekeys = array();
@@ -267,12 +259,10 @@ class block_edupublisher_external extends external_api {
                     $chk = $DB->get_record('block_edupublisher_lic', array('licencekey' => $licencekey));
                     if (!$chk) $licencekeys[] = $licencekey;
                 }
-
                 return implode(' ', $licencekeys);
             } else {
                 return json_encode(array('error' => 'invalid type'));
             }
-
         } else {
             return json_encode(array('error' => 'no permission'));
         }
@@ -301,9 +291,8 @@ class block_edupublisher_external extends external_api {
      */
     public static function licence_list($publisherid) {
         global $CFG, $DB;
-        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         $params = self::validate_parameters(self::licence_list_parameters(), array('publisherid' => $publisherid));
-        if (block_edupublisher::is_admin() || block_edupublisher::is_publisher($params['publisherid'])) {
+        if (\block_edupublisher\lib::is_admin() || \block_edupublisher\lib::is_publisher($params['publisherid'])) {
             $licences = $DB->get_records_sql('SELECT * FROM {block_edupublisher_lic} WHERE publisherid=? ORDER BY licencekey ASC', array($params['publisherid']));
             return json_encode($licences, JSON_NUMERIC_CHECK);
         } else {
@@ -317,7 +306,6 @@ class block_edupublisher_external extends external_api {
     public static function licence_list_returns() {
         return new external_value(PARAM_RAW, 'All licencekeys as JSON-string');
     }
-
     /**
      * Returns description of method parameters
      * @return external_function_parameters
@@ -328,7 +316,6 @@ class block_edupublisher_external extends external_api {
             'targetid' => new external_value(PARAM_INT, 'target id'),
         ));
     }
-
     /**
      * Redeem a licence.
      * @param licencekey
@@ -337,9 +324,7 @@ class block_edupublisher_external extends external_api {
      */
     public static function licence_redeem($licencekey, $targetid) {
         global $CFG, $DB, $USER;
-        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         $params = self::validate_parameters(self::licence_redeem_parameters(), array('licencekey' => $licencekey, 'targetid' => $targetid));
-
         $lic = $DB->get_record('block_edupublisher_lic', array('licencekey' => $params['licencekey']));
         $result = array('licencekey' => $params['licencekey'], 'options' => array());
         if (empty($lic->id)) {
@@ -397,7 +382,6 @@ class block_edupublisher_external extends external_api {
     public static function licence_redeem_returns() {
         return new external_value(PARAM_RAW, 'JSON encoded data for licencekey or success for redeem.');
     }
-
     /**
      * Returns description of method parameters
      * @return external_function_parameters
@@ -439,8 +423,8 @@ class block_edupublisher_external extends external_api {
         // Store rating if we are permitted to.
         global $DB, $USER;
 
-        $package = block_edupublisher::get_package($params['packageid'], false);
-        if ($params['to'] <= 5 && $params['to'] >= 0 && isset($package->canrate) && $package->canrate) {
+        $package = new \block_edupublisher\package($params['packageid'], false);
+        if ($params['to'] <= 5 && $params['to'] >= 0 && !empty($package->canrate)) {
             $rating = $DB->get_record('block_edupublisher_rating', array('package' => $params['packageid'], 'userid' => $USER->id));
             if (isset($rating->id) && $rating->id > 0) {
                 if ($rating->rating == $params['to']) {
@@ -463,7 +447,10 @@ class block_edupublisher_external extends external_api {
             }
         }
 
-        $average = $DB->get_records_sql('SELECT AVG(rating) avg, COUNT(rating) cnt FROM {block_edupublisher_rating} WHERE package=?', array($params['packageid']));
+        $sql = "SELECT AVG(rating) avg, COUNT(rating) cnt
+                    FROM {block_edupublisher_rating}
+                    WHERE package=?";
+        $average = $DB->get_records_sql($sql, [ $params['packageid'] ]);
         $avg = -1;
         foreach($average AS $average) {
             $avg = $average->avg;
@@ -471,20 +458,21 @@ class block_edupublisher_external extends external_api {
             break;
         }
         $rating = $DB->get_record('block_edupublisher_rating', array('package' => $params['packageid'], 'userid' => $USER->id));
-        return array('average' => intval($avg), 'amount' => intval($cnt), 'current' => intval(($rating && $rating->id > 0) ? $rating->rating : -1));
+        return [
+            'average' => intval($avg),
+            'amount' => intval($cnt),
+            'current' => intval(($rating && $rating->id > 0) ? $rating->rating : -1)
+        ];
     }
     public static function rate_returns() {
-        //return new external_multiple_structure(
         return new external_single_structure(
-                array(
-                    'average' => new external_value(PARAM_INT, 'Average rating for this package.'),
-                    'amount' => new external_value(PARAM_INT, 'Amount of users that rated.'),
-                    'current' => new external_value(PARAM_INT, 'Rating of user for this package.'),
-                )
-        //    )
+            array(
+                'average' => new external_value(PARAM_INT, 'Average rating for this package.'),
+                'amount' => new external_value(PARAM_INT, 'Amount of users that rated.'),
+                'current' => new external_value(PARAM_INT, 'Rating of user for this package.'),
+            )
         );
     }
-
     /**
      * Returns description of method parameters
      * @return external_function_parameters
@@ -505,12 +493,11 @@ class block_edupublisher_external extends external_api {
     public static function search($courseid, $search, $subjectareas, $schoollevels) {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;
         // page-context is required for output of templates.
-        $PAGE->set_context(context_system::instance());
+        $PAGE->set_context(\context_system::instance());
         $params = self::validate_parameters(self::search_parameters(), array('courseid' => $courseid, 'search' => $search, 'subjectareas' => $subjectareas, 'schoollevels' => $schoollevels));
         $params['subjectareas'] = array_filter(explode(',', $params['subjectareas']));
         $params['schoollevels'] = array_filter(explode(',', $params['schoollevels']));
 
-        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         $reply = array();
         $reply['relevance'] = array();
         $reply['packages'] = array();
@@ -610,7 +597,7 @@ class block_edupublisher_external extends external_api {
             if (!isset($reply['relevance'][$relevant->cnt])) {
                 $reply['relevance'][$relevant->cnt] = array();
             }
-            $package = block_edupublisher::get_package($relevant->package, true);
+            $package = new \block_edupublisher\package($relevant->package, true);
             $addpackage = true;
             if (!empty($package->commercial_publishas) && $package->commercial_publishas == 1) {
                 // For commercial content we need the licence!
@@ -618,7 +605,7 @@ class block_edupublisher_external extends external_api {
 
                 $orgid = 0;
 
-                if (block_edupublisher::uses_eduvidual()) {
+                if (\block_edupublisher\lib::uses_eduvidual()) {
                     // This is some functionality specific to a plugin that is not published!
                     $org = \local_eduvidual\locallib::get_org_by_courseid($params['courseid'], IGNORE_MISSING);
                     $orgid = !empty($org->orgid) ? $org->orgid : 0;
@@ -679,7 +666,7 @@ class block_edupublisher_external extends external_api {
     public static function store_publisher($active, $id, $name, $mail) {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
-        if (block_edupublisher::is_admin()) {
+        if (\block_edupublisher\lib::is_admin()) {
             $params = self::validate_parameters(self::store_publisher_parameters(), array('active' => $active, 'id' => $id, 'name' => $name, 'mail' => $mail));
 
             if (!empty($params['name'])) {
@@ -730,7 +717,7 @@ class block_edupublisher_external extends external_api {
     public static function store_publisher_user($action, $publisherid, $userids) {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
-        if (block_edupublisher::is_admin()) {
+        if (\block_edupublisher\lib::is_admin()) {
             $params = self::validate_parameters(self::store_publisher_user_parameters(), array('action' => $action, 'publisherid' => $publisherid, 'userids' => $userids));
 
             $userids = explode(' ', $params['userids']);
@@ -784,7 +771,7 @@ class block_edupublisher_external extends external_api {
     public static function trigger_active($packageid, $type, $to) {
         $params = self::validate_parameters(self::trigger_active_parameters(), array('packageid' => $packageid, 'type' => $type, 'to' => $to));
         global $CFG, $DB, $USER;
-        $package = block_edupublisher::get_package($params['packageid'], true);
+        $package = new \block_edupublisher\package($params['packageid'], true);
 
         $statusses = array();
         $statusses['cantriggeractive' . $params['type']] = $package->{'cantriggeractive' . $params['type']};
