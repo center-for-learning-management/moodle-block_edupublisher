@@ -44,7 +44,7 @@
         {{/_user}}
     </ul>
 {{/canviewuser}}
-<div id="channel-default" class="channel-block{{^default_active}} channel-inactive{{/default_active}}">
+<div id="channel-default" class="channel-block{{^default_published}} channel-inactive{{/default_published}}">
     <table border="0" width="100%">
         <tr>
             <th colspan="2">
@@ -58,7 +58,7 @@
         <tr>
             <td colspan="2">
                 <label>
-                    <input type="checkbox"{{#default_active}} checked="checked"{{/default_active}}
+                    <input type="checkbox"{{#default_published}} checked="checked"{{/default_published}}
                            onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'default', chkbox); } );"
                            id="channel-default-active"/>
                     {{#str}} default_trigger_active, block_edupublisher {{/str}}
@@ -92,14 +92,14 @@
     </table>
 </div>
 {{#etapas_publishas}}
-<div id="channel-etapas" class="channel-block{{^etapas_active}} channel-inactive{{/etapas_active}}">
+<div id="channel-etapas" class="channel-block{{^etapas_published}} channel-inactive{{/etapas_published}}">
     <table border="0" width="100%">
         <tr><th colspan="2">{{#str}} etapas_header, block_edupublisher {{/str}}</th></tr>
         {{#cantriggeractiveetapas}}
         <tr>
             <td colspan="2">
                 <label>
-                    <input type="checkbox"{{#etapas_active}} checked="checked"{{/etapas_active}}
+                    <input type="checkbox"{{#etapas_published}} checked="checked"{{/etapas_published}}
                            onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'etapas', chkbox); } );" />
                     {{#str}} etapas_trigger_active, block_edupublisher {{/str}}
                 </label>
@@ -147,14 +147,14 @@
 </div>
 {{/etapas_publishas}}
 {{#eduthek_publishas}}
-<div id="channel-eduthek" class="channel-block{{^eduthek_active}} channel-inactive{{/eduthek_active}}">
+<div id="channel-eduthek" class="channel-block{{^eduthek_published}} channel-inactive{{/eduthek_published}}">
     <table border="0" width="100%">
         <tr><th colspan="2">{{#str}} eduthek_header, block_edupublisher {{/str}}</th></tr>
         {{#cantriggeractiveeduthek}}
         <tr>
             <td colspan="2">
                 <label>
-                    <input type="checkbox"{{#eduthek_active}} checked="checked"{{/eduthek_active}}
+                    <input type="checkbox"{{#eduthek_published}} checked="checked"{{/eduthek_published}}
                            onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'eduthek', chkbox); } );" />
                     {{#str}} eduthek_trigger_active, block_edupublisher {{/str}}
                 </label>
@@ -172,14 +172,14 @@
 </div>
 {{/eduthek_publishas}}
 {{#commercial_publishas}}
-<div id="channel-commercial" class="channel-block{{^commercial_active}} channel-inactive{{/commercial_active}}">
+<div id="channel-commercial" class="channel-block{{^commercial_published}} channel-inactive{{/commercial_published}}">
     <table border="0" width="100%">
         <tr><th colspan="2">{{#str}} commercial_header, block_edupublisher {{/str}}</th></tr>
         {{#cantriggeractivecommercial}}
         <tr>
             <td colspan="2">
                 <label>
-                    <input type="checkbox"{{#commercial_active}} checked="checked"{{/commercial_active}}
+                    <input type="checkbox"{{#commercial_published}} checked="checked"{{/commercial_published}}
                            onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'commercial', chkbox); } );" />
                     {{#str}} commercial_trigger_active, block_edupublisher {{/str}}
                 </label>

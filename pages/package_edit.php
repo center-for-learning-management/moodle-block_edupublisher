@@ -27,10 +27,10 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 $id = required_param('id', PARAM_INT);
 $package = new \block_edupublisher\package($id, true);
-$context = context_course::instance($package->course);
+$context = \context_course::instance($package->get('course'));
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/package_edit.php?id=' . $id);
-require_login($package->course);
+require_login($package->get('course'));
 $PAGE->set_context($context);
 $PAGE->set_title(get_string('package', 'block_edupublisher'));
 $PAGE->set_heading(get_string('package', 'block_edupublisher'));
@@ -38,33 +38,30 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
-$PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->id)));
+$PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->get('id'))));
 $PAGE->navbar->add(get_string('edit'), $PAGE->url);
 
 \block_edupublisher\lib::check_requirements();
 
 echo $OUTPUT->header();
 
-if ($package->canedit) {
+if ($package->get('canedit')) {
     $package->load_origins();
 
-    require_once($CFG->dirroot . '/blocks/edupublisher/classes/package_create_form.php');
-    //$form = new package_create_form(null, null, 'post', '_self', array('onsubmit' => 'this.querySelectorAll("input").forEach(i => i.disabled = false)'), true);
+    require_once("$CFG->dirroot/blocks/edupublisher/classes/package_create_form.php");
     $form = new package_create_form(null, null, 'post', '_self', array('onsubmit' => 'this.querySelectorAll("input").forEach( i => i.disabled = false)'), true);
     if ($data = $form->get_data()) {
-        $package = block_edupublisher::store_package($data);
-        if (empty($package->default_suppresscomment)) {
+        $package->store_package($data);
+        if (empty($package->get('default_suppresscomment'))) {
             $sendto = array('allmaintainers');
-            block_edupublisher::store_comment($package, 'comment:template:package_updated', $sendto, true, false);
+            $package->store_comment('comment:template:package_updated', $sendto, true, false);
         }
         echo "<p class=\"alert alert-success\">" . get_string('successfully_saved_package', 'block_edupublisher') . "</p>";
     }
-    //$MODE_SHOW_FORM = 1;
-    //$form = new package_create_form(null, null, 'post', '_self', array('onsubmit' => 'this.querySelectorAll("input").forEach( i => i.disabled = false)'), true);
     // get_data as dummy to validate under mode_show_form precondition.
     $form->get_data();
-    $package = block_edupublisher::prepare_package_form($package);
-    $form->set_data($package);
+    $package->prepare_package_form();
+    $form->set_data($package->get_flattened());
     echo "<div class=\"skip-ui-eduvidual ui-edupublisher-skip\">";
     $form->display();
     echo "</div>";
@@ -73,7 +70,7 @@ if ($package->canedit) {
         'block_edupublisher/alert',
         (object) array(
             'content' => get_string('permission_denied', 'block_edupublisher'),
-            'url' => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
+            'url' => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->get('id'),
             'type' => 'danger',
         )
     );

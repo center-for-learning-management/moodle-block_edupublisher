@@ -494,148 +494,98 @@ class block_edupublisher_external extends external_api {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;
         // page-context is required for output of templates.
         $PAGE->set_context(\context_system::instance());
-        $params = self::validate_parameters(self::search_parameters(), array('courseid' => $courseid, 'search' => $search, 'subjectareas' => $subjectareas, 'schoollevels' => $schoollevels));
+        $params = self::validate_parameters(
+            self::search_parameters(),
+            array(
+                'courseid' => $courseid,
+                'search' => $search,
+                'subjectareas' => $subjectareas,
+                'schoollevels' => $schoollevels
+            )
+        );
         $params['subjectareas'] = array_filter(explode(',', $params['subjectareas']));
         $params['schoollevels'] = array_filter(explode(',', $params['schoollevels']));
 
-        $reply = array();
-        $reply['relevance'] = array();
-        $reply['packages'] = array();
-        $reply['subjectareas'] = $params['subjectareas'];
-        $reply['schoollevels'] = $params['schoollevels'];
+        $reply = [];
 
-        $conditions = array(
-            'and' => array(),
-            'or' => array(),
-            'schoollevels' => array(),
-            'subjectareas' => array(),
-        );
-        $sqlparams = array(
-            'and' => array(),
-            'or' => array(),
-            'schoollevels' => array(),
-            'subjectareas' => array(),
-        );
-        $sql = "SELECT package, COUNT(package) AS cnt\n
-                    FROM {block_edupublisher_metadata}\n
-                    WHERE \n";
-
-        $basesql = "SELECT package FROM {block_edupublisher_metadata} WHERE field LIKE '%field%' AND content=? AND active=1";
-        if (count($params['subjectareas']) > 0) {
-            // At least one of the areas should match!
-            for ($a = 0; $a < count($params['subjectareas']); $a++) {
-                $conditions['subjectareas'][] = "package IN (" . str_replace("%field%", "default_subjectarea%", $basesql) . ")\n";
-                $sqlparams['subjectareas'][] = $params['subjectareas'][$a];
-            }
+        $filters_subjectareas = [];
+        foreach ($params['subjectareas'] as $subjectarea) {
+            $subjectarea = $DB->sql_like_escape($subjectarea, $escapechar = '\\');
+            $filters_subjectareas[] = "mdef.subjectarea_$subjectarea=1";
         }
-        if (count($params['schoollevels']) > 0) {
-            // At least one of the levels should match!
-            for ($a = 0; $a < count($params['schoollevels']); $a++) {
-                $conditions['schoollevels'][] = "package IN (" . str_replace("%field%", "default_schoollevel%", $basesql) . ")\n";
-                $sqlparams['schoollevels'][] = $params['schoollevels'][$a];
-            }
+        $filters_subjectareas = implode(' OR ', $filters_subjectareas);
+        if (!empty($filters_subjectareas)) {
+            $filters_subjectareas = "AND ($filters_subjectareas)";
         }
 
+        $filters_schoollevels = [];
+        foreach ($params['schoollevels'] as $schoollevel) {
+            $schoollevel = $DB->sql_like_escape($schoollevel, $escapechar = '\\');
+            $filters_schoollevels[] = "mdef.schoollevels_$schoollevel=1";
+        }
+        $filters_schoollevels = implode(' OR ', $filters_schoollevels);
+        if (!empty($filters_schoollevels)) {
+            $filters_schoollevels = "AND ($filters_schoollevels)";
+        }
+
+        $filters_search = [];
         if (!empty($params['search'])) {
-            $searchkeys = explode(' ', $params['search']);
+            $s = $DB->sql_like_escape($params['search'], $escapechar = '\\');
+            $channels = \block_edupublisher\lib::get_channel_definition();
+            foreach ($channels as $channel => $fields) {
+                $table = '';
+                if ($channel == 'default') $table = 'mdef';
+                if ($channel == 'eduthek') $table = 'medu';
+                if ($channel == 'etapas') $table = 'meta';
+                if (empty($table)) continue; // unsupported channel.
 
-            for ($b = 0; $b < count($searchkeys); $b++) {
-                if (is_numeric($searchkeys[$b])) {
-                    $conditions['or'][] = "package IN (SELECT package FROM {block_edupublisher_metadata} WHERE content=? AND active=1)";
-                    $sqlparams['or'][] = $searchkeys[$b];
-                } else {
-                    $conditions['or'][] = "package IN (SELECT package FROM {block_edupublisher_metadata} WHERE content LIKE ? AND active=1)";
-                    $sqlparams['or'][] = '%' . $searchkeys[$b] . '%';
+                foreach ($fields as $field => $fieldparams) {
+                    // Certain fields have own filters.
+                    if ($channel == 'default' && in_array($field, ['schoollevels', 'subjectareas'])) continue;
+                    // Only search in text-fields.
+                    if (!in_array($fieldparams['type'], [ PARAM_TEXT ])) continue;
+                    if (!empty($fieldparams['multiple']) && !empty($fieldparams['options'])) {
+                        foreach ($fieldparams['options'] as $option) {
+                            $filters_search[] = "{$table}.{$field}_{$option} LIKE '%$s%'";
+                        }
+                    } else {
+                        $filters_search[] = "{$table}.{$field} LIKE '%$s%'";
+                    }
                 }
             }
-            $conditions['or'][] = "package IN (SELECT package FROM {block_edupublisher_metadata} WHERE content LIKE ? AND active=1)";
-            $sqlparams['or'][] = '%' . $params['search'] . '%';
+        }
+        $filters_search = implode(' OR ', $filters_search);
+        if (!empty($filters_search)) {
+            $filters_search = "AND ($filters_search)";
         }
 
-        $qparams = array();
-        if (count($conditions['or']) > 0) {
-            $sqlor = implode(' OR ', $conditions['or']);
-            $qparams = $sqlparams['or'];
+        // @todo commercial channel and licences.
+
+        $order_by = "ORDER BY mdef.title ASC";
+        // @todo rating, title, ??
+
+        $limit = "LIMIT 50 OFFSET 0";
+
+        $sql = "SELECT p.id
+                    FROM {block_edupublisher_packages} p,
+                         {block_edupublisher_md_def} mdef,
+                         {block_edupublisher_md_edu} medu,
+                         {block_edupublisher_md_eta} meta
+                    WHERE p.id = mdef.package
+                        AND p.id = medu.package
+                        AND p.id = meta.package
+                        $filters_subjectareas
+                        $filters_schoollevels
+                        $filters_search
+                    $order_by
+                    $limit";
+
+        $reply['packages'] = array_values($DB->get_records_sql($sql));
+        for ($a = 0; $a < count($reply['packages']); $a++) {
+            $package = new \block_edupublisher\package($reply['packages'][$a]->id, true, [ 'rating' ]);
+            $reply['packages'][$a] = $package->get_flattened();
         }
 
-        if (count($conditions['schoollevels']) > 0) {
-            $conditions['and'][] = '(' . implode(' OR ', $conditions['schoollevels']) . ')';
-            $sqlparams['and'] = array_merge($sqlparams['and'], $sqlparams['schoollevels']);
-        }
-        if (count($conditions['subjectareas']) > 0) {
-            $conditions['and'][] = '(' . implode(' OR ', $conditions['subjectareas']) . ')';
-            $sqlparams['and'] = array_merge($sqlparams['and'], $sqlparams['subjectareas']);
-        }
-        if (count($conditions['and']) > 0) {
-            $sqland = implode(' AND ', $conditions['and']);
-            $qparams = array_merge($qparams, $sqlparams['and']);
-        }
-        if (!empty($sqlor)) {
-            $sql .= '(' . $sqlor . ')';
-        }
-        if (!empty($sqland)) {
-            if (!empty($sqlor)) {
-                $sql .= ' AND ';
-            }
-            $sql .= $sqland;
-        }
-        if (empty($sqlor) && empty($sqland)) {
-            $sql .= ' 1=0';
-        }
-
-        $sql .= " GROUP BY package ORDER BY cnt DESC";
-
-        $reply['conditions'] = $conditions;
-        $reply['sqlparams'] = $sqlparams;
-        $reply['sql'] = $sql;
-        $reply['qparams'] = $qparams;
-        //return json_encode($reply, JSON_NUMERIC_CHECK);
-
-        $relevance = $DB->get_records_sql($sql, $qparams);
-
-        foreach($relevance AS $relevant) {
-            if (!isset($reply['relevance'][$relevant->cnt])) {
-                $reply['relevance'][$relevant->cnt] = array();
-            }
-            $package = new \block_edupublisher\package($relevant->package, true);
-            $addpackage = true;
-            if (!empty($package->commercial_publishas) && $package->commercial_publishas == 1) {
-                // For commercial content we need the licence!
-                $reply['commercial'][] = $package->id;
-
-                $orgid = 0;
-
-                if (\block_edupublisher\lib::uses_eduvidual()) {
-                    // This is some functionality specific to a plugin that is not published!
-                    $org = \local_eduvidual\locallib::get_org_by_courseid($params['courseid'], IGNORE_MISSING);
-                    $orgid = !empty($org->orgid) ? $org->orgid : 0;
-                }
-                $sql = "SELECT *
-                          FROM
-                            {block_edupublisher_lic} l,
-                            {block_edupublisher_lic_pack} lp
-                          WHERE l.id=lp.licenceid
-                            AND lp.packageid=?
-                            AND (
-                                lp.amounts = -1 OR lp.amounts > 0
-                            )
-                            AND (
-                                (l.target = 3 AND l.redeemid>0 AND l.redeemid = ?)
-                                OR
-                                (l.target = 2 AND l.redeemid>0 AND l.redeemid = ?)
-                                OR
-                                (l.target = 1 AND l.redeemid>0 AND l.redeemid = ?)
-                            )";
-                //$reply['sql'] = $sql;
-                //$reply['params'] = array($package->id, $USER->id, $params['courseid'], $orgid);
-                $licence = $DB->get_records_sql($sql, array($package->id, $USER->id, $params['courseid'], $orgid));
-                $addpackage = ($package->commercial_validation == 'external' || (!empty($licence->id) && $licence->id > 0));
-            }
-            if ($addpackage) {
-                $reply['relevance'][$relevant->cnt][] = $relevant->package;
-                $reply['packages'][$relevant->package] = $package;
-            }
-        }
         return json_encode($reply, JSON_NUMERIC_CHECK);
     }
     /**

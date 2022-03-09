@@ -553,58 +553,6 @@ class lib {
         return $dir;
     }
     /**
-     * Load exacomp competencies for this package.
-     * @param package object.
-     */
-    public static function exacompetencies(&$package) {
-        global $CFG, $DB;
-        // Get competencies.
-        $package->default_exacompdatasources = array();
-        $package->default_exacompids = array();
-        $package->default_exacomptitles = array();
-        $flagfound = array();
-
-        // 1. Moodle competencies
-        $sql = "SELECT c.id,c.*
-                    FROM {competency} c, {competency_modulecomp} mc, {course_modules} cm
-                    WHERE cm.course=? AND cm.id=mc.cmid AND mc.competencyid=c.id";
-        $competencies = $DB->get_records_sql($sql, array($package->course));
-        $supportstranslator = file_exists($CFG->dirroot . '/local/komettranslator/version.php');
-        foreach ($competencies as $competence) {
-            if ($supportstranslator) {
-                // Try mapping to exacomp.
-                $mapping = \local_komettranslator\locallib::mapping_internal('descriptor', $competence->id);
-                if (!empty($mapping->id) && empty($flagfound[$mapping->sourceid . '_' . $mapping->itemid])) {
-                    $package->default_exacomptitles[] = !empty($competence->description) ? $competence->description : $competence->shortname;
-                    $package->default_exacompdatasources[] = $mapping->sourceid;
-                    $package->default_exacompsourceids[] = $mapping->itemid;
-                    $flagfound[$mapping->sourceid . '_' . $mapping->itemid] = true;
-                }
-            }
-        }
-        // 2. Exacomp competencies
-        $sql = "SELECT ecd.id id,ecd.title title, ecd.sourceid sourceid, ecd.source source
-                    FROM {block_exacompdescriptors} ecd,
-                         {block_exacompdescrexamp_mm} ecde,
-                         {block_exacompexamples} ecex
-                    WHERE ecex.courseid=?
-                        AND ecex.id=ecde.exampid
-                        AND ecde.descrid=ecd.id
-                    ORDER BY ecd.title ASC";
-        $competencies = $DB->get_records_sql($sql, array($package->course));
-
-        foreach($competencies AS $competence) {
-            $source = $DB->get_record('block_exacompdatasources', array('id' => $competence->source));
-            if (!empty($source->id) && empty($flagfound[$source->source . '_' . $competence->sourceid])) {
-                $package->default_exacompdatasources[] = $source->source;
-                $package->default_exacompsourceids[] = $competence->sourceid;
-                $package->default_exacomptitles[] = $competence->title;
-                $flagfound[$source->source . '_' . $competence->sourceid] = true;
-            }
-        }
-        $package->etapas_kompetenzen = nl2br(implode("\n", $package->default_exacomptitles));
-    }
-    /**
      * Returns a list of courses from a user
      * Note: teacher is identified by capability 'moodle/course:update'
      * @param user User-Object, if empty use $USER.
@@ -692,7 +640,7 @@ class lib {
      * @return true if user is sysadmin
     **/
     public static function is_admin() {
-        $sysctx = context_system::instance();
+        $sysctx = \context_system::instance();
         return has_capability('moodle/site:config', $sysctx);
     }
     /**
@@ -730,41 +678,6 @@ class lib {
             $chk = $DB->get_record('block_edupublisher_pub_user', array('userid' => $USER->id, 'publisherid' => $publisherid));
         }
         return (!empty($chk->id) && $chk->id > 0);
-    }
-    /**
-     * Loads originals based of this package.
-     * @return array with all package objects that this was a derivative of.
-    **/
-    public function load_origins() {
-        global $DB;
-        $__origins = array();
-        if (!empty($this->get('origins', 'default'))) {
-            foreach($this->get('origins', 'default') AS $origin) {
-                $__origins[] = new package($origin, false);
-            }
-        }
-        $package->__origins = $__origins;
-    }
-    /**
-     * Loads possible originals based on the sourcecourse of this package.
-     * @return array with all package objects that this was a derivative of.
-    **/
-    public function load_possible_origins() {
-        global $DB;
-        if (!empty($this->get('possible_origins'))) {
-            return $this->get('possible_origins');
-        }
-        $possible_origins = array();
-        $sql = "SELECT DISTINCT(p.id) AS id
-                    FROM {block_edupublisher_packages} p, {block_edupublisher_uses} u
-                    WHERE p.id=u.package
-                        AND u.targetcourse=?";
-        $origins = $DB->get_records_sql($sql, [$this->get('sourcecourse')]);
-        foreach($origins AS $origin) {
-            $possible_origins[] = new package($origin->id, false);
-        }
-        $this->set($possible_origins, 'possible_origins');
-        return $possible_origins;
     }
     /**
      * Log that a user visited a course-page of a package.

@@ -30,7 +30,7 @@ $id = optional_param('id', 0, PARAM_INT);
 $packageid = optional_param('packageid', 0, PARAM_INT);
 $perma = optional_param('perma', '', PARAM_TEXT);
 
-$package = \new \block_edupublisher\package($packageid, false);
+$package = new \block_edupublisher\package($packageid, false);
 
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/evaluation.php', array('id' => $id, 'packageid' => $packageid, 'perma' => $perma)));
 

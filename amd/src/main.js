@@ -278,56 +278,22 @@ define(
                             console.log('Received', result);
                             $('ul#' + o.uniqid + '-results').empty();
 
-                            var counts = Object.keys(result.relevance);
-                            var stagesrelevances = [0, 1, 2];
-                            var stagesprinted = [false, false, false];
-                            if (counts.length === 0) {
+                            if (result.packages.length === 0) {
                                 STR.get_strings([
                                         {'key' : 'search:enter_term', component: 'block_edupublisher' },
                                     ]).done(function(s) {
                                         $('ul#' + o.uniqid + '-results').append($('<li>').append('<a href="#">').append('<h3>').html(s[0]));
                                     }
                                 ).fail(NOTIFICATION.exception);
-                            } else if (counts.length === 1) {
-                                // All are the same relevant
-                                var stagesrelevances = [0, 0, counts[0], counts[0] + 1];
-                            } else if (counts.length === 2) {
-                                // All are the only two relevant stages
-                                var max = Math.round(counts[counts.length - 1]);
-                                var stagesrelevances = [0, 0, max / 2, max];
-                            } else {
-                                // We divide into three fields
-                                var max = Math.round(counts[counts.length - 1]);
-                                var stagesrelevances = [0, max / 3, max / 3 * 2, max];
                             }
                             var position = 0;
-                            for(var a = counts.length - 1; a >= 0; a--) {
-                                var relevance = counts[a];
-                                var ids = result.relevance[relevance];
-                                if (ids.length == 0) continue;
-
-                                var stage = -1;
-                                for (var b = 0; b < stagesrelevances.length; b++) {
-                                    console.log('Compare ', b, 'of ', stagesrelevances, ' to ', relevance)
-                                    if (relevance >= stagesrelevances[b]) {
-                                        stage = b;
-                                    }
-                                    console.log('=> Stage is ', stage);
-                                }
-
-                                if (stage > -1 && !stagesprinted[stage]) {
-                                    MAIN.searchTemplate(o.uniqid, position++, 'block_edupublisher/search_li_divider', { stage0: (stage == 0), stage1: (stage == 1), stage2: (stage == 2), stage3: (stage == 3) });
-                                    stagesprinted[stage] = true;
-                                }
-
-                                for (var b = 0; b < ids.length; b++) {
-                                    var item = result.packages[ids[b]];
-                                    item.importtocourseid = o.courseid;
-                                    item.importtosectionid = o.sectionid;
-                                    item.showpreviewbutton = true;
-                                    console.log('Call list-template for item ', item.id);
-                                    MAIN.searchTemplate(o.uniqid, position++, 'block_edupublisher/search_li', item);
-                                }
+                            for(var a = result.packages.length - 1; a >= 0; a--) {
+                                var item = result.packages[a];
+                                item.importtocourseid = o.courseid;
+                                item.importtosectionid = o.sectionid;
+                                item.showpreviewbutton = true;
+                                console.log('Call list-template for item ', item);
+                                MAIN.searchTemplate(o.uniqid, position++, 'block_edupublisher/search_li', item);
                             }
                         }
                     },

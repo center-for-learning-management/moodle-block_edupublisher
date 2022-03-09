@@ -445,7 +445,7 @@ switch($publishstage) {
 
         if (empty($packageid)) {
             $sourcecourse = \get_course($sourcecourseid);
-            $package = \new \block_edupublisher\package_from_course($sourcecourseid);
+            $package = new \block_edupublisher\package_from_course($sourcecourseid);
             $package->course = $targetcourseid;
         }
 

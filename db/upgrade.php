@@ -513,7 +513,7 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         $table->add_field('authormail', XMLDB_TYPE_CHAR, '255', null, null, null, null);
         $table->add_field('authormailshow', XMLDB_TYPE_INTEGER, '1', null, null, null, '0');
         $table->add_field('authorname', XMLDB_TYPE_CHAR, '255', null, null, null, null);
-        $table->add_field('imageurl', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('image', XMLDB_TYPE_CHAR, '255', null, null, null, null);
         $table->add_field('licence', XMLDB_TYPE_CHAR, '255', null, null, null, null);
         $table->add_field('origins', XMLDB_TYPE_TEXT, null, null, null, null, null);
         $table->add_field('publishas', XMLDB_TYPE_INTEGER, '1', null, null, null, '1');

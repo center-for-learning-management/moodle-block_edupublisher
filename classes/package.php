@@ -27,8 +27,8 @@ defined('MOODLE_INTERNAL') || die;
 
 
 class package {
-    // Array holding all metadata of this package.
-    private $metadata = [];
+    // Object holding all metadata of this package.
+    private $metadata;
 
     /**
      * Loads a package from database or creates and empty one prior to insert.
@@ -39,6 +39,7 @@ class package {
     **/
     public function __construct($id = 0, $withmetadata = false, $withdetails = []) {
         global $CFG, $DB, $USER;
+        $this->metadata = (object)[];
         $basedata = [
             'id' => 0,
             'course' => 0,
@@ -54,11 +55,15 @@ class package {
             $record = $DB->get_record('block_edupublisher_packages', array('id' => $id), '*', IGNORE_MISSING);
             if (empty($record->channels)) return;
 
+            foreach ($record as $field => $value) {
+                $this->set($value, $field);
+            }
+
             if ($withmetadata) {
                 foreach (\block_edupublisher\lib::channels() as $channel) {
                     $short = substr($channel, 0, 3);
-                    $cr = (array) $DB->get_records("block_edupublisher_md_$short", [ 'package' => $id ], '*', IGNORE_MISSING);
-                    foreach(array_keys($cr) AS $field => $value) {
+                    $cr = $DB->get_record("block_edupublisher_md_$short", [ 'package' => $id ], '*', IGNORE_MISSING);
+                    foreach($cr AS $field => $value) {
                         $this->set($value, $field, $channel);
                         if (preg_match('/<\s?[^\>]*\/?\s?>/i', $value)) {
                             $this->set(strip_tags($value), "$field:stripped", $channel);
@@ -123,7 +128,7 @@ class package {
             $ratings = $DB->get_records_sql('SELECT AVG(rating) avg,COUNT(rating) cnt FROM {block_edupublisher_rating} WHERE package=?', array($this->get('id')));
             foreach($ratings AS $rating) {
                 $this->set(round($rating->avg), 'ratingaverage');
-                $package->set(intval($rating->cnt), 'ratingcount');
+                $this->set(intval($rating->cnt), 'ratingcount');
             }
             $ratingselection = [];
             $max = 5;
@@ -131,7 +136,7 @@ class package {
                 $rating = $a + 1;
                 $ratingselection[$a] = array(
                     'num' => $rating,
-                    'active' => ($package->ratingaverage >= $rating) ? 1 : 0,
+                    'active' => ($this->get('ratingaverage') >= $rating) ? 1 : 0,
                     'selected' => ($this->get('ratingown') == $rating) ? 1 : 0
                 );
             }
@@ -265,7 +270,77 @@ class package {
             }
         }
     }
+    /**
+     * Load exacomp competencies for this package.
+     */
+    public function exacompetencies() {
+        global $CFG, $DB;
+        // Get competencies.
+        $exacompdatasources = array();
+        $exacompids = array();
+        $exacomptitles = array();
+        $flagfound = array();
 
+        // 1. Moodle competencies
+        $sql = "SELECT c.id,c.*
+                    FROM {competency} c, {competency_modulecomp} mc, {course_modules} cm
+                    WHERE cm.course=? AND cm.id=mc.cmid AND mc.competencyid=c.id";
+        $competencies = $DB->get_records_sql($sql, array($this->get('course')));
+        $supportstranslator = file_exists("$CFG->dirroot/local/komettranslator/version.php");
+        foreach ($competencies as $competence) {
+            if ($supportstranslator) {
+                // Try mapping to exacomp.
+                $mapping = \local_komettranslator\locallib::mapping_internal('descriptor', $competence->id);
+                if (!empty($mapping->id) && empty($flagfound[$mapping->sourceid . '_' . $mapping->itemid])) {
+                    $exacomptitles[] = !empty($competence->description) ? $competence->description : $competence->shortname;
+                    $exacompdatasources[] = $mapping->sourceid;
+                    $exacompsourceids[] = $mapping->itemid;
+                    $flagfound[$mapping->sourceid . '_' . $mapping->itemid] = true;
+                }
+            }
+        }
+        // 2. Exacomp competencies
+        $sql = "SELECT ecd.id id,ecd.title title, ecd.sourceid sourceid, ecd.source source
+                    FROM {block_exacompdescriptors} ecd,
+                         {block_exacompdescrexamp_mm} ecde,
+                         {block_exacompexamples} ecex
+                    WHERE ecex.courseid=?
+                        AND ecex.id=ecde.exampid
+                        AND ecde.descrid=ecd.id
+                    ORDER BY ecd.title ASC";
+        $competencies = $DB->get_records_sql($sql, array($this->get('course')));
+
+        foreach($competencies AS $competence) {
+            $source = $DB->get_record('block_exacompdatasources', array('id' => $competence->source));
+            if (!empty($source->id) && empty($flagfound[$source->source . '_' . $competence->sourceid])) {
+                $exacompdatasources[] = $source->source;
+                $exacompsourceids[] = $competence->sourceid;
+                $exacomptitles[] = $competence->title;
+                $flagfound[$source->source . '_' . $competence->sourceid] = true;
+            }
+        }
+        $this->set(nl2br(implode("\n", $exacomptitles)), 'kompetenzen', 'etapas');
+
+        for ($a = 0; $a < count($exacompdatasources); $a++) {
+            $params = [
+                'package' => $this->get('id'),
+                'datasource' => $exacompdatasources[$a],
+                'sourceid' => $exacompsourceids[$a]
+            ];
+
+            $rec = $DB->get_record('block_edupublisher_md_exa', $params);
+            if (empty($rec->id)) {
+                $params['title'] = $exacomptitles[$a];
+                $DB->insert_record('block_edupublisher_md_exa', $params);
+            } else {
+                if ($rec->title != $exacomptitles[$a]) {
+                    $rec->title = $exacomptitles[$a];
+                    $DB->update_record('block_edupublisher_md_exa', $rec);
+                }
+            }
+        }
+
+    }
     /**
      * Get a meta-data field from this package.
      * @param field name.
@@ -273,16 +348,39 @@ class package {
      * @return the fields content.
      */
     public function get($field, $channel = '_') {
-        if (!empty($this->metadata[$channel][$field])) {
-            return $this->metadata[$channel][$field];
+        if (!empty($this->metadata->$channel->$field)) {
+            return $this->metadata->$channel->$field;
         }
+    }
+    /**
+     * Get data of particular channel.
+     */
+    public function get_channel($channel = '_') {
+        return $this->metadata->$channel;
+    }
+    /**
+     * Get metadata flattened in one object. Intended for use with templates.
+     * @return object with all metadata.
+     */
+    public function get_flattened() {
+        $flattened = (object) [];
+        foreach ($this->metadata as $channel => $fields) {
+            foreach ($fields as $field => $value) {
+                if ($channel == '_') {
+                    $flattened->{$field} = $value;
+                } else {
+                    $flattened->{"{$channel}_{$field}"} = $value;
+                }
+            }
+        }
+        return $flattened;
     }
     /**
      * Get all existing keys within a channel.
      */
     public function get_keys($channel = '_') {
-        if (!empty($this->metadata[$channel])) {
-            return array_keys($this->metadata[$channel]);
+        if (!empty($this->metadata->$channel)) {
+            return array_keys((array)$this->metadata->$channel);
         }
     }
     /**
@@ -298,7 +396,104 @@ class package {
         if (empty($ctx->id)) return false;
         return has_capability('moodle/course:update', $ctx);
     }
+    /**
+     * Loads originals based of this package.
+     * @return array with all package objects that this was a derivative of.
+    **/
+    public function load_origins() {
+        global $DB;
+        $__origins = array();
+        if (!empty($this->get('origins', 'default'))) {
+            foreach($this->get('origins', 'default') AS $origin) {
+                $__origins[] = new package($origin, false);
+            }
+        }
+        $this->set($__origins, 'origins');
+    }
+    /**
+     * Loads possible originals based on the sourcecourse of this package.
+     * @return array with all package objects that this was a derivative of.
+    **/
+    public function load_possible_origins() {
+        global $DB;
+        if (!empty($this->get('possible_origins'))) {
+            return $this->get('possible_origins');
+        }
+        $possible_origins = array();
+        $sql = "SELECT DISTINCT(p.id) AS id
+                    FROM {block_edupublisher_packages} p, {block_edupublisher_uses} u
+                    WHERE p.id=u.package
+                        AND u.targetcourse=?";
+        $origins = $DB->get_records_sql($sql, [$this->get('sourcecourse')]);
+        foreach($origins AS $origin) {
+            $possible_origins[] = new package($origin->id, false);
+        }
+        $this->set($possible_origins, 'possible_origins');
+        return $possible_origins;
+    }
+    /**
+     * Prepares a package to be shown in a form.
+     * @return prepared package
+    **/
+    public function prepare_package_form() {
+        global $CFG, $COURSE;
 
+        require_once("$CFG->dirroot/blocks/edupublisher/classes/package_create_form.php");
+
+        if (empty($this->get('id')) && !empty($this->get('sourcecourse'))) {
+            $context = \context_course::instance($this->get('sourcecourse'));
+        } elseif (!empty($this->get('course'))) {
+            $context = \context_course::instance($this->get('course'));
+        } else {
+            $context = \context_course::instance($COURSE->id);
+        }
+        $channels = \block_edupublisher\lib::get_channel_definition();
+        foreach($channels AS $channel => $fields) {
+            foreach($fields AS $field => $ofield) {
+                // If this package is newly created and the field is default_image load course image.
+                if (empty($this->get('id')) && $channel == 'default' && $field == 'image') {
+                    $draftitemid = file_get_submitted_draft_itemid($channel . '_' . $field);
+                    file_prepare_draft_area($draftitemid, $context->id, 'course', 'overviewfiles', 0,
+                        array(
+                            'subdirs' => (!empty($ofield['subdirs']) ? $ofield['subdirs'] : package_create_form::$subdirs),
+                            'maxbytes' => (!empty($ofield['maxbytes']) ? $ofield['maxbytes'] : package_create_form::$maxbytes),
+                            'maxfiles' => (!empty($ofield['maxfiles']) ? $ofield['maxfiles'] : package_create_form::$maxfiles)
+                        )
+                    );
+                    $this->set($draftitemid, $field, $channel);
+                    continue;
+                }
+
+                if (isset($ofield['type']) && $ofield['type'] == 'select' && !empty($ofield['multiple'])) {
+                    $selected = [];
+                    foreach ($ofield['options'] as $option => $optionlabel) {
+                        if (!empty($this->get("{$field}_{$option}", $channel))) {
+                            $selected[] = $option;
+                        }
+                    }
+                    $this->set($selected, $field, $channel);
+                }
+
+                if (empty($this->get($field, $channel))) continue;
+                if ($ofield['type'] == 'editor') {
+                    $this->set([ 'text' => $this->get($field, $channel) ], $field, $channel);
+                }
+                if (isset($ofield['type']) && $ofield['type'] == 'filemanager') {
+                    $draftitemid = file_get_submitted_draft_itemid($channel . '_' . $field);
+                    file_prepare_draft_area($draftitemid, $context->id, 'block_edupublisher', $channel . '_' . $field, $this->get('id'),
+                        array(
+                            'subdirs' => (!empty($ofield['subdirs']) ? $ofield['subdirs'] : \package_create_form::$subdirs),
+                            'maxbytes' => (!empty($ofield['maxbytes']) ? $ofield['maxbytes'] : \package_create_form::$maxbytes),
+                            'maxfiles' => (!empty($ofield['maxfiles']) ? $ofield['maxfiles'] : \package_create_form::$maxfiles)
+                        )
+                    );
+                    $this->set($draftitemid, $field, $channel);
+                }
+            }
+        }
+
+        $this->set(1, 'exportcourse');
+    }
     /**
      * Set a meta-data field in this package.
      * @param value
@@ -306,10 +501,10 @@ class package {
      * @param channel
      */
     public function set($value, $field, $channel = '_') {
-        if (empty($this->metadata[$channel])) {
-            $this->metadata[$channel] = [];
+        if (empty($this->metadata->$channel)) {
+            $this->metadata->$channel = (object)[];
         }
-        $this->metadata[$channel][$field] = $value;
+        $this->metadata->$channel->$field = $value;
     }
 
     /**
@@ -318,11 +513,342 @@ class package {
      * @param channel
      */
     public function set_array($values, $channel = '_') {
-        if (empty($this->metadata[$channel])) {
-            $this->metadata[$channel] = [];
+        if (empty($this->metadata->$channel)) {
+            $this->metadata->$channel = (object)[];
         }
         foreach ($values as $field => $value) {
-            $this->metadata[$channel][$field] = $value;
+            $this->metadata->$channel->$field = $value;
+        }
+    }
+    /**
+     * Stores a comment and sents info mails to target groups.
+     * @param text
+     * @param sendto-identifiers array of identifiers how should be notified
+     * @param commentlocalize languageidentifier for sending the comment localized
+     * @param channel whether this comment refers to a particular channel.
+     * @param linkurl if comment should link to a url.
+     * @return id of comment.
+     */
+    public function store_comment($text, $sendto = array(), $isautocomment = false, $ispublic = 0, $channel = "", $linkurl = "") {
+        global $DB, $OUTPUT, $USER;
+        if (isloggedin() && !isguestuser($USER)) {
+            $comment = (object)array(
+                'content' => $text,
+                'created' => time(),
+                'forchannel' => $channel,
+                'isautocomment' => ($isautocomment) ? 1 : 0,
+                'ispublic' => ($ispublic) ? 1 : 0,
+                'package' => $this->get('id'),
+                'permahash' => md5(date('YmdHis') . time() . $USER->firstname),
+                'userid' => $USER->id,
+                'linkurl' => $linkurl,
+            );
+            $comment->id = $DB->insert_record('block_edupublisher_comments', $comment);
+
+            if (in_array('allmaintainers', $sendto)) {
+                $possiblechannels = array('default', 'eduthek', 'etapas');
+                foreach($possiblechannels AS $channel) {
+                    if (empty($this->get('publishas', $channel)) || !$this->get('publishas', $channel)) continue;
+                    if (!in_array('maintainers_' . $channel, $sendto)) {
+                        $sendto[] = 'maintainers_' . $channel;
+                    }
+                }
+            }
+            $recipients = array();
+            $category = get_config('block_edupublisher', 'category');
+            $context = \context_coursecat::instance($category);
+            foreach ($sendto AS $identifier) {
+                switch ($identifier) {
+                    case 'author': $recipients[$this->get('userid')] = true; break;
+                    case 'commentors':
+                        $commentors = $DB->get_records_sql('SELECT DISTINCT(userid) AS id FROM {block_edupublisher_comments} WHERE package=?', array($this->get('id')));
+                        foreach ($commentors AS $commentor) {
+                            $recipients[$commentor->id] = true;
+                        }
+                    break;
+                    case 'maintainers_default':
+                        $maintainers = get_users_by_capability($context, 'block/edupublisher:managedefault', '', '', '', 100);
+                        foreach ($maintainers AS $maintainer) {
+                            $recipients[$maintainer->id] = true;
+                        }
+                    break;
+                    case 'maintainers_eduthek':
+                        $maintainers = get_users_by_capability($context, 'block/edupublisher:manageeduthek', '', '', '', 100);
+                        foreach ($maintainers AS $maintainer) {
+                            $recipients[$maintainer->id] = true;
+                        }
+                    break;
+                    case 'maintainers_etapas':
+                        $maintainers = get_users_by_capability($context, 'block/edupublisher:manageetapas', '', '', '', 100);
+                        foreach ($maintainers AS $maintainer) {
+                            $recipients[$maintainer->id] = true;
+                        }
+                    break;
+                    case 'self': $recipients[$USER->id] = true; break;
+                }
+            }
+            if (count($recipients) > 0) {
+                $comment = $this->load_comment($comment->id);
+                $comment->userpicturebase64 = \block_edupublisher\lib::user_picture_base64($USER->id);
+                $fromuser = $USER; // core_user::get_support_user(); //$USER;
+                $comments = array();
+                $subjects = array();
+                $messagehtmls = array();
+                $messagetexts = array();
+
+                $recipients = array_keys($recipients);
+                foreach($recipients AS $_recipient) {
+                    $recipient = $DB->get_record('user', array('id' => $_recipient));
+                    if (!isset($subjects[$recipient->lang])) {
+                        if (!empty($comment->linkurl)) {
+                            $this->set($comment->linkurl->__toString(), 'commentlink');
+                        }
+                        if ($isautocomment) {
+                            $comments[$recipient->lang] = get_string_manager()->get_string($text, 'block_edupublisher', $this->get_flattened(), $recipient->lang);
+                            $comments[$recipient->lang] .= get_string_manager()->get_string('comment:notify:autotext', 'block_edupublisher', $this->get_flattened(), $recipient->lang);
+                        } else {
+                            $comments[$recipient->lang] = $text;
+                        }
+                        $subjects[$recipient->lang] = get_string_manager()->get_string('comment:mail:subject' , 'block_edupublisher', $this->get_flattened(), $recipient->lang);
+                        $tmpcomment = $comment;
+                        $tmpcomment->content = $comments[$recipient->lang];
+                        $messagehtmls[$recipient->lang] = $OUTPUT->render_from_template(
+                            'block_edupublisher/package_comment_notify',
+                            $tmpcomment
+                        );
+                        $messagehtmls[$recipient->lang] = \block_edupublisher\lib::enhance_mail_body($subjects[$recipient->lang], $messagehtmls[$recipient->lang]);
+                        $messagetexts[$recipient->lang] = html_to_text($messagehtmls[$recipient->lang]);
+                    }
+
+                    try {
+                        email_to_user($recipient, $fromuser, $subjects[$recipient->lang], $messagetexts[$recipient->lang], $messagehtmls[$recipient->lang], '', '', true);
+                    } catch(Exception $e) {
+                        throw new \moodle_exception('send_email_failed', 'block_edupublisher', $PAGE->url->__toString(), $recipient, $e->getMessage());
+                    }
+                }
+            }
+            return $comment->id;
+        }
+    }
+    /**
+     * Stores a package and all of its meta-data based on the data of package_create_form.
+     * @param data
+    **/
+    public function store_package($data) {
+        global $CFG, $DB;
+        // Every author must publish in  the default channel.
+        $this->set(1, 'publishas', 'default');
+
+        $context = \context_course::instance($this->get('course'));
+
+        // flatten html editors' data.
+        foreach ($data as $field => $value) {
+            if (!empty($value['text'])) {
+                $data->$field = $value['text'];
+            }
+        }
+
+        $this->set($this->get('title', 'default'), 'title');
+
+        // To proceed we must have a package id!
+        if (empty($this->get('id'))) {
+            $id = $DB->insert_record('block_edupublisher_packages', $this->get_channel('_'));
+            $this->set($id, 'id');
+            $this->set($id, 'package', 'commercial');
+            $this->set($id, 'package', 'default');
+            $this->set($id, 'package', 'eduthek');
+            $this->set($id, 'package', 'etapas');
+            $id = $DB->insert_record('block_edupublisher_md_com', $this->get_channel('commercial'));
+            $this->set($id, 'id', 'commercial');
+            $id = $DB->insert_record('block_edupublisher_md_def', $this->get_channel('default'));
+            $this->set($id, 'id', 'default');
+            $id = $DB->insert_record('block_edupublisher_md_edu', $this->get_channel('eduthek'));
+            $this->set($id, 'id', 'eduthek');
+            $id = $DB->insert_record('block_edupublisher_md_eta', $this->get_channel('etapas'));
+            $this->set($id, 'id', 'etapas');
+        }
+
+        // Retrieve all channels that we publish to.
+        $channels = \block_edupublisher\lib::get_channel_definition();
+        $_channels = array();
+        foreach($channels AS $channel => $fields) {
+            if (!empty($this->get('publishas', $channel))) {
+                $_channels[] = $channel;
+            }
+        }
+        $this->set(',' . implode(',', $_channels) . ',', 'channels');
+
+        $wordpressaction = 'updated';
+        if (empty($this->get('id'))) {
+            $wordpressaction = 'created';
+        }
+
+        $this->exacompetencies();
+
+        // Now store all data.
+        $channels = \block_edupublisher\lib::get_channel_definition();
+        foreach($channels AS $channel => $fields) {
+            foreach($fields AS $field => $fieldparams) {
+                if (!empty($fieldparams['donotstore'])) continue;
+                $dbfield = $channel . '_' . $field;
+
+                if($fieldparams['type'] == 'filemanager' && !empty($draftitemid = file_get_submitted_draft_itemid($dbfield))) {
+                    // We retrieve a file and set the value to the url.
+                    // Store files and set value to url.
+                    $fs = get_file_storage();
+                    require_once("$CFG->dirroot/blocks/edupublisher/classes/package_create_form.php");
+                    $options = (object)array(
+                        'accepted_types' => (!empty($fieldparams['accepted_types']) ? $fieldparams['accepted_types'] : \package_create_form::$accepted_types),
+                        'areamaxbytes' => (!empty($fieldparams['areamaxbytes']) ? $fieldparams['areamaxbytes'] : \package_create_form::$areamaxbytes),
+                        'maxbytes' => (!empty($fieldparams['maxbytes']) ? $fieldparams['maxbytes'] : \package_create_form::$maxbytes),
+                        'maxfiles' => (!empty($fieldparams['maxfiles']) ? $fieldparams['maxfiles'] : \package_create_form::$maxfiles),
+                        'subdirs' => (!empty($fieldparams['subdirs']) ? $fieldparams['subdirs'] : \package_create_form::$subdirs),
+                    );
+                    file_save_draft_area_files(
+                        $draftitemid, $context->id, 'block_edupublisher', $dbfield, $this->get('id'),
+                        array('subdirs' => $options->subdirs, 'maxbytes' => $options->maxbytes, 'maxfiles' => $options->maxfiles)
+                    );
+
+                    $files = $fs->get_area_files($context->id, 'block_edupublisher', $dbfield, $this->get('id'));
+                    $urls = array();
+                    foreach ($files as $file) {
+                        if (in_array($file->get_filename(), array('.'))) continue;
+                        $urls[] = '' . \moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename());
+                    }
+                    if (count($urls) == 0) {
+                        $this->set(null, $field, $channel);
+                    } elseif(count($urls) == 1) {
+                        $this->set($urls[0], $field, $channel);
+                    }
+                }
+                // We retrieve anything else.
+                if (!empty($this->get($field, $channel))) {
+                    unset($allowedoptions);
+                    unset($allowedkeys);
+                    if (!empty($fieldparams['options'])) {
+                        $allowedoptions = $fieldparams['options'];
+                        $allowedkeys = array_keys($allowedoptions);
+                    }
+                    if (!empty($fieldparams['multiple']) && !empty($fieldparams['options'])) {
+                        // multiple must have options!
+                        foreach ($allowedkeys as $allowedkey) {
+                            if (in_array($allowedkey, $data->$dbfield)) {
+                                $this->set(1, "{$field}_{$allowedkey}", $channel);
+                            }
+                        }
+                    } else {
+                        $this->set($data->$dbfield, $field, $channel);
+                    }
+                }
+            }
+        }
+
+        if (!empty($this->get('publishas', 'etapas')) || !empty($this->get('publishas', 'eduthek'))) {
+            // Publish as lti tools
+            $targetcourse = get_course($this->get('course'));
+            $targetcontext = \context_course::instance($this->get('course'));
+            require_once("$CFG->dirroot/enrol/lti/lib.php");
+            $elp = new \enrol_lti_plugin();
+            $ltichannels = array('etapas', 'eduthek');
+            $_channels = explode(',', $this->get('channels'));
+            foreach($_channels AS $_channel) {
+                // Only some channels allow to be published as lti tool.
+                if (!in_array($_channel, $ltichannels)) continue;
+                // Check if this channel is already published via LTI.
+                if (!empty($this->get('ltisecret', $_channel))) continue;
+                $this->set(substr(md5(date("Y-m-d H:i:s") . rand(0,1000)),0,30), 'ltisecret', $_channel);
+                $lti = array(
+                    'contextid' => $targetcontext->id,
+                    'gradesync' => 1,
+                    'gradesynccompletion' => 0,
+                    'membersync' => 1,
+                    'membersyncmode' => 1,
+                    'name' => $package->get('title', 'default') . ' [' . $_channel . ']',
+                    'roleinstructor' => get_config('block_edupublisher', 'defaultrolestudent'),
+                    'rolelearner' => get_config('block_edupublisher', 'defaultrolestudent'),
+                    'secret' => $this->get('ltisecret', $_channel),
+                );
+                $elpinstanceid = $elp->add_instance($targetcourse, $lti);
+                if (!empty($elpinstanceid)) {
+                    require_once("$CFG->dirroot/enrol/lti/classes/helper.php");
+                    $elpinstance = $DB->get_record('enrol_lti_tools', array('enrolid' => $elpinstanceid), 'id', MUST_EXIST);
+                    $tool = \enrol_lti\helper::get_lti_tool($elpinstance->id);
+                    $this->set('' . enrol_lti\helper::get_launch_url($elpinstance->id), 'ltiurl', $_channel);
+                    $this->set('' . enrol_lti\helper::get_cartridge_url($tool), 'lticartridge', $_channel);
+                }
+            }
+        }
+
+        // If there is a default_imageurl store the file as course image.
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($context->id, 'block_edupublisher', 'default_image', $this->get('id'));
+        $courseimage = (object) array('imagepath' => '', 'imagename' => '');
+        foreach ($files as $file) {
+            if ($file->is_valid_image()) {
+                $courseimage->imagename = $file->get_filename();
+                $contenthash = $file->get_contenthash();
+                $courseimage->imagepath = $CFG->dataroot . '/filedir/' . substr($contenthash, 0, 2) . '/' . substr($contenthash, 2, 2) . '/' . $contenthash;
+                $package->default_imageurl = '' . moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename());
+                break;
+            }
+        }
+        if ($courseimage->imagepath != '') {
+            $context = \context_course::instance($this->get('course'));
+            \block_edupublisher\lib::clear_file_storage($context, 'course', 'overviewfiles', 0, $fs);
+
+            // Load new image to file area of targetcourse
+            $fs = get_file_storage();
+            $file_record = array('contextid' => $context->id, 'component' => 'course', 'filearea' => 'overviewfiles',
+                     'itemid' => 0, 'filepath'=>'/', 'filename' => $courseimage->imagename,
+                     'timecreated' => time(), 'timemodified' => time());
+            $fs->create_file_from_pathname($file_record, $courseimage->imagepath);
+        }
+        $course = get_course($this->get('id'));
+        $course->summary = $this->get('summary', 'default');
+        $course->fullname = $this->get('title', 'default');
+        $DB->update_record('course', $course);
+        rebuild_course_cache($course->id, true);
+
+        $this->set(time(), 'modified');
+
+        $DB->update_record('block_edupublisher_packages', $this->get_channel('_'));
+        $DB->update_record('block_edupublisher_md_com', $this->get_channel('commercial'));
+        $DB->update_record('block_edupublisher_md_def', $this->get_channel('default'));
+        $DB->update_record('block_edupublisher_md_edu', $this->get_channel('eduthek'));
+        $DB->update_record('block_edupublisher_md_eta', $this->get_channel('etapas'));
+
+        \block_edupublisher\wordpress::action($wordpressaction, $this);
+    }
+    /**
+     * Updates or inserts a specific metadata field.
+     * @param package to set
+     * @param channel to which the field belongs
+     * @param field complete name of field (channel_fieldname)
+     * @param content (optional) content to set, if not set will be retrieved from $package
+    **/
+    public static function store_metadata($package, $channel, $field, $content = '') {
+        global $DB;
+
+        $metaobject = (object) array(
+                'package' => $package->id,
+                'field' => $field,
+                'content' => !empty($content) ? $content : $package->{$field},
+                'created' => time(),
+                'modified' => time(),
+                'active' => !empty($package->{$channel . '_active'}) ? $package->{$channel . '_active'} : 0,
+        );
+
+        $o = $DB->get_record('block_edupublisher_metadata', array('package' => $metaobject->package, 'field' => $metaobject->field));
+        if (isset($o->id) && $o->id > 0) {
+            if ($o->content != $metaobject->content) {
+                $metaobject->id = $o->id;
+                $metaobject->active = $o->active;
+                $DB->update_record('block_edupublisher_metadata', $metaobject);
+                //echo "Update " . print_r($metaobject, 1);
+            }
+        } else {
+            //echo "Insert " . print_r($metaobject, 1);
+            $DB->insert_record('block_edupublisher_metadata', $metaobject);
         }
     }
 }

@@ -59,29 +59,25 @@ class package_create_form extends moodleform {
 
         //$ALLOW_COMMERCIAL = get_config('block_edupublisher', 'enablecommercial') && \block_edupublisher\lib::is_publisher();
         $ALLOW_COMMERCIAL = \block_edupublisher\lib::is_publisher();
-        $definition = \block_edupublisher\lib::get_channel_definition();
-        //print_r($definition);
-        $channels = array_keys($definition);
+        $channels = \block_edupublisher\lib::get_channel_definition();
         $stringman = get_string_manager();
-        foreach($channels AS $channel) {
+        foreach($channels AS $channel => $fields) {
             if ($channel == 'commercial' && !$ALLOW_COMMERCIAL) continue;
-            $label = $this->get_label($definition, $channel, 'publish_as', ucfirst($channel), $stringman);
+            $label = $this->get_label($channels, $channel, 'publish_as', ucfirst($channel), $stringman);
             $mform->addElement('header', $channel . '_publish_as', $label);
             if ($this->has_channel_description($channel, $stringman)) {
                 $mform->addElement('html', '<p>' . get_string($channel . '__description', 'block_edupublisher') . '</p>');
             }
 
-            $fields = array_keys($definition[$channel]);
-            foreach($fields AS $_field) {
+            foreach($fields AS $_field => $field) {
                 if ($_field == 'publish_as') continue;
-                $field = $definition[$channel][$_field];
                 $required = isset($field['required']) && $field['required'];
                 $hiddenexceptmaintainer = isset($field['hidden_except_maintainer']) && $field['hidden_except_maintainer'];
                 if ($hiddenexceptmaintainer && !\block_edupublisher\lib::is_maintainer()) {
                     continue;
                 }
 
-                $label = $this->get_label($definition, $channel, $_field, $_field, $stringman, $required);
+                $label = $this->get_label($channels, $channel, $_field, $_field, $stringman, $required);
 
                 unset($addedfield);
                 switch($field['type']) {
@@ -137,6 +133,19 @@ class package_create_form extends moodleform {
                         $addedfield = $mform->addElement('select', $channel . '_' . $_field, $label, $options);
                         if (isset($field['multiple']) && $field['multiple']) {
                             $addedfield->setMultiple(true);
+                            /*
+                            // In case of multiple fields we need to set the values from package.
+                            global $package;
+                            $selected = [];
+                            foreach ($options as $option => $optionlabel) {
+                                if (!empty($package->get("{$_field}_{$option}", $channel))) {
+                                    $selected[] = $option;
+                                }
+                            }
+                            print_r($options);
+                            print_r($selected);
+                            $addedfield->setSelected($channel . '_' . $_field, $selected);
+                            */
                         }
                     break;
                     case 'static':
@@ -169,12 +178,6 @@ class package_create_form extends moodleform {
                 if(isset($addedfield) && $this->has_help_button($channel, $_field, $stringman)) {
                     $mform->addHelpButton($channel . '_' . $_field, $channel . '_' . $_field, 'block_edupublisher');
                 }
-                /* Required is now faked by get_label
-                if (isset($addedfield) && isset($field['required']) && $field['required']) {
-                    //$hasrequiredtext = $this->has_required_text($channel, $_field, $stringman);
-                    //$mform->addRule($channel . '_' . $_field, (($hasrequiredtext) ? get_string($channel . '_' . $_field . '_missing', 'block_edupublisher') : $_field . ' is required!'), 'required', null, 'client');
-                }
-                */
                 if (isset($field['hidden_on_init']) && $field['hidden_on_init']) {
                     $mform->hideIf($channel . '_' . $_field, 'id', 'eq', '0');
                 }
@@ -188,10 +191,10 @@ class package_create_form extends moodleform {
                 $mform->setDefault('clonecourse', 1);
 
                 $boxes = array();
-                foreach($channels AS $_channel) {
+                foreach($channels AS $_channel => $fields) {
                     if ($_channel == 'default') continue;
                     if ($_channel == 'commercial' && !$ALLOW_COMMERCIAL) continue;
-                    $label = $this->get_label($definition, $_channel, 'publish_as', ucfirst($_channel), $stringman);
+                    $label = $this->get_label($channels, $_channel, 'publish_as', ucfirst($_channel), $stringman);
                     $boxes[] = $mform->createElement('advcheckbox', $_channel . '_publishas', $label, NULL, array('onclick' => 'var inp = this; require(["jquery"], function($) { $("#id_' . $_channel . '_publish_as").css("display", $(inp).is(":checked") ? "block" : "none"); });'), array(0, 1));
                     //$mform->setType($_channel . '_publishas', PARAM_INT);
                 }
@@ -200,7 +203,7 @@ class package_create_form extends moodleform {
         }
         $mform->hideIf('etapas_status', 'cantriggeractiveetapas', 'neq', '1');
 
-        $mform->addElement('html', '<script type="text/javascript"> document.addEventListener("DOMContentLoaded", function(event) { require(["block_edupublisher/main"], function(MAIN) { MAIN.preparePackageForm("' . implode(',', $channels) . '"); }); });</script>');
+        $mform->addElement('html', '<script type="text/javascript"> document.addEventListener("DOMContentLoaded", function(event) { require(["block_edupublisher/main"], function(MAIN) { MAIN.preparePackageForm("' . implode(',', array_keys((array)$channels)) . '"); }); });</script>');
 
         // Manually disable OER-Channels if set to commercial and vice versa
         if ($ALLOW_COMMERCIAL) {
@@ -279,15 +282,13 @@ class package_create_form extends moodleform {
         foreach ($channels AS $channel) {
             if ($channel != 'default' && (!isset($data[$channel . '_publishas']) || !$data[$channel . '_publishas'])) continue;
 
-            //echo $channel . '_publishas' . ' is ' . $data[$channel . '_publishas'] . '<br />';
-            // 'check <br/>';
             $fields = array_keys($definition[$channel]);
             foreach($fields AS $field) {
                 $ofield = &$definition[$channel][$field];
                 if ($channel == 'etapas' && $field == 'kompetenzen') {
-                    $package = (object) array('course' => $data['course']);
-                    \block_edupublisher\lib::exacompetencies($package);
-                    $data['etapas_kompetenzen'] = $package->etapas_kompetenzen;
+                    global $package;
+                    $package->exacompetencies();
+                    $data['etapas_kompetenzen'] = $package->get('kompetenzen', 'etapas');
                 }
                 if (!isset($ofield['type']) || empty($ofield['required'])) continue;
                 $haserror = false;

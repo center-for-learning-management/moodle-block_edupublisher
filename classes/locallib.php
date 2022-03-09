@@ -30,7 +30,7 @@ class locallib {
      * Used to split the metadata table into separate tables.
      */
     public static function atomize_database() {
-        global $DB;
+        global $CFG, $DB;
 
         $metadatas = $DB->get_records('block_edupublisher_metadata', null, 'package ASC');
         $curpackage = (object) [
@@ -98,6 +98,10 @@ class locallib {
                     unset($curpackage->etapas->schulstufe);
                 }
 
+                if (!empty($curpackage->default->image)) {
+                    $curpackage->default->image = str_replace($CFG->wwwroot, '', $curpackage->default->image);
+                }
+
                 $channels = [ 'commercial', 'default', 'eduthek', 'etapas' ];
                 $tables = [ 'com', 'def', 'edu', 'eta' ];
 
@@ -105,6 +109,7 @@ class locallib {
                     $chan = $channels[$i]; $tab = $tables[$i];
                     $chk = $DB->get_record("block_edupublisher_md_$tab", [ 'package' => $curpackage->package ]);
                     $curpackage->{$chan}->package = $curpackage->package;
+
                     if (!empty($chk->id)) {
                         $curpackage->{$chan}->id = $chk->id;
                         $DB->update_record("block_edupublisher_md_$tab", $curpackage->{$chan});

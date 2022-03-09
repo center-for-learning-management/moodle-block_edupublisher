@@ -24,10 +24,9 @@ require_once('../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
-
 $id = required_param('id', PARAM_INT);
 $package = new \block_edupublisher\package($id, true);
-$context = context_course::instance($package->course);
+$context = \context_course::instance($package->get('course'));
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/package.php?id=' . $id);
 require_login();
@@ -38,25 +37,25 @@ $PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
-$PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id' => $package->course)));
+$PAGE->navbar->add($package->get('title', 'default'), new moodle_url('/course/view.php', array('id' => $package->get('course'))));
 $PAGE->navbar->add(get_string('details', 'block_edupublisher'), $PAGE->url);
 
-block_edupublisher::check_requirements(false);
+\block_edupublisher\lib::check_requirements(false);
 echo $OUTPUT->header();
 
 $act = optional_param('act', '', PARAM_TEXT);
 switch ($act) {
     case 'authoreditingpermission':
-        if ($package->canmoderate) {
-            $ctx = context_course::instance($package->course);
+        if ($package->get('canmoderate')) {
+            $ctx = context_course::instance($package->get('course'));
             if (optional_param('to', '', PARAM_TEXT) == 'grant') {
-                block_edupublisher::role_set(array($package->course), array($package->userid), 'defaultroleteacher');
+                block_edupublisher::role_set(array($package->get('course')), array($package->get('userid')), 'defaultroleteacher');
                 //role_assign(get_config('block_edupublisher', 'defaultroleteacher'), $package->userid, $ctx->id);
                 $sendto = array('author');
                 block_edupublisher::store_comment($package, 'comment:template:package_editing_granted', $sendto, true, false);
             }
             if (optional_param('to', '', PARAM_TEXT) == 'remove') {
-                block_edupublisher::role_set(array($package->course), array($package->userid), -1);
+                block_edupublisher::role_set(array($package->get('course')), array($package->get('userid')), -1);
                 //role_unassign(get_config('block_edupublisher', 'defaultroleteacher'), $package->userid, $ctx->id);
                 $sendto = array('author');
                 block_edupublisher::store_comment($package, 'comment:template:package_editing_sealed', $sendto, true, false);
@@ -83,12 +82,11 @@ switch ($act) {
 }
 
 $package->load_origins();
-$package->comments = $DB->get_records('block_edupublisher_comments', array('package' => $package->id));
+$package->comments = $DB->get_records('block_edupublisher_comments', array('package' => $package->get('id')));
 
-//print_r($package);
 echo $OUTPUT->render_from_template(
     'block_edupublisher/package',
-    $package
+    $package->get_flattened()
 );
 
 echo $OUTPUT->footer();

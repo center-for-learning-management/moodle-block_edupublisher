@@ -117,64 +117,6 @@ class block_edupublisher extends block_base {
         }
         return $comments;
     }
-
-    /**
-     * Prepares a package to be shown in a form.
-     * @param package to be prepared
-     * @return prepared package
-    **/
-    public static function prepare_package_form($package) {
-        global $CFG, $COURSE;
-
-        if (empty($package->id) && !empty($package->sourcecourse)) {
-            $context = context_course::instance($package->sourcecourse);
-        } elseif (!empty($package->course)) {
-            $context = context_course::instance($package->course);
-        } else {
-            $context = context_course::instance($COURSE->id);
-        }
-        $definition = self::get_channel_definition();
-        $channels = array_keys($definition);
-        foreach($channels AS $channel) {
-            $fields = array_keys($definition[$channel]);
-            foreach($fields AS $field) {
-                $ofield = $definition[$channel][$field];
-                // If this package is newly created and the field is default_image load course image.
-                if (empty($package->id) && $channel == 'default' && $field == 'image') {
-                    $draftitemid = file_get_submitted_draft_itemid($channel . '_' . $field);
-                    file_prepare_draft_area($draftitemid, $context->id, 'course', 'overviewfiles', 0,
-                        array(
-                            'subdirs' => (!empty($ofield['subdirs']) ? $ofield['subdirs'] : package_create_form::$subdirs),
-                            'maxbytes' => (!empty($ofield['maxbytes']) ? $ofield['maxbytes'] : package_create_form::$maxbytes),
-                            'maxfiles' => (!empty($ofield['maxfiles']) ? $ofield['maxfiles'] : package_create_form::$maxfiles)
-                        )
-                    );
-                    $package->{$channel . '_' . $field} = $draftitemid;
-                    continue;
-                }
-
-                if (!isset($package->{$channel . '_' . $field})) continue;
-                if ($ofield['type'] == 'editor') {
-                    $package->{$channel . '_' . $field} = array('text' => $package->{$channel . '_' . $field});
-                }
-                if (isset($ofield['type']) && $ofield['type'] == 'filemanager') {
-                    require_once($CFG->dirroot . '/blocks/edupublisher/classes/package_create_form.php');
-                    $draftitemid = file_get_submitted_draft_itemid($channel . '_' . $field);
-                    file_prepare_draft_area($draftitemid, $context->id, 'block_edupublisher', $channel . '_' . $field, $package->id,
-                        array(
-                            'subdirs' => (!empty($ofield['subdirs']) ? $ofield['subdirs'] : package_create_form::$subdirs),
-                            'maxbytes' => (!empty($ofield['maxbytes']) ? $ofield['maxbytes'] : package_create_form::$maxbytes),
-                            'maxfiles' => (!empty($ofield['maxfiles']) ? $ofield['maxfiles'] : package_create_form::$maxfiles)
-                        )
-                    );
-                    $package->{$channel . '_' . $field} = $draftitemid;
-                }
-            }
-        }
-
-        $package->exportcourse = 1;
-        return $package;
-    }
     /**
      * Grants or revokes a role from a course.
      * @param courseids array with courseids
@@ -236,378 +178,7 @@ class block_edupublisher extends block_base {
             }
         }
     }
-    /**
-     * Stores a comment and sents info mails to target groups.
-     * @param package
-     * @param text
-     * @param sendto-identifiers array of identifiers how should be notified
-     * @param commentlocalize languageidentifier for sending the comment localized
-     * @param channel whether this comment refers to a particular channel.
-     * @param linkurl if comment should link to a url.
-     * @return id of comment.
-     */
-    public static function store_comment($package, $text, $sendto = array(), $isautocomment = false, $ispublic = 0, $channel = "", $linkurl = "") {
-        global $DB, $OUTPUT, $USER;
-        if (isloggedin() && !isguestuser($USER)) {
-            $comment = (object)array(
-                'content' => $text,
-                'created' => time(),
-                'forchannel' => $channel,
-                'isautocomment' => ($isautocomment) ? 1 : 0,
-                'ispublic' => ($ispublic) ? 1 : 0,
-                'package' => $package->id,
-                'permahash' => md5(date('YmdHis') . time() . $USER->firstname),
-                'userid' => $USER->id,
-                'linkurl' => $linkurl,
-            );
-            $comment->id = $DB->insert_record('block_edupublisher_comments', $comment);
 
-            if (in_array('allmaintainers', $sendto)) {
-                $possiblechannels = array('default', 'eduthek', 'etapas');
-                foreach($possiblechannels AS $channel) {
-                    if (empty($package->{$channel . '_publishas'}) || !$package->{$channel . '_publishas'}) continue;
-                    if (!in_array('maintainers_' . $channel, $sendto)) {
-                        $sendto[] = 'maintainers_' . $channel;
-                    }
-                }
-            }
-            $recipients = array();
-            $category = get_config('block_edupublisher', 'category');
-            $context = context_coursecat::instance($category);
-            foreach ($sendto AS $identifier) {
-                switch ($identifier) {
-                    case 'author': $recipients[$package->userid] = true; break;
-                    case 'commentors':
-                        $commentors = $DB->get_records_sql('SELECT DISTINCT(userid) AS id FROM {block_edupublisher_comments} WHERE package=?', array($package->id));
-                        foreach ($commentors AS $commentor) {
-                            $recipients[$commentor->id] = true;
-                        }
-                    break;
-                    case 'maintainers_default':
-                        $maintainers = get_users_by_capability($context, 'block/edupublisher:managedefault', '', '', '', 100);
-                        foreach ($maintainers AS $maintainer) {
-                            $recipients[$maintainer->id] = true;
-                        }
-                    break;
-                    case 'maintainers_eduthek':
-                        $maintainers = get_users_by_capability($context, 'block/edupublisher:manageeduthek', '', '', '', 100);
-                        foreach ($maintainers AS $maintainer) {
-                            $recipients[$maintainer->id] = true;
-                        }
-                    break;
-                    case 'maintainers_etapas':
-                        $maintainers = get_users_by_capability($context, 'block/edupublisher:manageetapas', '', '', '', 100);
-                        foreach ($maintainers AS $maintainer) {
-                            $recipients[$maintainer->id] = true;
-                        }
-                    break;
-                    case 'self': $recipients[$USER->id] = true; break;
-                }
-            }
-            if (count($recipients) > 0) {
-                $comment = self::load_comment($comment->id);
-                $comment->userpicturebase64 = block_edupublisher::user_picture_base64($USER->id);
-                $fromuser = $USER; // core_user::get_support_user(); //$USER;
-                $comments = array();
-                $subjects = array();
-                $messagehtmls = array();
-                $messagetexts = array();
-
-                $recipients = array_keys($recipients);
-                foreach($recipients AS $_recipient) {
-                    $recipient = $DB->get_record('user', array('id' => $_recipient));
-                    if (!isset($subjects[$recipient->lang])) {
-                        if (!empty($comment->linkurl)) {
-                            $package->commentlink = $comment->linkurl->__toString();
-                        }
-                        if ($isautocomment) {
-                            $comments[$recipient->lang] = get_string_manager()->get_string($text, 'block_edupublisher', $package, $recipient->lang);
-                            $comments[$recipient->lang] .= get_string_manager()->get_string('comment:notify:autotext', 'block_edupublisher', $package, $recipient->lang);
-                        } else {
-                            $comments[$recipient->lang] = $text;
-                        }
-                        $subjects[$recipient->lang] = get_string_manager()->get_string('comment:mail:subject' , 'block_edupublisher', $package, $recipient->lang);
-                        $tmpcomment = $comment;
-                        $tmpcomment->content = $comments[$recipient->lang];
-                        $messagehtmls[$recipient->lang] = $OUTPUT->render_from_template(
-                            'block_edupublisher/package_comment_notify',
-                            $tmpcomment
-                        );
-                        $messagehtmls[$recipient->lang] = self::enhance_mail_body($subjects[$recipient->lang], $messagehtmls[$recipient->lang]);
-                        $messagetexts[$recipient->lang] = html_to_text($messagehtmls[$recipient->lang]);
-                    }
-
-                    try {
-                        email_to_user($recipient, $fromuser, $subjects[$recipient->lang], $messagetexts[$recipient->lang], $messagehtmls[$recipient->lang], '', '', true);
-                    } catch(Exception $e) {
-                        throw new \moodle_exception('send_email_failed', 'block_edupublisher', $PAGE->url->__toString(), $recipient, $e->getMessage());
-                    }
-                }
-            }
-            return $comment->id;
-        }
-    }
-    /**
-     * Stores a package and all of its meta-data based on the data of package_create_form.
-     * @param package package data from form.
-    **/
-    public static function store_package($package) {
-        global $CFG, $DB;
-        // Every author must publish in  the default channel.
-        $package->default_publishas = 1;
-
-        $context = context_course::instance($package->course);
-
-        // Flatten data
-        $keys = array_keys((array) $package);
-        foreach($keys AS $key) {
-            if (isset($package->{$key}['text'])) {
-                $package->{$key} = $package->{$key}['text'];
-            }
-        }
-
-        $package->title = $package->default_title;
-
-        // Retrieve all channels that we publish to.
-        $definition = self::get_channel_definition();
-        $channels = array_keys($definition);
-        $package->_channels = array();
-        foreach($channels AS $channel) {
-            if (isset($package->{$channel . '_publishas'}) && $package->{$channel . '_publishas'}) {
-                $package->_channels[] = $channel;
-            }
-        }
-        $package->channels = ',' . implode(',', $package->_channels) . ',';
-
-        $wordpressaction = 'updated';
-        if ($package->id > 0) {
-            $original = self::get_package($package->id, true);
-            // Save all keys from package to original
-            $keys = array_keys((array) $package);
-            // Prevent deactivating a channel after it was activated.
-            $ignore = array('etapas_publishas', 'eduthek_publishas');
-            foreach($keys AS $key) {
-                if (in_array($key, $ignore) && !empty($original->{$key})) continue;
-                $original->{$key} = $package->{$key};
-            }
-
-            $package = $original;
-        } else {
-            // Create the package to get a package-id for metadata
-            $package->active = 0;
-            $package->modified = time();
-            $package->created = time();
-            $package->deleted = 0;
-            $package->id = $DB->insert_record('block_edupublisher_packages', $package, true);
-            $wordpressaction = 'created';
-        }
-
-        \block_edupublisher\lib::exacompetencies($package);
-
-        // Now store all data.
-        $definition = self::get_channel_definition();
-        foreach($channels AS $channel) {
-            $fields = array_keys($definition[$channel]);
-            //echo 'Channel: "' . $channel . '_active" => ' . $package->{$channel . '_active'} . '<br />';
-            foreach($fields AS $field) {
-                if (!empty($definition[$channel][$field]['donotstore'])) continue;
-                $dbfield = $channel . '_' . $field;
-
-                // Remove all meta-objects with pattern channel_field_%, multiple items will be inserted anyway.
-                // Attention: Needs to be done here. If an item has been multiple and is then updated to single it may keep deprecated metadata if executed anywhere else.
-                $DB->execute('DELETE FROM {block_edupublisher_metadata} WHERE package=? AND `field` LIKE ? ESCAPE "+"', array($package->id, $channel . '+_' . $field . '+_%'));
-
-                if($definition[$channel][$field]['type'] == 'filemanager' && !empty($draftitemid = file_get_submitted_draft_itemid($dbfield))) { // !empty($package->{$dbfield})) {
-                    // We retrieve a file and set the value to the url.
-                    // Store files and set value to url.
-                    $fs = get_file_storage();
-                    //self::clear_file_storage($context, 'block_edupublisher', $dbfield, $package->id, $fs);
-                    require_once($CFG->dirroot . '/blocks/edupublisher/classes/package_create_form.php');
-                    $options = (object)array(
-                        'accepted_types' => (!empty($definition[$channel][$field]['accepted_types']) ? $definition[$channel][$field]['accepted_types'] : package_create_form::$accepted_types),
-                        'areamaxbytes' => (!empty($definition[$channel][$field]['areamaxbytes']) ? $definition[$channel][$field]['areamaxbytes'] : package_create_form::$areamaxbytes),
-                        'maxbytes' => (!empty($definition[$channel][$field]['maxbytes']) ? $definition[$channel][$field]['maxbytes'] : package_create_form::$maxbytes),
-                        'maxfiles' => (!empty($definition[$channel][$field]['maxfiles']) ? $definition[$channel][$field]['maxfiles'] : package_create_form::$maxfiles),
-                        'subdirs' => (!empty($definition[$channel][$field]['subdirs']) ? $definition[$channel][$field]['subdirs'] : package_create_form::$subdirs),
-                    );
-                    file_save_draft_area_files(
-                        $draftitemid, $context->id, 'block_edupublisher', $dbfield, $package->id,
-                        array('subdirs' => $options->subdirs, 'maxbytes' => $options->maxbytes, 'maxfiles' => $options->maxfiles)
-                    );
-
-                    $files = $fs->get_area_files($context->id, 'block_edupublisher', $dbfield, $package->id);
-                    $urls = array();
-                    foreach ($files as $file) {
-                        if (in_array($file->get_filename(), array('.'))) continue;
-                        $urls[] = '' . moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename());
-                    }
-                    if (count($urls) == 0) {
-                        unset($package->{$dbfield});
-                    } elseif(count($urls) == 1) {
-                        $package->{$dbfield} = $urls[0];
-                    } else {
-                        $package->{$dbfield} = $urls;
-                        $definition[$channel][$field]['multiple'] = 1;
-                    }
-                }
-                // We retrieve anything else.
-                if (isset($package->{$dbfield}) && (is_array($package->{$dbfield}) || !empty($package->{$dbfield})  || is_numeric($package->{$dbfield}))) {
-                    unset($allowedoptions);
-                    unset($allowedkeys);
-                    if (!empty($definition[$channel][$field]['options'])) {
-                        $allowedoptions = $definition[$channel][$field]['options'];
-                        $allowedkeys = array_keys($allowedoptions);
-                    }
-                    if (!empty($definition[$channel][$field]['multiple'])) {
-                        //$options = array_keys($definition[$channel][$field]['options']);
-                        //error_log($dbfield . ' => ' . $package->{$dbfield});
-                        if (!is_array($package->{$dbfield})) {
-                            $package->{$dbfield} = array($package->{$dbfield});
-                        }
-                        $options = array_keys($package->{$dbfield});
-                        foreach ($options AS $option) {
-                            $content = $package->{$dbfield}[$option];
-                            if (!isset($allowedkeys) || in_array($content, $allowedkeys)) {
-                                self::store_metadata($package, $channel, $channel . '_' . $field . '_' . $option, $content);
-                            }
-                            if (isset($allowedkeys)) {
-                                // If the option text differs from the content store as separate value for search operations.
-                                if ($allowedoptions[$content] != $content) {
-                                    self::store_metadata($package, $channel, $channel . '_' . $field . '_' . $option . ':dummy', $allowedoptions[$content]);
-                                }
-                            }
-                        }
-                    } else {
-                        self::store_metadata($package, $field, $dbfield);
-                        // If the option text differs from the content store as separate value for search operations.
-                        if (isset($allowedkeys) && $allowedoptions[$package->{$dbfield}] != $package->{$dbfield}) {
-                            self::store_metadata($package, $field, $dbfield . ':dummy', $allowedoptions[$package->{$dbfield}]);
-                        }
-                    }
-                }
-            }
-        }
-
-        if (
-            isset($package->etapas_publishas) && $package->etapas_publishas
-            ||
-            isset($package->eduthek_publishas) && $package->eduthek_publishas
-        ) {
-            // Publish as lti tools
-            $targetcourse = get_course($package->course);
-            $targetcontext = context_course::instance($package->course);
-            //echo "<p>Publishing as LTI</p>";
-            //print_r($package->_channels);
-            require_once($CFG->dirroot . '/enrol/lti/lib.php');
-            $elp = new enrol_lti_plugin();
-            $ltichannels = array('etapas', 'eduthek');
-            foreach($package->_channels AS $channel) {
-                // Only some channels allow to be published as lti tool.
-                //echo "<p>Publish for $channel</p>";
-                if (!in_array($channel, $ltichannels)) continue;
-                // Check if this channel is already published via LTI.
-                //echo "<p>LTI Secret currently is " .$package->{$channel . '_ltisecret'} . "</p>";
-                if (!empty($package->{$channel . '_ltisecret'})) continue;
-                $package->{$channel . '_ltisecret'} = substr(md5(date("Y-m-d H:i:s") . rand(0,1000)),0,30);
-                //echo "<p>Set secret to " . $package->{$channel . '_ltisecret'}  . "</p>";
-                $lti = array(
-                    'contextid' => $targetcontext->id,
-                    'gradesync' => 1,
-                    'gradesynccompletion' => 0,
-                    'membersync' => 1,
-                    'membersyncmode' => 1,
-                    'name' => $package->title . ' [' . $channel . ']',
-                    'roleinstructor' => get_config('block_edupublisher', 'defaultrolestudent'),
-                    'rolelearner' => get_config('block_edupublisher', 'defaultrolestudent'),
-                    'secret' => $package->{$channel . '_ltisecret'},
-                );
-                $elpinstanceid = $elp->add_instance($targetcourse, $lti);
-                //echo "<p>ELPInstanceID $elpinstanceid</p>";
-                if ($elpinstanceid) {
-                    require_once($CFG->dirroot . '/enrol/lti/classes/helper.php');
-                    $elpinstance = $DB->get_record('enrol_lti_tools', array('enrolid' => $elpinstanceid), 'id', MUST_EXIST);
-                    $tool = enrol_lti\helper::get_lti_tool($elpinstance->id);
-                    $package->{$channel . '_ltiurl'} = '' . enrol_lti\helper::get_launch_url($elpinstance->id);
-                    $package->{$channel . '_lticartridge'} = '' . enrol_lti\helper::get_cartridge_url($tool);
-                    //echo "<p>Lti-Data " . $package->{$channel . '_ltiurl'} . " and " . $package->{$channel . '_lticartridge'} . "</p>";
-                    self::store_metadata($package, $channel, $channel . '_ltiurl');
-                    self::store_metadata($package, $channel, $channel . '_lticartridge');
-                    self::store_metadata($package, $channel, $channel . '_ltisecret');
-                }
-            }
-        }
-
-        // If there is a default_imageurl store the file as course image.
-        $fs = get_file_storage();
-        $files = $fs->get_area_files($context->id, 'block_edupublisher', 'default_image', $package->id);
-        $courseimage = (object) array('imagepath' => '', 'imagename' => '');
-        foreach ($files as $file) {
-            if ($file->is_valid_image()) {
-                $courseimage->imagename = $file->get_filename();
-                $contenthash = $file->get_contenthash();
-                $courseimage->imagepath = $CFG->dataroot . '/filedir/' . substr($contenthash, 0, 2) . '/' . substr($contenthash, 2, 2) . '/' . $contenthash;
-                $package->default_imageurl = '' . moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename());
-                break;
-            }
-        }
-        if ($courseimage->imagepath != '') {
-            $context = context_course::instance($package->course);
-            self::clear_file_storage($context, 'course', 'overviewfiles', 0, $fs);
-
-            // Load new image to file area of targetcourse
-            $fs = get_file_storage();
-            $file_record = array('contextid' => $context->id, 'component' => 'course', 'filearea' => 'overviewfiles',
-                     'itemid' => 0, 'filepath'=>'/', 'filename' => $courseimage->imagename,
-                     'timecreated' => time(), 'timemodified' => time());
-            $fs->create_file_from_pathname($file_record, $courseimage->imagepath);
-        }
-        $course = get_course($package->course);
-        $course->summary = $package->default_summary;
-        $course->fullname = $package->default_title;
-        $DB->update_record('course', $course);
-        rebuild_course_cache($course->id, true);
-
-        $package->modified = time();
-        $DB->update_record('block_edupublisher_packages', $package);
-
-        \block_edupublisher\wordpress::action($wordpressaction, $package);
-
-        // Deactivated because of comment-system.
-        //block_edupublisher::notify_maintainers($package);
-        return $package;
-    }
-    /**
-     * Updates or inserts a specific metadata field.
-     * @param package to set
-     * @param channel to which the field belongs
-     * @param field complete name of field (channel_fieldname)
-     * @param content (optional) content to set, if not set will be retrieved from $package
-    **/
-    public static function store_metadata($package, $channel, $field, $content = '') {
-        global $DB;
-
-        $metaobject = (object) array(
-                'package' => $package->id,
-                'field' => $field,
-                'content' => !empty($content) ? $content : $package->{$field},
-                'created' => time(),
-                'modified' => time(),
-                'active' => !empty($package->{$channel . '_active'}) ? $package->{$channel . '_active'} : 0,
-        );
-
-        $o = $DB->get_record('block_edupublisher_metadata', array('package' => $metaobject->package, 'field' => $metaobject->field));
-        if (isset($o->id) && $o->id > 0) {
-            if ($o->content != $metaobject->content) {
-                $metaobject->id = $o->id;
-                $metaobject->active = $o->active;
-                $DB->update_record('block_edupublisher_metadata', $metaobject);
-                //echo "Update " . print_r($metaobject, 1);
-            }
-        } else {
-            //echo "Insert " . print_r($metaobject, 1);
-            $DB->insert_record('block_edupublisher_metadata', $metaobject);
-        }
-    }
     /**
      * Enables or disables guest access to a course.
      * @param courseid the course id
@@ -679,32 +250,34 @@ class block_edupublisher extends block_base {
         // 2. in a course + trainer permission: show publish link and list packages
         // 3. show nothing
 
-        $context = context_course::instance($COURSE->id);
+        $context = \context_course::instance($COURSE->id);
         $isenrolled = is_enrolled($context, $USER->id, '', true);
         $canedit = has_capability('moodle/course:update', $context);
 
         $package = $DB->get_record('block_edupublisher_packages', array('course' => $COURSE->id), '*', IGNORE_MULTIPLE);
         $options = array();
         if (!empty($package->id)) {
-            $package = self::get_package($package->id, true);
-            if ($package->default_licence == 'other') $package->default_licence = get_string('default_licenceother', 'block_edupublisher');
-            if (!empty($package->etapas_subtype) && $package->etapas_subtype == 'etapa' && has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
-                $package->can_see_evaluation = true;
+            $package = new \block_edupublisher\package($package->id, true);
+            if ($package->get('licence', 'default') == 'other') {
+                $package->set(get_string('default_licenceother', 'block_edupublisher'), 'licence', 'default');
+            }
+            if ($package->get('subtype', 'etapas') == 'etapa' && has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
+                $package->set(true, 'can_see_evaluation');
             }
             // Show use package-button
-            $courses = self::get_courses(null, 'moodle/course:update');
+            $courses = \block_edupublisher\lib::get_courses(null, 'moodle/course:update');
             if (count(array_keys($courses)) > 0) {
-                $package->can_import = true;
-                $package->allow_subcourses = $allowsubcourses = \get_config('block_edupublisher', 'allowsubcourses') ? 1 : 0;
+                $package->set(true, 'can_import');
+                $package->set($allowsubcourses = \get_config('block_edupublisher', 'allowsubcourses') ? 1 : 0, 'allow_subcourses');
             }
-            $package->can_unenrol = (is_enrolled($context, null, 'block/edupublisher:canselfenrol')) ? 1 : 0;
+            $package->set((is_enrolled($context, null, 'block/edupublisher:canselfenrol')) ? 1 : 0, 'can_unenrol');
 
-            if (!empty($package->etapas_active) && !empty($package->etapas_subtype)) {
-                $package->etapas_graphic = str_replace(array(' ', '.'), '', $package->etapas_subtype);
+            if (!empty($package->get('active', 'etapas')) && !empty($package->get('subtype', 'etapas'))) {
+                $package->set(str_replace(array(' ', '.'), '', $package->etapas_subtype), 'graphic', 'etapas');
             }
-            $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_inpackage', $package);
+            $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_inpackage', $package->get_flattened());
         } elseif($canedit) {
-            $cache = cache::make('block_edupublisher', 'publish');
+            $cache = \cache::make('block_edupublisher', 'publish');
             $pendingpublication = $cache->get("pending_publication_$COURSE->id");
             if (empty($pendingpublication)) {
                 $cache->set("pending_publication_$COURSE->id", -1);

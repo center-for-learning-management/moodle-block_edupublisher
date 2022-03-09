@@ -17,15 +17,15 @@
 }}
 <li>
     {{#importtocourseid}}
-    {{! { {wwwroot} }/blocks/edupublisher/pages/import.php?package={ {id} }&course={ {importtocourseid} }&section={ {importtosectionid} } }}
-    <a href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportSelection({{id}},{{importtocourseid}}); }); return false;">
+    {{! { {wwwroot} }/blocks/edupublisher/pages/import.php?package={ {default_package} }&course={ {importtocourseid} }&section={ {importtosectionid} } }}
+    <a href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportSelection({{default_package}},{{importtocourseid}}); }); return false;">
     {{/importtocourseid}}
     {{^importtocourseid}}
     <a href="{{wwwroot}}/course/view.php?id={{course}}">
     {{/importtocourseid}}
-        <img src="{{default_image}}" alt="{{title}}" />
+        <img src="{{wwwroot}}{{default_image}}" alt="{{default_title}}" />
         <h3 style="margin-top: 20px;">
-            {{title}}
+            {{default_title}}
         </h3>
         <p>
             {{#commercial_publishas}}

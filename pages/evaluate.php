@@ -29,7 +29,7 @@ require_once($CFG->dirroot . '/blocks/edupublisher/classes/etapas_evaluation_for
 $packageid = required_param('packageid', PARAM_INT);
 $perma = optional_param('perma', '', PARAM_TEXT);
 
-$package = \new \block_edupublisher\package($packageid, false);
+$package = new \block_edupublisher\package($packageid, false);
 
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/evaluate.php', array('packageid' => $packageid, 'perma' => $perma)));
 
