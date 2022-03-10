@@ -28,34 +28,6 @@ require_once($CFG->dirroot . '/blocks/moodleblock.class.php');
 
 class block_edupublisher extends block_base {
     /**
-     * Gets an existing package by its courseid.
-     * @param courseid the courseid.
-     */
-    public static function get_package_by_courseid($courseid, $strictness = MUST_EXIST) {
-        global $DB;
-        $item = $DB->get_record('block_edupublisher_packages', array('course' => $courseid), '*', $strictness);
-        if (!empty($item->id)) {
-            return self::get_package($item->id);
-        }
-    }
-    /**
-     * Creates an empty package and fills with data from course.
-     * This is used when we create a new package.
-    **/
-    public static function get_package_from_course($courseid){
-        global $DB, $USER;
-        $package = self::get_package(0);
-        $course = get_course($courseid);
-        $package->active = 0;
-        $package->sourcecourse = $course->id;
-        $package->default_title = $course->fullname;
-        $package->default_authorname = $USER->firstname . ' ' . $USER->lastname;
-        $package->default_authormail = $USER->email;
-        $package->default_summary = $course->summary;
-
-        return $package;
-    }
-    /**
      * Gets a publisher from database.
      * @param publisherid
      */
@@ -147,7 +119,7 @@ class block_edupublisher extends block_base {
             $params = (object) [
                 'courseid' => $COURSE->id,
                 'packages' => array_values($DB->get_records_sql('SELECT * FROM {block_edupublisher_packages} WHERE sourcecourse=? AND (active=1 OR userid=?)', array($COURSE->id, $USER->id))),
-                'pendingpublication' => $pendingpublication,
+                'pendingpublication' => ($pendingpublication == -1) ? 0 : $pendingpublication,
                 'uses'     => array_values($DB->get_records_sql('SELECT DISTINCT(package) FROM {block_edupublisher_uses} WHERE targetcourse=?', array($COURSE->id))),
             ];
             $params->haspackages = (count($params->packages) > 0) ? 1 : 0;

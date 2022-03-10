@@ -424,7 +424,7 @@ class block_edupublisher_external extends external_api {
         global $DB, $USER;
 
         $package = new \block_edupublisher\package($params['packageid'], false);
-        if ($params['to'] <= 5 && $params['to'] >= 0 && !empty($package->canrate)) {
+        if ($params['to'] <= 5 && $params['to'] >= 0 && !empty($package->get('canrate'))) {
             $rating = $DB->get_record('block_edupublisher_rating', array('package' => $params['packageid'], 'userid' => $USER->id));
             if (isset($rating->id) && $rating->id > 0) {
                 if ($rating->rating == $params['to']) {
@@ -438,7 +438,7 @@ class block_edupublisher_external extends external_api {
             } else {
                 $rating = (object) array(
                     'userid' => $USER->id,
-                    'package' => $package->id,
+                    'package' => $package->get('id'),
                     'rating' => $params['to'],
                     'created' => time(),
                     'modified' => time(),
@@ -481,8 +481,8 @@ class block_edupublisher_external extends external_api {
         return new external_function_parameters(array(
             'courseid' => new external_value(PARAM_INT, 'courseid'),
             'search' => new external_value(PARAM_TEXT, 'search term'),
-            'subjectareas' => new external_value(PARAM_TEXT, 'comma-separated list of subjectareas'),
-            'schoollevels' => new external_value(PARAM_TEXT, 'comma-separated list of schoollevels'),
+            'subjectareas' => new external_value(PARAM_ALPHANUMEXT, 'comma-separated list of subjectareas'),
+            'schoollevels' => new external_value(PARAM_ALPHANUMEXT, 'comma-separated list of schoollevels'),
         ));
     }
 
@@ -503,14 +503,14 @@ class block_edupublisher_external extends external_api {
                 'schoollevels' => $schoollevels
             )
         );
-        $params['subjectareas'] = array_filter(explode(',', $params['subjectareas']));
-        $params['schoollevels'] = array_filter(explode(',', $params['schoollevels']));
+
+        $params['subjectareas'] = array_filter(explode('zzzZZZzzz', $params['subjectareas']));
+        $params['schoollevels'] = array_filter(explode('zzzZZZzzz', $params['schoollevels']));
 
         $reply = [];
 
         $filters_subjectareas = [];
         foreach ($params['subjectareas'] as $subjectarea) {
-            $subjectarea = $DB->sql_like_escape($subjectarea, $escapechar = '\\');
             $filters_subjectareas[] = "mdef.subjectarea_$subjectarea=1";
         }
         $filters_subjectareas = implode(' OR ', $filters_subjectareas);
@@ -520,8 +520,7 @@ class block_edupublisher_external extends external_api {
 
         $filters_schoollevels = [];
         foreach ($params['schoollevels'] as $schoollevel) {
-            $schoollevel = $DB->sql_like_escape($schoollevel, $escapechar = '\\');
-            $filters_schoollevels[] = "mdef.schoollevels_$schoollevel=1";
+            $filters_schoollevels[] = "mdef.schoollevel_$schoollevel=1";
         }
         $filters_schoollevels = implode(' OR ', $filters_schoollevels);
         if (!empty($filters_schoollevels)) {
@@ -582,7 +581,7 @@ class block_edupublisher_external extends external_api {
 
         $reply['packages'] = array_values($DB->get_records_sql($sql));
         for ($a = 0; $a < count($reply['packages']); $a++) {
-            $package = new \block_edupublisher\package($reply['packages'][$a]->id, true, [ 'rating' ]);
+            $package = new \block_edupublisher\package($reply['packages'][$a]->id, true, [ 'internal', 'rating' ]);
             $reply['packages'][$a] = $package->get_flattened();
         }
 

@@ -61,7 +61,9 @@ if ($package->get('canedit')) {
     // get_data as dummy to validate under mode_show_form precondition.
     $form->get_data();
     $package->prepare_package_form();
-    $form->set_data($package->get_flattened());
+    $flattened = $package->get_flattened();
+    $flattened->origins = $package->load_origins();
+    $form->set_data($flattened);
     echo "<div class=\"skip-ui-eduvidual ui-edupublisher-skip\">";
     $form->display();
     echo "</div>";

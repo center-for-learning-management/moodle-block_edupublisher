@@ -238,7 +238,6 @@ class lib {
                     )
                 ),
                 'origins' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_INT),
-                'sourcecourse' => array('type' => 'hidden', 'datatype' => PARAM_INT),
                 'summary' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
                 'image' => array('type' => 'filemanager', 'accepted_types' => 'image', 'required' => 1),
                 'subjectarea' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_TEXT, 'required' => 1, 'options' => array(
@@ -619,6 +618,23 @@ class lib {
         }
     }
     /**
+     * Creates an empty package and fills with data from course.
+     * This is used when we create a new package.
+    **/
+    public static function get_package_from_course($courseid){
+        global $DB, $USER;
+        $package = new \block_edupublisher\package(0);
+        $course = \get_course($courseid);
+        $package->set(0, 'active');
+        $package->set($course->id, 'sourcecourse');
+        $package->set($course->fullname, 'title', 'default');
+        $package->set($USER->firstname . ' ' . $USER->lastname, 'authorname', 'default');
+        $package->set($USER->email, 'authormail', 'default');
+        $package->set($course->summary, 'summary', 'default');
+
+        return $package;
+    }
+    /**
      * Load all roles of a user in a context and check if it contains a given roleid.
      * @param context the context to check.
      * @param roleid the roleid to search for.
@@ -635,7 +651,6 @@ class lib {
         }
         return false;
     }
-
     /**
      * @return true if user is sysadmin
     **/
@@ -764,7 +779,6 @@ class lib {
                 email_to_user($recipient, $fromuser, $subject, $messagetext, $messagehtml, "", true);
             }
         }
-
     }
     /**
      * Sets the capabilities of a course to allow course imports.
@@ -792,24 +806,23 @@ class lib {
             \role_change_permission($roles[$a], $contexts[$a], $capabilities[$a], $permission);
         }
     }
-
     /**
      * Checks if a package has a coursebackup and extracts to backuptempdir for restore.
      * @param package
      */
     public static function prepare_restore($package) {
         global $CFG, $DB, $OUTPUT;
-        if ($package->backuped == 0) {
+        if ($package->get('backuped') == 0) {
             $alert = array(
                 'content' => \get_string('coursebackup:missing', 'block_edupublisher'),
                 'type' => 'danger',
-                'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->course,
+                'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->get('course'),
             );
             echo $OUTPUT->render_from_template('block_edupublisher/alert', $alert);
             return;
         }
 
-        $course = $DB->get_record('course', array('id' => $package->course), '*', MUST_EXIST);
+        $course = $DB->get_record('course', array('id' => $package->get('course')), '*', MUST_EXIST);
         $ctx = \context_course::instance($course->id);
 
         $fs = \get_file_storage();
@@ -819,19 +832,19 @@ class lib {
             $alert = array(
                 'content' => \get_string('coursebackup:notfound', 'block_edupublisher'),
                 'type' => 'danger',
-                'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->course,
+                'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->get('course'),
             );
             echo $OUTPUT->render_from_template('block_edupublisher/alert', $alert);
             return;
         }
 
         $fp = \get_file_packer('application/vnd.moodle.backup');
-        $backuptempdir = \make_backup_temp_directory('edupublisher' . $package->id);
+        $backuptempdir = \make_backup_temp_directory('edupublisher' . $package->get('id'));
         if (!is_dir($backuptempdir) || !file_exists($backuptempdir . '/moodle_backup.xml')) {
             $file->extract_to_pathname($fp, $backuptempdir);
         }
 
-        return 'edupublisher' . $package->id;
+        return 'edupublisher' . $package->get('id');
     }
     /**
      * Grants or revokes a role from a course.

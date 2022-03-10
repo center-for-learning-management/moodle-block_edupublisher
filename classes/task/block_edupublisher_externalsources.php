@@ -38,7 +38,5 @@ class block_edupublisher_externalsources extends \core\task\scheduled_task {
         foreach ($externals as $external) {
             \block_edupublisher\externalsources::do_sync($external);
         }
-
-
     }
 }

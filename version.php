@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2022030802;
+$plugin->version  = 2022031000;
 $plugin->requires = 2014051200;
 $plugin->component = 'block_edupublisher';
 $plugin->release = '2.0';

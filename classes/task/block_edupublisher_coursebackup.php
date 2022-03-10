@@ -54,7 +54,7 @@ class block_edupublisher_coursebackup extends \core\task\scheduled_task {
                         AND deleted=0";
         $packages = $DB->get_records_sql($sql, array());
         foreach ($packages as $package) {
-            $courseid = $package->course;
+            $courseid = $package->get('course');
             $course = $DB->get_record('course', array('id' => $courseid), '*', IGNORE_MISSING);
             if (empty($course->id)) {
                 echo "ERROR: COURSE #$courseid DOES NOT EXIST<br />\n";
@@ -101,7 +101,5 @@ class block_edupublisher_coursebackup extends \core\task\scheduled_task {
             $DB->set_field('block_edupublisher_packages', 'backuped', time(), array('course' => $course->id));
             echo "Stored file successfully";
         }
-
-
     }
 }

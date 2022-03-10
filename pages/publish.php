@@ -234,7 +234,7 @@ switch($publishstage) {
 
         $cancel      = optional_param('cancel', '', PARAM_ALPHA);
         $contextid   = optional_param('contextid', $targetcontext->id, PARAM_INT);
-        $stage       = optional_param('stage', restore_ui::STAGE_DESTINATION, PARAM_INT);
+        $stage       = optional_param('stage', \restore_ui::STAGE_DESTINATION, PARAM_INT);
         $restore     = optional_param('restore', '', PARAM_ALPHANUM);
 
         // Prepare a progress bar which can display optionally during long-running
@@ -253,98 +253,67 @@ switch($publishstage) {
         $_POST['target'] = 1; // merge courses.
 
         if ($stage == \restore_ui::STAGE_DESTINATION) {
-            $_POST['stage'] = restore_ui::STAGE_SETTINGS;
-            $_POST['target'] = backup::TARGET_CURRENT_DELETING;
+            $_POST['stage'] = \restore_ui::STAGE_SETTINGS;
+            $_POST['target'] = \backup::TARGET_CURRENT_DELETING;
             $restore = \restore_ui::engage_independent_stage($stage, $contextid);
-            /*
-            $url = new \moodle_url('/blocks/edupublisher/pages/publish.php', $urlparams + array(
-                'contextid' => $contextid,
-                'filepath' => $filepath,
-                'sesskey' => \sesskey(),
-                'stage' => restore_ui::STAGE_SETTINGS,
-                'target' => backup::TARGET_CURRENT_DELETING,
-                'targetid' => $targetcourseid,
-            ));
-            redirect($url->__toString());
-            */
 
-            $stage = restore_ui::STAGE_SETTINGS;
+            $stage = \restore_ui::STAGE_SETTINGS;
         }
 
-        if ($stage == restore_ui::STAGE_SETTINGS) {
+        if ($stage == \restore_ui::STAGE_SETTINGS) {
             $restoreid = optional_param('restore', false, PARAM_ALPHANUM);
-            $rc = restore_ui::load_controller($restoreid);
+            $rc = \restore_ui::load_controller($restoreid);
 
             if (!$rc) {
-                $restore = restore_ui::engage_independent_stage($stage/2, $contextid);
+                $restore = \restore_ui::engage_independent_stage($stage/2, $contextid);
 
                 if ($restore->process()) {
-                    $rc = new restore_controller($restore->get_filepath(), $restore->get_course_id(), backup::INTERACTIVE_YES,
-                            backup::MODE_SAMESITE, $USER->id, $restore->get_target(), null, backup::RELEASESESSION_YES);
+                    $rc = new \restore_controller($restore->get_filepath(), $restore->get_course_id(), \backup::INTERACTIVE_YES,
+                            \backup::MODE_SAMESITE, $USER->id, $restore->get_target(), null, \backup::RELEASESESSION_YES);
                 }
             }
             if ($rc) {
                 // check if the format conversion must happen first
-                if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
+                if ($rc->get_status() == \backup::STATUS_REQUIRE_CONV) {
                     $rc->convert();
                 }
 
-                $restore = new restore_ui($rc, array('contextid'=>$targetcontext->id));
+                $restore = new \restore_ui($rc, array('contextid' => $targetcontext->id));
             }
 
             $restore->save_controller();
             $_POST['contextid'] = $targetcontext->id;
             $_POST['restore'] = $restore->get_restoreid();
             $_POST['sectionid'] = 0; // $sectionid;
-            $_POST['stage'] = restore_ui::STAGE_SCHEMA;
+            $_POST['stage'] = \restore_ui::STAGE_SCHEMA;
             $_POST['sesskey'] = \sesskey();
-            /*
 
-            $url = new \moodle_url('/blocks/edupublisher/pages/publish.php', $urlparams + array(
-                'contextid' => $context->id,
-                'packageid' => $package->id,
-                'restore' => $restore->get_restoreid(),
-                'sectionid' => $sectionid,
-                'stage' => restore_ui::STAGE_SCHEMA,
-                'sesskey' => \sesskey(),
-            ));
-
-            redirect($url->__toString());
-            */
-
-            $stage = restore_ui::STAGE_SCHEMA;
+            $stage = \restore_ui::STAGE_SCHEMA;
         }
-        if ($stage >= restore_ui::STAGE_SCHEMA) {
+        if ($stage >= \restore_ui::STAGE_SCHEMA) {
             $restoreid = optional_param('restore', false, PARAM_ALPHANUM);
-            $rc = restore_ui::load_controller($restoreid);
+            $rc = \restore_ui::load_controller($restoreid);
 
             if (!$rc) {
-                $restore = restore_ui::engage_independent_stage($stage/2, $contextid);
+                $restore = \restore_ui::engage_independent_stage($stage/2, $contextid);
                 if ($restore->process()) {
-                    $rc = new restore_controller($restore->get_filepath(), $restore->get_course_id(), backup::INTERACTIVE_YES,
-                            backup::MODE_SAMESITE, $USER->id, $restore->get_target(), null, backup::RELEASESESSION_YES);
+                    $rc = new \restore_controller($restore->get_filepath(), $restore->get_course_id(), \backup::INTERACTIVE_YES,
+                            \backup::MODE_SAMESITE, $USER->id, $restore->get_target(), null, \backup::RELEASESESSION_YES);
                 }
             }
             if ($rc) {
                 // check if the format conversion must happen first
-                if ($rc->get_status() == backup::STATUS_REQUIRE_CONV) {
+                if ($rc->get_status() == \backup::STATUS_REQUIRE_CONV) {
                     $rc->convert();
                 }
 
-                $restore = new restore_ui($rc, array('contextid'=>$targetcontext->id));
+                $restore = new \restore_ui($rc, array('contextid' => $targetcontext->id));
             }
-            $stage = restore_ui::STAGE_REVIEW;
+            $stage = \restore_ui::STAGE_REVIEW;
         }
 
-        if ($stage == restore_ui::STAGE_REVIEW) {
-            /*
-            $url = new \moodle_url('/blocks/edupublisher/pages/publish.php', $urlparams + array(
-                'contextid' => $contextid,
-                'stage' => $stage,
-                'restore' => $restore->get_restoreid(),
-                'sesskey' => \sesskey(),
-            ));
-            */
+        if ($stage == \restore_ui::STAGE_REVIEW) {
+            // Nothing to do.
         }
 
         // End progress section for loading restore controller.
@@ -371,16 +340,16 @@ switch($publishstage) {
             // Use a temporary (disappearing) progress bar to show the precheck progress if any.
             $precheckprogress = new \core\progress\display_if_slow(get_string('preparingdata', 'backup'));
             $restore->get_controller()->set_progress($precheckprogress);
-            if ($restore->get_stage() == restore_ui::STAGE_PROCESS && !$restore->requires_substage()) {
+            if ($restore->get_stage() == \restore_ui::STAGE_PROCESS && !$restore->requires_substage()) {
                 try {
                     // Div used to hide the 'progress' step once the page gets onto 'finished'.
-                    echo html_writer::start_div('', array('id' => 'executionprogress'));
+                    echo \html_writer::start_div('', array('id' => 'executionprogress'));
                     // Show the current restore state (header with bolded item).
                     echo $renderer->progress_bar($restore->get_progress_bar());
                     // Start displaying the actual progress bar percentage.
                     $restore->get_controller()->set_progress(new \core\progress\display());
                     // Prepare logger.
-                    $logger = new core_backup_html_logger($CFG->debugdeveloper ? backup::LOG_DEBUG : backup::LOG_INFO);
+                    $logger = new \core_backup_html_logger($CFG->debugdeveloper ? \backup::LOG_DEBUG : \backup::LOG_INFO);
                     $restore->get_controller()->add_logger($logger);
                     // Do actual restore.
                     $restore->execute();
@@ -412,8 +381,8 @@ switch($publishstage) {
                     if ($CFG->debugdisplay) {
                         $loghtml = $logger->get_html();
                     }
-                    echo html_writer::end_div();
-                } catch(Exception $e) {
+                    echo \html_writer::end_div();
+                } catch(\Exception $e) {
                     $restore->cleanup();
                     throw $e;
                 }
@@ -424,10 +393,10 @@ switch($publishstage) {
 
         echo $renderer->progress_bar($restore->get_progress_bar());
 
-        if ($restore->get_stage() != restore_ui::STAGE_PROCESS) {
+        if ($restore->get_stage() != \restore_ui::STAGE_PROCESS) {
             echo $restore->display($renderer);
             echo "<script> document.getElementById('id_submitbutton').value = '" . get_string("confirm") . "'; </script>";
-        } else if ($restore->get_stage() == restore_ui::STAGE_PROCESS && $restore->requires_substage()) {
+        } else if ($restore->get_stage() == \restore_ui::STAGE_PROCESS && $restore->requires_substage()) {
             echo $restore->display($renderer);
         }
 
@@ -445,15 +414,13 @@ switch($publishstage) {
 
         if (empty($packageid)) {
             $sourcecourse = \get_course($sourcecourseid);
-            $package = new \block_edupublisher\package_from_course($sourcecourseid);
-            $package->course = $targetcourseid;
+            $package = \block_edupublisher\lib::get_package_from_course($sourcecourseid);
         }
+        $package->set($targetcourseid, 'course');
 
-        \block_edupublisher\lib::exacompetencies($package);
+        $package->exacompetencies();
 
-        // @todo Unserialize and serialize data and story as payload in $publish
-
-        $form = new package_create_form($PAGE->url, $package);
+        $form = new package_create_form($PAGE->url, $package->get_flattened());
         if ($form->is_submitted()) {
             // Serialize form data and store to payload.
             $publish->payload = serialize($form->get_submitted_data());
@@ -464,10 +431,9 @@ switch($publishstage) {
         }
 
         if ($data = $form->get_data()) {
-            $data->title = $data->default_title;
-            $package = \block_edupublisher::store_package($data);
+            $package->store_package($data);
 
-            $publish->packageid = $package->id;
+            $publish->packageid = $package->get('id');
             $DB->set_field('block_edupublisher_publish', 'packageid', $publish->packageid, array('id' => $publish->id));
 
             echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
@@ -478,17 +444,18 @@ switch($publishstage) {
 
             redirect($PAGE->url->__toString());
         } else {
-            $form->set_data($package);
+            $package->prepare_package_form();
+            $form->set_data($package->get_flattened());
             $form->display();
         }
     break;
     case 5:
         // Deny the user editor permission afterthe import.
         $roleid = \get_config('local_eduvidual', 'defaultroleteacher');
-        block_edupublisher\lib::course_manual_enrolments([$targetcourseid], [$USER->id], $roleid, true);
+        \block_edupublisher\lib::course_manual_enrolments([$targetcourseid], [$USER->id], $roleid, true);
 
         $cache = cache::make('block_edupublisher', 'publish');
-        $cache->delete("pending_publication_$COURSE->id");
+        $cache->delete("pending_publication_{$COURSE->id}");
 
         echo get_string('publish_stage_finish_text', 'block_edupublisher');
         $url = new \moodle_url('/blocks/edupublisher/pages/package.php', ['id' => $publish->packageid]);

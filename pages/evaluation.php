@@ -34,16 +34,38 @@ $package = new \block_edupublisher\package($packageid, false);
 
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/evaluation.php', array('id' => $id, 'packageid' => $packageid, 'perma' => $perma)));
 
-$context = \context_course::instance($package->course);
+$context = \context_course::instance($package->get('course'));
 $PAGE->set_context($context);
-$title = !empty($package->id) ? $package->title : get_string('etapas_evaluation', 'block_edupublisher');
+$title = !empty($package->get('id')) ? $package->get('title') : get_string('etapas_evaluation', 'block_edupublisher');
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->set_pagelayout('incourse');
 
-$PAGE->navbar->add(get_string('resource_catalogue', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/search.php', array()));
-$PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id' => $package->course)));
-$PAGE->navbar->add(get_string('etapas_evaluation', 'block_edupublisher'), new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $package->id)));
+$PAGE->navbar->add(
+    get_string('resource_catalogue', 'block_edupublisher'),
+    new moodle_url(
+        '/blocks/edupublisher/pages/search.php',
+        array()
+    )
+);
+$PAGE->navbar->add(
+    $package->get('title'),
+    new moodle_url(
+        '/course/view.php',
+        array(
+            'id' => $package->get('course')
+        )
+    )
+);
+$PAGE->navbar->add(
+    get_string('etapas_evaluation', 'block_edupublisher'),
+    new \moodle_url(
+        '/blocks/edupublisher/pages/evaluation.php',
+        array(
+            'packageid' => $package->get('id')
+        )
+    )
+);
 
 if (!has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
     echo $OUTPUT->header();
@@ -58,12 +80,39 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
         if (!empty($evaluation->id)) {
             $fromuser = \core_user::get_user($evaluation->userid);
             $evaluation->userfullname = \fullname($fromuser);
-            $PAGE->navbar->add(get_string('evaluation_by', 'block_edupublisher', array('fullname' => $evaluation->userfullname)), new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $package->id, 'id' => $id)));
+            $PAGE->navbar->add(
+                get_string(
+                    'evaluation_by',
+                    'block_edupublisher',
+                    array(
+                        'fullname' => $evaluation->userfullname
+                    )
+                ), new \moodle_url(
+                    '/blocks/edupublisher/pages/evaluation.php',
+                    array(
+                        'packageid' => $package->get('id'),
+                        'id' => $id
+                    )
+                )
+            );
             echo $OUTPUT->header();
             $usercontext = \context_user::instance($evaluation->userid);
-            $evaluation->userpicture = new \moodle_url('/pluginfile.php/' . $usercontext->id . '/user/icon');
-            $evaluation->userurl = new \moodle_url('/user/profile.php', array('id' => $evaluation->userid));
-            $evaluation->linkurl = new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $packageid, 'id' => $evaluation->id));
+            $evaluation->userpicture = new \moodle_url(
+                '/pluginfile.php/' . $usercontext->id . '/user/icon'
+            );
+            $evaluation->userurl = new \moodle_url(
+                '/user/profile.php',
+                array(
+                    'id' => $evaluation->userid
+                )
+            );
+            $evaluation->linkurl = new \moodle_url(
+                '/blocks/edupublisher/pages/evaluation.php',
+                array(
+                    'packageid' => $packageid,
+                    'id' => $evaluation->id
+                )
+            );
             $evaluation->evaluated_on_readable = date("Y-m-d", $evaluation->evaldate);
             $evaluation->technology = get_string($evaluation->technology_application, 'block_edupublisher');
             echo $OUTPUT->render_from_template('block_edupublisher/evaluation_single', $evaluation);
@@ -86,8 +135,19 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
             $evaluation->userfullname = \fullname($fromuser);
             $usercontext = \context_user::instance($evaluation->userid);
             $evaluation->userpicture = new \moodle_url('/pluginfile.php/' . $usercontext->id . '/user/icon');
-            $evaluation->userurl = new \moodle_url('/user/profile.php', array('id' => $evaluation->userid));
-            $evaluation->linkurl = new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $packageid, 'id' => $evaluation->id));
+            $evaluation->userurl = new \moodle_url(
+                '/user/profile.php',
+                array(
+                    'id' => $evaluation->userid
+                )
+            );
+            $evaluation->linkurl = new \moodle_url(
+                '/blocks/edupublisher/pages/evaluation.php',
+                array(
+                    'packageid' => $packageid,
+                    'id' => $evaluation->id
+                )
+            );
             $evaluation->evaluated_on_readable = date("Y-m-d", $evaluation->evaldate); // $evaluation->evaluated_on
         }
         echo $OUTPUT->render_from_template('block_edupublisher/evaluation_list', array(

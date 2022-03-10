@@ -240,7 +240,6 @@
         <FIELD NAME="schoollevel_secondary_1" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="schoollevel_secondary_2" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="schoollevel_tertiary" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-        <FIELD NAME="sourcecourse" TYPE="int" LENGTH="19" NOTNULL="false" SEQUENCE="false"/>
         <FIELD NAME="subjectarea_arts" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="subjectarea_economics" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="subjectarea_geography" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
@@ -260,29 +259,27 @@
         <KEY NAME="oer_blocedupmddef_pac_uix" TYPE="unique" FIELDS="package"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="oer_blocedupmddef_aut_ix" UNIQUE="false" FIELDS="authormail"/>
-        <INDEX NAME="oer_blocedupmddef_aut2_ix" UNIQUE="false" FIELDS="authorname"/>
-        <INDEX NAME="oer_blocedupmddef_lic_ix" UNIQUE="false" FIELDS="licence"/>
-        <INDEX NAME="oer_blocedupmddef_sch_ix" UNIQUE="false" FIELDS="schoollevel_primary"/>
-        <INDEX NAME="oer_blocedupmddef_sch2_ix" UNIQUE="false" FIELDS="schoollevel_secondary_1"/>
-        <INDEX NAME="oer_blocedupmddef_sch3_ix" UNIQUE="false" FIELDS="schoollevel_secondary_2"/>
-        <INDEX NAME="oer_blocedupmddef_sch4_ix" UNIQUE="false" FIELDS="schoollevel_tertiary"/>
-        <INDEX NAME="oer_blocedupmddef_sub_ix" UNIQUE="false" FIELDS="subjectarea_arts"/>
-        <INDEX NAME="oer_blocedupmddef_sub2_ix" UNIQUE="false" FIELDS="subjectarea_economics"/>
-        <INDEX NAME="oer_blocedupmddef_sub3_ix" UNIQUE="false" FIELDS="subjectarea_geography"/>
-        <INDEX NAME="oer_blocedupmddef_sub4_ix" UNIQUE="false" FIELDS="subjectarea_history"/>
-        <INDEX NAME="oer_blocedupmddef_sub5_ix" UNIQUE="false" FIELDS="subjectarea_informatics"/>
-        <INDEX NAME="oer_blocedupmddef_sub6_ix" UNIQUE="false" FIELDS="subjectarea_languages"/>
-        <INDEX NAME="oer_blocedupmddef_sub7_ix" UNIQUE="false" FIELDS="subjectarea_mathematics"/>
-        <INDEX NAME="oer_blocedupmddef_sub8_ix" UNIQUE="false" FIELDS="subjectarea_naturalsciences"/>
-        <INDEX NAME="oer_blocedupmddef_sub9_ix" UNIQUE="false" FIELDS="subjectarea_other"/>
-        <INDEX NAME="oer_blocedupmddef_sub10_ix" UNIQUE="false" FIELDS="subjectarea_philosophy"/>
-        <INDEX NAME="oer_blocedupmddef_sub11_ix" UNIQUE="false" FIELDS="subjectarea_physicaleducation"/>
-        <INDEX NAME="oer_blocedupmddef_tit_ix" UNIQUE="false" FIELDS="title"/>
-        <INDEX NAME="oer_blocedupmddef_sum_ix" UNIQUE="false" FIELDS="summary"/>
-        <INDEX NAME="oer_blocedupmddef_summary_ix" UNIQUE="false" FIELDS="summary"/>
-        <INDEX NAME="oer_blocedupmddef_tags_ix" UNIQUE="false" FIELDS="tags"/>
-        <INDEX NAME="oer_blocedupmddef_title_ix" UNIQUE="false" FIELDS="title"/>
+        <INDEX NAME="idx_authormail" UNIQUE="false" FIELDS="authormail"/>
+        <INDEX NAME="idx_authorname" UNIQUE="false" FIELDS="authorname"/>
+        <INDEX NAME="idx_licence" UNIQUE="false" FIELDS="licence"/>
+        <INDEX NAME="idx_schoollevel_primary" UNIQUE="false" FIELDS="schoollevel_primary"/>
+        <INDEX NAME="idx_schoollevel_secondary_1" UNIQUE="false" FIELDS="schoollevel_secondary_1"/>
+        <INDEX NAME="idx_schoollevel_secondary_2" UNIQUE="false" FIELDS="schoollevel_secondary_2"/>
+        <INDEX NAME="idx_schoollevel_tertiary" UNIQUE="false" FIELDS="schoollevel_tertiary"/>
+        <INDEX NAME="idx_subjectarea_arts" UNIQUE="false" FIELDS="subjectarea_arts"/>
+        <INDEX NAME="idx_subjectarea_economics" UNIQUE="false" FIELDS="subjectarea_economics"/>
+        <INDEX NAME="idx_subjectarea_geography" UNIQUE="false" FIELDS="subjectarea_geography"/>
+        <INDEX NAME="idx_subjectarea_history" UNIQUE="false" FIELDS="subjectarea_history"/>
+        <INDEX NAME="idx_subjectarea_informatics" UNIQUE="false" FIELDS="subjectarea_informatics"/>
+        <INDEX NAME="idx_subjectarea_languages" UNIQUE="false" FIELDS="subjectarea_languages"/>
+        <INDEX NAME="idx_subjectarea_mathematics" UNIQUE="false" FIELDS="subjectarea_mathematics"/>
+        <INDEX NAME="idx_subjectarea_naturalsciences" UNIQUE="false" FIELDS="subjectarea_naturalsciences"/>
+        <INDEX NAME="idx_subjectarea_other" UNIQUE="false" FIELDS="subjectarea_other"/>
+        <INDEX NAME="idx_subjectarea_philosophy" UNIQUE="false" FIELDS="subjectarea_philosophy"/>
+        <INDEX NAME="idx_subjectarea_physicaleducation" UNIQUE="false" FIELDS="subjectarea_physicaleducation"/>
+        <INDEX NAME="idx_summary" UNIQUE="false" FIELDS="summary"/>
+        <INDEX NAME="idx_tags" UNIQUE="false" FIELDS="tags"/>
+        <INDEX NAME="idx_title" UNIQUE="false" FIELDS="title"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="block_edupublisher_md_com" COMMENT="Metadata for channel commercial">
@@ -318,13 +315,13 @@
         <KEY NAME="oer_blocedupmdedu_pac_uix" TYPE="unique" FIELDS="package"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="oer_blocedupmdedu_lan_ix" UNIQUE="false" FIELDS="language"/>
-        <INDEX NAME="oer_blocedupmdedu_pub_ix" UNIQUE="false" FIELDS="publishas"/>
-        <INDEX NAME="oer_blocedupmdedu_pub2_ix" UNIQUE="false" FIELDS="published"/>
-        <INDEX NAME="oer_blocedupmdedu_curriculum_ix" UNIQUE="false" FIELDS="curriculum"/>
-        <INDEX NAME="oer_blocedupmdedu_educationallevel_ix" UNIQUE="false" FIELDS="educationallevel"/>
-        <INDEX NAME="oer_blocedupmdedu_schooltype_ix" UNIQUE="false" FIELDS="schooltype"/>
-        <INDEX NAME="oer_blocedupmdedu_type_ix" UNIQUE="false" FIELDS="type"/>
+        <INDEX NAME="idx_language" UNIQUE="false" FIELDS="language"/>
+        <INDEX NAME="idx_publishas" UNIQUE="false" FIELDS="publishas"/>
+        <INDEX NAME="idx_published" UNIQUE="false" FIELDS="published"/>
+        <INDEX NAME="idx_curriculum" UNIQUE="false" FIELDS="curriculum"/>
+        <INDEX NAME="idx_educationallevel" UNIQUE="false" FIELDS="educationallevel"/>
+        <INDEX NAME="idx_schooltype" UNIQUE="false" FIELDS="schooltype"/>
+        <INDEX NAME="idx_type" UNIQUE="false" FIELDS="type"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="block_edupublisher_md_exa" COMMENT="Metadata related to exacomp">
@@ -375,29 +372,29 @@
         <KEY NAME="oer_blocedupmdeta_pac_uix" TYPE="unique" FIELDS="package"/>
       </KEYS>
       <INDEXES>
-        <INDEX NAME="oer_blocedupmdeta_geg_ix" UNIQUE="false" FIELDS="gegenstand"/>
-        <INDEX NAME="oer_blocedupmdeta_pub_ix" UNIQUE="false" FIELDS="publishas"/>
-        <INDEX NAME="oer_blocedupmdeta_pub2_ix" UNIQUE="false" FIELDS="published"/>
-        <INDEX NAME="oer_blocedupmdeta_sch_ix" UNIQUE="false" FIELDS="schulstufe_1"/>
-        <INDEX NAME="oer_blocedupmdeta_sch2_ix" UNIQUE="false" FIELDS="schulstufe_2"/>
-        <INDEX NAME="oer_blocedupmdeta_sch3_ix" UNIQUE="false" FIELDS="schulstufe_3"/>
-        <INDEX NAME="oer_blocedupmdeta_sch4_ix" UNIQUE="false" FIELDS="schulstufe_4"/>
-        <INDEX NAME="oer_blocedupmdeta_sch5_ix" UNIQUE="false" FIELDS="schulstufe_5"/>
-        <INDEX NAME="oer_blocedupmdeta_sch6_ix" UNIQUE="false" FIELDS="schulstufe_6"/>
-        <INDEX NAME="oer_blocedupmdeta_sch7_ix" UNIQUE="false" FIELDS="schulstufe_7"/>
-        <INDEX NAME="oer_blocedupmdeta_sch8_ix" UNIQUE="false" FIELDS="schulstufe_8"/>
-        <INDEX NAME="oer_blocedupmdeta_sch9_ix" UNIQUE="false" FIELDS="schulstufe_9"/>
-        <INDEX NAME="oer_blocedupmdeta_sch10_ix" UNIQUE="false" FIELDS="schulstufe_10"/>
-        <INDEX NAME="oer_blocedupmdeta_sch11_ix" UNIQUE="false" FIELDS="schulstufe_11"/>
-        <INDEX NAME="oer_blocedupmdeta_sch12_ix" UNIQUE="false" FIELDS="schulstufe_12"/>
-        <INDEX NAME="oer_blocedupmdeta_sch13_ix" UNIQUE="false" FIELDS="schulstufe_13"/>
-        <INDEX NAME="oer_blocedupmdeta_sub_ix" UNIQUE="false" FIELDS="subtype"/>
-        <INDEX NAME="oer_blocedupmdeta_typ_ix" UNIQUE="false" FIELDS="type"/>
-        <INDEX NAME="oer_blocedupmdeta_zei_ix" UNIQUE="false" FIELDS="zeitbedarf"/>
-        <INDEX NAME="oer_blocedupmdeta_kompetenzen_ix" UNIQUE="false" FIELDS="kompetenzen"/>
-        <INDEX NAME="oer_blocedupmdeta_stundenablauf_ix" UNIQUE="false" FIELDS="stundenablauf"/>
-        <INDEX NAME="oer_blocedupmdeta_voraussetzungen_ix" UNIQUE="false" FIELDS="voraussetzungen"/>
-        <INDEX NAME="oer_blocedupmdeta_vorkenntnisse_ix" UNIQUE="false" FIELDS="vorkenntnisse"/>
+        <INDEX NAME="idx_gegenstand" UNIQUE="false" FIELDS="gegenstand"/>
+        <INDEX NAME="idx_publishas" UNIQUE="false" FIELDS="publishas"/>
+        <INDEX NAME="idx_published" UNIQUE="false" FIELDS="published"/>
+        <INDEX NAME="idx_schulstufe_1" UNIQUE="false" FIELDS="schulstufe_1"/>
+        <INDEX NAME="idx_schulstufe_2" UNIQUE="false" FIELDS="schulstufe_2"/>
+        <INDEX NAME="idx_schulstufe_3" UNIQUE="false" FIELDS="schulstufe_3"/>
+        <INDEX NAME="idx_schulstufe_4" UNIQUE="false" FIELDS="schulstufe_4"/>
+        <INDEX NAME="idx_schulstufe_5" UNIQUE="false" FIELDS="schulstufe_5"/>
+        <INDEX NAME="idx_schulstufe_6" UNIQUE="false" FIELDS="schulstufe_6"/>
+        <INDEX NAME="idx_schulstufe_7" UNIQUE="false" FIELDS="schulstufe_7"/>
+        <INDEX NAME="idx_schulstufe_8" UNIQUE="false" FIELDS="schulstufe_8"/>
+        <INDEX NAME="idx_schulstufe_9" UNIQUE="false" FIELDS="schulstufe_9"/>
+        <INDEX NAME="idx_schulstufe_10" UNIQUE="false" FIELDS="schulstufe_10"/>
+        <INDEX NAME="idx_schulstufe_11" UNIQUE="false" FIELDS="schulstufe_11"/>
+        <INDEX NAME="idx_schulstufe_12" UNIQUE="false" FIELDS="schulstufe_12"/>
+        <INDEX NAME="idx_schulstufe_13" UNIQUE="false" FIELDS="schulstufe_13"/>
+        <INDEX NAME="idx_subtype" UNIQUE="false" FIELDS="subtype"/>
+        <INDEX NAME="idx_type" UNIQUE="false" FIELDS="type"/>
+        <INDEX NAME="idx_zeitbedarf" UNIQUE="false" FIELDS="zeitbedarf"/>
+        <INDEX NAME="idx_kompetenzen" UNIQUE="false" FIELDS="kompetenzen"/>
+        <INDEX NAME="idx_stundenablauf" UNIQUE="false" FIELDS="stundenablauf"/>
+        <INDEX NAME="idx_voraussetzungen" UNIQUE="false" FIELDS="voraussetzungen"/>
+        <INDEX NAME="idx_vorkenntnisse" UNIQUE="false" FIELDS="vorkenntnisse"/>
       </INDEXES>
     </TABLE>
   </TABLES>

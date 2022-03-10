@@ -785,6 +785,14 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         // Edupublisher savepoint reached.
         upgrade_block_savepoint(true, 2022030802, 'edupublisher');
     }
+    if ($oldversion < 2022031000) {
+        $table = new xmldb_table('block_edupublisher_md_def');
+        $field = new xmldb_field('sourcecourse');
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+        upgrade_block_savepoint(true, 2022031000, 'edupublisher');
+    }
 
 
     return true;

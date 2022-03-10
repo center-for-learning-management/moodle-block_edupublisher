@@ -33,16 +33,35 @@ $package = new \block_edupublisher\package($packageid, false);
 
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/evaluate.php', array('packageid' => $packageid, 'perma' => $perma)));
 
-$context = \context_course::instance($package->course);
+$context = \context_course::instance($package->get('course'));
 $PAGE->set_context($context);
-$title = !empty($package->id) ? $package->title : get_string('etapas_evaluation', 'block_edupublisher');
+$title = !empty($package->get('id')) ? $package->get('title') : get_string('etapas_evaluation', 'block_edupublisher');
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->set_pagelayout('incourse');
 
-$PAGE->navbar->add(get_string('resource_catalogue', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/search.php', array()));
-$PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id' => $package->course)));
-$PAGE->navbar->add(get_string('etapas_evaluation', 'block_edupublisher'), new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $package->id)));
+$PAGE->navbar->add(
+    get_string('resource_catalogue', 'block_edupublisher'),
+    new moodle_url('/blocks/edupublisher/pages/search.php', array())
+);
+$PAGE->navbar->add(
+    $package->get('title'),
+    new moodle_url(
+        '/course/view.php',
+        array(
+            'id' => $package->get('course')
+        )
+    )
+);
+$PAGE->navbar->add(
+    get_string('etapas_evaluation', 'block_edupublisher'),
+    new \moodle_url(
+        '/blocks/edupublisher/pages/evaluation.php',
+        array(
+            'packageid' => $package->get('id')
+        )
+    )
+);
 
 echo $OUTPUT->header();
 
@@ -55,9 +74,9 @@ if (!has_capability('block/edupublisher:canevaluate', \context_system::instance(
 } else {
     //Instantiate etapas_evaluation_form
     $backurl = new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $packageid));
-    $package->packageid = $package->id;
+    $package->set($package->get('id'), 'packageid');
     $mform = new block_edupublisher\etapas_evaluation_form();
-    $mform->set_data($package);
+    $mform->set_data($package->get_flattened());
 
     //Form processing and displaying is done here
     if ($mform->is_cancelled()) {
@@ -73,10 +92,9 @@ if (!has_capability('block/edupublisher:canevaluate', \context_system::instance(
         $id = $DB->insert_record('block_edupublisher_evaluatio', $dataobject);
         $backurl = new \moodle_url('/blocks/edupublisher/pages/evaluation.php', array('packageid' => $packageid));
         if (!empty($id)) {
-            require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
             $sendto = array('allmaintainers', 'author', 'self');
             $linkurl = "/blocks/edupublisher/pages/evaluation.php?packageid=$packageid&id=$id";
-            \block_edupublisher::store_comment($package, 'comment:evaluation:added', $sendto, true, true, "etapas", $linkurl);
+            $package->store_comment('comment:evaluation:added', $sendto, true, true, "etapas", $linkurl);
             echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
                 'type' => 'success',
                 'content' => get_string('successfully_saved_evaluation', 'block_edupublisher'),

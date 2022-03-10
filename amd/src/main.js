@@ -259,23 +259,23 @@ define(
             });
             o.search = $('#' + o.uniqid + '-search').val();
             // Generate object for sending (only some parameters accepted by webservice)
-            var o2 = { courseid: o.courseid, search: o.search, subjectareas: o.subjectareas.join(','), schoollevels: o.schoollevels.join(',') };
+            var o2 = { courseid: o.courseid, search: o.search, subjectareas: o.subjectareas.join('zzzZZZzzz'), schoollevels: o.schoollevels.join('zzzZZZzzz') };
             require(['block_edupublisher/main'], function(MAIN) {
                 MAIN.searchid++;
                 var searchid = MAIN.searchid;
-                console.log('Doing search via ajax for', o2, MAIN.searchid, searchid);
+                //console.log('Doing search via ajax for', o2, MAIN.searchid, searchid);
                 AJAX.call([{
                     methodname: 'block_edupublisher_search',
                     args: o2,
                     done: function(result) {
                         if (MAIN.searchid != searchid) {
-                            console.log(' => Got response for searchid ', searchid, ' but it is not the current search', MAIN.searchid);
+                            //console.log(' => Got response for searchid ', searchid, ' but it is not the current search', MAIN.searchid);
                         } else {
-                            console.log('Result', result, result.sql, result.sqlparams);
+                            //console.log('Result', result, result.sql, result.sqlparams);
                             //$('ul#' + o.uniqid + '-results').empty().html(result);
 
                             var result = JSON.parse(result);
-                            console.log('Received', result);
+                            //console.log('Received', result);
                             $('ul#' + o.uniqid + '-results').empty();
 
                             if (result.packages.length === 0) {
@@ -292,7 +292,7 @@ define(
                                 item.importtocourseid = o.courseid;
                                 item.importtosectionid = o.sectionid;
                                 item.showpreviewbutton = true;
-                                console.log('Call list-template for item ', item);
+                                //console.log('Call list-template for item ', item);
                                 MAIN.searchTemplate(o.uniqid, position++, 'block_edupublisher/search_li', item);
                             }
                         }
@@ -336,7 +336,7 @@ define(
             TEMPLATES
                 .render(template, o)
                 .then(function(html, js) {
-                    console.log('Received a template', template, ' for object', o);
+                    //console.log('Received a template', template, ' for object', o);
                     MAIN.loadpositions[uniqid][position] = { html: html, js: js };
                     MAIN.searchPrint(uniqid);
                     //templates.appendNodeContents('ul#' + o.uniqid + '-results', html, js);
@@ -353,7 +353,7 @@ define(
             var mail = $('#mail-' + uniqid).val();
             if (name.length == 0) return;
             var data = { active: active, id: id, name: name, mail: mail };
-            console.log(data, sender);
+            //console.log(data, sender);
             AJAX.call([{
                 methodname: 'block_edupublisher_store_publisher',
                 args: data,

@@ -26,8 +26,8 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 $courseid = required_param('id', PARAM_INT);
 $unenrol = optional_param('unenrol', 0, PARAM_INT);
-$package = new \block_edupublisher\package_by_courseid($courseid);
-if (empty($package->course)) {
+$prec = $DB->get_record('block_edupublisher_packages', [ 'course' => $courseid ]);
+if (empty($prec->id)) {
     // Show a warning that this is not a package.
     echo $OUTPUT->header();
     echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
@@ -39,12 +39,13 @@ if (empty($package->course)) {
     die();
 }
 
-$context = context_course::instance($package->course);
+$package = new \block_edupublisher\package($prec->id);
+$context = context_course::instance($courseid);
 
 $PAGE->set_url('/blocks/edupublisher/pages/self_enrol.php?id=' . $courseid);
 require_capability('block/edupublisher:canselfenrol', $context);
 require_login($courseid);
-$PAGE->set_heading($package->title);
+$PAGE->set_heading($package->get('title'));
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
@@ -56,7 +57,7 @@ $PAGE->navbar->add(get_string('self_enrol', 'block_edupublisher'), $PAGE->url);
 echo $OUTPUT->header();
 
 // determine if we are a maintainer of this package!
-$ismaintainer = \block_edupublisher\lib::is_maintainer(explode(',',$package->channels));
+$ismaintainer = \block_edupublisher\lib::is_maintainer(explode(',', $package->get('channels')));
 if (!empty($ismaintainer)) {
     $defaultroleteacher = get_config('block_edupublisher', 'defaultroleteacher');
 }
@@ -75,41 +76,41 @@ if (empty($defaultrolestudent)) {
     $reply = array();
     if (!empty($canenrolasteacher)) {
         // We distinguish between student and teacher role.
-        if (!empty($asstudent)) block_edupublisher\lib::course_manual_enrolments(array($package->course), array($USER->id), $defaultrolestudent, !empty($unenrol));
-        if (!empty($asteacher)) block_edupublisher\lib::course_manual_enrolments(array($package->course), array($USER->id), $defaultroleteacher, !empty($unenrol));
+        if (!empty($asstudent)) block_edupublisher\lib::course_manual_enrolments(array($package->get('course')), array($USER->id), $defaultrolestudent, !empty($unenrol));
+        if (!empty($asteacher)) block_edupublisher\lib::course_manual_enrolments(array($package->get('course')), array($USER->id), $defaultroleteacher, !empty($unenrol));
     } else {
         // There is only the student role.
-        block_edupublisher\lib::course_manual_enrolments(array($package->course), array($USER->id), $defaultrolestudent, !empty($unenrol));
+        block_edupublisher\lib::course_manual_enrolments(array($package->get('course')), array($USER->id), $defaultrolestudent, !empty($unenrol));
     }
 
     if (!empty($unenrol)) {
         // Log that we unenrolled from a package.
         require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
-        \block_edupublisher\lib::log_user_visit($package->id, 'unenrolled');
+        \block_edupublisher\lib::log_user_visit($package->get('id'), 'unenrolled');
         echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
             'type' => 'success',
             'content' => get_string('successfully_unenrolled', 'block_edupublisher'),
-            'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->course,
+            'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->get('course'),
         ));
-        redirect(new moodle_url('/course/view.php', array('id' => $package->course)));
+        redirect(new moodle_url('/course/view.php', array('id' => $package->get('course'))));
     } else {
         // Log that we enrolled a package.
         require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
-        \block_edupublisher\lib::log_user_visit($package->id, 'enrolled');
+        \block_edupublisher\lib::log_user_visit($package->get('id'), 'enrolled');
         // Do the enrolment and redirect.
         echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
             'type' => 'success',
             'content' => get_string('successfully_enrolled', 'block_edupublisher'),
-            'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->course,
+            'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->get('course'),
         ));
-        redirect(new moodle_url('/course/view.php', array('id' => $package->course)));
+        redirect(new moodle_url('/course/view.php', array('id' => $package->get('course'))));
     }
 } else {
-    $package->unenrol = $unenrol;
-    $package->canenrolasteacher = !empty($ismaintainer);
+    $package->set($unenrol, 'unenrol');
+    $package->set(!empty($ismaintainer) ? 1 : 0, 'canenrolasteacher');
     echo $OUTPUT->render_from_template(
         'block_edupublisher/self_enrol_confirm',
-        $package
+        $package->get_flattened()
     );
 }
 

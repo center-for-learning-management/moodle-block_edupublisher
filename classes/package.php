@@ -27,6 +27,12 @@ defined('MOODLE_INTERNAL') || die;
 
 
 class package {
+    /*
+     * Multiple fields without options must be stored in one column.
+     * Therefore a delimiter is set. If you change this, you must ensure,
+     * that all database-records are modified accordingly!
+     */
+    private const ARRAY_DELIMITER = '~~~|~~~';
     // Object holding all metadata of this package.
     private $metadata;
 
@@ -48,7 +54,9 @@ class package {
             'title' => '',
             'userid' => $USER->id,
             'created' => time(),
-            'modified' => time()
+            'modified' => time(),
+            'deleted' => 0,
+            'active' => 0,
         ];
         $this->set_array($basedata);
         if ($id > 0) {
@@ -142,6 +150,16 @@ class package {
                 );
             }
             $this->set($ratingselection, 'ratingselection');
+        }
+
+        // Explode all multiple fields without options.
+        $channels = \block_edupublisher\lib::get_channel_definition();
+        foreach ($channels as $channel => $fields) {
+            foreach ($fields as $field => $fieldparams) {
+                if (!empty($fieldparams['multiple']) && empty($fieldparams['options'])) {
+                    $this->set(explode(self::ARRAY_DELIMITER, $this->get($field, $channel)), $field, $channel);
+                }
+            }
         }
     }
 
@@ -333,26 +351,9 @@ class package {
             }
         }
         $this->set(nl2br(implode("\n", $exacomptitles)), 'kompetenzen', 'etapas');
-
-        for ($a = 0; $a < count($exacompdatasources); $a++) {
-            $params = [
-                'package' => $this->get('id'),
-                'datasource' => $exacompdatasources[$a],
-                'sourceid' => $exacompsourceids[$a]
-            ];
-
-            $rec = $DB->get_record('block_edupublisher_md_exa', $params);
-            if (empty($rec->id)) {
-                $params['title'] = $exacomptitles[$a];
-                $DB->insert_record('block_edupublisher_md_exa', $params);
-            } else {
-                if ($rec->title != $exacomptitles[$a]) {
-                    $rec->title = $exacomptitles[$a];
-                    $DB->update_record('block_edupublisher_md_exa', $rec);
-                }
-            }
-        }
-
+        $this->set($exacompdatasources, 'exacompdatasources');
+        $this->set($exacompsourceids, 'exacompsourceids');
+        $this->set($exacomptitles, 'exacomptitles');
     }
     /**
      * Get a meta-data field from this package.
@@ -367,9 +368,30 @@ class package {
     }
     /**
      * Get data of particular channel.
+     * @param channel the channel to return.
+     * @param flatten (optional) whether or not to flatten objects and arrays.
      */
-    public function get_channel($channel = '_') {
-        return $this->metadata->$channel;
+    public function get_channel($channel = '_', $flatten = false) {
+        if (empty($this->metadata->$channel)) return;
+        if ($flatten) {
+            $md = json_decode(json_encode($this->metadata->$channel));
+            foreach ($md as $field => &$value) {
+                if (is_array($value) || is_object($value)) {
+                    // Convert recursively to an array.
+                    $value = json_decode(json_encode($value), 1);
+                    if (count($value) == count($value, COUNT_RECURSIVE)) {
+                        // This is a onedimensional array - implode.
+                        $value = implode(self::ARRAY_DELIMITER, $value);
+                    } else {
+                        // This is a multidimensional array - json_encode.
+                        $value = json_encode($value);
+                    }
+                }
+            }
+            return $md;
+        } else {
+            return $this->metadata->$channel;
+        }
     }
     /**
      * Get metadata flattened in one object. Intended for use with templates.
@@ -396,11 +418,10 @@ class package {
         }
 
         $this->flattened = $flattened;
-        if (!empty($flattened->default_image)) {
-            $flattened->default_image = $CFG->wwwroot . $flattened->default_image;
+        $this->flattened_absolute = \json_decode(\json_encode($flattened));
+        if (!empty($this->flattened_absolute->default_image)) {
+            $this->flattened_absolute->default_image = $CFG->wwwroot . $this->flattened_absolute->default_image;
         }
-
-        $this->flattened_absolute = $flattened;
 
         if ($absolutepaths) {
             return $this->flattened_absolute;
@@ -474,13 +495,13 @@ class package {
     **/
     public function load_origins() {
         global $DB;
-        $__origins = array();
+        $origins = array();
         if (!empty($this->get('origins', 'default'))) {
             foreach($this->get('origins', 'default') AS $origin) {
-                $__origins[] = new package($origin, false);
+                $origins[] = new package($origin, false);
             }
         }
-        $this->set($__origins, 'origins');
+        return $origins;
     }
     /**
      * Loads possible originals based on the sourcecourse of this package.
@@ -527,9 +548,9 @@ class package {
                     $draftitemid = file_get_submitted_draft_itemid($channel . '_' . $field);
                     file_prepare_draft_area($draftitemid, $context->id, 'course', 'overviewfiles', 0,
                         array(
-                            'subdirs' => (!empty($ofield['subdirs']) ? $ofield['subdirs'] : package_create_form::$subdirs),
-                            'maxbytes' => (!empty($ofield['maxbytes']) ? $ofield['maxbytes'] : package_create_form::$maxbytes),
-                            'maxfiles' => (!empty($ofield['maxfiles']) ? $ofield['maxfiles'] : package_create_form::$maxfiles)
+                            'subdirs' => (!empty($ofield['subdirs']) ? $ofield['subdirs'] : \package_create_form::$subdirs),
+                            'maxbytes' => (!empty($ofield['maxbytes']) ? $ofield['maxbytes'] : \package_create_form::$maxbytes),
+                            'maxfiles' => (!empty($ofield['maxfiles']) ? $ofield['maxfiles'] : \package_create_form::$maxfiles)
                         )
                     );
                     $this->set($draftitemid, $field, $channel);
@@ -730,10 +751,8 @@ class package {
                 $metaobject->id = $o->id;
                 $metaobject->active = $o->active;
                 $DB->update_record('block_edupublisher_metadata', $metaobject);
-                //echo "Update " . print_r($metaobject, 1);
             }
         } else {
-            //echo "Insert " . print_r($metaobject, 1);
             $DB->insert_record('block_edupublisher_metadata', $metaobject);
         }
     }
@@ -798,7 +817,7 @@ class package {
             foreach($fields AS $field => $fieldparams) {
                 if (!empty($fieldparams['donotstore'])) continue;
                 $dbfield = $channel . '_' . $field;
-                if (empty($data->$dbfield)) continue;
+                if (empty($data->{$dbfield})) continue;
 
                 if($fieldparams['type'] == 'filemanager' && !empty($draftitemid = file_get_submitted_draft_itemid($dbfield))) {
                     // We retrieve a file and set the value to the url.
@@ -828,9 +847,8 @@ class package {
                     } elseif(count($urls) == 1) {
                         $this->set($urls[0], $field, $channel);
                     }
-                }
-                // We retrieve anything else.
-                if (!empty($this->get($field, $channel))) {
+                } else if (!empty($data->{$dbfield})) {
+                    // We retrieve anything else.
                     unset($allowedoptions);
                     unset($allowedkeys);
                     if (!empty($fieldparams['options'])) {
@@ -838,12 +856,15 @@ class package {
                         $allowedkeys = array_keys($allowedoptions);
                     }
                     if (!empty($fieldparams['multiple']) && !empty($fieldparams['options'])) {
-                        // multiple must have options!
+                        // multiple with fixed options!
                         foreach ($allowedkeys as $allowedkey) {
                             if (in_array($allowedkey, $data->$dbfield)) {
                                 $this->set(1, "{$field}_{$allowedkey}", $channel);
                             }
                         }
+                    } else if (!empty($fieldparams['multiple'])) {
+                        // Multiple without fixed options!
+                        $this->set(implode(self::ARRAY_DELIMITER, $data->{$dbfield}), $field, $channel);
                     } else {
                         $this->set($data->$dbfield, $field, $channel);
                     }
@@ -871,7 +892,7 @@ class package {
                     'gradesynccompletion' => 0,
                     'membersync' => 1,
                     'membersyncmode' => 1,
-                    'name' => $package->get('title', 'default') . ' [' . $_channel . ']',
+                    'name' => $this->get('title', 'default') . ' [' . $_channel . ']',
                     'roleinstructor' => get_config('block_edupublisher', 'defaultrolestudent'),
                     'rolelearner' => get_config('block_edupublisher', 'defaultrolestudent'),
                     'secret' => $this->get('ltisecret', $_channel),
@@ -881,8 +902,8 @@ class package {
                     require_once("$CFG->dirroot/enrol/lti/classes/helper.php");
                     $elpinstance = $DB->get_record('enrol_lti_tools', array('enrolid' => $elpinstanceid), 'id', MUST_EXIST);
                     $tool = \enrol_lti\helper::get_lti_tool($elpinstance->id);
-                    $this->set('' . enrol_lti\helper::get_launch_url($elpinstance->id), 'ltiurl', $_channel);
-                    $this->set('' . enrol_lti\helper::get_cartridge_url($tool), 'lticartridge', $_channel);
+                    $this->set('' . \enrol_lti\helper::get_launch_url($elpinstance->id), 'ltiurl', $_channel);
+                    $this->set('' . \enrol_lti\helper::get_cartridge_url($tool), 'lticartridge', $_channel);
                 }
             }
         }
@@ -913,7 +934,7 @@ class package {
                      'timecreated' => time(), 'timemodified' => time());
             $fs->create_file_from_pathname($file_record, $courseimage->imagepath);
         }
-        $course = get_course($this->get('id'));
+        $course = get_course($this->get('course'));
         $course->summary = $this->get('summary', 'default');
         $course->fullname = $this->get('title', 'default');
         $DB->update_record('course', $course);
@@ -928,10 +949,33 @@ class package {
     public function store_package_db() {
         global $DB;
         $this->set(time(), 'modified');
-        $DB->update_record('block_edupublisher_packages', $this->get_channel('_'));
-        $DB->update_record('block_edupublisher_md_com', $this->get_channel('commercial'));
-        $DB->update_record('block_edupublisher_md_def', $this->get_channel('default'));
-        $DB->update_record('block_edupublisher_md_edu', $this->get_channel('eduthek'));
-        $DB->update_record('block_edupublisher_md_eta', $this->get_channel('etapas'));
+        $DB->update_record('block_edupublisher_packages', $this->get_channel('_', true));
+        $DB->update_record('block_edupublisher_md_com', $this->get_channel('commercial', true));
+        $DB->update_record('block_edupublisher_md_def', $this->get_channel('default', true));
+        $DB->update_record('block_edupublisher_md_edu', $this->get_channel('eduthek', true));
+        $DB->update_record('block_edupublisher_md_eta', $this->get_channel('etapas', true));
+
+        $exacompdatasources = $this->get('exacompdatasources');
+        $exacompsourceids = $this->get('exacompsourceids');
+        $exacomptitles = $this->get('exacomptitles');
+
+        for ($a = 0; $a < count($exacompdatasources); $a++) {
+            $params = [
+                'package' => $this->get('id'),
+                'datasource' => $exacompdatasources[$a],
+                'sourceid' => $exacompsourceids[$a]
+            ];
+
+            $rec = $DB->get_record('block_edupublisher_md_exa', $params);
+            if (empty($rec->id)) {
+                $params['title'] = $exacomptitles[$a];
+                $DB->insert_record('block_edupublisher_md_exa', $params);
+            } else {
+                if ($rec->title != $exacomptitles[$a]) {
+                    $rec->title = $exacomptitles[$a];
+                    $DB->update_record('block_edupublisher_md_exa', $rec);
+                }
+            }
+        }
     }
 }

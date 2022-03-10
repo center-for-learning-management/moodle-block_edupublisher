@@ -31,11 +31,10 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 raise_memory_limit(MEMORY_EXTRA);
 
 $cancel      = optional_param('cancel', '', PARAM_ALPHA);
+// The context we want to import TO.
 $contextid   = required_param('contextid', PARAM_INT);
 $stage       = optional_param('stage', restore_ui::STAGE_DESTINATION, PARAM_INT);
-
 $restore     = optional_param('restore', '', PARAM_ALPHANUM);
-
 
 if (!empty($restore)) {
     $cache = \cache::make('block_edupublisher', 'restore');
@@ -105,8 +104,6 @@ const STAGE_PROCESS = 32;
 const STAGE_COMPLETE = 64;
 */
 
-
-
 $filepath = \block_edupublisher\lib::prepare_restore($package);
 $_POST['filepath'] = $filepath;
 $_POST['stage'] = $stage;
@@ -161,7 +158,7 @@ if ($stage == restore_ui::STAGE_SETTINGS) {
 
     $url = new \moodle_url('/blocks/edupublisher/pages/restore.php', array(
         'contextid' => $context->id,
-        'packageid' => $package->id,
+        'packageid' => $package->get('id'),
         'restore' => $restore->get_restoreid(),
         'sectionid' => $sectionid,
         'stage' => restore_ui::STAGE_SCHEMA,
@@ -268,10 +265,15 @@ if (!$restore->is_independent()) {
 
                 // 1.) We have to create empty sections at the beginning of the course,
                 //     where the new contents can be imported to.
-                $sections_import = array_values($DB->get_records('course_sections', array('course' => $package->course)));
+                $sections_import = array_values($DB->get_records('course_sections', array('course' => $package->get('course'))));
                 $createdsectionids = array();
 
-                $DB->execute("UPDATE {course_sections} SET section=section+? WHERE course=? ORDER BY section DESC", array(count($sections_import), $course->id));
+                $sql = "UPDATE {course_sections}
+                            SET section=section+?
+                            WHERE course=?
+                            ORDER BY section DESC";
+
+                $DB->execute($sql, array(count($sections_import), $course->id));
                 for($a = 0; $a < count($sections_import); $a++) {
                     $seco = (object) array(
                         'course' => $course->id,
@@ -330,7 +332,7 @@ if (!$restore->is_independent()) {
 
             // Log that we cloned a package.
             require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
-            \block_edupublisher\lib::log_user_visit($package->id, 'cloned');
+            \block_edupublisher\lib::log_user_visit($package->get('id'), 'cloned');
 
             // Get HTML from logger.
             if ($CFG->debugdisplay) {
