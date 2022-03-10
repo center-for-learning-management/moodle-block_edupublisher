@@ -719,83 +719,68 @@ class block_edupublisher_external extends external_api {
         ));
     }
     public static function trigger_active($packageid, $type, $to) {
-        $params = self::validate_parameters(self::trigger_active_parameters(), array('packageid' => $packageid, 'type' => $type, 'to' => $to));
         global $CFG, $DB, $USER;
+        $params = self::validate_parameters(
+            self::trigger_active_parameters(),
+            array(
+                'packageid' => $packageid,
+                'type' => $type,
+                'to' => $to
+            )
+        );
         $package = new \block_edupublisher\package($params['packageid'], true);
 
         $statusses = array();
-        $statusses['cantriggeractive' . $params['type']] = $package->{'cantriggeractive' . $params['type']};
-        if (!empty($package->{'cantriggeractive' . $params['type']})) {
-            $active = ($params['to'] >= 1) ? 1 : 0;
-            $package->{$params['type'] .'_active'} = $active;
+        $statusses['cantriggeractive' . $params['type']] = $package->get('cantriggeractive', $params['type']);
+        if (!empty($package->get('cantriggeractive', $params['type']))) {
+            $published = !empty($params['to']) ? time() : 0;
+            // Trigger the channel itself.
+            $package->set($published, 'published', $params['type']);
             if ($params['type'] != 'default') {
-                /*
-                 * If any channel gets activated, also activate default
-                 * If last gets deactivated, also deactivate default
-                */
-                if ($active == 1) {
-                    $package->default_active = 1;
-                } else {
-                    $package->default_active = $package->eduthek_active || $package->etapas_active;
+                if ($published > 0) {
+                    // If any channel gets activated, also activate default
+                    $package->set($published, 'published', 'default');
+                } else if(empty($package->get('published', 'eduthek')) && empty($package->get('published', 'etapas'))) {
+                    // If last gets deactivated, also deactivate default
+                    $package->set(0, 'published', 'default');
                 }
-                // Trigger metadata in default channel.
-                $sql = "UPDATE {block_edupublisher_metadata}
-                            SET active=?
-                            WHERE field LIKE ? ESCAPE '+'
-                                AND package=?";
-                $DB->execute($sql, array($package->default_active, 'default' . '+_%', $params['packageid']));
-            } else {
-                $package->default_active = $active;
-            }
-            block_edupublisher::store_metadata($package, 'default', 'default_active', $package->default_active);
-
-            $sql = "UPDATE {block_edupublisher_metadata}
-                        SET active=?
-                        WHERE field LIKE ? ESCAPE '+'
-                            AND package=?";
-            $DB->execute($sql, array($active, $params['type'] . '+_%', $params['packageid']));
-            $package->modified = time();
-            if ($params['type'] == 'default') {
-                block_edupublisher::store_metadata($package, 'default', 'default_active', $package->default_active);
-                $package->active = $active;
-            } else {
-                block_edupublisher::store_metadata($package, $params['type'], $params['type'] . '_active', $active);
-            }
-            $package->active = $package->default_active;
-            block_edupublisher::toggle_guest_access($package->course, $package->active);
-            $DB->update_record('block_edupublisher_packages', $package);
-            \block_edupublisher\wordpress::action((!empty($package->active) ? 'published' : 'unpublished'), $package);
-
-            if (!empty($package->etapas_active) && $package->etapas_status == 'inspect') {
-                block_edupublisher::store_metadata($package, 'etapas', 'etapas_status', 'eval');
             }
 
+            if (!empty($package->get('published', 'etapas')) && $package->get('status', 'etapas') == 'inspect') {
+                $package->set('eval', 'status', 'etapas');
+            }
+
+            $package->set(empty($package->get('published', 'default')) ? 0 : 1, 'active');
+
+            // Toggle course visibility
+            $course = \get_course($package->get('course'));
+            $course->visible = !empty($package->get('active')) ? 1 : 0;
+            $DB->update_record('course', $course);
+            \rebuild_course_cache($course->id, true);
+
+            \block_edupublisher\lib::toggle_guest_access($package->get('course'), $package->get('active'));
+            \block_edupublisher\wordpress::action((!empty($package->get('active')) ? 'published' : 'unpublished'), $package);
+
+            $package->store_package_db();
+
+            // The comment system is using mustache templates
+            // and requires a page context.
             global $PAGE;
-            $PAGE->set_context(context_system::instance());
+            $PAGE->set_context(\context_system::instance());
             require_login();
             $sendto = array('author');
-            require_once($CFG->dirroot . '/blocks/edupublisher/classes/channel_definition.php');
-            $channels = array_keys($definition);
-            foreach ($channels AS $channel) {
-                $statusses[$channel . '_active'] = (!empty($package->{$channel . '_active'}) && $package->{$channel . '_active'} == 1) ? 1 : 0;
-                if (
-                    !empty($package->{$channel . '_active'}) && $package->{$channel . '_active'} == "1"
-                    &&
-                    (empty($package->{$channel . '_published'}) || $package->{$channel . '_published'} == "0")) {
-                    block_edupublisher::store_metadata($package, $channel, $channel . '_published', time());
-                }
-            }
-
-            if ($package->active) {
-                block_edupublisher::store_comment($package, 'comment:template:package_published', $sendto, true, false, $params["type"]);
+            if ($package->get('active')) {
+                $package->store_comment('comment:template:package_published', $sendto, true, false, $params["type"]);
             } else {
-                block_edupublisher::store_comment($package, 'comment:template:package_unpublished', $sendto, true, false, $params["type"]);
+                $package->store_comment('comment:template:package_unpublished', $sendto, true, false, $params["type"]);
             }
-            // Toggle course visibility
-            $course = get_course($package->course);
-            $course->visible = $package->active;
-            $DB->update_record('course', $course);
         }
+
+        $channels = \block_edupublisher\lib::channels();
+        foreach ($channels as $channel) {
+            $statusses["{$channel}_active"] = !empty($package->get('published', $channel)) ? 1 : 0;
+        }
+
         return json_encode($statusses);
     }
     public static function trigger_active_returns() {

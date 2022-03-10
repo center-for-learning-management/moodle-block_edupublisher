@@ -54,7 +54,7 @@
                 </div>
             </th>
         </tr>
-        {{#cantriggeractivedefault}}
+        {{#default_cantriggeractive}}
         <tr>
             <td colspan="2">
                 <label>
@@ -65,7 +65,7 @@
                 </label>
             </td>
         </tr>
-        {{/cantriggeractivedefault}}
+        {{/default_cantriggeractive}}
         <tr>
             <td>
                 <a href="{{wwwroot}}/course/view.php?id={{course}}" target="_blank">
@@ -95,7 +95,7 @@
 <div id="channel-etapas" class="channel-block{{^etapas_published}} channel-inactive{{/etapas_published}}">
     <table border="0" width="100%">
         <tr><th colspan="2">{{#str}} etapas_header, block_edupublisher {{/str}}</th></tr>
-        {{#cantriggeractiveetapas}}
+        {{#etapas_cantriggeractive}}
         <tr>
             <td colspan="2">
                 <label>
@@ -105,7 +105,7 @@
                 </label>
             </td>
         </tr>
-        {{/cantriggeractiveetapas}}
+        {{/etapas_cantriggeractive}}
         <tr>
             <th>{{#str}} etapas_status, block_edupublisher {{/str}}</th>
             <td>{{etapas_status_localized}}</td>
@@ -150,7 +150,7 @@
 <div id="channel-eduthek" class="channel-block{{^eduthek_published}} channel-inactive{{/eduthek_published}}">
     <table border="0" width="100%">
         <tr><th colspan="2">{{#str}} eduthek_header, block_edupublisher {{/str}}</th></tr>
-        {{#cantriggeractiveeduthek}}
+        {{#eduthek_cantriggeractive}}
         <tr>
             <td colspan="2">
                 <label>
@@ -160,7 +160,7 @@
                 </label>
             </td>
         </tr>
-        {{/cantriggeractiveeduthek}}
+        {{/eduthek_cantriggeractive}}
         <tr>
             <th colspan="2">{{#str}} lti_data, block_edupublisher {{/str}}</th>
         </tr>
@@ -175,7 +175,7 @@
 <div id="channel-commercial" class="channel-block{{^commercial_published}} channel-inactive{{/commercial_published}}">
     <table border="0" width="100%">
         <tr><th colspan="2">{{#str}} commercial_header, block_edupublisher {{/str}}</th></tr>
-        {{#cantriggeractivecommercial}}
+        {{#commercial_cantriggeractive}}
         <tr>
             <td colspan="2">
                 <label>
@@ -185,7 +185,7 @@
                 </label>
             </td>
         </tr>
-        {{/cantriggeractivecommercial}}
+        {{/commercial_cantriggeractive}}
         <tr>
             <th>{{#str}} commercial_publisher, block_edupublisher {{/str}}</th>
             <td>{{commercial_publisher_name}}</td>
@@ -207,11 +207,4 @@
     <li>based on {{title}}</li>
 {{/origins}}
 </div>
-
-{{#comments.0}}
-<div id="comments" class="channel-block">
-    {{> block_edupublisher/package_comment }}
-</div>
-{{/comments.0}}
-
 </div>

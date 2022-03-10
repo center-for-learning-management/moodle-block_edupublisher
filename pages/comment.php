@@ -30,10 +30,12 @@ $id = optional_param('id', 0, PARAM_INT);
 $packageid = optional_param('packageid', 0, PARAM_INT);
 $perma = optional_param('perma', '', PARAM_TEXT);
 
-$url = $CFG->wwwroot . '/blocks/edupublisher/pages/comment.php?';
-if (!empty($id)) $url .= '&id=' . $id;
-if (!empty($packageid)) $url .= '&packageid=' . $packageid;
-if (!empty($perma)) $url .= '&perma=' . $perma;
+$urlpath = $CFG->wwwroot . '/blocks/edupublisher/pages/comment.php';
+$urlparams = [];
+if (!empty($id)) $urlparams['id'] = $id;
+if (!empty($id)) $urlparams['packageid'] = $packageid;
+if (!empty($id)) $urlparams['perma'] = $perma;
+$url = new \moodle_url($urlpath, $urlparams);
 $PAGE->set_url($url);
 
 if (!empty($perma)) {
@@ -48,7 +50,7 @@ if (!empty($comment->package)) {
 }
 
 $package = new \block_edupublisher\package($packageid, true);
-if (empty($package->id) && empty($id)) {
+if (empty($package->get('id')) && empty($id)) {
     // No such package exists.
     $PAGE->set_context(context_system::instance());
     $PAGE->set_title(get_string('error'));
@@ -67,17 +69,18 @@ if (empty($package->id) && empty($id)) {
     die();
 }
 
-$context = context_course::instance($package->course);
+$context = \context_course::instance($package->get('course'));
 
-$PAGE->set_context($context);// Attention! Guest access will only be active, if the package was published by a moderator!
+// Attention! Guest access will only be active, if the package was published by a moderator!
+$PAGE->set_context($context);
 require_login();
-$PAGE->navbar->add($package->title, new moodle_url('/course/view.php', array('id' => $package->course)));
-$PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->id)));
+$PAGE->navbar->add($package->get('title', 'default'), new moodle_url('/course/view.php', array('id' => $package->get('course'))));
+$PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->get('id'))));
 $PAGE->navbar->add(get_string('comments'), $PAGE->url);
 
 
-$PAGE->set_title($package->title);
-$PAGE->set_heading($package->title);
+$PAGE->set_title($package->get('title'));
+$PAGE->set_heading($package->get('title'));
 $PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
@@ -85,13 +88,13 @@ $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 echo $OUTPUT->header();
 
 require_once($CFG->dirroot . '/blocks/edupublisher/classes/comment_create_form.php');
-$form = new block_edupublisher\comment_create_form();
+$form = new \block_edupublisher\comment_create_form();
 if ($data = $form->get_data()) {
     $sendto = [ 'author', 'allmaintainers' ];
     if (!empty($data->ispublic)) {
         $sendto[] = 'commentors';
     }
-    $data->id = \block_edupublisher::store_comment($package, $data->content['text'], $sendto, false, $data->ispublic, "", "");
+    $data->id = $package->store_comment($data->content['text'], $sendto, false, $data->ispublic, "", "");
     if (empty($data->id)) {
         echo "<p class=\"alert alert-error\">" . get_string('error') . "</p>";
     } else {
@@ -102,16 +105,16 @@ if (!empty($id)) {
     // Show single item
     $showsingle = true;
     $comments = array(
-        block_edupublisher::load_comment($id)
+        $package->load_comment($id)
     );
     $package = new \block_edupublisher\package($comments[0]->package);
 } else {
     $showsingle = false;
-    $comments = block_edupublisher::load_comments($packageid, $package->canmoderate || $package->userid == $USER->id, 'DESC');
+    $comments = $package->load_comments($package->get('canmoderate') || $package->get('userid') == $USER->id, 'DESC');
 }
 
 if (!$showsingle && isloggedin() && !isguestuser($USER)) {
-    $ctx = context_user::instance($USER->id);
+    $ctx = \context_user::instance($USER->id);
     $userpictureurl = $CFG->wwwroot . '/pluginfile.php/' . $ctx->id . '/user/icon';
     ?>
     <a href="#" class="btn btn-primary"
@@ -160,10 +163,10 @@ if (count($comments) == 0) {
     foreach ($comments AS $comment) {
         if ($comment->isautocomment) {
             if (!empty($comment->linkurl)) {
-                $package->commentlink = $comment->linkurl->__toString();
+                $package->set($comment->linkurl->__toString(), 'commentlink');
             }
-            $comment->content = get_string($comment->content, 'block_edupublisher', $package);
-            $comment->content .= get_string('comment:notify:autotext', 'block_edupublisher', $package);
+            $comment->content = get_string($comment->content, 'block_edupublisher', $package->get_flattened());
+            $comment->content .= get_string('comment:notify:autotext', 'block_edupublisher', $package->get_flattened());
         }
 
         echo $OUTPUT->render_from_template(

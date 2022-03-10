@@ -47,20 +47,18 @@ $act = optional_param('act', '', PARAM_TEXT);
 switch ($act) {
     case 'authoreditingpermission':
         if ($package->get('canmoderate')) {
-            $ctx = context_course::instance($package->get('course'));
+            $ctx = \context_course::instance($package->get('course'));
             if (optional_param('to', '', PARAM_TEXT) == 'grant') {
-                block_edupublisher::role_set(array($package->get('course')), array($package->get('userid')), 'defaultroleteacher');
-                //role_assign(get_config('block_edupublisher', 'defaultroleteacher'), $package->userid, $ctx->id);
+                \block_edupublisher\lib::role_set(array($package->get('course')), array($package->get('userid')), 'defaultroleteacher');
                 $sendto = array('author');
-                block_edupublisher::store_comment($package, 'comment:template:package_editing_granted', $sendto, true, false);
+                $package->store_comment('comment:template:package_editing_granted', $sendto, true, false);
             }
             if (optional_param('to', '', PARAM_TEXT) == 'remove') {
-                block_edupublisher::role_set(array($package->get('course')), array($package->get('userid')), -1);
+                \block_edupublisher\lib::role_set(array($package->get('course')), array($package->get('userid')), -1);
                 //role_unassign(get_config('block_edupublisher', 'defaultroleteacher'), $package->userid, $ctx->id);
                 $sendto = array('author');
-                block_edupublisher::store_comment($package, 'comment:template:package_editing_sealed', $sendto, true, false);
+                $package->store_comment('comment:template:package_editing_sealed', $sendto, true, false);
             }
-            $package = new \block_edupublisher\package($package->id, true);
             echo $OUTPUT->render_from_template(
                 'block_edupublisher/alert',
                 array(
@@ -82,8 +80,6 @@ switch ($act) {
 }
 
 $package->load_origins();
-$package->comments = $DB->get_records('block_edupublisher_comments', array('package' => $package->get('id')));
-
 echo $OUTPUT->render_from_template(
     'block_edupublisher/package',
     $package->get_flattened()

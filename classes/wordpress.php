@@ -44,21 +44,21 @@ class wordpress {
         global $CFG, $DB, $PAGE, $SITE;
         $PAGE->set_context(\context_system::instance());
         $package->moodlesitename = $SITE->fullname;
-        $moodlecourseurl = new \moodle_url('/course/view.php', [ 'id' => $package->course ]);
+        $moodlecourseurl = new \moodle_url('/course/view.php', [ 'id' => $package->get('course') ]);
         $package->moodlecourseurl = $moodlecourseurl->__toString();
         $package->wpshortcodes = get_config('block_edupublisher', 'wordpress_shortcodes_if_' . $type);
         $channels = [];
-        $_channels = explode(',', $package->channels);
+        $_channels = explode(',', $package->get('channels'));
         foreach ($_channels as $channel) {
-            if (!empty($channel) && $package->{$channel . '_active'}) {
+            if (!empty($channel) && !empty($package->get('published', $channel))) {
                 $channels[] = $channel;
             }
         }
-        $package->wpshortcodes = str_replace('{channels}', implode(' ', $channels), $package->wpshortcodes);
+        $package->set(str_replace('{channels}', implode(' ', $channels), $package->get('wpshortcodes')), 'wpshortcode');
 
-        $messagehtml = get_string('wordpress:notification:text_' . $type, 'block_edupublisher', $package);
+        $messagehtml = get_string('wordpress:notification:text_' . $type, 'block_edupublisher', $package->get_flattened());
         $messagetext = html_to_text($messagehtml);
-        $subject = get_string('wordpress:notification:subject_' . $type , 'block_edupublisher', $package);
+        $subject = get_string('wordpress:notification:subject_' . $type , 'block_edupublisher', $package->get_flattened());
 
         $mail = get_mailer();
         $noreplyaddressdefault = 'noreply@' . get_host_from_url($CFG->wwwroot);
@@ -77,8 +77,8 @@ class wordpress {
 
         if ($type != 'deleted') {
             $fs = get_file_storage();
-            $context = \context_course::instance($package->course);
-            $files = $fs->get_area_files($context->id, 'block_edupublisher', 'default_image', $package->id);
+            $context = \context_course::instance($package->get('course'));
+            $files = $fs->get_area_files($context->id, 'block_edupublisher', 'default_image', $package->get('id'));
             foreach ($files as $file) {
                 if (in_array($file->get_filename(), array('.'))) continue;
                 $mail->addStringAttachment($file->get_content(), $file->get_filename(), 'base64', $file->get_mimetype());

@@ -52,7 +52,7 @@ if ($package->get('canedit')) {
     $form = new package_create_form(null, null, 'post', '_self', array('onsubmit' => 'this.querySelectorAll("input").forEach( i => i.disabled = false)'), true);
     if ($data = $form->get_data()) {
         $package->store_package($data);
-        if (empty($package->get('default_suppresscomment'))) {
+        if (empty($package->get('suppresscomment', 'default'))) {
             $sendto = array('allmaintainers');
             $package->store_comment('comment:template:package_updated', $sendto, true, false);
         }

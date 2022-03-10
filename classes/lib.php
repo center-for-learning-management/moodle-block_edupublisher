@@ -834,6 +834,110 @@ class lib {
         return 'edupublisher' . $package->id;
     }
     /**
+     * Grants or revokes a role from a course.
+     * @param courseids array with courseids
+     * @param userids array with userids
+     * @param role -1 to remove user, number of role or known identifier (defaultroleteacher, defaultrolestudent) to assign role.
+     */
+    public static function role_set($courseids, $userids, $role) {
+        global $CFG, $DB;
+        require_once("$CFG->dirroot/enrol/manual/lib.php");
+        if ($role == 'defaultroleteacher') $role = get_config('block_edupublisher', 'defaultroleteacher');
+        if ($role == 'defaultrolestudent') $role = get_config('block_edupublisher', 'defaultrolestudent');
+        if (empty($role)) return;
+
+        $enrol = enrol_get_plugin('manual');
+        if (empty($enrol)) {
+            return false;
+        }
+        foreach ($courseids AS $courseid) {
+            // Check if course exists.
+            $course = get_course($courseid);
+            if (empty($course->id)) continue;
+            // Check manual enrolment plugin instance is enabled/exist.
+            $instance = null;
+            $enrolinstances = enrol_get_instances($courseid, false);
+            foreach ($enrolinstances as $courseenrolinstance) {
+              if ($courseenrolinstance->enrol == "manual") {
+                  $instance = $courseenrolinstance;
+                  break;
+              }
+            }
+            if (empty($instance)) {
+                // We have to add a "manual-enrolment"-instance
+                $fields = array(
+                    'status' => 0,
+                    'roleid' => get_config('block_edupublisher', 'defaultrolestudent'),
+                    'enrolperiod' => 0,
+                    'expirynotify' => 0,
+                    'expirytreshold' => 0,
+                    'notifyall' => 0
+                );
+                $emp = new enrol_manual_plugin();
+                $instance = $emp->add_instance($course, $fields);
+            }
+            if ($instance->status == 1) {
+                // It is inactive - we have to activate it!
+                $data = (object)array('status' => 0);
+                $emp = new enrol_manual_plugin();
+                $emp->update_instance($instance, $data);
+                $instance->status = $data->status;
+            }
+            foreach ($userids AS $userid) {
+                if ($role == -1) {
+                    $enrol->unenrol_user($instance, $userid);
+                } else {
+                    $enrol->enrol_user($instance, $userid, $role, 0, 0, ENROL_USER_ACTIVE);
+                }
+            }
+        }
+    }
+    /**
+     * Enables or disables guest access to a course.
+     * @param courseid the course id
+     * @param setto 1 (default) to enable, 0 to disable access.
+     */
+    public static function toggle_guest_access($courseid, $setto = 1) {
+        global $CFG;
+
+        require_once($CFG->dirroot . '/enrol/guest/lib.php');
+        $course = \get_course($courseid);
+        $fields = array(
+            'status' => (empty($setto) ? 1 : 0), // status in database reversed
+            'password' => '',
+        );
+        $gp = new \enrol_guest_plugin();
+        if (!empty($setto)) {
+            $gp->add_instance($course, $fields);
+        } else {
+            require_once($CFG->dirroot . '/lib/enrollib.php');
+            $instances = \enrol_get_instances($courseid, false);
+            foreach ($instances as $instance) {
+                if ($instance->enrol != 'guest') continue;
+                $gp->delete_instance($instance);
+            }
+        }
+    }
+    /**
+     * Gets the user picture and returns it as base64 encoded string.
+     * @param userid
+     * @return picture base64 encoded
+     */
+    public static function user_picture_base64($userid) {
+        $context = \context_user::instance($userid);
+        $fs = get_file_storage();
+        $files = $fs->get_area_files($context->id, 'user', 'icon');
+        $find = array('f1.jpg', 'f1.png');
+        foreach ($files as $f) {
+            if (in_array($f->get_filename(), $find)) {
+                $extension = explode(".", $f->get_filename());
+                $extension = $extension[count($extension) - 1];
+                return 'data:image/' . $extension . ';base64,' . base64_encode($f->get_content());
+            }
+        }
+        return '';
+    }
+    /**
      * Checks whether or not local_eduvidual is installed
      * @return true or false
     **/

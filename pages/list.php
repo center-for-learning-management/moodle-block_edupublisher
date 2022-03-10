@@ -99,33 +99,27 @@ if (empty($channel)) {
         'maintainer_eduthek' => $maintainer_eduthek,
     ));
 
-    $orderby = (optional_param('sort', 'date', PARAM_TEXT) == 'date') ? 'm.modified DESC' : 'p.title ASC';
-    $sql = "SELECT DISTINCT(m.package),p.title, m.modified
-              FROM {block_edupublisher_metadata} m, {block_edupublisher_packages} p
-              WHERE m.package=p.id
-                AND field LIKE ? ESCAPE '+'
-                AND content='1'
-                AND p.deleted=0
-              ORDER BY " . $orderby;
-
-
-    $packages = $DB->get_records_sql($sql, array($channel . '+_publishas'));
+    $packages = $DB->get_records('block_edupublisher_packages', [], 'id DESC', 'id');
     foreach($packages AS $p) {
-        $package = new \block_edupublisher\package($p->package, true);
-        $package->maintainer_default = $maintainer_default;
-        $package->maintainer_etapas = $maintainer_etapas;
-        $package->maintainer_eduthek = $maintainer_eduthek;
-        $package->hasexacompsourceids = !empty($package->default_exacompsourceids) && count($package->default_exacompsourceids) > 0;
-        $package->exclamation = (
-            $maintainer_default && !empty($package->default_publishas) && empty($package->default_active)
+        $package = new \block_edupublisher\package($p->id, true);
+        $package->set($maintainer_default, 'maintainer', 'default');
+        $package->set($maintainer_eduthek, 'maintainer', 'eduthek');
+        $package->set($maintainer_etapas, 'maintainer', 'etapas');
+
+        $hasexacompsourceids = !empty($package->get('exacompsourceids', 'default')) && count($package->get('exacompsourceids', 'default')) > 0;
+        $package->set($hasexacompsourceids, 'hasexacompsourceids', 'etapas');
+
+        $exclamation = (
+            $maintainer_default && !empty($package->get('publishas', 'default')) && empty($package->get('published', 'default'))
             ||
-            $maintainer_etapas && !empty($package->etapas_publishas) && empty($package->etapas_active)
+            $maintainer_etapas && !empty($package->get('publishas', 'etapas')) && empty($package->get('published', 'etapas'))
             ||
-            $maintainer_eduthek && !empty($package->eduthek_publishas) && empty($package->eduthek_active)
+            $maintainer_eduthek && !empty($package->get('publishas', 'eduthek')) && empty($package->get('published', 'eduthek'))
         );
+        $package->set($exclamation, 'exclamation');
         echo $OUTPUT->render_from_template(
             'block_edupublisher/maintain_table_row',
-            $package
+            $package->get_flattened()
         );
     }
     echo $OUTPUT->render_from_template('block_edupublisher/maintain_table_foot', array());

@@ -44,30 +44,35 @@
             <img src="{{default_image}}" alt="{{title}}" style="width: 40px;"/>
         </a>
     </td>
-    <td>{{title}} (<i>{{default_authorname}}</i>)</td>
+    <td>
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}">
+            {{title}}
+        </a>
+        (<i>{{default_authorname}}</i>)
+    </td>
     <td>
         {{#default_publishas}} {{#pix}} i/completion-auto-y, core, requested publishing {{/pix}} {{/default_publishas}}
         {{^default_publishas}} {{#pix}} i/completion-auto-fail, core, NO require publishing {{/pix}} {{/default_publishas}}
     </td>
     <td>
-        {{#default_active}} {{#pix}} i/completion-auto-pass, core, is published {{/pix}} {{/default_active}}
-        {{^default_active}} {{#pix}} i/completion-auto-fail, core, is NOT published {{/pix}} {{/default_active}}
+        {{#default_published}} {{#pix}} i/completion-auto-pass, core, is published {{/pix}} {{/default_published}}
+        {{^default_published}} {{#pix}} i/completion-auto-fail, core, is NOT published {{/pix}} {{/default_published}}
     </td>
     <td>
         {{#etapas_publishas}} {{#pix}} i/completion-auto-y, core, requested publishing {{/pix}} {{/etapas_publishas}}
         {{^etapas_publishas}} {{#pix}} i/completion-auto-fail, core, NO require publishing {{/pix}} {{/etapas_publishas}}
     </td>
     <td>
-        {{#etapas_active}} {{#pix}} i/completion-auto-pass, core, is published {{/pix}} {{/etapas_active}}
-        {{^etapas_active}} {{#pix}} i/completion-auto-fail, core, is NOT published {{/pix}} {{/etapas_active}}
+        {{#etapas_published}} {{#pix}} i/completion-auto-pass, core, is published {{/pix}} {{/etapas_published}}
+        {{^etapas_published}} {{#pix}} i/completion-auto-fail, core, is NOT published {{/pix}} {{/etapas_published}}
     </td>
     <td>
         {{#eduthek_publishas}} {{#pix}} i/completion-auto-y, core, requested publishing {{/pix}} {{/eduthek_publishas}}
         {{^eduthek_publishas}} {{#pix}} i/completion-auto-fail, core, NO require publishing {{/pix}} {{/eduthek_publishas}}
     </td>
     <td>
-        {{#eduthek_active}} {{#pix}} i/completion-auto-pass, core, is published {{/pix}} {{/eduthek_active}}
-        {{^eduthek_active}} {{#pix}} i/completion-auto-fail, core, is NOT published {{/pix}} {{/eduthek_active}}
+        {{#eduthek_published}} {{#pix}} i/completion-auto-pass, core, is published {{/pix}} {{/eduthek_published}}
+        {{^eduthek_published}} {{#pix}} i/completion-auto-fail, core, is NOT published {{/pix}} {{/eduthek_published}}
     </td>
     <td>
         {{> block_edupublisher/package_rating }}
