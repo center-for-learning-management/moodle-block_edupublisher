@@ -239,6 +239,7 @@ define(
         searchNow: function(o, sender) {
             o.subjectareas = [];
             o.schoollevels = [];
+            o.stars = [];
             if (typeof sender !== 'undefined') {
                 if ($(sender).attr('name') == 'subjectarea') {
                     $(sender).toggleClass('selected');
@@ -250,6 +251,11 @@ define(
                     $('.' + o.uniqid + '-schoollevel').prop('checked', false);
                     $('.' + o.uniqid + '-schoollevel.selected').prop('checked', true);
                 }
+                if ($(sender).attr('name') == 'stars') {
+                    $(sender).toggleClass('selected');
+                    $('.' + o.uniqid + '-stars').prop('checked', false);
+                    $('.' + o.uniqid + '-stars.selected').prop('checked', true);
+                }
             }
             $('.' + o.uniqid + '-subjectarea.selected').each(function() {
                 o.subjectareas[o.subjectareas.length] = $(this).attr('value');
@@ -257,9 +263,18 @@ define(
             $('.' + o.uniqid + '-schoollevel.selected').each(function() {
                 o.schoollevels[o.schoollevels.length] = $(this).attr('value');
             });
+            $('.' + o.uniqid + '-stars.selected').each(function() {
+                o.stars[o.stars.length] = $(this).attr('value');
+            });
             o.search = $('#' + o.uniqid + '-search').val();
             // Generate object for sending (only some parameters accepted by webservice)
-            var o2 = { courseid: o.courseid, search: o.search, subjectareas: o.subjectareas.join('zzzZZZzzz'), schoollevels: o.schoollevels.join('zzzZZZzzz') };
+            var o2 = {
+                courseid: o.courseid,
+                search: o.search,
+                schoollevels: o.schoollevels.join('zzzZZZzzz'),
+                subjectareas: o.subjectareas.join('zzzZZZzzz'),
+                stars: o.stars.join('zzzZZZzzz')
+            };
             require(['block_edupublisher/main'], function(MAIN) {
                 MAIN.searchid++;
                 var searchid = MAIN.searchid;
@@ -271,9 +286,7 @@ define(
                         if (MAIN.searchid != searchid) {
                             //console.log(' => Got response for searchid ', searchid, ' but it is not the current search', MAIN.searchid);
                         } else {
-                            //console.log('Result', result, result.sql, result.sqlparams);
-                            //$('ul#' + o.uniqid + '-results').empty().html(result);
-
+                            var container = $('#' + o.uniqid + '-filterResults').empty();
                             var result = JSON.parse(result);
                             //console.log('Received', result);
                             $('ul#' + o.uniqid + '-results').empty();
@@ -291,9 +304,18 @@ define(
                                 var item = result.packages[a];
                                 item.importtocourseid = o.courseid;
                                 item.importtosectionid = o.sectionid;
-                                item.showpreviewbutton = true;
-                                //console.log('Call list-template for item ', item);
-                                MAIN.searchTemplate(o.uniqid, position++, 'block_edupublisher/search_li', item);
+                                item.showpreviewbutton = false;
+                                item.url = item.wwwroot + '/course/view.php?id=' + item.course;
+                                console.log('Call list-template for item ', item);
+                                TEMPLATES
+                                    .render('block_edupublisher/search_item', item)
+                                    .then(function(html, js) {
+                                        TEMPLATES.appendNodeContents(container, html, js);
+                                    }).fail(function(ex) {
+                                        console.error(ex);
+                                    });
+
+                                //MAIN.searchTemplate(container, 'block_edupublisher/search_item', item);
                             }
                         }
                     },

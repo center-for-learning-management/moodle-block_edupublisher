@@ -481,8 +481,9 @@ class block_edupublisher_external extends external_api {
         return new external_function_parameters(array(
             'courseid' => new external_value(PARAM_INT, 'courseid'),
             'search' => new external_value(PARAM_TEXT, 'search term'),
-            'subjectareas' => new external_value(PARAM_ALPHANUMEXT, 'comma-separated list of subjectareas'),
             'schoollevels' => new external_value(PARAM_ALPHANUMEXT, 'comma-separated list of schoollevels'),
+            'subjectareas' => new external_value(PARAM_ALPHANUMEXT, 'comma-separated list of subjectareas'),
+            'stars' => new external_value(PARAM_ALPHANUMEXT, 'comma-separated list of stars'),
         ));
     }
 
@@ -490,7 +491,7 @@ class block_edupublisher_external extends external_api {
      * Perform the search.
      * @return list of packages as json encoded string.
      */
-    public static function search($courseid, $search, $subjectareas, $schoollevels) {
+    public static function search($courseid, $search, $schoollevels, $subjectareas, $stars) {
         global $CFG, $DB, $OUTPUT, $PAGE, $USER;
         // page-context is required for output of templates.
         $PAGE->set_context(\context_system::instance());
@@ -499,15 +500,26 @@ class block_edupublisher_external extends external_api {
             array(
                 'courseid' => $courseid,
                 'search' => $search,
+                'schoollevels' => $schoollevels,
                 'subjectareas' => $subjectareas,
-                'schoollevels' => $schoollevels
+                'stars' => $stars
             )
         );
 
-        $params['subjectareas'] = array_filter(explode('zzzZZZzzz', $params['subjectareas']));
         $params['schoollevels'] = array_filter(explode('zzzZZZzzz', $params['schoollevels']));
+        $params['subjectareas'] = array_filter(explode('zzzZZZzzz', $params['subjectareas']));
+        $params['stars'] = array_filter(explode('zzzZZZzzz', $params['stars']));
 
         $reply = [];
+
+        $filters_schoollevels = [];
+        foreach ($params['schoollevels'] as $schoollevel) {
+            $filters_schoollevels[] = "mdef.schoollevel_$schoollevel=1";
+        }
+        $filters_schoollevels = implode(' OR ', $filters_schoollevels);
+        if (!empty($filters_schoollevels)) {
+            $filters_schoollevels = "AND ($filters_schoollevels)";
+        }
 
         $filters_subjectareas = [];
         foreach ($params['subjectareas'] as $subjectarea) {
@@ -518,13 +530,13 @@ class block_edupublisher_external extends external_api {
             $filters_subjectareas = "AND ($filters_subjectareas)";
         }
 
-        $filters_schoollevels = [];
-        foreach ($params['schoollevels'] as $schoollevel) {
-            $filters_schoollevels[] = "mdef.schoollevel_$schoollevel=1";
+        $filters_stars = [];
+        foreach ($params['stars'] as $star) {
+            $filters_stars[] = "p.rating=$star";
         }
-        $filters_schoollevels = implode(' OR ', $filters_schoollevels);
-        if (!empty($filters_schoollevels)) {
-            $filters_schoollevels = "AND ($filters_schoollevels)";
+        $filters_stars = implode(' OR ', $filters_stars);
+        if (!empty($filters_stars)) {
+            $filters_stars = "AND ($filters_stars)";
         }
 
         $filters_search = [];
@@ -573,18 +585,17 @@ class block_edupublisher_external extends external_api {
                     WHERE p.id = mdef.package
                         AND p.id = medu.package
                         AND p.id = meta.package
-                        $filters_subjectareas
                         $filters_schoollevels
+                        $filters_subjectareas
+                        $filters_stars
                         $filters_search
                     $order_by
                     $limit";
-
         $reply['packages'] = array_values($DB->get_records_sql($sql));
         for ($a = 0; $a < count($reply['packages']); $a++) {
             $package = new \block_edupublisher\package($reply['packages'][$a]->id, true, [ 'internal', 'rating' ]);
             $reply['packages'][$a] = $package->get_flattened();
         }
-
         return json_encode($reply, JSON_NUMERIC_CHECK);
     }
     /**

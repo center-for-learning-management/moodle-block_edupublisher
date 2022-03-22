@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/edupublisher/db" VERSION="20220308" COMMENT="XMLDB file for Moodle blocks/edupublisher"
+<XMLDB PATH="blocks/edupublisher/db" VERSION="20220322" COMMENT="XMLDB file for Moodle blocks/edupublisher"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -12,6 +12,7 @@
         <FIELD NAME="sourcecourse" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false" COMMENT="Originating courseid"/>
         <FIELD NAME="channels" TYPE="char" LENGTH="250" NOTNULL="false" SEQUENCE="false" COMMENT="comma-separated list of channels"/>
         <FIELD NAME="title" TYPE="char" LENGTH="250" NOTNULL="false" SEQUENCE="false" COMMENT="Title of the published package"/>
+        <FIELD NAME="rating" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false" COMMENT="The mean rating as integer"/>
         <FIELD NAME="created" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was created"/>
         <FIELD NAME="modified" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false" COMMENT="timestamp when it was modified"/>
         <FIELD NAME="backuped" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
@@ -21,6 +22,10 @@
       <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
       </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_rating" UNIQUE="false" FIELDS="rating"/>
+        <INDEX NAME="idx_title" UNIQUE="false" FIELDS="title"/>
+      </INDEXES>
     </TABLE>
     <TABLE NAME="block_edupublisher_comments" COMMENT="comments to published items">
       <FIELDS>

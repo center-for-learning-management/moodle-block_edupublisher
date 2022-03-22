@@ -1,0 +1,187 @@
+// out: ../style/search.css, sourcemap: false, compress: true
+@eduvidualblue:#1b89da;
+@eduvidualbluedark: #10507f;
+
+.block_edupublisher.search {
+    .filterContainer {
+        height: auto;
+        background: #f1f1f1;
+        padding: 1em;
+
+        h3 {
+            margin: 0 0 .8em 0!important;
+            font-weight: 400;
+        }
+
+        .btnFilterResources {
+            border: 1px solid black;
+            border-radius: 5px;
+            color:black;
+            margin: 0.3em 0;
+            border-radius: 3px;
+
+            &:hover {
+                background: @eduvidualblue;
+                color: white;
+                border: 1px solid @eduvidualblue;
+            }
+        }
+
+        .form-control {
+            background: none;
+            border:none;
+            border-bottom: 1px solid;
+        }
+
+        input:focus::-webkit-input-placeholder  {
+            transition: opacity 0.5s ease!important;
+            opacity: 0;
+        }
+
+        /*input:focus::placeholder {
+        color: #f1f1f1;
+        }*/
+    }
+
+    //.activeClass for btnFilterResources only
+    .btnFilterResourcesActive {
+        background: @eduvidualblue;
+        color: white!important;
+        border: 1px solid @eduvidualblue!important;
+    }
+
+    .filterResults {
+        margin-top: 1em;
+        display:flex;
+        flex-wrap: wrap;
+        row-gap: 10px;
+        column-gap: 10px;
+
+        .card {
+            //flex: 1; //(wenn man immer die volle breite haben möchte - Nachteil ist das unten die letzen cards in die Breite gehen)
+            width: calc(20% - 8px); //(hier muss man die Breakpoints immer einzeln machen - es ist aber besser als grid weil das muss man im backend generieren)
+            min-width: 15em;
+            border: none;
+            cursor: pointer;
+
+            .card-header {
+                padding: 0;
+                border-bottom: none;
+                position: relative;
+
+                .card-title {
+                    font-weight: 600;
+                    position: absolute;
+                    top: 3em;
+                    color: white;
+                    font-size: 1.5em;
+                    margin: 0 auto;
+                    text-align: center;
+                    width: 100%;
+                    //text-shadow: 1px 1px 3px rgba(170, 170, 170, 1);
+                    transition: all .2s ease-in-out;
+                }
+
+                .rating {
+                    position: absolute;
+                    top: 0;
+                    right: 5px;
+
+                    img {
+                        height: 15px;
+                        margin: 0 1.5px;
+                    }
+                }
+
+
+                .overlay {
+                    position: absolute;
+                    top: 0;
+                    width: 100%;
+                    background: rgba(0,0,0,0.1);
+                    height: 100%;
+                }
+
+            }
+
+
+            .card-body {
+                display: flex;
+                flex-direction: column;
+                padding: 0.5em 0;
+
+                .card-text {
+                    display: flex;
+                    flex-wrap: wrap;
+                    column-gap: 5px;
+                    row-gap: 5px;
+                    justify-content: center;
+
+                    &:nth-child(2) {
+                        display: flex;
+                        align-content: flex-end;
+                        height: 100%;
+                        justify-content: flex-end;
+                    }
+                }
+            }
+        }
+    }
+
+    //Das ist nicht die sauberste Lösung, allerdings wöre GRID die Alternative gewesen und das wäre für noch komplizierte, da man das einen fixen Rahmen geben muss, eine fixe anzahl
+    //von Elementen. Hätte man es nur mit flex: 1 gemacht, wären die Elemnte unten getretcht worden, daher gibt es einzelen Breakpoints. Hoffenwir das CSS 4 eine Revolution herausbringt.
+
+
+    .card:hover > .card-header .card-title {
+        transform: scale(1.2);
+    }
+
+    @media only screen and (max-width: 1502px) {
+        #filterResults .card {
+            width: calc(25% - 8px);
+        }
+    }
+
+    @media only screen and (max-width: 1270px) {
+        #filterResults .card {
+            width: calc(33% - 4px);
+        }
+    }
+
+    @media only screen and (max-width: 1062px) {
+        #filterResults .card {
+            width: calc(50% - 5px);
+        }
+    }
+
+
+    @media only screen and (max-width: 630px) {
+        #filterResults .card {
+            width: 100%; //nimmt calc mit 0px nicht - browser löscht es
+        }
+    }
+
+
+
+    .card-img, .card-img-top, .card-img-bottom {
+        height: 10em;
+        object-fit: cover;
+
+    }
+
+    .badge {
+        border-radius: 2px;
+        color:white;
+        padding: 5px 10px;
+        font-weight: 500;
+    }
+
+    .RessourceSearchInput {
+        margin-top: 1.5em;
+
+
+        &::placeholder {
+
+        }
+    }
+}
