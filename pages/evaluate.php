@@ -29,7 +29,7 @@ require_once($CFG->dirroot . '/blocks/edupublisher/classes/etapas_evaluation_for
 $packageid = required_param('packageid', PARAM_INT);
 $perma = optional_param('perma', '', PARAM_TEXT);
 
-$package = new \block_edupublisher\package($packageid, false);
+$package = new \block_edupublisher\package($packageid, true);
 
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/evaluate.php', array('packageid' => $packageid, 'perma' => $perma)));
 
@@ -94,6 +94,8 @@ if (!has_capability('block/edupublisher:canevaluate', \context_system::instance(
         if (!empty($id)) {
             $sendto = array('allmaintainers', 'author', 'self');
             $linkurl = "/blocks/edupublisher/pages/evaluation.php?packageid=$packageid&id=$id";
+            $package->set('eval', 'status', 'etapas');
+            $package->store_package_db();
             $package->store_comment('comment:evaluation:added', $sendto, true, true, "etapas", $linkurl);
             echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
                 'type' => 'success',

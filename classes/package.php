@@ -950,30 +950,37 @@ class package {
         global $DB;
         $this->set(time(), 'modified');
         $DB->update_record('block_edupublisher_packages', $this->get_channel('_', true));
-        $DB->update_record('block_edupublisher_md_com', $this->get_channel('commercial', true));
-        $DB->update_record('block_edupublisher_md_def', $this->get_channel('default', true));
-        $DB->update_record('block_edupublisher_md_edu', $this->get_channel('eduthek', true));
-        $DB->update_record('block_edupublisher_md_eta', $this->get_channel('etapas', true));
+        $channels = [
+            'com' => $this->get_channel('commercial', true),
+            'def' => $this->get_channel('default', true),
+            'edu' => $this->get_channel('eduthek', true),
+            'eta' => $this->get_channel('etapas', true),
+        ];
+        foreach ($channels as $chan => $channel) {
+            $DB->update_record("block_edupublisher_md_$chan", $channel);
+        }
 
         $exacompdatasources = $this->get('exacompdatasources');
         $exacompsourceids = $this->get('exacompsourceids');
         $exacomptitles = $this->get('exacomptitles');
 
-        for ($a = 0; $a < count($exacompdatasources); $a++) {
-            $params = [
-                'package' => $this->get('id'),
-                'datasource' => $exacompdatasources[$a],
-                'sourceid' => $exacompsourceids[$a]
-            ];
+        if (!empty($exacompdatasources)) {
+            for ($a = 0; $a < count($exacompdatasources); $a++) {
+                $params = [
+                    'package' => $this->get('id'),
+                    'datasource' => $exacompdatasources[$a],
+                    'sourceid' => $exacompsourceids[$a]
+                ];
 
-            $rec = $DB->get_record('block_edupublisher_md_exa', $params);
-            if (empty($rec->id)) {
-                $params['title'] = $exacomptitles[$a];
-                $DB->insert_record('block_edupublisher_md_exa', $params);
-            } else {
-                if ($rec->title != $exacomptitles[$a]) {
-                    $rec->title = $exacomptitles[$a];
-                    $DB->update_record('block_edupublisher_md_exa', $rec);
+                $rec = $DB->get_record('block_edupublisher_md_exa', $params);
+                if (empty($rec->id)) {
+                    $params['title'] = $exacomptitles[$a];
+                    $DB->insert_record('block_edupublisher_md_exa', $params);
+                } else {
+                    if ($rec->title != $exacomptitles[$a]) {
+                        $rec->title = $exacomptitles[$a];
+                        $DB->update_record('block_edupublisher_md_exa', $rec);
+                    }
                 }
             }
         }

@@ -793,6 +793,20 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
         upgrade_block_savepoint(true, 2022031000, 'edupublisher');
     }
+    if ($oldversion < 2022032200) {
+        // Set status automatically for all evaluated etapas.
+        global $DB;
+        $etapas = $DB->get_records('block_edupublisher_md_eta', [], '', 'id,package,published');
+        foreach ($etapas as $etapa) {
+            if (!empty($etapa->published)) {
+                $DB->set_field('block_edupublisher_md_eta', 'status', 'public', [ 'package' => $etapa->package ]);
+            }
+        }
+        $evaluations = $DB->get_records('block_edupublisher_evaluatio', [], '', 'id,packageid');
+        foreach ($evaluations as $evaluation) {
+            $DB->set_field('block_edupublisher_md_eta', 'status', 'eval', [ 'package' => $evaluation->packageid ]);
+        }
+    }
 
 
     return true;
