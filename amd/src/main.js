@@ -306,7 +306,7 @@ define(
                                 item.importtosectionid = o.sectionid;
                                 item.showpreviewbutton = false;
                                 item.url = item.wwwroot + '/course/view.php?id=' + item.course;
-                                console.log('Call list-template for item ', item);
+                                //console.log('Call list-template for item ', item);
                                 TEMPLATES
                                     .render('block_edupublisher/search_item', item)
                                     .then(function(html, js) {
