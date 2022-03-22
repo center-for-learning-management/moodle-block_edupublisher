@@ -585,6 +585,7 @@ class block_edupublisher_external extends external_api {
                     WHERE p.id = mdef.package
                         AND p.id = medu.package
                         AND p.id = meta.package
+                        AND p.active > 0
                         $filters_schoollevels
                         $filters_subjectareas
                         $filters_stars

@@ -15,27 +15,25 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 
-<div class="card">
-    <div class="card-header">
-        <a href="{{{url}}}">
+<a href="{{{url}}}">
+    <div class="card">
+        <div class="card-header">
             <img src="{{{wwwroot}}}/{{default_image}}" class="card-img-top" alt="{{title}}">
-        </a>
 
-        <div class="overlay"></div>
-        <h5 class="card-title">
-            <a href="{{{url}}}">
+            <div class="overlay"></div>
+            <h5 class="card-title">
                 {{title}}
-            </a>
-        </h5>
-        <div class="rating">
-            {{> block_edupublisher/package_rating }}
+            </h5>
+            <div class="rating">
+                {{> block_edupublisher/package_rating_display }}
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="card-text">
+                {{#default_tags}}
+                    <span class="badge bg-secondary">{{.}}</span>
+                {{/default_tags}}
+            </div>
         </div>
     </div>
-    <div class="card-body">
-        <div class="card-text">
-            {{#default_tags}}
-                <span class="badge bg-secondary">{{.}}</span>
-            {{/default_tags}}
-        </div>
-    </div>
-</div>
+</a>
