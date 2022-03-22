@@ -760,6 +760,19 @@ class block_edupublisher_external extends external_api {
             \block_edupublisher\lib::toggle_guest_access($package->get('course'), $package->get('active'));
             \block_edupublisher\wordpress::action((!empty($package->get('active')) ? 'published' : 'unpublished'), $package);
 
+            $published = $package->get('published', 'etapas');
+            if (!empty($published)) {
+                $evaluation = $DB->get_record('block_edupublisher_evaluatio', [ 'packageid' => $package->get('id')]);
+                if (!empty($evaluation->id)) {
+                    $package->set('eval', 'status', 'etapas');
+                } else {
+                    $package->set('public', 'status', 'etapas');
+                }
+
+            } else if (empty($published)) {
+                $package->set('inspect', 'status', 'etapas');
+            }
+
             $package->store_package_db();
 
             // The comment system is using mustache templates
