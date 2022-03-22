@@ -16,34 +16,36 @@
 }}
 
 <div class="block_edupublisher search">
-    <section id="filterContainer">
-        <h3>Ressourcenfilter</h3>
-        <a href="" style="position: absolute; right: 60px; top: 37px;">
+    <section id="{{uniqid}}-filterContainer" class="filterContainer">
+        <a href="#" style="position: absolute; right: 60px; top: 37px;"
+            onclick="$('#{{uniqid}}-filterExtended').toggleClass('hidden'); return false;">
             {{#str}} collapse {{/str}}
         </a>
-        {{#subjectareas}}
-            <button name="subjectarea" class="btn btn-sm btnFilterResources {{uniqid}}-subjectarea"
-                value="{{key}}" {{#isselected}} checked="checked" {{/isselected}}
-                onclick="var b = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.searchNow({ uniqid: '{{uniqid}}', courseid: {{courseid}}, sectionid: {{sectionid}} }, b); }); return false;">
-                {{name}}
-            </button>
-        {{/subjectareas}}
-        <hr style="width:100%;text-align:left;margin-left:0">
-        {{#schoollevels}}
-            <button name="schoollevel" class="btn btn-sm btnFilterResources {{uniqid}}-schoollevel"
-                value="{{key}}" {{#isselected}} checked="checked" {{/isselected}}
-                onclick="var b = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.searchNow({ uniqid: '{{uniqid}}', courseid: {{courseid}}, sectionid: {{sectionid}} }, b); }); return false;">
-                {{name}}
-            </button>
-        {{/schoollevels}}
-        <hr style="width:100%;text-align:left;margin-left:0">
-        {{#stars}}
-            <button name="stars" class="btn btn-sm btnFilterResources {{uniqid}}-stars"
-                value="{{key}}"
-                onclick="var b = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.searchNow({ uniqid: '{{uniqid}}', courseid: {{courseid}}, sectionid: {{sectionid}} }, b); }); return false;">
-                {{name}}
-            </button>
-        {{/stars}}
+        <div id="{{uniqid}}-filterExtended">
+            {{#subjectareas}}
+                <button name="subjectarea" class="btn btn-sm btnFilterResources {{uniqid}}-subjectarea"
+                    value="{{key}}" {{#isselected}} checked="checked" {{/isselected}}
+                    onclick="var b = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.searchNow({ uniqid: '{{uniqid}}', courseid: {{courseid}}, sectionid: {{sectionid}} }, b); }); return false;">
+                    {{name}}
+                </button>
+            {{/subjectareas}}
+            <hr style="width:100%;text-align:left;margin-left:0">
+            {{#schoollevels}}
+                <button name="schoollevel" class="btn btn-sm btnFilterResources {{uniqid}}-schoollevel"
+                    value="{{key}}" {{#isselected}} checked="checked" {{/isselected}}
+                    onclick="var b = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.searchNow({ uniqid: '{{uniqid}}', courseid: {{courseid}}, sectionid: {{sectionid}} }, b); }); return false;">
+                    {{name}}
+                </button>
+            {{/schoollevels}}
+            <hr style="width:100%;text-align:left;margin-left:0">
+            {{#stars}}
+                <button name="stars" class="btn btn-sm btnFilterResources {{uniqid}}-stars"
+                    value="{{key}}"
+                    onclick="var b = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.searchNow({ uniqid: '{{uniqid}}', courseid: {{courseid}}, sectionid: {{sectionid}} }, b); }); return false;">
+                    {{name}}
+                </button>
+            {{/stars}}
+        </div>
 
         <input type="text" id="{{uniqid}}-search" name="search" style="width: 100%;"
             class="form-control RessourceSearchInput"
