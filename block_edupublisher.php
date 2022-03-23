@@ -100,7 +100,7 @@ class block_edupublisher extends block_base {
                 $package->set(str_replace(array(' ', '.'), '', $package->etapas_subtype), 'graphic', 'etapas');
             }
             $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_inpackage', $package->get_flattened());
-        } elseif($canedit) {
+        } else if($canedit) {
             $cache = \cache::make('block_edupublisher', 'publish');
             $pendingpublication = $cache->get("pending_publication_$COURSE->id");
             if (empty($pendingpublication)) {
@@ -119,7 +119,7 @@ class block_edupublisher extends block_base {
             $params = (object) [
                 'courseid' => $COURSE->id,
                 'packages' => array_values($DB->get_records_sql('SELECT * FROM {block_edupublisher_packages} WHERE sourcecourse=? AND (active=1 OR userid=?)', array($COURSE->id, $USER->id))),
-                'pendingpublication' => ($pendingpublication == -1) ? 0 : $pendingpublication,
+                'pendingpublication' => (intval($pendingpublication) == -1) ? 0 : $pendingpublication,
                 'uses'     => array_values($DB->get_records_sql('SELECT DISTINCT(package) FROM {block_edupublisher_uses} WHERE targetcourse=?', array($COURSE->id))),
             ];
             $params->haspackages = (count($params->packages) > 0) ? 1 : 0;
