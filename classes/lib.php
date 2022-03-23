@@ -666,7 +666,7 @@ class lib {
         if (\block_edupublisher\lib::is_admin()) return true;
 
         $category = get_config('block_edupublisher', 'category');
-        $context = context_coursecat::instance($category);
+        $context = \context_coursecat::instance($category);
         $maintainer_default = has_capability('block/edupublisher:managedefault', $context);
         $maintainer_etapas = has_capability('block/edupublisher:manageetapas', $context);
         $maintainer_eduthek = has_capability('block/edupublisher:manageeduthek', $context);

@@ -308,7 +308,7 @@ class package {
         global $CFG, $DB;
         // Get competencies.
         $exacompdatasources = array();
-        $exacompids = array();
+        $exacompsourceids = array();
         $exacomptitles = array();
         $flagfound = array();
 
