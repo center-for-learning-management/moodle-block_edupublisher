@@ -125,7 +125,10 @@ for ($a = 0; $a < count($publishers); $a++) {
 }
 
 $stars = [];
-for ($a = 0; $a <= 5; $a++) {
+for ($a = -1; $a <= 5; $a++) {
+    if ($a == 0) {
+        continue;
+    }
     $label = get_string('star_none', 'block_edupublisher');
     if ($a == 1) $label = get_string('star_single', 'block_edupublisher');
     else if ($a > 1) $label = get_string('star_multiple', 'block_edupublisher', [ 'stars' => $a ]);

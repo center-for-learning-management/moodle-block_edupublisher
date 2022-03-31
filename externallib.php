@@ -532,8 +532,10 @@ class block_edupublisher_external extends external_api {
 
         $filters_stars = [];
         foreach ($params['stars'] as $star) {
+            if ($star == -1) $star = 0;
             $filters_stars[] = "p.rating=$star";
         }
+
         $filters_stars = implode(' OR ', $filters_stars);
         if (!empty($filters_stars)) {
             $filters_stars = "AND ($filters_stars)";
