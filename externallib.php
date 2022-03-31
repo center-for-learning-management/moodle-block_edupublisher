@@ -551,10 +551,13 @@ class block_edupublisher_external extends external_api {
                 if (empty($table)) continue; // unsupported channel.
 
                 foreach ($fields as $field => $fieldparams) {
+                    if (empty($fieldparams['searchable'])) {
+                        continue;
+                    }
                     // Certain fields have own filters.
                     if ($channel == 'default' && in_array($field, ['schoollevels', 'subjectareas'])) continue;
                     // Only search in text-fields.
-                    if (!in_array($fieldparams['type'], [ PARAM_TEXT ])) continue;
+                    if (!in_array($fieldparams['datatype'], [ PARAM_TEXT ])) continue;
                     if (!empty($fieldparams['multiple']) && !empty($fieldparams['options'])) {
                         foreach ($fieldparams['options'] as $option) {
                             $filters_search[] = "{$table}.{$field}_{$option} LIKE '%$s%'";
@@ -565,6 +568,7 @@ class block_edupublisher_external extends external_api {
                 }
             }
         }
+
         $filters_search = implode(' OR ', $filters_search);
         if (!empty($filters_search)) {
             $filters_search = "AND ($filters_search)";
@@ -592,6 +596,7 @@ class block_edupublisher_external extends external_api {
                         $filters_search
                     $order_by
                     $limit";
+
         $reply['packages'] = array_values($DB->get_records_sql($sql));
         for ($a = 0; $a < count($reply['packages']); $a++) {
             $package = new \block_edupublisher\package($reply['packages'][$a]->id, true, [ 'internal', 'rating' ]);

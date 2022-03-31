@@ -223,22 +223,22 @@ class lib {
                 'suppresscomment' => array('type' => 'select', 'datatype' => PARAM_INT, 'hidden_except_maintainer' => 1, 'options' => array(
                     '0' => get_string('no'), '1' => get_string('yes')
                 ), 'donotstore' => 1),
-                'title' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
+                'title' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1, 'searchable' => 1),
                 'licence' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
                     //'Public Domain' => 'Public Domain',
                     'cc-0' => 'cc-0',
                     'cc-by' => 'cc-by', 'cc-by-sa' => 'cc-by-sa',
                     'cc-by-nc' => 'cc-by-nc', 'cc-by-nc-sa' => 'cc-by-nc-sa',
                     'other' => get_string('default_licenceother', 'block_edupublisher'),
-                ), 'required' => 1),
-                'authorname' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
-                'authormail' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
+                ), 'required' => 1, 'searchable' => 1),
+                'authorname' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1, 'searchable' => 1),
+                'authormail' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1, 'searchable' => 1),
                 'authormailshow' => array('type' => 'select', 'datatype' => PARAM_INT, 'default' => 1, 'options' => array(
                     '1' => get_string('yes'), '0' => get_string('no')
                     )
                 ),
                 'origins' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_INT),
-                'summary' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
+                'summary' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
                 'image' => array('type' => 'filemanager', 'accepted_types' => 'image', 'required' => 1),
                 'subjectarea' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_TEXT, 'required' => 1, 'options' => array(
                     'arts' => get_string('default_subjectarea_arts', 'block_edupublisher'),
@@ -259,7 +259,7 @@ class lib {
                     'secondary_2' => get_string('default_schoollevel_secondary_2', 'block_edupublisher'),
                     'tertiary' => get_string('default_schoollevel_tertiary', 'block_edupublisher'),
                 )),
-                'tags' => array('type' => 'tags', 'datatype' => PARAM_TEXT, 'multiple' => 1, 'tagparams' => array('itemtype' => 'packages', 'component' => 'block_edupublisher')),
+                'tags' => array('type' => 'tags', 'datatype' => PARAM_TEXT, 'multiple' => 1, 'tagparams' => array('itemtype' => 'packages', 'component' => 'block_edupublisher'), 'searchable' => 1),
                 // Hidden elements
                 'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
                 'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
@@ -284,23 +284,23 @@ class lib {
                         'public' => get_string('etapas_status_public', 'block_edupublisher'),
                     )
                 ),
-                'type' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'default' => 'lesson', 'required' => 1, 'options' => array(
+                'type' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'default' => 'lesson', 'required' => 1, 'searchable' => 1, 'options' => array(
                     'lesson' => 'Unterricht', 'collection' => 'Beispielsammlung', 'learningroute' => 'Lernstrecke')
                 ),
-                'subtype' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'hidden_except_maintainer' => true, 'default' => 'etapa', 'options' => array(
+                'subtype' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'hidden_except_maintainer' => true, 'searchable' => 1, 'default' => 'etapa', 'options' => array(
                     'etapa' => 'eTapa', 'digi.komp 4' => 'digi.komp 4', 'digi.komp 8' => 'digi.komp 8', 'digi.komp 12' => 'digi.komp 12')
                 ),
-                'gegenstand' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
+                'gegenstand' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1, 'searchable' => 1),
                 //'vonschule' => array('type' => 'text', 'datatype' => PARAM_TEXT),
                 'schulstufe' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'multiple' => 1, 'required' => 1, 'options' => array(
                     1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5,
                     6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11,
                     12 => 12, 13 => 13)
                 ),
-                'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_RAW, 'required' => 0, 'default' => get_string('etapas_kompetenzen_help', 'block_edupublisher')),
-                'stundenablauf' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
-                'vorkenntnisse' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
-                'voraussetzungen' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
+                'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_RAW, 'required' => 0, 'default' => get_string('etapas_kompetenzen_help', 'block_edupublisher'), 'searchable' => 1),
+                'stundenablauf' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
+                'vorkenntnisse' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
+                'voraussetzungen' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
                 'zeitbedarf' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
                     '01:00' => '01:00', '02:00' => '02:00', '03:00' => '03:00'
                 )),
