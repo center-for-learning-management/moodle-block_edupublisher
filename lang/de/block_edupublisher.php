@@ -343,6 +343,7 @@ $string['removing_package_course'] = 'Entferne Kurs zum Paket #{$a->id} {$a->tit
 $string['reply'] = 'Antworten';
 $string['resource_catalogue'] = 'Ressourcenkatalog';
 $string['search'] = 'Suche';
+$string['search_for_term_author_etc'] = 'Suche nach Titel, Schlagwörtern, Autor/innen, ...';
 $string['search_in_edupublisher'] = 'Suche in eduPublisher';
 $string['search:enter_term'] = 'Bitte geben Sie Suchworte ein!';
 $string['search:noresults'] = 'Leider keine Ergebnisse!';

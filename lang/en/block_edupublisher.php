@@ -360,6 +360,7 @@ $string['removing_package_course'] = 'Removing course of package #{$a->id} {$a->
 $string['reply'] = 'Reply';
 $string['resource_catalogue'] = 'Resource catalogue';
 $string['search'] = 'Search';
+$string['search_for_term_author_etc'] = 'Search for titles, tags, authors, ...';
 $string['search_in_edupublisher'] = 'Search in eduPublisher';
 $string['search:enter_term'] = 'Please enter your search term(s)';
 $string['search:noresults'] = 'Sorry, nothing found';

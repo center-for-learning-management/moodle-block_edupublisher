@@ -17,10 +17,12 @@
 
 <div class="block_edupublisher search">
     <section id="{{uniqid}}-filterContainer" class="filterContainer">
+        <!--
         <a href="#" style="position: absolute; right: 60px; top: 37px;"
             onclick="$('#{{uniqid}}-filterExtended').toggleClass('hidden'); return false;">
             {{#str}} collapse {{/str}}
         </a>
+        -->
         <div id="{{uniqid}}-filterExtended">
             {{#subjectareas}}
                 <button name="subjectarea" class="btn btn-sm btnFilterResources {{uniqid}}-subjectarea"
@@ -49,7 +51,7 @@
 
         <input type="text" id="{{uniqid}}-search" name="search" style="width: 100%;"
             class="form-control RessourceSearchInput"
-            placeholder="{{#str}} search, block_edupublisher {{/str}}" value="{{search}}"
+            placeholder="{{#str}} search_for_term_author_etc, block_edupublisher {{/str}}" value="{{search}}"
             onkeyup="require(['block_edupublisher/main'], function(MAIN) { MAIN.search('{{uniqid}}', {{courseid}}, {{sectionid}}); });" />
     </section>
 

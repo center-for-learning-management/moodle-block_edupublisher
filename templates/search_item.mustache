@@ -19,15 +19,14 @@
     <div class="card">
         <div class="card-header">
             <img src="{{{wwwroot}}}/{{default_image}}" class="card-img-top" alt="{{title}}">
-
-            <div class="overlay"></div>
             <h5 class="card-title">
-                {{title}}
+                {{#shortentext}} 130, {{{title}}} {{/shortentext}}
             </h5>
             <div class="rating">
                 {{> block_edupublisher/package_rating_display }}
             </div>
         </div>
+        <!--
         <div class="card-body">
             <div class="card-text">
                 {{#default_tags}}
@@ -35,5 +34,6 @@
                 {{/default_tags}}
             </div>
         </div>
+        -->
     </div>
 </a>
