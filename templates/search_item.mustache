@@ -1,0 +1,39 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+
+<a href="{{{url}}}">
+    <div class="card">
+        <div class="card-header">
+            <img src="{{{wwwroot}}}/{{default_image}}" class="card-img-top" alt="{{title}}">
+            <h5 class="card-title">
+                {{#shortentext}} 130, {{{title}}} {{/shortentext}}
+            </h5>
+            <div class="rating">
+                {{> block_edupublisher/package_rating_display }}
+            </div>
+        </div>
+        <!--
+        <div class="card-body">
+            <div class="card-text">
+                {{#default_tags}}
+                    <span class="badge bg-secondary">{{.}}</span>
+                {{/default_tags}}
+            </div>
+        </div>
+        -->
+    </div>
+</a>

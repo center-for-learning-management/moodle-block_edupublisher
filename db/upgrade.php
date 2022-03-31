@@ -807,6 +807,30 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
             $DB->set_field('block_edupublisher_md_eta', 'status', 'eval', [ 'package' => $evaluation->packageid ]);
         }
     }
+    if ($oldversion < 2022032201) {
+        $table = new xmldb_table('block_edupublisher_packages');
+        $field = new xmldb_field('rating', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'title');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $index = new xmldb_index('idx_rating', XMLDB_INDEX_NOTUNIQUE, ['rating']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        $index = new xmldb_index('idx_title', XMLDB_INDEX_NOTUNIQUE, ['title']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        global $DB;
+        $sql = "SELECT package,AVG(rating) avg
+                    FROM {block_edupublisher_rating}
+                    GROUP BY package";
+        $ratings = $DB->get_records_sql($sql, []);
+        foreach ($ratings as $rating) {
+            $DB->set_field('block_edupublisher_packages', 'rating', round($rating->avg, 0), [ 'id' => $rating->package ]);
+        }
+        upgrade_block_savepoint(true, 2022032201, 'edupublisher');
+    }
 
 
     return true;

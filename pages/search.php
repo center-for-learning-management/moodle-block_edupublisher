@@ -68,6 +68,7 @@ $PAGE->set_heading(get_string('resource_catalogue', 'block_edupublisher'));
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/search.php', array('courseid' => $course, 'search' => $search, 'sectionid' => $section, 'layout' => $layout)));
 $PAGE->set_pagelayout($layout);
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
+$PAGE->requires->css('/blocks/edupublisher/style/search.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 $PAGE->navbar->add(get_string('search_in_edupublisher', 'block_edupublisher'), $PAGE->url);
 
@@ -123,6 +124,20 @@ for ($a = 0; $a < count($publishers); $a++) {
     $publishers[$a]->items = array_values($publishers[$a]->items);
 }
 
+$stars = [];
+for ($a = -1; $a <= 5; $a++) {
+    if ($a == 0) {
+        continue;
+    }
+    $label = get_string('star_none', 'block_edupublisher');
+    if ($a == 1) $label = get_string('star_single', 'block_edupublisher');
+    else if ($a > 1) $label = get_string('star_multiple', 'block_edupublisher', [ 'stars' => $a ]);
+    $stars[] = (object)[
+        'key' => $a,
+        'name' => $label,
+    ];
+}
+
 //print_r($publishers);
 echo $OUTPUT->render_from_template(
     'block_edupublisher/search',
@@ -139,6 +154,7 @@ echo $OUTPUT->render_from_template(
         'subjectareas' => $subjectareas,
         'schoollevel' => $schoollevel,
         'schoollevels' => $schoollevels,
+        'stars' => $stars,
         'wwwroot' => $CFG->wwwroot,
     )
 );
