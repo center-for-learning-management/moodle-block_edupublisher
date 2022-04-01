@@ -62,10 +62,6 @@ if ($package->get('canedit')) {
     }
     $flattened = $package->get_flattened();
     $flattened->origins = $package->load_origins();
-    echo "<pre>";
-    print_r($package->get('topic', 'eduthek'));
-    //print_r($package->get_flattened());
-    echo "</pre>";
     $form->set_data($flattened);
     echo "<div class=\"skip-ui-eduvidual ui-edupublisher-skip\">";
     $form->display();
