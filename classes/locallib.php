@@ -29,7 +29,7 @@ class locallib {
     /**
      * Used to split the metadata table into separate tables.
      */
-    public static function atomize_database() {
+    public static function atomize_database() : bool {
         global $CFG, $DB;
 
         $metadatas = $DB->get_records('block_edupublisher_metadata', null, 'package ASC');
@@ -38,7 +38,7 @@ class locallib {
             'default' => (object) [],
             'eduthek' => (object) [],
             'etapas' => (object) [],
-            'exacomp' => [],
+            'exacomp' => []
         ];
         foreach ($metadatas as $md) {
             if (!empty($curpackage->package) && $md->package != $curpackage->package) {
@@ -68,7 +68,7 @@ class locallib {
                         $curpackage->exacomp[] = (object) [
                             'datasource' => $curpackage->default->exacompdatasources[$i],
                             'sourceid' => $curpackage->default->exacompsourceids[$i],
-                            'title' => $curpackage->default->exacomptitles[$i],
+                            'title' => $curpackage->default->exacomptitles[$i]
                         ];
                     }
                 }
@@ -122,7 +122,7 @@ class locallib {
                     $para = [
                         'package' => $curpackage->package,
                         'datasource' => $exa->datasource,
-                        'sourceid' => $exa->sourceid,
+                        'sourceid' => $exa->sourceid
                     ];
                     $chk = $DB->get_record('block_edupublisher_md_exa', $para);
                     if (!empty($chk->id)) {
@@ -138,7 +138,7 @@ class locallib {
                     'default' => (object) [],
                     'eduthek' => (object) [],
                     'etapas' => (object) [],
-                    'exacomp' => [],
+                    'exacomp' => []
                 ];
             }
 
@@ -155,6 +155,9 @@ class locallib {
                     continue;
                 } else {
                     if (empty($curpackage->{$channel}->{$param})) {
+                        $curpackage->{$channel}->{$param} = [];
+                    }
+                    if (!is_array($curpackage->{$channel}->{$param})) {
                         $curpackage->{$channel}->{$param} = [];
                     }
                     $curpackage->{$channel}->{$param}[] = $md->content;
