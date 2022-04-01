@@ -157,7 +157,8 @@ class locallib {
                     if (empty($curpackage->{$channel}->{$param})) {
                         $curpackage->{$channel}->{$param} = [];
                     }
-                    $curpackage->{$channel}->{$param}[] = $md->content;
+                    $curpackage->{$channel}->{$param} = [];
+                    $curpackage->{$channel}->{$param} = $md->content
                 }
             } else {
                 $curpackage->{$channel}->{$param} = $md->content;
