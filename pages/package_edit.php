@@ -44,12 +44,14 @@ $PAGE->navbar->add(get_string('edit'), $PAGE->url);
 \block_edupublisher\lib::check_requirements();
 
 echo $OUTPUT->header();
-
 if ($package->get('canedit')) {
     $package->load_origins();
-
     require_once("$CFG->dirroot/blocks/edupublisher/classes/package_create_form.php");
     $form = new package_create_form(null, null, 'post', '_self', array('onsubmit' => 'this.querySelectorAll("input").forEach( i => i.disabled = false)'), true);
+    // get_data as dummy to validate under mode_show_form precondition.
+    $form->get_data();
+    $package->prepare_package_form();
+
     if ($data = $form->get_data()) {
         $package->store_package($data);
         if (empty($package->get('suppresscomment', 'default'))) {
@@ -58,11 +60,12 @@ if ($package->get('canedit')) {
         }
         echo "<p class=\"alert alert-success\">" . get_string('successfully_saved_package', 'block_edupublisher') . "</p>";
     }
-    // get_data as dummy to validate under mode_show_form precondition.
-    $form->get_data();
-    $package->prepare_package_form();
     $flattened = $package->get_flattened();
     $flattened->origins = $package->load_origins();
+    echo "<pre>";
+    print_r($package->get('topic', 'eduthek'));
+    //print_r($package->get_flattened());
+    echo "</pre>";
     $form->set_data($flattened);
     echo "<div class=\"skip-ui-eduvidual ui-edupublisher-skip\">";
     $form->display();

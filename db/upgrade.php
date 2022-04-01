@@ -650,10 +650,6 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         if (!$dbman->table_exists($table)) {
             $dbman->create_table($table);
         }
-
-        \block_edupublisher\locallib::atomize_database();
-
-        // Edupublisher savepoint reached.
         upgrade_block_savepoint(true, 2022022500, 'edupublisher');
     }
     if ($oldversion < 2022030802) {
@@ -831,7 +827,14 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
         upgrade_block_savepoint(true, 2022032201, 'edupublisher');
     }
-
-
+    if ($oldversion < 2022040104) {
+        $table = new xmldb_table('block_edupublisher_md_edu');
+        $field = new xmldb_field('topic', XMLDB_TYPE_TEXT, null, null, null, null, null, 'schooltype');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        upgrade_block_savepoint(true, 2022040104, 'edupublisher');
+        \block_edupublisher\locallib::atomize_database();
+    }
     return true;
 }

@@ -40,6 +40,7 @@ class locallib {
             'etapas' => (object) [],
             'exacomp' => []
         ];
+        $exacompdatasources = $DB->get_records('block_exacompdatasources', [], '', 'id,source');
         foreach ($metadatas as $md) {
             if (!empty($curpackage->package) && $md->package != $curpackage->package) {
                 // default_schoollevel
@@ -59,17 +60,37 @@ class locallib {
                 }
                 // default_tags
                 if (!empty($curpackage->default->tags)) {
-                    $curpackage->default->tags = implode("\n", $curpackage->default->tags);
+                    if (!is_array($curpackage->default->tags) && strpos($curpackage->default->tags, ',') > 0) {
+                        $curpackage->default->tags = array_map('trim', explode(',', $curpackage->default->tags));
+                    }
+                    if (!is_array($curpackage->default->tags) && strpos($curpackage->default->tags, ' ') > 0) {
+                        $curpackage->default->tags = array_map('trim', explode(' ', $curpackage->default->tags));
+                    }
+                    if (!is_array($curpackage->default->tags)) {
+                        $curpackage->default->tags = [ $curpackage->default->tags ];
+                    }
+
+                    $curpackage->default->tags = implode(
+                        \block_edupublisher\package::ARRAY_DELIMITER,
+                        $curpackage->default->tags
+                    );
                 }
 
                 // default_exacomp
                 if (!empty($curpackage->default->exacompsourceids)) {
                     for ($i = 0; $i < count($curpackage->default->exacompsourceids); $i++) {
-                        $curpackage->exacomp[] = (object) [
-                            'datasource' => $curpackage->default->exacompdatasources[$i],
-                            'sourceid' => $curpackage->default->exacompsourceids[$i],
-                            'title' => $curpackage->default->exacomptitles[$i]
-                        ];
+                        $_id = $curpackage->default->exacompsourceids[$i];
+                        $_comp = $DB->get_record('block_exacompdescriptors', [ 'id' => $_id ]);
+                        if (!empty($_comp->title)) {
+                            $_title = $_comp->title;
+                            $_source = $exacompdatasources[$_comp->source]->source;
+                            $curpackage->exacomp[] = (object) [
+                                'datasource' => $_source,
+                                'sourceid' => $_id,
+                                'title' => $_title
+                            ];
+                        }
+
                     }
                 }
                 unset($curpackage->default->exacompdatasources);
@@ -78,16 +99,31 @@ class locallib {
 
                 // eduthek
                 if (!empty($curpackage->eduthek->educationallevel)) {
-                    $curpackage->eduthek->educationallevel = implode("\n", $curpackage->eduthek->educationallevel);
+                    $curpackage->eduthek->educationallevel = implode(
+                        \block_edupublisher\package::ARRAY_DELIMITER,
+                        $curpackage->eduthek->educationallevel
+                    );
                 }
                 if (!empty($curpackage->eduthek->schooltype)) {
-                    $curpackage->eduthek->schooltype = implode("\n", $curpackage->eduthek->schooltype);
+                    $curpackage->eduthek->schooltype = implode(
+                        \block_edupublisher\package::ARRAY_DELIMITER,
+                        $curpackage->eduthek->schooltype
+                    );
                 }
                 if (!empty($curpackage->eduthek->topic)) {
-                    $curpackage->eduthek->topic = implode("\n", $curpackage->eduthek->topic);
+                    $curpackage->eduthek->topic = implode(
+                        \block_edupublisher\package::ARRAY_DELIMITER,
+                        $curpackage->eduthek->topic
+                    );
                 }
                 if (!empty($curpackage->eduthek->type)) {
-                    $curpackage->eduthek->type = implode("\n", $curpackage->eduthek->type);
+                    if (!is_array($curpackage->eduthek->type)) {
+                        $curpackage->eduthek->type = [ $curpackage->eduthek->type ];
+                    }
+                    $curpackage->eduthek->type = implode(
+                        \block_edupublisher\package::ARRAY_DELIMITER,
+                        $curpackage->eduthek->type
+                    );
                 }
 
                 // etapas_status_eval
@@ -100,6 +136,8 @@ class locallib {
 
                 if (!empty($curpackage->default->image)) {
                     $curpackage->default->image = str_replace($CFG->wwwroot, '', $curpackage->default->image);
+                    // In case of testsystem we need a hardcoded url, as it replicates the original datebase.
+                    $curpackage->default->image = str_replace('https://www.eduvidual.at', '', $curpackage->default->image);
                 }
 
                 $channels = [ 'commercial', 'default', 'eduthek', 'etapas' ];

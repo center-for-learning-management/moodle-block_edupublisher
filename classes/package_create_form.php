@@ -34,6 +34,7 @@ class package_create_form extends moodleform {
 
     function definition() {
         global $CFG, $COURSE, $DB, $USER;
+        global $package;
 
         $editoroptions = array('subdirs'=>0, 'maxbytes'=>0, 'maxfiles'=>0,
                                'changeformat'=>0, 'context'=>null, 'noclean'=>0,
@@ -108,11 +109,11 @@ class package_create_form extends moodleform {
                     case 'hidden':
                         // We do not need hidden fields!!
                         $fieldname = $channel . '_' . $_field;
-                        if (isset($field['multiple']) && $field['multiple']) $fieldname .= '[]';
+                        if (!empty($field['multiple'])) $fieldname .= '[]';
                         //$addedfield = $mform->addElement($field['type'], $fieldname, isset($field['default']) ? $field['default'] : NULL);
                     break;
                     case 'select':
-                        $options = (isset($field['options'])) ? $field['options'] : array();
+                        $options = (!empty($field['options'])) ? $field['options'] : array();
                         if ($channel == 'commercial' && $_field == 'publisher') {
                             if (\block_edupublisher\lib::is_admin()) {
                                 $allpublishers = $DB->get_records_sql('SELECT * FROM {block_edupublisher_pub} ORDER BY name ASC', array());
@@ -131,7 +132,7 @@ class package_create_form extends moodleform {
                             unset($options['other']);
                         }
                         $addedfield = $mform->addElement('select', $channel . '_' . $_field, $label, $options);
-                        if (isset($field['multiple']) && $field['multiple']) {
+                        if (!empty($field['multiple'])) {
                             $addedfield->setMultiple(true);
                             /*
                             // In case of multiple fields we need to set the values from package.

@@ -32,7 +32,7 @@ class package {
      * Therefore a delimiter is set. If you change this, you must ensure,
      * that all database-records are modified accordingly!
      */
-    private const ARRAY_DELIMITER = '~~~|~~~';
+    public const ARRAY_DELIMITER = '~~~|~~~';
     // Object holding all metadata of this package.
     private $metadata;
 
@@ -152,11 +152,11 @@ class package {
             $this->set($ratingselection, 'ratingselection');
         }
 
-        // Explode all multiple fields without options.
+        // Explode all multiple fields without splitcols.
         $channels = \block_edupublisher\lib::get_channel_definition();
         foreach ($channels as $channel => $fields) {
             foreach ($fields as $field => $fieldparams) {
-                if (!empty($fieldparams['multiple']) && empty($fieldparams['options'])) {
+                if (!empty($fieldparams['multiple']) && empty($fieldparams['splitcols'])) {
                     $this->set(explode(self::ARRAY_DELIMITER, $this->get($field, $channel)), $field, $channel);
                 }
             }
@@ -409,11 +409,8 @@ class package {
         $flattened = (object) [];
         foreach ($this->metadata as $channel => $fields) {
             foreach ($fields as $field => $value) {
-                if ($channel == '_') {
-                    $flattened->{$field} = $value;
-                } else {
-                    $flattened->{"{$channel}_{$field}"} = $value;
-                }
+                $fieldid = ($channel == '_') ? $field : "{$channel}_{$field}";
+                $flattened->{$fieldid} = $value;
             }
         }
 
@@ -558,13 +555,16 @@ class package {
                 }
 
                 if (isset($ofield['type']) && $ofield['type'] == 'select' && !empty($ofield['multiple'])) {
-                    $selected = [];
-                    foreach ($ofield['options'] as $option => $optionlabel) {
-                        if (!empty($this->get("{$field}_{$option}", $channel))) {
-                            $selected[] = $option;
+                    if (!empty($ofield['splitcols'])) {
+                        $selected = [];
+                        foreach ($ofield['options'] as $option => $optionlabel) {
+                            if (!empty($this->get("{$field}_{$option}", $channel))) {
+                                $selected[] = $option;
+                            }
                         }
+                        $this->set($selected, $field, $channel);
                     }
-                    $this->set($selected, $field, $channel);
+
                 }
 
                 if (empty($this->get($field, $channel))) continue;
@@ -855,15 +855,15 @@ class package {
                         $allowedoptions = $fieldparams['options'];
                         $allowedkeys = array_keys($allowedoptions);
                     }
-                    if (!empty($fieldparams['multiple']) && !empty($fieldparams['options'])) {
-                        // multiple with fixed options!
-                        foreach ($allowedkeys as $allowedkey) {
-                            if (in_array($allowedkey, $data->$dbfield)) {
-                                $this->set(1, "{$field}_{$allowedkey}", $channel);
+                    if (!empty($fieldparams['multiple']) && !empty($fieldparams['options']) && !empty($fieldparams['splitcols'])) {
+                        // multiple with fixed options and separate columns in table!
+                        foreach ($data->$dbfield as $val) {
+                            if (in_array($val, $allowedkeys)) {
+                                $this->set(1, "{$field}_{$val}", $channel);
                             }
                         }
                     } else if (!empty($fieldparams['multiple'])) {
-                        // Multiple without fixed options!
+                        // Multiple without separate columns in table!
                         $this->set(implode(self::ARRAY_DELIMITER, $data->{$dbfield}), $field, $channel);
                     } else {
                         $this->set($data->$dbfield, $field, $channel);
