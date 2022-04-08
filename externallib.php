@@ -542,36 +542,43 @@ class block_edupublisher_external extends external_api {
         }
 
         $filters_search = [];
+        $params['search'] = trim($params['search']);
         if (!empty($params['search'])) {
-            $s = $DB->sql_like_escape($params['search'], $escapechar = '\\');
-            $channels = \block_edupublisher\lib::get_channel_definition();
-            foreach ($channels as $channel => $fields) {
-                $table = '';
-                if ($channel == 'default') $table = 'mdef';
-                if ($channel == 'eduthek') $table = 'medu';
-                if ($channel == 'etapas') $table = 'meta';
-                if (empty($table)) continue; // unsupported channel.
+            $needles = explode(' ', $params['search']);
+            //$needles[] = $params['search'];
+            foreach ($needles as $needle) {
+                $s = $DB->sql_like_escape($needle, $escapechar = '\\');
+                $channels = \block_edupublisher\lib::get_channel_definition();
+                $filters_search_sub = [];
+                foreach ($channels as $channel => $fields) {
+                    $table = '';
+                    if ($channel == 'default') $table = 'mdef';
+                    if ($channel == 'eduthek') $table = 'medu';
+                    if ($channel == 'etapas') $table = 'meta';
+                    if (empty($table)) continue; // unsupported channel.
 
-                foreach ($fields as $field => $fieldparams) {
-                    if (empty($fieldparams['searchable'])) {
-                        continue;
-                    }
-                    // Certain fields have own filters.
-                    if ($channel == 'default' && in_array($field, ['schoollevels', 'subjectareas'])) continue;
-                    // Only search in text-fields.
-                    if (!in_array($fieldparams['datatype'], [ PARAM_TEXT ])) continue;
-                    if (!empty($fieldparams['multiple']) && !empty($fieldparams['options'])) {
-                        foreach ($fieldparams['options'] as $option) {
-                            $filters_search[] = "{$table}.{$field}_{$option} LIKE '%$s%'";
+                    foreach ($fields as $field => $fieldparams) {
+                        if (empty($fieldparams['searchable'])) {
+                            continue;
                         }
-                    } else {
-                        $filters_search[] = "{$table}.{$field} LIKE '%$s%'";
+                        // Certain fields have own filters.
+                        if ($channel == 'default' && in_array($field, ['schoollevels', 'subjectareas'])) continue;
+                        // Only search in text-fields.
+                        if (!in_array($fieldparams['datatype'], [ PARAM_TEXT ])) continue;
+                        if (!empty($fieldparams['multiple']) && !empty($fieldparams['options'])) {
+                            foreach ($fieldparams['options'] as $option) {
+                                $filters_search_sub[] = "{$table}.{$field}_{$option} LIKE '%$s%'";
+                            }
+                        } else {
+                            $filters_search_sub[] = "{$table}.{$field} LIKE '%$s%'";
+                        }
                     }
                 }
+                $filters_search[] = "(" . implode(' OR ', $filters_search_sub) . ")";
             }
         }
 
-        $filters_search = implode(' OR ', $filters_search);
+        $filters_search = implode(' AND ', $filters_search);
         if (!empty($filters_search)) {
             $filters_search = "AND ($filters_search)";
         }
@@ -598,7 +605,6 @@ class block_edupublisher_external extends external_api {
                         $filters_search
                     $order_by
                     $limit";
-
         $reply['packages'] = array_values($DB->get_records_sql($sql));
         for ($a = 0; $a < count($reply['packages']); $a++) {
             $package = new \block_edupublisher\package($reply['packages'][$a]->id, true, [ 'internal', 'rating' ]);
