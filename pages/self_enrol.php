@@ -27,31 +27,33 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 $courseid = required_param('id', PARAM_INT);
 $unenrol = optional_param('unenrol', 0, PARAM_INT);
 $prec = $DB->get_record('block_edupublisher_packages', [ 'course' => $courseid ]);
+
 if (empty($prec->id)) {
     // Show a warning that this is not a package.
-    echo $OUTPUT->header();
-    echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
-        'type' => 'danger',
-        'content' => get_string('no_such_package', 'block_edupublisher'),
-        'url' => $CFG->wwwroot . '/course/view.php?id=' . $courseid,
-    ));
-    echo $OUTPUT->footer();
-    die();
+    $url = new \moodle_url('/course/view.php', [ 'id' => $courseid ]);
+    throw new \moodle_exception('no_such_package', 'block_edupublisher', $url->__toString());
 }
 
 $package = new \block_edupublisher\package($prec->id);
-$context = context_course::instance($courseid);
+$context = \context_course::instance($courseid);
 
-$PAGE->set_url('/blocks/edupublisher/pages/self_enrol.php?id=' . $courseid);
-require_capability('block/edupublisher:canselfenrol', $context);
-require_login($courseid);
-$PAGE->set_heading($package->get('title'));
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('incourse');
+$PAGE->set_url('/blocks/edupublisher/pages/self_enrol.php?id=' . $courseid);
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
+$PAGE->set_heading($package->get('title'));
 $PAGE->navbar->add(get_string('self_enrol', 'block_edupublisher'), $PAGE->url);
+
+require_login($courseid);
+if (!isloggedin() || isguestuser()) {
+    $SESSION->wantsurl = $PAGE->url->__toString();
+    $login = new \moodle_url('/login/index.php');
+    redirect($login);
+}
+require_capability('block/edupublisher:canselfenrol', $context);
+
 
 \block_edupublisher\lib::check_requirements();
 echo $OUTPUT->header();
