@@ -62,6 +62,7 @@ if (!\block_edupublisher\lib::can_create_groups()) {
     if (!empty(optional_param('edupublisher_group_name', '', PARAM_TEXT))) {
         // Set group mode of course
         $DB->set_field('course', 'groupmode', 1, [ 'id' => $package->get('course') ]);
+        $DB->set_field('course', 'groupmodeforce', 1, [ 'id' => $package->get('course') ]);
 
         $data = (object) [
             'courseid' => $package->get('course'),
