@@ -365,36 +365,35 @@ class externalsources {
                 if (self::$debug) echo "=====> Loading pubpackage data for course $course->id\n";
                 if (empty($pubpackage->id)) {
                     if (self::$debug) echo "=====> Nothing found - getting pubpackage data from course $course->id\n";
-                    $pubpackage = \block_edupublisher\lib::get_package_from_course($course->id);
+                    $pubpackage = \block_edupublisher\lib::get_package_by_courseid($course->id);
                     // The course itself is the package!
                     $pubpackage->course = $pubpackage->sourcecourse;
-                    $pubpackage = \block_edupublisher::store_package($pubpackage);
                 }
 
                 if (self::$debug) echo "=====> Loading pubpackage data from xml\n";
                 // Translate certain xml fields.
-                $pubpackage->default_publishas = 1;
-                $pubpackage->commercial_publishas = 1;
-                $pubpackage->commercial_publisher = $PUBLISHER->id;
-                $pubpackage->commercial_published = $package['commercial_published'] = 1;
-                $pubpackage->commercial_shoplink = $package['commercial_shoplink'] = '';
-                $pubpackage->commercial_validation = $package['commercial_validation'] = 'external';
+                $pubpackage->set(1, 'publishas', 'default');
+                $pubpackage->set(1, 'publishas', 'commercial');
+                $pubpackage->set($PUBLISHER->id, 'publisher', 'commercial');
+                $pubpackage->set($package['commercial_published'] = 1, 'published', 'commercial');
+                $pubpackage->set($package['commercial_shoplink'] = '', 'shoplink', 'commercial');
+                $pubpackage->set($package['commercial_validation'] = 'external', 'validation', 'commercial');
 
-                $pubpackage->default_title = $package['name'];
-                $pubpackage->default_summary = $package['summary'] = $package['name'];
-                $pubpackage->default_authorname = $package['author'] = $PUBLISHER->name;
-                $pubpackage->default_authormail = $package['mail'] = $PUBLISHER->mail;
+                $pubpackage->set($package['name'], 'title', 'default');
+                $pubpackage->set($package['summary'] = $package['name'], 'summary', 'default');
+                $pubpackage->set($package['author'] = $PUBLISHER->name, 'authorname', 'default');
+                $pubpackage->set($package['mail'] = $PUBLISHER->mail, 'authormail', 'default');
                 if (in_array($package['licence'], array_keys($definition['default']['licence']['options']))) {
-                    $pubpackage->default_licence = $package['licence'];
+                    $pubpackage->set($package['licence'], 'licence', 'default');
                 } else {
-                    $pubpackage->default_licence = 'other';
+                    $pubpackage->set('other', 'licence', 'default');
                 }
                 if (!empty($package['previewimage'])) {
                     $filerecord = (object) array(
                         'contextid' => $context->id,
                         'component' => 'block_edupublisher',
                         'filearea' => 'default_image',
-                        'itemid' => $pubpackage->id,
+                        'itemid' => $pubpackage->get('id'),
                     );
 
                     $curldata = $external;
@@ -407,23 +406,24 @@ class externalsources {
                 // Enter additional metadata provided from xml-file
                 $required_missing = array();
                 foreach ($channels as $channel) {
+                    $pubpackage->set($pubpackage->get('id'), 'package', $channel);
                     $fields = array_keys($definition[$channel]);
                     foreach ($fields as $field) {
                         if (!empty($package->{$channel . '_' . $field})) {
                             if (self::$debug) echo "=======> Set $channel_$field from xml\n";
-                            $pubpackage->{$channel . '_' . $field} = $package[$channel . '_' . $field];
+                            $pubpackage->set($package[$channel . '_' . $field], $field, $channel);
                         }
                         if ($channel == 'default' && !empty($package->{$field})) {
                             if (self::$debug) echo "=======> Set $channel_$field from xml\n";
-                            $pubpackage->{$channel . '_' . $field} = $package[$field];
+                            $pubpackage->set($package[$field], $field, $channel);
                         }
-                        if (!empty($pubpackage->{$channel . '_publishas'}) && !empty($definition[$channel][$field]['required']) && empty($pubpackage->{$channel . '_' . $field})) {
+                        if (!empty($pubpackage->get('publishas', $channel)) && !empty($definition[$channel][$field]['required']) && empty($pubpackage->get($field, $channel))) {
                             $required_missing[] = $channel . '_' . $field;
                         }
                     }
                 }
 
-                \block_edupublisher::store_package($pubpackage);
+                $pubpackage->store_package_db();
                 if (self::$debug) echo "=====> Store pubpackage\n";
                 if (count($required_missing) > 0) {
                     if (self::$debug) echo "=====> WARNING: Missing data " . implode(", ", $required_missing) . "</strong>\n";
