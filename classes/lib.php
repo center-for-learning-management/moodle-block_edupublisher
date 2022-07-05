@@ -636,6 +636,17 @@ class lib {
         }
     }
     /**
+     * Gets an existing package by its courseid.
+     * @param courseid the courseid.
+     */
+    public static function get_package_by_courseid($courseid, $strictness = MUST_EXIST) {
+        global $DB;
+        $item = $DB->get_record('block_edupublisher_packages', array('course' => $courseid), '*', $strictness);
+        if (!empty($item->id)) {
+            return self::get_package($item->id);
+        }
+    }
+    /**
      * Creates an empty package and fills with data from course.
      * This is used when we create a new package.
     **/
