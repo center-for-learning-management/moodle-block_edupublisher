@@ -951,14 +951,27 @@ class package {
         $this->set(time(), 'modified');
         $DB->update_record('block_edupublisher_packages', $this->get_channel('_', true));
         $channels = [
-            'com' => $this->get_channel('commercial', true),
-            'def' => $this->get_channel('default', true),
-            'edu' => $this->get_channel('eduthek', true),
-            'eta' => $this->get_channel('etapas', true),
+            'com' => 'commercial',
+            'def' => 'default',
+            'edu' => 'eduthek',
+            'eta' => 'etapas',
         ];
         foreach ($channels as $chan => $channel) {
-            $DB->update_record("block_edupublisher_md_$chan", $channel);
+            $channelo = $this->get_channel($channel, true);
+            $id = $this->get('id', $channel);
+            if (empty($id)) {
+                $id = $DB->get_record('block_edupublisher_md_' . $chan, [ 'package' => $this->get('id') ]);
+                $this->set('id', $id, $channel);
+            }
+            if (empty($id)) {
+                $id = $DB->insert_record('block_edupublisher_md_' . $chan, $channelo);
+                $this->set($id, 'id', $channel);
+                $channelo = $this->get_channel($channel, true);
+            } else {
+                $DB->update_record("block_edupublisher_md_$chan", $channelo);
+            }
         }
+
 
         $exacompdatasources = $this->get('exacompdatasources');
         $exacompsourceids = $this->get('exacompsourceids');
