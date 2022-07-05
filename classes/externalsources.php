@@ -361,11 +361,11 @@ class externalsources {
                 require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
                 $definition = \block_edupublisher\lib::get_channel_definition();
                 $channels = array_keys($definition);
-                $pubpackage = new \block_edupublisher\package_by_courseid($course->id, IGNORE_MISSING);
+                $pubpackage = new \block_edupublisher\lib::get_package_by_courseid($course->id, IGNORE_MISSING);
                 if (self::$debug) echo "=====> Loading pubpackage data for course $course->id\n";
                 if (empty($pubpackage->id)) {
                     if (self::$debug) echo "=====> Nothing found - getting pubpackage data from course $course->id\n";
-                    $pubpackage = new \block_edupublisher\package_from_course($course->id);
+                    $pubpackage = new \block_edupublisher\lib::get_package_from_course($course->id);
                     // The course itself is the package!
                     $pubpackage->course = $pubpackage->sourcecourse;
                     $pubpackage = \block_edupublisher::store_package($pubpackage);
