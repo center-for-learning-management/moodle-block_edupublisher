@@ -957,21 +957,20 @@ class package {
             'eta' => 'etapas',
         ];
         foreach ($channels as $chan => $channel) {
-            $channelo = $this->get_channel($channel, true);
-            $id = $this->get('id', $channel);
-            if (empty($id)) {
-                $id = $DB->get_record('block_edupublisher_md_' . $chan, [ 'package' => $this->get('id') ]);
-                $this->set('id', $id, $channel);
+            if (empty($this->get('id', $channel))) {
+                $rec = $DB->get_record('block_edupublisher_md_' . $chan, [ 'package' => $this->get('id') ]);
+                if (!empty($rec->id)) {
+                    $this->set($rec->id, 'id', $channel);
+                }
             }
-            if (empty($id)) {
+            $channelo = $this->get_channel($channel, true);
+            if (empty($this->get('id', $channel))) {
                 $id = $DB->insert_record('block_edupublisher_md_' . $chan, $channelo);
                 $this->set($id, 'id', $channel);
-                $channelo = $this->get_channel($channel, true);
             } else {
                 $DB->update_record("block_edupublisher_md_$chan", $channelo);
             }
         }
-
 
         $exacompdatasources = $this->get('exacompdatasources');
         $exacompsourceids = $this->get('exacompsourceids');
