@@ -36,7 +36,7 @@ class block_edupublisher_coursebackup extends \core\task\scheduled_task {
 
         $admin = \get_admin();
         if (!$admin) {
-            \mtrace("Error: No admin account was found");
+            \mtrace("Error: No admin account was found!");
             die;
         }
         $dir = \block_edupublisher\lib::get_tempdir();
@@ -54,14 +54,14 @@ class block_edupublisher_coursebackup extends \core\task\scheduled_task {
                         AND deleted=0";
         $packages = $DB->get_records_sql($sql, array());
         foreach ($packages as $package) {
-            $courseid = $package->get('course');
+            $courseid = $package->course;
             $course = $DB->get_record('course', array('id' => $courseid), '*', IGNORE_MISSING);
             if (empty($course->id)) {
-                echo "ERROR: COURSE #$courseid DOES NOT EXIST<br />\n";
+                \mtrace("ERROR: COURSE #$courseid DOES NOT EXIST");
                 continue;
             }
             $targetfilename = "coursebackup.mbz";
-            echo "Backing up #$course->id ($course->fullname) to $targetfilename<br />\n";
+            \mtrace("Backing up #$course->id ($course->fullname) to $targetfilename");
 
             $bc = new \backup_controller(
                         \backup::TYPE_1COURSE, $course->id, \backup::FORMAT_MOODLE,
@@ -99,7 +99,7 @@ class block_edupublisher_coursebackup extends \core\task\scheduled_task {
 
             $file->delete();
             $DB->set_field('block_edupublisher_packages', 'backuped', time(), array('course' => $course->id));
-            echo "Stored file successfully";
+            \mtrace("Stored file successfully.");
         }
     }
 }
