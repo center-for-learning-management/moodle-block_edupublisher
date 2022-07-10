@@ -34,13 +34,13 @@ class externalsources {
 
         $PUBLISHER = $DB->get_record('block_edupublisher_pub', array('id' => $external->pubid));
         if (empty($PUBLISHER->id)) {
-            echo "<strong>Invalid publisher for external #$external->id</strong>\n";
+            if (self::$debug) mtrace("Invalid publisher for external #$external->id");
             return;
         }
 
         $CATEGORY = intval(\get_config('block_edupublisher', 'category'));
         if (empty($CATEGORY)) {
-            echo "<strong>eduPublisher has not configured a valid category</strong>\n";
+            if (self::$debug) mtrace("eduPublisher has not configured a valid category");
             return;
         }
         $DEFAULT_FORMAT = \get_config('block_edupublisher', 'externalsources_courseformat');
@@ -48,7 +48,7 @@ class externalsources {
 
         $parser = new \core_xml_parser();
 
-        if (self::$debug) echo "=> Parsing $external->url\n";
+        if (self::$debug) mtrace("=> Parsing $external->url");
         if (substr($external->url, 0, 4) == 'http') {
             $xmlstr = self::fetch_curl($external);
         } else {
@@ -56,7 +56,7 @@ class externalsources {
             $xmlstr = file_get_contents($external->url);
         }
         if (empty($xmlstr)) {
-            if (self::$debug) echo "=> Empty response\n";
+            if (self::$debug) mtrace("=> Empty response");
             return;
         }
 
@@ -64,7 +64,7 @@ class externalsources {
         $array = json_decode(json_encode($xml), TRUE);
 
         if (empty($array['packages'])) {
-            if (self::$debug) echo "=> No packages in xml\n";
+            if (self::$debug) mtrace("=> No packages in xml");
             return;
         }
 
@@ -96,7 +96,7 @@ class externalsources {
 
             // Fake empty timelastmodified
             $timelastmodified = 0;
-            if (self::$debug) echo "===> Analyzing package $packageid\n";
+            if (self::$debug) mtrace("===> Analyzing package $packageid");
 
             $courserec = $DB->get_record('block_edupublisher_extpack', array('extid' => $external->id, 'packageid' => $packageid));
             if (empty($courserec->courseid)) {
@@ -167,8 +167,8 @@ class externalsources {
             }
 
 
-            if (self::$debug) echo "=====> Course is #<a href=\"$CFG->wwwroot/course/view.php?id=$course->id\">$course->id</a>\n";
-            if (self::$debug) echo "=======> Timelastmodified $timelastmodified || $courserec->lasttimemodified < $timelastmodified\n";
+            if (self::$debug) mtrace("=====> Course is #<a href=\"$CFG->wwwroot/course/view.php?id=$course->id\">$course->id</a>");
+            if (self::$debug) mtrace("=======> Timelastmodified $timelastmodified || $courserec->lasttimemodified < $timelastmodified");
             if (empty($timelastmodified) || $courserec->lasttimemodified < $timelastmodified) {
                 $context = \context_course::instance($course->id);
                 if (!empty($package['previewimage'])) {
@@ -181,13 +181,13 @@ class externalsources {
 
                     $curldata = $external;
                     $curldata->url = $package['previewimage'];
-                    if (self::$debug) echo "=======> Loading course image from $curldata->url\n";
+                    if (self::$debug) mtrace("=======> Loading course image from $curldata->url");
 
                     self::filearea_replace($curldata, $filerecord);
                 }
 
                 // Remove modules we do not reference anymore.
-                if (self::$debug) echo "=======> Remove unreferenced and additional course modules\n";
+                if (self::$debug) mtrace("=======> Remove unreferenced and additional course modules");
                 $knownitems = array_keys($ITEMS);
                 list($insql, $inparams) = $DB->get_in_or_equal($knownitems);
                 $inparams = array_merge(array($course->id, $packageid), $inparams);
@@ -206,7 +206,7 @@ class externalsources {
                 $cms = $DB->get_records_sql($sql, $inparams);
                 require_once($CFG->dirroot . '/course/modlib.php');
                 foreach ($cms as $cm) {
-                    if (self::$debug) echo "=========> Removing cmid $cm->id\n";
+                    if (self::$debug) mtrace("=========> Removing cmid $cm->id");
                     \course_delete_module($cm->id);
                 }
                 \rebuild_course_cache($course->id);
@@ -214,7 +214,7 @@ class externalsources {
                 // Ensure enough sections are in course.
                 $xmlsections = self::flattened_element($package, 'usesections', 'usesection');
                 $amount = count($xmlsections);
-                if (self::$debug) echo "=======> Ensure that $amount sections are in course $course->id\n";
+                if (self::$debug) mtrace("=======> Ensure that $amount sections are in course $course->id");
                 $sql = "SELECT s.section,s.*
                             FROM {course_sections} s
                             WHERE s.course=?
@@ -241,7 +241,7 @@ class externalsources {
                         // Update section data.
                         $DBSECTION->name = $XMLSECTION['name'];
 
-                        if (self::$debug) echo "=========> Update Section $DBSECTION->name (#$xmlnr) and id $DBSECTION->id\n";
+                        if (self::$debug) mtrace("=========> Update Section $DBSECTION->name (#$xmlnr) and id $DBSECTION->id");
                         \course_update_section($course, $DBSECTION, array('name' => $XMLSECTION['name']));
 
                         if (!empty($XMLSECTION['previewimage'])) {
@@ -255,7 +255,7 @@ class externalsources {
 
                             $curldata = $external;
                             $curldata->url = $XMLSECTION['previewimage'];
-                            if (self::$debug) echo "===========> Loading section image from $curldata->url\n";
+                            if (self::$debug) mtrace("===========> Loading section image from $curldata->url");
 
                             self::filearea_replace($curldata, $filerecord);
                         }
@@ -284,7 +284,7 @@ class externalsources {
                                 // Item is known, but may have been deleted.
                                 $extcm = \get_coursemodule_from_id($type, $DBITEM->cmid, 0, false, IGNORE_MISSING);
                                 if (empty($extcm->id)) {
-                                    if (self::$debug) echo "=============> Item $DBITEM->id cmid $DBITEM->cmid externalid $DBITEM->externalid was known but is now removed\n";
+                                    if (self::$debug) mtrace("=============> Item $DBITEM->id cmid $DBITEM->cmid externalid $DBITEM->externalid was known but is now removed");
                                     $DB->delete_records('block_edupublisher_extitem', array('id' => $DBITEM->id));
                                     unset($DBITEM);
                                 }
@@ -310,7 +310,7 @@ class externalsources {
 
                             if (empty($DBITEM->cmid)) {
                                 // Item is actually new, we create it and store relation to DBITEM.
-                                if (self::$debug) echo "===========> Create item $reference\n";
+                                if (self::$debug) mtrace("===========> Create item $reference");
 
                                 $module = \block_edupublisher\module_compiler::create($cmitem);
                                 $extcm = \get_coursemodule_from_id($type, $module->coursemodule, 0, false, IGNORE_MISSING);
@@ -324,7 +324,7 @@ class externalsources {
                                 // @todo set aggregationcoef to 1
                             } else {
                                 // Update item data.
-                                if (self::$debug) echo "===========> Update item $reference as cmid $DBITEM->cmid\n";
+                                if (self::$debug) mtrace("===========> Update item $reference as cmid $DBITEM->cmid");
                                 $cmitem->id = $extcm->id;
                                 $cmitem->coursemodule = $extcm->id;
                                 require_once($CFG->dirroot . '/course/lib.php');
@@ -332,7 +332,7 @@ class externalsources {
                                 // Therefore we compare cmitem->section with DBSECTION->section
                                 if ($cmitem->section != $DBSECTION->section) {
                                     // We have to set the old section here.
-                                    if (self::$debug) echo "=============> Move item $cmitem->id from $extcm->section to $cmitem->section\n";
+                                    if (self::$debug) mtrace("=============> Move item $cmitem->id from $extcm->section to $cmitem->section");
                                     $cmitem->section = $extcm->section;
                                     \moveto_module($cmitem, $DBSECTION);
                                 }
@@ -347,11 +347,11 @@ class externalsources {
                 }
 
                 // Remove unneeded sections.
-                if (self::$debug) echo "=======> Remove unneeded sections\n";
+                if (self::$debug) mtrace("=======> Remove unneeded sections");
                 $sql = "SELECT section,id,name FROM {course_sections} WHERE course=? AND section>?";
                 $removesections = $DB->get_records_sql($sql, array($course->id, count($SECTIONS)));
                 foreach ($removesections as $removesection) {
-                    if (self::$debug) echo "=========> Remove Section $removesection->name (#$removesection->section) and id $removesection->id\n";
+                    if (self::$debug) mtrace("=========> Remove Section $removesection->name (#$removesection->section) and id $removesection->id");
                     \course_delete_section($course, $removesection, true);
                 }
                 // Rebuild cache after deleting sections.
@@ -362,9 +362,9 @@ class externalsources {
                 $definition = \block_edupublisher\lib::get_channel_definition();
                 $channels = array_keys($definition);
                 $pubpackage = \block_edupublisher\lib::get_package_by_courseid($course->id, IGNORE_MISSING, true);
-                if (self::$debug) echo "=====> Loading pubpackage data for course $course->id\n";
+                if (self::$debug) mtrace("=====> Loading pubpackage data for course $course->id");
 
-                if (self::$debug) echo "=====> Loading pubpackage data from xml\n";
+                if (self::$debug) mtrace("=====> Loading pubpackage data from xml");
                 // Translate certain xml fields.
                 $pubpackage->set(1, 'publishas', 'default');
                 $pubpackage->set(1, 'publishas', 'commercial');
@@ -392,7 +392,7 @@ class externalsources {
 
                     $curldata = $external;
                     $curldata->url = $package['previewimage'];
-                    if (self::$debug) echo "=======> Loading course image from $curldata->url for pubpackage info\n";
+                    if (self::$debug) mtrace("=======> Loading course image from $curldata->url for pubpackage info");
 
                     $pubpackage->default_image = self::filearea_replace($curldata, $filerecord);
                 }
@@ -404,11 +404,11 @@ class externalsources {
                     $fields = array_keys($definition[$channel]);
                     foreach ($fields as $field) {
                         if (!empty($package->{$channel . '_' . $field})) {
-                            if (self::$debug) echo "=======> Set $channel_$field from xml\n";
+                            if (self::$debug) mtrace("=======> Set $channel_$field from xml");
                             $pubpackage->set($package[$channel . '_' . $field], $field, $channel);
                         }
                         if ($channel == 'default' && !empty($package->{$field})) {
-                            if (self::$debug) echo "=======> Set $channel_$field from xml\n";
+                            if (self::$debug) mtrace("=======> Set $channel_$field from xml");
                             $pubpackage->set($package[$field], $field, $channel);
                         }
                         if (!empty($pubpackage->get('publishas', $channel)) && !empty($definition[$channel][$field]['required']) && empty($pubpackage->get($field, $channel))) {
@@ -418,9 +418,9 @@ class externalsources {
                 }
 
                 $pubpackage->store_package_db();
-                if (self::$debug) echo "=====> Store pubpackage\n";
+                if (self::$debug) mtrace("=====> Store pubpackage");
                 if (count($required_missing) > 0) {
-                    if (self::$debug) echo "=====> WARNING: Missing data " . implode(", ", $required_missing) . "</strong>\n";
+                    if (self::$debug) mtrace("=====> WARNING: Missing data " . implode(", ", $required_missing) . "</strong>");
                 }
 
             }
@@ -481,7 +481,7 @@ class externalsources {
         $md = stream_get_meta_data($tmpfile);
         $tmppath = $md['uri'];
         file_put_contents($tmppath, self::fetch_curl($curlinfo)); // fetch_curl supports basic auth!
-        if (self::$debug) echo "=========> Loaded filesize " . filesize($tmppath) . " to $tmppath\n";
+        if (self::$debug) mtrace("=========> Loaded filesize " . filesize($tmppath) . " to $tmppath");
 
         if (filesize($tmppath) > 0) {
             // Clear file area.
@@ -499,7 +499,7 @@ class externalsources {
             }
             $filerecord->timecreated = time();
             $filerecord->timemodified = time();
-            echo "=========> Store image as $filename$filesuffix\n";
+            if (self::$debug) mtrace("=========> Store image as $filename$filesuffix");
             $fs = get_file_storage();
             $fs->create_file_from_pathname($filerecord, $tmppath);
             $file = $fs->get_file($filerecord->contextid, $filerecord->component, $filerecord->filearea, $filerecord->itemid, $filerecord->filepath, $filerecord->filename);
