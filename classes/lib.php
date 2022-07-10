@@ -638,12 +638,18 @@ class lib {
     /**
      * Gets an existing package by its courseid.
      * @param courseid the courseid.
+     * @param strictness by default MUST_EXIST
+     * @param createifmissing if no package is found for this course, create package?
+     * @return object of type \block_edupublisher\package or null
      */
-    public static function get_package_by_courseid($courseid, $strictness = MUST_EXIST) {
+    public static function get_package_by_courseid($courseid, $strictness = MUST_EXIST, $createifmissing = false) {
         global $DB;
         $item = $DB->get_record('block_edupublisher_packages', array('course' => $courseid), '*', $strictness);
         if (!empty($item->id)) {
-            return self::get_package($item->id);
+            return new \block_edupublisher\package($item->id);
+        } else if($createifmissing) {
+            $package = self::get_package_from_course($courseid);
+            $package->store_package((object)[]);
         }
     }
     /**
@@ -655,6 +661,7 @@ class lib {
         $package = new \block_edupublisher\package(0);
         $course = \get_course($courseid);
         $package->set(0, 'active');
+        $package->set($course->id, 'course');
         $package->set($course->id, 'sourcecourse');
         $package->set($course->fullname, 'title', 'default');
         $package->set($USER->firstname . ' ' . $USER->lastname, 'authorname', 'default');

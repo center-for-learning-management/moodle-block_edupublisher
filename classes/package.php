@@ -758,7 +758,7 @@ class package {
     }
     /**
      * Stores a package and all of its meta-data based on the data of package_create_form.
-     * @param data
+     * @param data Object containing additional data
     **/
     public function store_package($data) {
         global $CFG, $DB;
