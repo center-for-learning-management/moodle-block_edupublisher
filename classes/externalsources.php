@@ -394,7 +394,7 @@ class externalsources {
                     $curldata->url = $package['previewimage'];
                     if (self::$debug) mtrace("=======> Loading course image from $curldata->url for pubpackage info");
 
-                    $pubpackage->default_image = self::filearea_replace($curldata, $filerecord);
+                    $pubpackage->set(self::filearea_replace($curldata, $filerecord), 'image', 'default');
                 }
 
                 // Enter additional metadata provided from xml-file
