@@ -99,7 +99,11 @@ if (empty($channel)) {
         'maintainer_eduthek' => $maintainer_eduthek,
     ));
 
-    $packages = $DB->get_records('block_edupublisher_packages', [], 'id DESC', 'id');
+    $sql = "SELECT id
+                FROM {block_edupublisher_packages}
+                WHERE deleted = 0
+                ORDER BY id DESC";
+    $packages = $DB->get_records_sql($sql, []);
     foreach($packages AS $p) {
         $package = new \block_edupublisher\package($p->id, true);
         $package->set($maintainer_default, 'maintainer', 'default');
