@@ -347,7 +347,7 @@ class externalsources {
                 }
 
                 // Remove unneeded sections.
-                if (self::$debug) mtrace("=======> Remove unneeded sections");
+                if (self::$debug) mtrace("=======> Remove unneeded sections from course $course->id since section nr " . count($SECTIONS));
                 $sql = "SELECT section,id,name FROM {course_sections} WHERE course=? AND section>?";
                 $removesections = $DB->get_records_sql($sql, array($course->id, count($SECTIONS)));
                 foreach ($removesections as $removesection) {

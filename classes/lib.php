@@ -650,6 +650,7 @@ class lib {
         } else if($createifmissing) {
             $package = self::get_package_from_course($courseid);
             $package->store_package((object)[]);
+            return $package;
         }
     }
     /**

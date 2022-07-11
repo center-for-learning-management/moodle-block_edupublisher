@@ -784,13 +784,14 @@ class package {
             $this->set($id, 'package', 'default');
             $this->set($id, 'package', 'eduthek');
             $this->set($id, 'package', 'etapas');
-            $id = $DB->insert_record('block_edupublisher_md_com', $this->get_channel('commercial'));
+
+            $id = $DB->insert_record('block_edupublisher_md_com', $this->get_channel('commercial', true));
             $this->set($id, 'id', 'commercial');
-            $id = $DB->insert_record('block_edupublisher_md_def', $this->get_channel('default'));
+            $id = $DB->insert_record('block_edupublisher_md_def', $this->get_channel('default', true));
             $this->set($id, 'id', 'default');
-            $id = $DB->insert_record('block_edupublisher_md_edu', $this->get_channel('eduthek'));
+            $id = $DB->insert_record('block_edupublisher_md_edu', $this->get_channel('eduthek', true));
             $this->set($id, 'id', 'eduthek');
-            $id = $DB->insert_record('block_edupublisher_md_eta', $this->get_channel('etapas'));
+            $id = $DB->insert_record('block_edupublisher_md_eta', $this->get_channel('etapas', true));
             $this->set($id, 'id', 'etapas');
         }
 
