@@ -26,10 +26,11 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 $channels = array('default', 'etapas', 'eduthek');
 $channel = optional_param('channel', '', PARAM_TEXT);
+$page = optional_param('page', 0, PARAM_INT);
 
 $context = context_system::instance();
 // Must pass login
-$PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/list.php', array('channel' => $channel)));
+$PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/list.php', array('channel' => $channel, 'page' => $page)));
 require_login();
 $PAGE->set_context($context);
 $title = get_string('channels', 'block_edupublisher');
@@ -92,19 +93,39 @@ if (empty($channel)) {
         throw new \moodle_exception('permission_denied', 'block_edupublisher');
     }
     */
-    echo $OUTPUT->render_from_template('block_edupublisher/maintain_table_head', array(
-        'channel' => $channel,
-        'maintainer_default' => $maintainer_default,
-        'maintainer_etapas' => $maintainer_etapas,
-        'maintainer_eduthek' => $maintainer_eduthek,
-    ));
 
     $sql = "SELECT id
                 FROM {block_edupublisher_packages}
                 WHERE deleted = 0
                 ORDER BY id DESC";
-    $packages = $DB->get_records_sql($sql, []);
-    foreach($packages AS $p) {
+    $packages = array_values($DB->get_records_sql($sql, []));
+
+    $all = count($packages);
+    $amount = 50;
+    $pages = ceil($all/$amount);
+    $pagination = (object) [
+        'pages' => [],
+    ];
+    for ($a = 0; $a < $pages; $a++) {
+        $url = new \moodle_url('/blocks/edupublisher/pages/list.php', array('channel' => $channel, 'page' => $a));
+        $pagination->pages[$a] = [
+            'active' => ($page == $a) ? '1' : '0',
+            'label' => ($a+1),
+            'link' => $url->__toString(),
+        ];
+    }
+
+    echo $OUTPUT->render_from_template('block_edupublisher/maintain_table_head', array(
+        'channel' => $channel,
+        'maintainer_default' => $maintainer_default,
+        'maintainer_etapas' => $maintainer_etapas,
+        'maintainer_eduthek' => $maintainer_eduthek,
+        'pages' => $pagination->pages,
+    ));
+
+    $start = $page * $amount;
+    for($a = $start; $a < $start + $amount && $a < $all; $a++) {
+        $p = $packages[$a];
         $package = new \block_edupublisher\package($p->id, true);
         $package->set($maintainer_default, 'maintainer', 'default');
         $package->set($maintainer_eduthek, 'maintainer', 'eduthek');
@@ -127,6 +148,11 @@ if (empty($channel)) {
         );
     }
     echo $OUTPUT->render_from_template('block_edupublisher/maintain_table_foot', array());
+
+    echo $OUTPUT->render_from_template(
+        'block_edupublisher/maintain_pagination',
+        $pagination
+    );
 
 }
 
