@@ -142,6 +142,7 @@ if (empty($channel)) {
             $maintainer_eduthek && !empty($package->get('publishas', 'eduthek')) && empty($package->get('published', 'eduthek'))
         );
         $package->set($exclamation, 'exclamation');
+        $package->set(1, 'ratingshowcount');
         echo $OUTPUT->render_from_template(
             'block_edupublisher/maintain_table_row',
             $package->get_flattened()
