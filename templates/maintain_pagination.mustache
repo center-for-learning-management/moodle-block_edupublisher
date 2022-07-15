@@ -18,6 +18,12 @@
 <div id="edupublisher-list-pagination-{{uniqid}}" class="_ui-edupublisher" style="text-align: right;">
     {{#pages}}
         &nbsp;
-        <a href="{{{link}}}" style="text-align: center;{{#active}}font-weight: bold; text-decoration: underline;{{/active}}">{{label}}</a>
+        {{#active}}
+            <span style="text-align: center; font-weight: bold;">{{label}}</span>
+        {{/active}}
+        {{^active}}
+            <a href="{{{link}}}" style="text-align: center; text-decoration: underline;">{{label}}</a>
+        {{/active}}
+
     {{/pages}}
 </div>
