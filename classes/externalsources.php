@@ -247,7 +247,7 @@ class externalsources {
                         if (!empty($XMLSECTION['previewimage'])) {
                             $filerecord = (object) array(
                                 'contextid' => $context->id,
-                                'component' => 'format_files',
+                                'component' => 'format_tiles',
                                 'filearea' => 'tilephoto',
                                 'filepath' => '/tilephoto',
                                 'itemid' => $DBSECTION->id, // section id
