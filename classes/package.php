@@ -175,6 +175,7 @@ class package {
         if (!in_array('default', $includechannels)) {
             $includechannels[] = 'default';
         }
+
         $exclude = array('channels', 'sourcecourse', 'wwwroot');
         $flattened = $this->get_flattened(true);
 
@@ -205,9 +206,10 @@ class package {
                         }
                         $this->as_xml_array($item, "{$channel}_{$field}", $values);
                     } else if (!empty($flattened->{"{$channel}_{$field}"})) {
-                        $this->as_xml_array($item, $field, $flattened->{"{$channel}_{$field}"});
+                        $this->as_xml_array($item, $channel . '_' . $field, $flattened->{"{$channel}_{$field}"});
                     } else {
-                        $this->as_xml_array($item, $field, '');
+                        $valtoset = (!empty($flattened->{"{$channel}_{$field}"})) ? $flattened->{"{$channel}_{$field}"} : '';
+                        $item->addChild($channel . '_' . $field, $valtoset);
                     }
                 }
             }
@@ -287,7 +289,8 @@ class package {
                 $cartridge = $xml->addChild("$elementname");
                 $cartridge->addAttribute('source', htmlspecialchars($subtree));
                 $parent = dom_import_simplexml($cartridge);
-                $child  = dom_import_simplexml(simplexml_load_string(file_get_contents($subtree)));
+                // Suppress errors in case the link of the cartridge is incorrect!
+                $child  = @dom_import_simplexml(simplexml_load_string(file_get_contents($subtree)));
 
                 if (!empty($child)) {
                     // Import the <cat> into the dictionary document

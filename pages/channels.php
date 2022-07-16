@@ -43,17 +43,42 @@ if (count($channels) == 0) {
     echo $OUTPUT->footer();
     die();
 }
-header('Content-type: application/xml');
 
-$sql = "SELECT id
-            FROM {block_edupublisher_packages}
-            WHERE modified > ?";
 
-$items = new SimpleXMLElement('<items />');
-$packageids = $DB->get_records_sql($sql, array($modified));
-foreach($packageids AS $packageid) {
-    $package = new \block_edupublisher\package($packageid->id, true);
-    $package->as_xml($channels, $items);
+if (empty($modified)) {
+    if (count($channels) == 1) {
+        $channel = $channels[0];
+        $fs = get_file_storage();
+        $fileinfo = array(
+            'contextid' => 1, // global context
+            'component' => 'block_edupublisher',
+            'filearea' => 'channelexport',
+            'itemid' => 0,
+            'filepath' => '/',
+            'filename' => "{$channel}.xml"
+        );
+        $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
+                              $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+        if ($file) {
+            header('Content-type: application/xml');
+            echo $file->get_content();
+        } else {
+            throw new \moodle_exception('exception:channelexport:notyetexported', 'block_edupublisher');
+        }
+    } else {
+        throw new \moodle_exception('exception:channelexport:multiplechannels', 'block_edupublisher');
+    }
+} else {
+    $sql = "SELECT id
+                FROM {block_edupublisher_packages}
+                WHERE modified > ?";
+
+    $items = new SimpleXMLElement('<items />');
+    $packageids = $DB->get_records_sql($sql, array($modified));
+    foreach($packageids AS $packageid) {
+        $package = new \block_edupublisher\package($packageid->id, true);
+        $package->as_xml($channels, $items);
+    }
+
+    echo $items->asXML();
 }
-
-echo $items->asXML();

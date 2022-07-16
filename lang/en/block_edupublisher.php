@@ -193,6 +193,8 @@ $string['etapas_voraussetzungen'] = 'Prerequisites';
 $string['etapas_vorkenntnisse'] = 'Prior knowledge';
 $string['etapas_zeitbedarf'] = 'duration';
 
+$string['exception:channelexport:multiplechannels'] = 'Export without timestamp only allows one channel';
+$string['exception:channelexport:notyetexported'] = 'Sorry, the task did not yet export a file for this channel';
 $string['exception:name_must_not_be_empty'] = 'Name must not be empty!';
 $string['export'] = 'Export';
 $string['externalsources'] = 'External sources';
@@ -382,6 +384,7 @@ $string['successfully_saved_package'] = 'Successfully saved package';
 $string['successfully_saved_settings'] = 'Successfully saved settings';
 $string['successfully_unenrolled'] = 'Successfully unenrolled';
 $string['summary'] = 'Summary';
+$string['task:channelexport:title'] = 'Build static xml for each channel';
 $string['task:coursebackup:title'] = 'Backup courses';
 $string['task:externalsources:title'] = 'External sources';
 $string['title'] = 'Title';
