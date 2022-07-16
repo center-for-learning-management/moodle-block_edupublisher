@@ -209,7 +209,7 @@ class package {
                         $this->as_xml_array($item, $channel . '_' . $field, $flattened->{"{$channel}_{$field}"});
                     } else {
                         $valtoset = (!empty($flattened->{"{$channel}_{$field}"})) ? $flattened->{"{$channel}_{$field}"} : '';
-                        $item->addChild($channel . '_' . $field, $valtoset);
+                        $item->addChild($channel . '_' . $field, htmlspecialchars(str_replace("\n", "", $valtoset));
                     }
                 }
             }
