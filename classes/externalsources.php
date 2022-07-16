@@ -249,7 +249,7 @@ class externalsources {
                                 'contextid' => $context->id,
                                 'component' => 'format_tiles',
                                 'filearea' => 'tilephoto',
-                                'filepath' => '/',
+                                'filepath' => '/tilephoto/',
                                 'itemid' => $DBSECTION->id, // section id
                             );
 
