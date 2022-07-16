@@ -249,7 +249,7 @@ class externalsources {
                                 'contextid' => $context->id,
                                 'component' => 'format_tiles',
                                 'filearea' => 'tilephoto',
-                                'filepath' => '/tilephoto',
+                                'filepath' => '/',
                                 'itemid' => $DBSECTION->id, // section id
                             );
 
@@ -477,9 +477,11 @@ class externalsources {
      * @params filerecord.
      */
     public static function filearea_replace($curlinfo, $filerecord) {
-        $tmpfile = tmpfile();
-        $md = stream_get_meta_data($tmpfile);
-        $tmppath = $md['uri'];
+        global $CFG;
+        if (empty($curlinfo->url)) return;
+        $filesuffix = substr(str_replace('/', '.', $curlinfo->url), -4);
+        if (substr($filesuffix, 0, 1) != '.') $filesuffix = '.' . $filesuffix;
+        $tmppath = "$CFG->tempdir/{$filerecord->filearea}_{$filerecord->itemid}$filesuffix";
         file_put_contents($tmppath, self::fetch_curl($curlinfo)); // fetch_curl supports basic auth!
         if (self::$debug) mtrace("=========> Loaded filesize " . filesize($tmppath) . " to $tmppath");
 
@@ -493,16 +495,15 @@ class externalsources {
             }
             if (empty($filerecord->filename)) {
                 $filename = basename($tmppath);
-                $filesuffix = substr(str_replace('/', '.', $curlinfo->url), -4);
-                if (substr($filesuffix, 0, 1) != '.') $filesuffix = '.' . $filesuffix;
                 $filerecord->filename = $filename.$filesuffix;
             }
             $filerecord->timecreated = time();
             $filerecord->timemodified = time();
-            if (self::$debug) mtrace("=========> Store image as $filename$filesuffix");
+            if (self::$debug) mtrace("=========> Store image from $tmppath as $filename with size " . filesize($tmppath));
             $fs = get_file_storage();
             $fs->create_file_from_pathname($filerecord, $tmppath);
             $file = $fs->get_file($filerecord->contextid, $filerecord->component, $filerecord->filearea, $filerecord->itemid, $filerecord->filepath, $filerecord->filename);
+            unlink($tmppath);
             return \moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename(), false)->__toString();
         }
     }
