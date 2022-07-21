@@ -283,8 +283,6 @@
         <INDEX NAME="idx_subjectarea_other" UNIQUE="false" FIELDS="subjectarea_other"/>
         <INDEX NAME="idx_subjectarea_philosophy" UNIQUE="false" FIELDS="subjectarea_philosophy"/>
         <INDEX NAME="idx_subjectarea_physicaleducation" UNIQUE="false" FIELDS="subjectarea_physicaleducation"/>
-        <INDEX NAME="idx_summary" UNIQUE="false" FIELDS="summary"/>
-        <INDEX NAME="idx_tags" UNIQUE="false" FIELDS="tags"/>
         <INDEX NAME="idx_title" UNIQUE="false" FIELDS="title"/>
       </INDEXES>
     </TABLE>
@@ -326,10 +324,6 @@
         <INDEX NAME="idx_language" UNIQUE="false" FIELDS="language"/>
         <INDEX NAME="idx_publishas" UNIQUE="false" FIELDS="publishas"/>
         <INDEX NAME="idx_published" UNIQUE="false" FIELDS="published"/>
-        <INDEX NAME="idx_curriculum" UNIQUE="false" FIELDS="curriculum"/>
-        <INDEX NAME="idx_educationallevel" UNIQUE="false" FIELDS="educationallevel"/>
-        <INDEX NAME="idx_schooltype" UNIQUE="false" FIELDS="schooltype"/>
-        <INDEX NAME="idx_type" UNIQUE="false" FIELDS="type"/>
       </INDEXES>
     </TABLE>
     <TABLE NAME="block_edupublisher_md_exa" COMMENT="Metadata related to exacomp">
@@ -400,10 +394,6 @@
         <INDEX NAME="idx_subtype" UNIQUE="false" FIELDS="subtype"/>
         <INDEX NAME="idx_type" UNIQUE="false" FIELDS="type"/>
         <INDEX NAME="idx_zeitbedarf" UNIQUE="false" FIELDS="zeitbedarf"/>
-        <INDEX NAME="idx_kompetenzen" UNIQUE="false" FIELDS="kompetenzen"/>
-        <INDEX NAME="idx_stundenablauf" UNIQUE="false" FIELDS="stundenablauf"/>
-        <INDEX NAME="idx_voraussetzungen" UNIQUE="false" FIELDS="voraussetzungen"/>
-        <INDEX NAME="idx_vorkenntnisse" UNIQUE="false" FIELDS="vorkenntnisse"/>
       </INDEXES>
     </TABLE>
   </TABLES>

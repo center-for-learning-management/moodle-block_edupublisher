@@ -1,6 +1,23 @@
 # moodle-block_edupublisher
 This plugin allows to build an internal course database that is taggable and searchable via meta information. Any imports are moved to the desired position in a course without being mixed with existing resources.
 
+## Installation
+
+It is recommended that all metadata fields describing the learning packages are indexed in the database. Unfortunately, Moodle does not allow fields of type XMLDB_TYPE_TEXT to be indexed. Therefore these fields are not flagged to be indexed upon installation or update from a previous version of this plugin. Consequently, after the installation probably the following fields should be indexed in the database itself to enhance performance of the search function:
+
+- block_edupublisher_md_def
+  - summary
+  - tags
+- block_edupublisher_md_edu
+  - curriculum
+  - educationallevel
+  - schooltype
+  - type
+- block_edupublisher_md_eta
+  - kompetenzen
+  - stundenablauf
+  - voraussetzungen
+  - vorkenntnisse
 
 ## Configuration
 
