@@ -95,7 +95,7 @@ class externalsources {
             }
 
             // Fake empty timelastmodified
-            $timelastmodified = 0;
+            // $timelastmodified = 0;
             if (self::$debug) mtrace("===> Analyzing package $packageid");
 
             $courserec = $DB->get_record('block_edupublisher_extpack', array('extid' => $external->id, 'packageid' => $packageid));
