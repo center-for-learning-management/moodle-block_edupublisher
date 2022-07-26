@@ -123,7 +123,14 @@ class externalsources {
                     switch ($course->format) {
                         case 'tiles':
                             // Show progress on each tile.
-                            $DB->set_field('course_format_options', 'value', 2, array('courseid' => $course->id, 'format' => 'tiles', 'name' => 'courseshowtileprogress'));
+                            $conditions = array('courseid' => $course->id, 'format' => 'tiles', 'name' => 'courseshowtileprogress');
+                            $field = $DB->get_field('course_format_options', 'value', $conditions, IGNORE_MISSING);
+                            if (empty($field)){
+                                $conditions['value'] = 2;
+                                $DB->insert_records('course_format_options', $conditions);
+                            } else {
+                                $DB->set_field('course_format_options', 'value', 2, $conditions);
+                            }
                         break;
                     }
 
@@ -258,6 +265,14 @@ class externalsources {
                             if (self::$debug) mtrace("===========> Loading section image from $curldata->url");
 
                             self::filearea_replace($curldata, $filerecord);
+                            $conditions = array('courseid' => $course->id, 'format' => 'tiles', 'name' => 'tilephoto', 'sectionid' => $DBSECTION->id);
+                            $field = $DB->get_field('course_format_options', 'value', $conditions, IGNORE_MISSING);
+                            if (empty($field)){
+                                $conditions['value'] = $filerecord->filename;
+                                $DB->insert_records('course_format_options', $conditions);
+                            } else {
+                                $DB->set_field('course_format_options', 'value', $filerecord->filename, $conditions);
+                            }
                         }
                         $useitems = @$XMLSECTION['useitem'];
                         if (empty($useitems)) {
@@ -476,7 +491,7 @@ class externalsources {
      * @params curlinfo.
      * @params filerecord.
      */
-    public static function filearea_replace($curlinfo, $filerecord) {
+    public static function filearea_replace($curlinfo, &$filerecord) {
         global $CFG;
         if (empty($curlinfo->url)) return;
         $filesuffix = substr(str_replace('/', '.', $curlinfo->url), -4);
