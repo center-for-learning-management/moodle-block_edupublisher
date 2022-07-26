@@ -269,7 +269,7 @@ class externalsources {
                             $field = $DB->get_field('course_format_options', 'value', $conditions, IGNORE_MISSING);
                             if (empty($field)){
                                 $conditions['value'] = $filerecord->filename;
-                                $DB->insert_records('course_format_options', $conditions);
+                                $DB->insert_record('course_format_options', $conditions);
                             } else {
                                 $DB->set_field('course_format_options', 'value', $filerecord->filename, $conditions);
                             }
