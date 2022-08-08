@@ -69,6 +69,7 @@ if (empty($modified)) {
         throw new \moodle_exception('exception:channelexport:multiplechannels', 'block_edupublisher');
     }
 } else {
+    header('Content-type: application/xml');
     $sql = "SELECT id
                 FROM {block_edupublisher_packages}
                 WHERE modified > ?";

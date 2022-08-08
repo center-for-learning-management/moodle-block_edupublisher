@@ -176,7 +176,11 @@ class package {
             $includechannels[] = 'default';
         }
 
-        $exclude = array('channels', 'sourcecourse', 'wwwroot');
+        $exclude = [ 'channels', 'sourcecourse', 'wwwroot' ];
+        $include = [
+            'id', 'course', 'title', 'created', 'modified', 'deleted', 'active',
+            'rating', 'ratingaverage', 'ratingcount'
+        ];
         $flattened = $this->get_flattened(true);
 
         if (get_class($items) == 'SimpleXMLElement') {
@@ -184,11 +188,15 @@ class package {
         } else {
             $item = new \SimpleXMLElement('<item />');
         }
+
         if (!empty($flattened->deleted)) {
             $item->addChild("id", $flattened->id);
             $item->addChild("active", 0);
             $item->addChild("deleted", $flattened->deleted);
         } else {
+            foreach ($include as $inc) {
+                $item->addChild($inc, htmlspecialchars($flattened->{$inc}));
+            }
             $channels = \block_edupublisher\lib::get_channel_definition();
             foreach ($channels as $channel => $fields) {
                 if (!in_array($channel, $includechannels) && $includechannels[0] != '*') {
