@@ -238,13 +238,13 @@ class package {
                         $evalitem->addChild('id', $e->id);
                         $evalitem->addChild('evaluated_on', $e->evaluated_on);
                         $evalitem->addChild('evaluated_at', $e->evaluated_at);
-                        $evalitem->addChild('comprehensible_description', $e->comprehensible_description);
-                        $evalitem->addChild('suitable_workflow', $e->suitable_workflow);
-                        $evalitem->addChild('reasonable_preconditions', $e->reasonable_preconditions);
-                        $evalitem->addChild('correct_content', $e->correct_content);
-                        $evalitem->addChild('improvement_specification', $e->improvement_specification);
-                        $evalitem->addChild('technology_application', $e->technology_application);
-                        $evalitem->addChild('comments', $e->comments);
+                        $evalitem->addChild('comprehensible_description', htmlspecialchars($e->comprehensible_description));
+                        $evalitem->addChild('suitable_workflow', htmlspecialchars($e->suitable_workflow));
+                        $evalitem->addChild('reasonable_preconditions', htmlspecialchars($e->reasonable_preconditions));
+                        $evalitem->addChild('correct_content', htmlspecialchars($e->correct_content));
+                        $evalitem->addChild('improvement_specification', htmlspecialchars($e->improvement_specification));
+                        $evalitem->addChild('technology_application', htmlspecialchars($e->technology_application));
+                        $evalitem->addChild('comments', htmlspecialchars($e->comments));
                         // User data
                         $evalitem->addChild('userid', $e->userid);
                         $evalitem->addChild('firstname', $e->firstname);
