@@ -78,7 +78,11 @@ if (empty($modified)) {
     $packageids = $DB->get_records_sql($sql, array($modified));
     foreach($packageids AS $packageid) {
         $package = new \block_edupublisher\package($packageid->id, true);
-        $package->as_xml($channels, $items);
+        foreach ($channels as $channel) {
+            if (!empty($package->get('publishas', $channel))) {
+                $package->as_xml($channels, $items);
+            }
+        }
     }
 
     echo $items->asXML();

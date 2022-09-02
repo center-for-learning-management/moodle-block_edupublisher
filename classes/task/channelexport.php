@@ -56,7 +56,7 @@ class channelexport extends \core\task\scheduled_task {
         foreach($packageids AS $packageid) {
             $package = new \block_edupublisher\package($packageid->id, true);
             foreach ($filters as $filter => $chans) {
-                if (!empty($package->get('published', $filter))) {
+                if (!empty($package->get('publishas', $filter))) {
                     $package->as_xml($chans, $xmls[$filter]);
                 }
             }
