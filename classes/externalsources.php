@@ -123,11 +123,11 @@ class externalsources {
                     switch ($course->format) {
                         case 'tiles':
                             // Show progress on each tile.
-                            $conditions = array('courseid' => $course->id, 'format' => 'tiles', 'name' => 'courseshowtileprogress');
-                            $field = $DB->get_field('course_format_options', 'value', $conditions, IGNORE_MISSING);
-                            if (empty($field)){
+                            $conditions = array('courseid' => $course->id, 'sectionid' => 0, 'format' => 'tiles', 'name' => 'courseshowtileprogress');
+                            $field = $DB->get_record('course_format_options', $conditions);
+                            if (empty($field->id)){
                                 $conditions['value'] = 2;
-                                $DB->insert_records('course_format_options', $conditions);
+                                $DB->insert_record('course_format_options', $conditions);
                             } else {
                                 $DB->set_field('course_format_options', 'value', 2, $conditions);
                             }
@@ -449,28 +449,14 @@ class externalsources {
      * @return the results.
      */
     public static function fetch_curl($data) {
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, $data->url);
-        curl_setopt($ch, CURLOPT_USERAGENT,'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:84.0) Gecko/20100101 Firefox/84.0');
-        curl_setopt($ch, CURLOPT_AUTOREFERER, true);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_BINARYTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, 1);
-        //curl_setopt($ch, CURLOPT_VERBOSE, 1);
-        curl_setopt($ch, CURLOPT_HEADER, 1);
-        if (!empty($data->authuser) && !empty($data->authpwd)) {
-            curl_setopt($ch, CURLOPT_USERPWD, $data->authuser . ":" . $data->authpwd);
+        global $CFG;
+        require_once("$CFG->dirroot/lib/filelib.php");
+
+        $fullresponse = download_file_content($data->url, [ 'Authorization' => "Basic {$data->authuser}:{$data->authpwd}"], null, true);
+        if (!empty($fullresponse->results)) {
+            return $fullresponse->results;
         }
-
-        curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-        $response = curl_exec($ch);
-
-        $header_size = curl_getinfo($ch, CURLINFO_HEADER_SIZE);
-        $header = substr($response, 0, $header_size);
-        $body = substr($response, $header_size);
-
-        curl_close($ch);
-        return $body;
+        return false;
     }
     /**
      * Clear a file area.
