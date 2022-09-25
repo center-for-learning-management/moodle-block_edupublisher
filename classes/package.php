@@ -181,6 +181,9 @@ class package {
             'id', 'course', 'title', 'created', 'modified', 'deleted', 'active',
             'rating', 'ratingaverage', 'ratingcount'
         ];
+        if (in_array('etapas', $includechannels)) {
+            $this->exacompetencies();
+        }
         $flattened = $this->get_flattened(true);
 
         if (get_class($items) == 'SimpleXMLElement') {
@@ -362,9 +365,9 @@ class package {
             }
         }
         $this->set(nl2br(implode("\n", $exacomptitles)), 'kompetenzen', 'etapas');
-        $this->set($exacompdatasources, 'exacompdatasources');
-        $this->set($exacompsourceids, 'exacompsourceids');
-        $this->set($exacomptitles, 'exacomptitles');
+        $this->set($exacompdatasources, 'exacompdatasources', 'default');
+        $this->set($exacompsourceids, 'exacompsourceids', 'default');
+        $this->set($exacomptitles, 'exacomptitles', 'default');
     }
     /**
      * Get a meta-data field from this package.
