@@ -788,8 +788,6 @@ class package {
             }
         }
 
-        $this->set($this->get('title', 'default'), 'title');
-
         // To proceed we must have a package id!
         if (empty($this->get('id'))) {
             $id = $DB->insert_record('block_edupublisher_packages', $this->get_channel('_'));
@@ -949,6 +947,7 @@ class package {
                      'timecreated' => time(), 'timemodified' => time());
             $fs->create_file_from_pathname($file_record, $courseimage->imagepath);
         }
+        $this->set($this->get('title', 'default'), 'title');
         $course = get_course($this->get('course'));
         $course->summary = $this->get('summary', 'default');
         $course->fullname = $this->get('title', 'default');
