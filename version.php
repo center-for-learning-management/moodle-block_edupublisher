@@ -33,5 +33,4 @@ $plugin->maturity = MATURITY_STABLE;
 $plugin->dependencies = array(
     'block_enrolcode' => 2021111801,
     'block_exacomp' => 2020091000,
-    'local_komettranslator' => 2021031200,
 );
