@@ -124,18 +124,22 @@ for ($a = 0; $a < count($publishers); $a++) {
     $publishers[$a]->items = array_values($publishers[$a]->items);
 }
 
-$stars = [];
-for ($a = -1; $a <= 5; $a++) {
-    if ($a == 0) {
-        continue;
+if (!\block_edupublisher\lib::show_star_rating()) {
+    $stars = null;
+} else {
+    $stars = [];
+    for ($a = -1; $a <= 5; $a++) {
+        if ($a == 0) {
+            continue;
+        }
+        $label = get_string('star_none', 'block_edupublisher');
+        if ($a == 1) $label = get_string('star_single', 'block_edupublisher');
+        else if ($a > 1) $label = get_string('star_multiple', 'block_edupublisher', [ 'stars' => $a ]);
+        $stars[] = (object)[
+            'key' => $a,
+            'name' => $label,
+        ];
     }
-    $label = get_string('star_none', 'block_edupublisher');
-    if ($a == 1) $label = get_string('star_single', 'block_edupublisher');
-    else if ($a > 1) $label = get_string('star_multiple', 'block_edupublisher', [ 'stars' => $a ]);
-    $stars[] = (object)[
-        'key' => $a,
-        'name' => $label,
-    ];
 }
 
 //print_r($publishers);
@@ -154,6 +158,7 @@ echo $OUTPUT->render_from_template(
         'subjectareas' => $subjectareas,
         'schoollevel' => $schoollevel,
         'schoollevels' => $schoollevels,
+        'show_star_rating' => \block_edupublisher\lib::show_star_rating(),
         'stars' => $stars,
         'wwwroot' => $CFG->wwwroot,
     )

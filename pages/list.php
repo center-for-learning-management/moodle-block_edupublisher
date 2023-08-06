@@ -27,6 +27,8 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 $channels = array('default', 'etapas', 'eduthek');
 $channel = optional_param('channel', '', PARAM_TEXT);
 $page = optional_param('page', 0, PARAM_INT);
+$sort = optional_param('sort', '', PARAM_TEXT);
+$search = trim(optional_param('search', '', PARAM_TEXT));
 
 $context = context_system::instance();
 // Must pass login
@@ -94,11 +96,19 @@ if (empty($channel)) {
     }
     */
 
+    $params = [];
+    $search_where = '';
+    if ($search) {
+        $search_where = 'AND package.title LIKE ?';
+        $params[] = '%'.str_replace(' ', '%', $search).'%';
+    }
+
     $sql = "SELECT id
-                FROM {block_edupublisher_packages}
+                FROM {block_edupublisher_packages} AS package
                 WHERE deleted = 0
+                $search_where
                 ORDER BY id DESC";
-    $packages = array_values($DB->get_records_sql($sql, []));
+    $packages = array_values($DB->get_records_sql($sql, $params));
 
     $all = count($packages);
     $amount = 50;
@@ -107,7 +117,7 @@ if (empty($channel)) {
         'pages' => [],
     ];
     for ($a = 0; $a < $pages; $a++) {
-        $url = new \moodle_url('/blocks/edupublisher/pages/list.php', array('channel' => $channel, 'page' => $a));
+        $url = new \moodle_url('/blocks/edupublisher/pages/list.php', array('channel' => $channel, 'page' => $a, 'search' => $search));
         $pagination->pages[$a] = [
             'active' => ($page == $a) ? '1' : '0',
             'label' => ($a+1),
@@ -120,6 +130,8 @@ if (empty($channel)) {
         'maintainer_default' => $maintainer_default,
         'maintainer_etapas' => $maintainer_etapas,
         'maintainer_eduthek' => $maintainer_eduthek,
+        'sort' => $sort,
+        'search' => $search,
         'pages' => $pagination->pages,
     ));
 

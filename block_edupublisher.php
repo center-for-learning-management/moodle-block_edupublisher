@@ -80,6 +80,7 @@ class block_edupublisher extends block_base {
 
         $package = $DB->get_record('block_edupublisher_packages', array('course' => $COURSE->id), '*', IGNORE_MULTIPLE);
         $options = array();
+
         if (!empty($package->id)) {
             $package = new \block_edupublisher\package($package->id, true);
             if ($package->get('licence', 'default') == 'other') {
@@ -99,6 +100,9 @@ class block_edupublisher extends block_base {
             if (!empty($package->get('active', 'etapas')) && !empty($package->get('subtype', 'etapas'))) {
                 $package->set(str_replace(array(' ', '.'), '', $package->etapas_subtype), 'graphic', 'etapas');
             }
+
+            $package->set(\block_edupublisher\lib::show_star_rating(), 'show_star_rating');
+
             $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_inpackage', $package->get_flattened());
         } else if($canedit) {
             $cache = \cache::make('block_edupublisher', 'publish');

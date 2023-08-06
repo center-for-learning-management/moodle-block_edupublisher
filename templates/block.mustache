@@ -38,12 +38,14 @@
         {{#str}} comments {{/str}}
     </a>
 </div>
-<div class="row">
-    <a>
-        {{#pix}} i/scales, core {{/pix}}
-    </a>
-    {{<block_edupublisher/package_rating}}
-</div>
+{{#show_star_rating}}
+    <div class="row">
+        <a>
+            {{#pix}} i/scales, core {{/pix}}
+        </a>
+        {{<block_edupublisher/package_rating}}
+    </div>
+{{/show_star_rating}}
 {{#can_see_evaluation}}
 <div class="row">
     <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/evaluation.php?packageid={{id}}">

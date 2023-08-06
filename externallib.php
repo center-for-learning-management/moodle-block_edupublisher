@@ -606,9 +606,24 @@ class block_edupublisher_external extends external_api {
                     $order_by
                     $limit";
         $reply['packages'] = array_values($DB->get_records_sql($sql));
+
+        $show_star_rating = \block_edupublisher\lib::show_star_rating();
+
         for ($a = 0; $a < count($reply['packages']); $a++) {
             $package = new \block_edupublisher\package($reply['packages'][$a]->id, true, [ 'internal', 'rating' ]);
-            $reply['packages'][$a] = $package->get_flattened();
+            $data = $package->get_flattened();
+
+            if (!$show_star_rating) {
+                // remove rating info
+                unset($data->rating);
+                unset($data->ratingown);
+                unset($data->ratingaverage);
+                unset($data->ratingcount);
+                unset($data->ratingselection);
+            }
+
+            $reply['packages'][$a] = $data;
+
         }
         return json_encode($reply, JSON_NUMERIC_CHECK);
     }
