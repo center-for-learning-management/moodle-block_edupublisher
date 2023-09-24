@@ -995,4 +995,18 @@ class lib {
         global $CFG;
         return file_exists($CFG->dirroot . '/local/eduvidual/version.php');
     }
+
+    public static function show_star_rating() {
+        if (!static::uses_eduvidual()) {
+            return true;
+        }
+
+        $highestrole = \local_eduvidual\locallib::get_highest_role();
+        // only show star rating, when user is manager or teacher
+        if ($highestrole == \local_eduvidual\locallib::ROLE_MANAGER || $highestrole == \local_eduvidual\locallib::ROLE_TEACHER) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 }

@@ -39,14 +39,16 @@
                     {{name}}
                 </button>
             {{/schoollevels}}
-            <hr style="width:100%;text-align:left;margin-left:0">
-            {{#stars}}
-                <button name="stars" class="btn btn-sm btnFilterResources {{uniqid}}-stars"
-                    value="{{key}}"
-                    onclick="var b = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.searchNow({ uniqid: '{{uniqid}}', courseid: {{courseid}}, sectionid: {{sectionid}} }, b); }); return false;">
-                    {{name}}
-                </button>
-            {{/stars}}
+            {{#show_star_rating}}
+                <hr style="width:100%;text-align:left;margin-left:0">
+                {{#stars}}
+                    <button name="stars" class="btn btn-sm btnFilterResources {{uniqid}}-stars"
+                        value="{{key}}"
+                        onclick="var b = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.searchNow({ uniqid: '{{uniqid}}', courseid: {{courseid}}, sectionid: {{sectionid}} }, b); }); return false;">
+                        {{name}}
+                    </button>
+                {{/stars}}
+            {{/show_star_rating}}
         </div>
 
         <input type="text" id="{{uniqid}}-search" name="search" style="width: 100%;"

@@ -23,12 +23,19 @@
             </a>
         </div>
         <div>
-            <i class="fa fa-sort"></i>&nbsp;
-            [<a href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel={{channel}}&sort=date">{{#str}} date {{/str}}</a>]
-            [<a href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel={{channel}}&sort=name">{{#str}} name {{/str}}</a>]
+<!--            <i class="fa fa-sort"></i>&nbsp;-->
+<!--            [<a href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel={{channel}}&sort=date">{{#str}} date {{/str}}</a>]-->
+<!--            [<a href="{{wwwroot}}/blocks/edupublisher/pages/list.php?channel={{channel}}&sort=name">{{#str}} name {{/str}}</a>]-->
         </div>
         <div style="text-align: right;">
-            <i class="fa fa-filter"></i>&nbsp;<input type="text" value="{{filter}}" id="edupublisher-list-filter-{{uniqid}}" />
+            <form>
+                <input type="hidden" name="channel" value="{{channel}}"/>
+                <input type="hidden" name="sort" value="{{sort}}"/>
+                <input type="text" name="search" value="{{search}}" />
+                <button type="submit">
+                    <i class="fa fa-filter"></i>
+                </button>
+            </form>
         </div>
     </div>
 
@@ -62,13 +69,3 @@
             </tr>
         </thead>
         <tbody>
-
-
-{{#js}}
-    $('#edupublisher-list-filter-{{uniqid}}').on("keyup", function() {
-        var filter = $(this).val().toLowerCase();
-        $('#edupublisher-list-table-{{uniqid}} tbody tr').filter(function() {
-            $(this).toggle($(this).text().toLowerCase().indexOf(filter) > -1);
-        });
-    });
-{{/js}}

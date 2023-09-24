@@ -52,14 +52,16 @@
         </a>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12">
-        <a>
-            <i class="fa fa-line-chart icon"></i>
-        </a>
-        {{>block_edupublisher/package_rating}}
+{{#show_star_rating}}
+    <div class="row">
+        <div class="col-md-12">
+            <a>
+                <i class="fa fa-line-chart icon"></i>
+            </a>
+            {{>block_edupublisher/package_rating}}
+        </div>
     </div>
-</div>
+{{/show_star_rating}}
 {{#can_see_evaluation}}
 <div class="row">
     <div class="col-md-12">
