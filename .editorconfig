@@ -64,3 +64,9 @@ ij_php_align_phpdoc_param_names = false
 ij_php_phpdoc_param_spaces_between_name_and_description = 1
 ij_php_phpdoc_param_spaces_between_tag_and_type = 1
 ij_php_phpdoc_param_spaces_between_type_and_name = 1
+
+
+[*.js]
+space-before-function-paren = none
+ij_javascript_space_before_function_left_parenth = false
+ij_javascript_spaces_within_object_literal_braces = true
