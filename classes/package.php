@@ -301,14 +301,18 @@ class package {
                 $cartridge->addAttribute('source', htmlspecialchars($subtree));
                 $parent = dom_import_simplexml($cartridge);
                 // Suppress errors in case the link of the cartridge is incorrect!
-                $child  = @dom_import_simplexml(simplexml_load_string(file_get_contents($subtree)));
 
-                if (!empty($child)) {
-                    // Import the <cat> into the dictionary document
-                    $child  = $parent->ownerDocument->importNode($child, TRUE);
+                $child = simplexml_load_string(file_get_contents($subtree));
+                if ($child) {
+                    $child = dom_import_simplexml($child);
 
-                    // Append the <cat> to <c> in the dictionary
-                    $parent->appendChild($child);
+                    if ($child) {
+                        // Import the <cat> into the dictionary document
+                        $child  = $parent->ownerDocument->importNode($child, TRUE);
+
+                        // Append the <cat> to <c> in the dictionary
+                        $parent->appendChild($child);
+                    }
                 }
             } else {
                 $element = $xml->addChild("$elementname", htmlspecialchars(str_replace("\n", "", $subtree)));
