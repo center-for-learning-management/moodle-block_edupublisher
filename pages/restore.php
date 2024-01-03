@@ -279,7 +279,9 @@ if (!$restore->is_independent()) {
                         'course' => $course->id,
                         'section' => $a,
                         'name' => $sections_import[$a]->name,
-                        'summary' => $sections_import[$a]->summary,
+                        // Keep summary empty, moodle will restore it from the backup
+                        // but if summary is filled here, the incorrect summary (eg. linked Images don't work) will be restored.
+                        'summary' => '', // $sections_import[$a]->summary,
                         'summaryformat' => $sections_import[$a]->summaryformat,
                         'sequence' => '',
                         'visible' => $sections_import[$a]->visible,
