@@ -53,7 +53,7 @@ $PAGE->navbar->add(
     new moodle_url(
         '/course/view.php',
         array(
-            'id' => $package->get('course')
+            'id' => $package->get('course'),
         )
     )
 );
@@ -62,7 +62,7 @@ $PAGE->navbar->add(
     new \moodle_url(
         '/blocks/edupublisher/pages/evaluation.php',
         array(
-            'packageid' => $package->get('id')
+            'packageid' => $package->get('id'),
         )
     )
 );
@@ -85,13 +85,13 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
                     'evaluation_by',
                     'block_edupublisher',
                     array(
-                        'fullname' => $evaluation->userfullname
+                        'fullname' => $evaluation->userfullname,
                     )
                 ), new \moodle_url(
                     '/blocks/edupublisher/pages/evaluation.php',
                     array(
                         'packageid' => $package->get('id'),
-                        'id' => $id
+                        'id' => $id,
                     )
                 )
             );
@@ -103,14 +103,14 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
             $evaluation->userurl = new \moodle_url(
                 '/user/profile.php',
                 array(
-                    'id' => $evaluation->userid
+                    'id' => $evaluation->userid,
                 )
             );
             $evaluation->linkurl = new \moodle_url(
                 '/blocks/edupublisher/pages/evaluation.php',
                 array(
                     'packageid' => $packageid,
-                    'id' => $evaluation->id
+                    'id' => $evaluation->id,
                 )
             );
             $evaluation->evaluated_on_readable = date("Y-m-d", $evaluation->evaldate);
@@ -138,14 +138,14 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
             $evaluation->userurl = new \moodle_url(
                 '/user/profile.php',
                 array(
-                    'id' => $evaluation->userid
+                    'id' => $evaluation->userid,
                 )
             );
             $evaluation->linkurl = new \moodle_url(
                 '/blocks/edupublisher/pages/evaluation.php',
                 array(
                     'packageid' => $packageid,
-                    'id' => $evaluation->id
+                    'id' => $evaluation->id,
                 )
             );
             $evaluation->evaluated_on_readable = date("Y-m-d", $evaluation->evaldate); // $evaluation->evaluated_on

@@ -40,9 +40,10 @@ class licence_list_form extends \moodleform {
 
         $sql = "SELECT * FROM {block_edupublisher_lic} WHERE publisherid=? ORDER BY created DESC, licencekey ASC";
         $licences = $DB->get_records_sql($sql, array($publisherid));
-        $flag = ''; $group = 0;
+        $flag = '';
+        $group = 0;
 
-        foreach ($licences AS $licence) {
+        foreach ($licences as $licence) {
             $_flag = date('Y-m-d h:i', $licence->created);
             if ($flag != $_flag) {
                 if (!empty($flag)) {

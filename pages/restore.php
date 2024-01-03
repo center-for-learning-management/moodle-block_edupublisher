@@ -18,7 +18,7 @@
  * @package    block_edupublisher
  * @copyright  2018 Digital Education Society (http://www.dibig.at)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-**/
+ **/
 
 define('NO_OUTPUT_BUFFERING', true);
 
@@ -30,11 +30,11 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 // in admin settings.
 raise_memory_limit(MEMORY_EXTRA);
 
-$cancel      = optional_param('cancel', '', PARAM_ALPHA);
+$cancel = optional_param('cancel', '', PARAM_ALPHA);
 // The context we want to import TO.
-$contextid   = required_param('contextid', PARAM_INT);
-$stage       = optional_param('stage', restore_ui::STAGE_DESTINATION, PARAM_INT);
-$restore     = optional_param('restore', '', PARAM_ALPHANUM);
+$contextid = required_param('contextid', PARAM_INT);
+$stage = optional_param('stage', restore_ui::STAGE_DESTINATION, PARAM_INT);
+$restore = optional_param('restore', '', PARAM_ALPHANUM);
 
 if (!empty($restore)) {
     $cache = \cache::make('block_edupublisher', 'restore');
@@ -49,8 +49,8 @@ if (!empty($restore)) {
     }
 }
 
-$sectionid   = optional_param('sectionid', 0, PARAM_INT);
-$packageid   = required_param('packageid', PARAM_INT);
+$sectionid = optional_param('sectionid', 0, PARAM_INT);
+$packageid = required_param('packageid', PARAM_INT);
 $package = new \block_edupublisher\package($packageid, false);
 
 // Determine if we are performing realtime for asynchronous backups.
@@ -58,8 +58,8 @@ $backupmode = backup::MODE_GENERAL;
 
 list($context, $course, $cm) = get_context_info_array($contextid);
 
-navigation_node::override_active_url(new moodle_url('/blocks/edupublisher/pages/restorefile.php', array('contextid'=>$contextid)));
-$PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/restore.php', array('contextid'=>$contextid)));
+navigation_node::override_active_url(new moodle_url('/blocks/edupublisher/pages/restorefile.php', array('contextid' => $contextid)));
+$PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/restore.php', array('contextid' => $contextid)));
 $PAGE->set_context($context);
 $PAGE->set_pagelayout('admin');
 
@@ -82,7 +82,7 @@ $PAGE->set_heading($coursefullname);
 
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
-$renderer = $PAGE->get_renderer('core','backup');
+$renderer = $PAGE->get_renderer('core', 'backup');
 
 // Prepare a progress bar which can display optionally during long-running
 // operations while setting up the UI.
@@ -131,10 +131,10 @@ if ($stage == restore_ui::STAGE_SETTINGS) {
     $rc = restore_ui::load_controller($restoreid);
 
     if (!$rc) {
-        $restore = restore_ui::engage_independent_stage($stage/2, $contextid);
+        $restore = restore_ui::engage_independent_stage($stage / 2, $contextid);
         if ($restore->process()) {
             $rc = new restore_controller($restore->get_filepath(), $restore->get_course_id(), backup::INTERACTIVE_YES,
-                    $backupmode, $USER->id, $restore->get_target(), null, backup::RELEASESESSION_YES);
+                $backupmode, $USER->id, $restore->get_target(), null, backup::RELEASESESSION_YES);
         }
     }
     if ($rc) {
@@ -143,7 +143,7 @@ if ($stage == restore_ui::STAGE_SETTINGS) {
             $rc->convert();
         }
 
-        $restore = new restore_ui($rc, array('contextid'=>$context->id));
+        $restore = new restore_ui($rc, array('contextid' => $context->id));
     }
 
     $restore->save_controller();
@@ -172,10 +172,10 @@ if ($stage >= restore_ui::STAGE_SCHEMA) {
     $rc = restore_ui::load_controller($restoreid);
 
     if (!$rc) {
-        $restore = restore_ui::engage_independent_stage($stage/2, $contextid);
+        $restore = restore_ui::engage_independent_stage($stage / 2, $contextid);
         if ($restore->process()) {
             $rc = new restore_controller($restore->get_filepath(), $restore->get_course_id(), backup::INTERACTIVE_YES,
-                    $backupmode, $USER->id, $restore->get_target(), null, backup::RELEASESESSION_YES);
+                $backupmode, $USER->id, $restore->get_target(), null, backup::RELEASESESSION_YES);
         }
     }
     if ($rc) {
@@ -184,7 +184,7 @@ if ($stage >= restore_ui::STAGE_SCHEMA) {
             $rc->convert();
         }
 
-        $restore = new restore_ui($rc, array('contextid'=>$context->id));
+        $restore = new restore_ui($rc, array('contextid' => $context->id));
     }
 }
 
@@ -257,7 +257,7 @@ if (!$restore->is_independent()) {
 
                 $oldsectionids_beforeimport = array();
 
-                foreach ($sections_old AS $section_old) {
+                foreach ($sections_old as $section_old) {
                     if ($section_old->section <= $moveaftersectionnumber) {
                         $oldsectionids_beforeimport[] = $section_old->id;
                     }
@@ -274,8 +274,8 @@ if (!$restore->is_independent()) {
                             ORDER BY section DESC";
 
                 $DB->execute($sql, array(count($sections_import), $course->id));
-                for($a = 0; $a < count($sections_import); $a++) {
-                    $seco = (object) array(
+                for ($a = 0; $a < count($sections_import); $a++) {
+                    $seco = (object)array(
                         'course' => $course->id,
                         'section' => $a,
                         'name' => $sections_import[$a]->name,
@@ -313,11 +313,11 @@ if (!$restore->is_independent()) {
                 $DB->execute($sql, array(count($sections_new), $course->id));
                 //     Start re-ordering with our old sections that are BEFORE the new content.
                 $newposition = 0;
-                foreach ($oldsectionids_beforeimport AS $s) {
+                foreach ($oldsectionids_beforeimport as $s) {
                     $DB->set_field('course_sections', 'section', $newposition++, array('id' => $s));
                 }
 
-                foreach ($sections_new AS $snew) {
+                foreach ($sections_new as $snew) {
                     if (!in_array($snew->id, $oldsectionids_beforeimport)) {
                         $DB->set_field('course_sections', 'section', $newposition++, array('id' => $snew->id));
                     }
@@ -341,7 +341,7 @@ if (!$restore->is_independent()) {
             // Hide this section because we are now going to make the page show 'finished'.
             echo html_writer::end_div();
             echo html_writer::script('document.getElementById("executionprogress").style.display = "none";');
-        } catch(Exception $e) {
+        } catch (Exception $e) {
             $restore->cleanup();
             throw $e;
         }

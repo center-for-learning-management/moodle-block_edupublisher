@@ -24,14 +24,15 @@ require_once('../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
-$tokens = explode(',', optional_param('tokens', '',PARAM_TEXT));
+$tokens = explode(',', optional_param('tokens', '', PARAM_TEXT));
 $modified = optional_param('modified', 0, PARAM_INT);
 
 $_channels = \block_edupublisher\lib::channels();
 $channel = array();
-foreach($_channels AS $channel) {
+foreach ($_channels as $channel) {
     $token = get_config('block_edupublisher', 'channelkey_' . $channel);
-    if (empty($token)) continue;
+    if (empty($token))
+        continue;
     if (in_array($token, $tokens)) {
         $channels[] = $channel;
     }
@@ -55,10 +56,10 @@ if (empty($modified)) {
             'filearea' => 'channelexport',
             'itemid' => 0,
             'filepath' => '/',
-            'filename' => "{$channel}.xml"
+            'filename' => "{$channel}.xml",
         );
         $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'],
-                              $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
+            $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);
         if ($file) {
             header('Content-type: application/xml');
             echo $file->get_content();
@@ -76,7 +77,7 @@ if (empty($modified)) {
 
     $items = new SimpleXMLElement('<items />');
     $packageids = $DB->get_records_sql($sql, array($modified));
-    foreach($packageids AS $packageid) {
+    foreach ($packageids as $packageid) {
         $package = new \block_edupublisher\package($packageid->id, true);
         foreach ($channels as $channel) {
             if (!empty($package->get('publishas', $channel))) {

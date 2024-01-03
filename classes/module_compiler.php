@@ -50,7 +50,7 @@ class module_compiler {
 
         $item->memofields = array('intro');
 
-        switch($type) {
+        switch ($type) {
             case "assign":
                 $item->alwaysshowdescription = 0;
                 $item->submissiondrafts = 0;
@@ -82,7 +82,7 @@ class module_compiler {
                 $item->assignsubmission_file_maxfiles = 10;
                 // Means site maximum
                 $item->assignsubmission_file_maxsizebytes = 0;
-            break;
+                break;
             case "choice":
                 $item->display = 1; // 0 ... horizontal, 1 ... vertical
                 $item->allowupdate = 1; // change choices afterwards
@@ -96,7 +96,7 @@ class module_compiler {
                 $item->completion = 2; // auto completion
                 $item->completionview = 0; // auto completion on view (0 ... off, 1 ... on)
                 $item->completionsubmit = 1; // auto completion on select (0... off, 1 ... on)
-            break;
+                break;
             case "forum":
                 $item->maxattachments = 0;
                 $item->assessed = 0;
@@ -108,7 +108,7 @@ class module_compiler {
                 $item->blockperiod = 0;
                 $item->blockafter = 0;
                 $item->warnafter = 0;
-            break;
+                break;
             case "lti":
                 $item->showdescription = 0;
                 $item->showtitlelaunch = 1;
@@ -132,7 +132,7 @@ class module_compiler {
 
                 $item->grade_modgrade_type = "point";
                 $item->grade_modgrade_point = 100;
-                $item->completion =  1;
+                $item->completion = 1;
                 $item->completionusegrade = 1;
 
                 $item->toolurl = '';
@@ -140,7 +140,7 @@ class module_compiler {
                 $item->icon = '';
                 $item->secureicon = '';
                 $item->password = '';
-            break;
+                break;
             case "page":
                 $item->memofields[] = 'page';
                 $item->page = '';
@@ -148,28 +148,28 @@ class module_compiler {
                 $item->printheading = 1;
                 $item->printintro = 1;
                 $item->display = 5;
-                $item->completion =  2;
-                $item->completionview =  1;
-            break;
+                $item->completion = 2;
+                $item->completionview = 1;
+                break;
             case "url":
                 $item->externalurl = "about:blank";
                 $item->display = 3;
                 $item->displayoptions = array();
                 $item->parameters = array();
-                $item->completion =  2;
-                $item->completionview =  1;
-            break;
+                $item->completion = 2;
+                $item->completionview = 1;
+                break;
         }
 
         // First we set the defaults given by payload
         $keys = array_keys((array)$item);
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             if (isset($defaults->$key))
                 $item->$key = $defaults->$key;
         }
 
         // Secondly we set the values given by the user
-        foreach($keys as $key) {
+        foreach ($keys as $key) {
             if (isset($data->$key))
                 $item->$key = $data->$key;
         }
@@ -178,14 +178,15 @@ class module_compiler {
             $memofield = $item->memofields[$a];
             $memofieldformat = $memofield . 'format';
             $memofieldeditor = $memofield . 'editor';
-            $format = isset($item->{$memofieldformat})?$item->{$memofieldformat}:2;
+            $format = isset($item->{$memofieldformat}) ? $item->{$memofieldformat} : 2;
             $item->$memofieldeditor = array('text' => $item->$memofield, 'format' => $format, 'itemid' => $a);
         }
         $item->cmidnumber = 0;
 
         return $item;
     }
-    public static function create($item){
+
+    public static function create($item) {
         global $CFG;
 
         $context = \context_course::instance($item->course);

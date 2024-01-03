@@ -37,12 +37,12 @@ echo $OUTPUT->header();
 if (\block_edupublisher\lib::is_admin() && optional_param('confirmed', 0, PARAM_INT) == 1) {
     require_once($CFG->dirroot . '/course/lib.php');
     $packages = $DB->get_records('block_edupublisher_packages');
-    foreach ($packages AS $package) {
+    foreach ($packages as $package) {
         $params = array(
             'content' => get_string('removing_package_course', 'block_edupublisher', $package),
             'type' => 'info',
         );
-        echo $OUTPUT->render_from_template('block_edupublisher/alert', (object) $params);
+        echo $OUTPUT->render_from_template('block_edupublisher/alert', (object)$params);
         delete_course($package->get('course'), false);
     }
     $DB->execute('TRUNCATE {block_edupublisher_packages}');
@@ -58,20 +58,20 @@ if (\block_edupublisher\lib::is_admin() && optional_param('confirmed', 0, PARAM_
         'type' => 'success',
         'url' => $CFG->wwwroot . '/my',
     );
-    echo $OUTPUT->render_from_template('block_edupublisher/alert', (object) $params);
+    echo $OUTPUT->render_from_template('block_edupublisher/alert', (object)$params);
 } elseif (\block_edupublisher\lib::is_admin()) {
     $params = array(
         'content' => get_string('remove_everything', 'block_edupublisher'),
         'type' => 'danger',
         'url' => $CFG->wwwroot . '/blocks/edupublisher/pages/reset.php?confirmed=1',
     );
-    echo $OUTPUT->render_from_template('block_edupublisher/alert', (object) $params);
+    echo $OUTPUT->render_from_template('block_edupublisher/alert', (object)$params);
 } else {
     $params = array(
         'content' => get_string('permission_denied', 'block_edupublisher'),
         'type' => 'warning',
     );
-    echo $OUTPUT->render_from_template('block_edupublisher/alert', (object) $params);
+    echo $OUTPUT->render_from_template('block_edupublisher/alert', (object)$params);
 }
 
 echo $OUTPUT->footer();

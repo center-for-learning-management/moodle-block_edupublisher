@@ -28,9 +28,9 @@ require_once($CFG->libdir . "/formslib.php");
 
 class comment_create_form extends \moodleform {
     function definition() {
-        $editoroptions = array('subdirs'=>0, 'maxbytes'=>0, 'maxfiles'=>0,
-                               'changeformat'=>0, 'context'=>null, 'noclean'=>0,
-                               'trusttext'=>0, 'enable_filemanagement' => false);
+        $editoroptions = array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 0,
+            'changeformat' => 0, 'context' => null, 'noclean' => 0,
+            'trusttext' => 0, 'enable_filemanagement' => false);
 
         $mform = $this->_form;
         $mform->addElement('hidden', 'package', 0);

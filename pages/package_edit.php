@@ -69,7 +69,7 @@ if ($package->get('canedit')) {
 } else {
     echo $OUTPUT->render_from_template(
         'block_edupublisher/alert',
-        (object) array(
+        (object)array(
             'content' => get_string('permission_denied', 'block_edupublisher'),
             'url' => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->get('id'),
             'type' => 'danger',

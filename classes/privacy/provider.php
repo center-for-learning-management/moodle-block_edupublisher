@@ -17,123 +17,123 @@
 /**
  * @package    block_edupublisher
  * @copyright  2018 Digital Education Society (http://www.dibig.at)
-               2021 onwards Center for Learningmanagement (https://www.lernmanagement.at)
+ * 2021 onwards Center for Learningmanagement (https://www.lernmanagement.at)
  * @author     Robert Schrenk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-**/
+ **/
 
 namespace block_edupublisher\privacy;
 
+use context_user;
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;
 use core_privacy\local\request\contextlist;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
-use context_user;
 
 defined('MOODLE_INTERNAL') || die;
 
 class provider implements
-\core_privacy\local\metadata\provider,
-\core_privacy\local\request\core_userlist_provider,
-\core_privacy\local\request\plugin\provider {
-	public static function get_metadata(collection $collection) : collection {
+    \core_privacy\local\metadata\provider,
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\request\plugin\provider {
+    public static function get_metadata(collection $collection): collection {
         // Table edusuport subscribers.
         $collection->add_database_table(
             'block_edupublisher_comments', array(
-                'id' => 'privacy:metadata:comments:id',
-                'package' => 'privacy:metadata:comments:package',
-                'userid' => 'privacy:metadata:comments:userid',
-                'content' => 'privacy:metadata:comments:content',
-                'created' => 'privacy:metadata:comments:created',
-                'permahash' => 'privacy:metadata:comments:permahash',
-                'isautocomment' => 'privacy:metadata:comments:isautocomment',
-                'ispublic' => 'privacy:metadata:comments:ispublic',
-                'forchannel' => 'privacy:metadata:comments:forchannel',
-                'linkurl' => 'privacy:metadata:comments:linkurl',
-            ),
+            'id' => 'privacy:metadata:comments:id',
+            'package' => 'privacy:metadata:comments:package',
+            'userid' => 'privacy:metadata:comments:userid',
+            'content' => 'privacy:metadata:comments:content',
+            'created' => 'privacy:metadata:comments:created',
+            'permahash' => 'privacy:metadata:comments:permahash',
+            'isautocomment' => 'privacy:metadata:comments:isautocomment',
+            'ispublic' => 'privacy:metadata:comments:ispublic',
+            'forchannel' => 'privacy:metadata:comments:forchannel',
+            'linkurl' => 'privacy:metadata:comments:linkurl',
+        ),
             'privacy:metadata:comments'
         );
         $collection->add_database_table(
             'block_edupublisher_evaluatio', array(
-                'id' => 'privacy:metadata:evaluatio:id',
-                'package' => 'privacy:metadata:evaluatio:package',
-                'userid' => 'privacy:metadata:evaluatio:userid',
-                'evaluated_on' => 'privacy:metadata:evaluatio:evaluated_on',
-                'evaluated_at' => 'privacy:metadata:evaluatio:evaluated_at',
-                'comprehensible_description' => 'privacy:metadata:evaluatio:comprehensible_description',
-                'suitable_workflow' => 'privacy:metadata:evaluatio:suitable_workflow',
-                'reasonable_preconditions' => 'privacy:metadata:evaluatio:reasonable_preconditions',
-                'correct_content' => 'privacy:metadata:evaluatio:correct_content',
-                'improvement_specification' => 'privacy:metadata:evaluatio:improvement_specification',
-                'technology_application' => 'privacy:metadata:evaluatio:technology_application',
-                'comments' => 'privacy:metadata:evaluatio:comments',
-                'timecreated' => 'privacy:metadata:evaluatio:timecreated',
-            ),
+            'id' => 'privacy:metadata:evaluatio:id',
+            'package' => 'privacy:metadata:evaluatio:package',
+            'userid' => 'privacy:metadata:evaluatio:userid',
+            'evaluated_on' => 'privacy:metadata:evaluatio:evaluated_on',
+            'evaluated_at' => 'privacy:metadata:evaluatio:evaluated_at',
+            'comprehensible_description' => 'privacy:metadata:evaluatio:comprehensible_description',
+            'suitable_workflow' => 'privacy:metadata:evaluatio:suitable_workflow',
+            'reasonable_preconditions' => 'privacy:metadata:evaluatio:reasonable_preconditions',
+            'correct_content' => 'privacy:metadata:evaluatio:correct_content',
+            'improvement_specification' => 'privacy:metadata:evaluatio:improvement_specification',
+            'technology_application' => 'privacy:metadata:evaluatio:technology_application',
+            'comments' => 'privacy:metadata:evaluatio:comments',
+            'timecreated' => 'privacy:metadata:evaluatio:timecreated',
+        ),
             'privacy:metadata:evaluatio'
         );
         $collection->add_database_table(
             'block_edupublisher_lic', array(
-                'id' => 'privacy:metadata:lic:id',
-                'package' => 'privacy:metadata:lic:publisherid',
-                'userid' => 'privacy:metadata:lic:userid',
-                'licencekey' => 'privacy:metadata:lic:licencekey',
-                'type' => 'privacy:metadata:lic:type',
-                'target' => 'privacy:metadata:lic:target',
-                'lic' => 'privacy:metadata:lic:redeemid',
-                'created' => 'privacy:metadata:lic:created',
-                'maturity' => 'privacy:metadata:lic:maturity',
-            ),
+            'id' => 'privacy:metadata:lic:id',
+            'package' => 'privacy:metadata:lic:publisherid',
+            'userid' => 'privacy:metadata:lic:userid',
+            'licencekey' => 'privacy:metadata:lic:licencekey',
+            'type' => 'privacy:metadata:lic:type',
+            'target' => 'privacy:metadata:lic:target',
+            'lic' => 'privacy:metadata:lic:redeemid',
+            'created' => 'privacy:metadata:lic:created',
+            'maturity' => 'privacy:metadata:lic:maturity',
+        ),
             'privacy:metadata:lic'
         );
         $collection->add_database_table(
             'block_edupublisher_log', array(
-                'id' => 'privacy:metadata:log:id',
-                'packageid' => 'privacy:metadata:log:publisherid',
-                'userid' => 'privacy:metadata:log:userid',
-                'timeentered' => 'privacy:metadata:log:timeentered',
-                'viewed' => 'privacy:metadata:log:viewed',
-                'enrolled' => 'privacy:metadata:log:enrolled',
-                'unenrolled' => 'privacy:metadata:log:unenrolled',
-                'cloned' => 'privacy:metadata:log:cloned',
-            ),
+            'id' => 'privacy:metadata:log:id',
+            'packageid' => 'privacy:metadata:log:publisherid',
+            'userid' => 'privacy:metadata:log:userid',
+            'timeentered' => 'privacy:metadata:log:timeentered',
+            'viewed' => 'privacy:metadata:log:viewed',
+            'enrolled' => 'privacy:metadata:log:enrolled',
+            'unenrolled' => 'privacy:metadata:log:unenrolled',
+            'cloned' => 'privacy:metadata:log:cloned',
+        ),
             'privacy:metadata:log'
         );
         $collection->add_database_table(
             'block_edupublisher_packages', array(
-                'id' => 'privacy:metadata:packages:id',
-                'userid' => 'privacy:metadata:packages:userid',
-                'course' => 'privacy:metadata:packages:course',
-                'sourcecourse' => 'privacy:metadata:packages:sourcecourse',
-                'channels' => 'privacy:metadata:packages:channels',
-                'title' => 'privacy:metadata:packages:title',
-                'created' => 'privacy:metadata:packages:created',
-                'modified' => 'privacy:metadata:packages:modified',
-                'deleted' => 'privacy:metadata:packages:deleted',
-                'active' => 'privacy:metadata:packages:active',
-            ),
+            'id' => 'privacy:metadata:packages:id',
+            'userid' => 'privacy:metadata:packages:userid',
+            'course' => 'privacy:metadata:packages:course',
+            'sourcecourse' => 'privacy:metadata:packages:sourcecourse',
+            'channels' => 'privacy:metadata:packages:channels',
+            'title' => 'privacy:metadata:packages:title',
+            'created' => 'privacy:metadata:packages:created',
+            'modified' => 'privacy:metadata:packages:modified',
+            'deleted' => 'privacy:metadata:packages:deleted',
+            'active' => 'privacy:metadata:packages:active',
+        ),
             'privacy:metadata:packages'
         );
         $collection->add_database_table(
             'block_edupublisher_rating', array(
-                'id' => 'privacy:metadata:rating:id',
-                'package' => 'privacy:metadata:rating:package',
-                'userid' => 'privacy:metadata:rating:userid',
-                'rating' => 'privacy:metadata:rating:rating',
-                'created' => 'privacy:metadata:rating:created',
-                'modified' => 'privacy:metadata:rating:modified',
-            ),
+            'id' => 'privacy:metadata:rating:id',
+            'package' => 'privacy:metadata:rating:package',
+            'userid' => 'privacy:metadata:rating:userid',
+            'rating' => 'privacy:metadata:rating:rating',
+            'created' => 'privacy:metadata:rating:created',
+            'modified' => 'privacy:metadata:rating:modified',
+        ),
             'privacy:metadata:rating'
         );
         $collection->add_database_table(
             'block_edupublisher_uses', array(
-                'id' => 'privacy:metadata:uses:id',
-                'userid' => 'privacy:metadata:uses:userid',
-                'package' => 'privacy:metadata:uses:package',
-                'targetcourse' => 'privacy:metadata:uses:targetcourse',
-                'created' => 'privacy:metadata:uses:created',
-            ),
+            'id' => 'privacy:metadata:uses:id',
+            'userid' => 'privacy:metadata:uses:userid',
+            'package' => 'privacy:metadata:uses:package',
+            'targetcourse' => 'privacy:metadata:uses:targetcourse',
+            'created' => 'privacy:metadata:uses:created',
+        ),
             'privacy:metadata:uses'
         );
 
@@ -146,7 +146,7 @@ class provider implements
      * @param int $userid the userid.
      * @return contextlist the list of contexts containing user info for the user.
      */
-    public static function get_contexts_for_userid(int $userid) : contextlist  {
+    public static function get_contexts_for_userid(int $userid): contextlist {
         $contextlist = new \core_privacy\local\request\contextlist();
 
         // Packages
@@ -216,7 +216,7 @@ class provider implements
     /**
      * Get the list of users who have data within a context.
      *
-     * @param   userlist    $userlist   The userlist containing the list of users who have data in this context/plugin combination.
+     * @param userlist $userlist The userlist containing the list of users who have data in this context/plugin combination.
      */
     public static function get_users_in_context(userlist $userlist) {
         $context = $userlist->get_context();
@@ -293,7 +293,7 @@ class provider implements
     /**
      * Export all user data for the specified user, in the specified contexts.
      *
-     * @param   approved_contextlist    $contextlist    The approved contexts to export information for.
+     * @param approved_contextlist $contextlist The approved contexts to export information for.
      */
     public static function export_user_data(approved_contextlist $contextlist) {
         global $DB;
@@ -334,36 +334,36 @@ class provider implements
                     case 'comments':
                         $fields = array(
                             'id', 'package', 'userid', 'content', 'created', 'permahash',
-                            'isautocomment', 'ispublic', 'forchannel', 'linkurl'
+                            'isautocomment', 'ispublic', 'forchannel', 'linkurl',
                         );
-                    break;
+                        break;
                     case 'evaluatio':
                         $fields = array(
                             'id', 'packageid', 'evaluated_on', 'evaluated_at', 'comprehensible_description',
                             'suitable_workflow', 'reasonable_preconditions', 'correct_content',
                             'improvement_specification', 'technology_application', 'comments',
-                            'schoollevel', 'evaldate'
+                            'schoollevel', 'evaldate',
                         );
-                    break;
+                        break;
                     case 'log':
                         $fields = array(
                             'id', 'packageid', 'userid', 'timeentered', 'viewed',
-                            'enrolled', 'unenrolled', 'cloned'
+                            'enrolled', 'unenrolled', 'cloned',
                         );
-                    break;
+                        break;
                     case 'rating':
                         $fields = array(
-                            'id', 'package', 'userid', 'rating', 'created', 'modified'
+                            'id', 'package', 'userid', 'rating', 'created', 'modified',
                         );
-                    break;
+                        break;
                     case 'uses':
                         $fields = array(
-                            'id', 'package', 'userid', 'targetcourse', 'created'
+                            'id', 'package', 'userid', 'targetcourse', 'created',
                         );
-                    break;
+                        break;
                 }
                 if (count($fields) > 0) {
-                    $o = (object) array();
+                    $o = (object)array();
                     foreach ($fields as $field) {
                         $o->{$field} = $row->{$field};
                     }
@@ -373,7 +373,7 @@ class provider implements
             writer::with_context($context)->export_data(
                 [
                     get_string('pluginname', 'block_edupublisher'),
-                    get_string('privacy:export:' . $data,'block_edupublisher')
+                    get_string('privacy:export:' . $data, 'block_edupublisher'),
                 ],
                 (object)${'data_' . $data}
             );
@@ -398,23 +398,24 @@ class provider implements
         writer::with_context($context)->export_data(
             [
                 get_string('pluginname', 'block_edupublisher'),
-                get_string('privacy:export:packages', 'block_edupublisher')
+                get_string('privacy:export:packages', 'block_edupublisher'),
             ],
-            (object) $data_packages
+            (object)$data_packages
         );
     }
 
     /**
      * Delete all user data for this context.
      *
-     * @param  \context $context The context to delete data for.
+     * @param \context $context The context to delete data for.
      */
-     public static function delete_data_for_all_users_in_context(\context $context) {
+    public static function delete_data_for_all_users_in_context(\context $context) {
         if ($context->contextlevel != CONTEXT_USER) {
             return;
         }
         static::delete_user_data($context->instanceid);
     }
+
     /**
      * Delete multiple users within a single context.
      *
@@ -430,7 +431,7 @@ class provider implements
     /**
      * Delete all user data for the specified user, in the specified contexts.
      *
-     * @param   approved_contextlist $contextlist The approved contexts and user information to delete information for.
+     * @param approved_contextlist $contextlist The approved contexts and user information to delete information for.
      */
     public static function delete_data_for_user(approved_contextlist $contextlist) {
         foreach ($contextlist as $context) {
@@ -440,11 +441,12 @@ class provider implements
             }
         }
     }
+
     /**
      * Delete data from $tablename with the IDs returned by $sql query.
      *
-     * @param  string $sql    SQL query for getting the IDs of the uer enrolments entries to delete.
-     * @param  array  $params SQL params for the query.
+     * @param string $sql SQL query for getting the IDs of the uer enrolments entries to delete.
+     * @param array $params SQL params for the query.
      */
     protected static function delete_user_data(int $userid) {
         global $DB;

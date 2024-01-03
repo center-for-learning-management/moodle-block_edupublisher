@@ -38,7 +38,7 @@ $PAGE->set_context($context);
 $title = get_string('channels', 'block_edupublisher');
 if (!empty($channel) && in_array($channel, $channels)) {
     $title = get_string($channel . '_header', 'block_edupublisher');
-} elseif(!empty($channel)) {
+} elseif (!empty($channel)) {
     $title = get_string('error');
 }
 $PAGE->set_title($title);
@@ -83,7 +83,7 @@ if (empty($channel)) {
             'maintainer_default' => $maintainer_default,
             'maintainer_etapas' => $maintainer_etapas,
             'maintainer_eduthek' => $maintainer_eduthek,
-            'wwwroot' => $CFG->wwwroot
+            'wwwroot' => $CFG->wwwroot,
         )
     );
 } else {
@@ -100,7 +100,7 @@ if (empty($channel)) {
     $search_where = '';
     if ($search) {
         $search_where = 'AND package.title LIKE ?';
-        $params[] = '%'.str_replace(' ', '%', $search).'%';
+        $params[] = '%' . str_replace(' ', '%', $search) . '%';
     }
 
     $sql = "SELECT id
@@ -112,15 +112,15 @@ if (empty($channel)) {
 
     $all = count($packages);
     $amount = 50;
-    $pages = ceil($all/$amount);
-    $pagination = (object) [
+    $pages = ceil($all / $amount);
+    $pagination = (object)[
         'pages' => [],
     ];
     for ($a = 0; $a < $pages; $a++) {
         $url = new \moodle_url('/blocks/edupublisher/pages/list.php', array('channel' => $channel, 'page' => $a, 'search' => $search));
         $pagination->pages[$a] = [
             'active' => ($page == $a) ? '1' : '0',
-            'label' => ($a+1),
+            'label' => ($a + 1),
             'link' => $url->__toString(),
         ];
     }
@@ -136,7 +136,7 @@ if (empty($channel)) {
     ));
 
     $start = $page * $amount;
-    for($a = $start; $a < $start + $amount && $a < $all; $a++) {
+    for ($a = $start; $a < $start + $amount && $a < $all; $a++) {
         $p = $packages[$a];
         $package = new \block_edupublisher\package($p->id, true);
         $package->set($maintainer_default, 'maintainer', 'default');

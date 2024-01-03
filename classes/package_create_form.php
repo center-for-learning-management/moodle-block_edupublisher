@@ -28,7 +28,7 @@ require_once($CFG->libdir . "/formslib.php");
 class package_create_form extends moodleform {
     static $accepted_types = '';
     static $areamaxbytes = 10485760;
-    static $maxbytes = 1024*1024;
+    static $maxbytes = 1024 * 1024;
     static $maxfiles = 1;
     static $subdirs = 0;
 
@@ -36,9 +36,9 @@ class package_create_form extends moodleform {
         global $CFG, $COURSE, $DB, $USER;
         global $package;
 
-        $editoroptions = array('subdirs'=>0, 'maxbytes'=>0, 'maxfiles'=>0,
-                               'changeformat'=>0, 'context'=>null, 'noclean'=>0,
-                               'trusttext'=>0, 'enable_filemanagement' => false);
+        $editoroptions = array('subdirs' => 0, 'maxbytes' => 0, 'maxfiles' => 0,
+            'changeformat' => 0, 'context' => null, 'noclean' => 0,
+            'trusttext' => 0, 'enable_filemanagement' => false);
 
         $mform = $this->_form;
         $mform->addElement('hidden', 'id', 0);
@@ -62,16 +62,18 @@ class package_create_form extends moodleform {
         $ALLOW_COMMERCIAL = \block_edupublisher\lib::is_publisher();
         $channels = \block_edupublisher\lib::get_channel_definition();
         $stringman = get_string_manager();
-        foreach($channels AS $channel => $fields) {
-            if ($channel == 'commercial' && !$ALLOW_COMMERCIAL) continue;
+        foreach ($channels as $channel => $fields) {
+            if ($channel == 'commercial' && !$ALLOW_COMMERCIAL)
+                continue;
             $label = $this->get_label($channels, $channel, 'publish_as', ucfirst($channel), $stringman);
             $mform->addElement('header', $channel . '_publish_as', $label);
             if ($this->has_channel_description($channel, $stringman)) {
                 $mform->addElement('html', '<p>' . get_string($channel . '__description', 'block_edupublisher') . '</p>');
             }
 
-            foreach($fields AS $_field => $field) {
-                if ($_field == 'publish_as') continue;
+            foreach ($fields as $_field => $field) {
+                if ($_field == 'publish_as')
+                    continue;
                 $required = isset($field['required']) && $field['required'];
                 $hiddenexceptmaintainer = isset($field['hidden_except_maintainer']) && $field['hidden_except_maintainer'];
                 if ($hiddenexceptmaintainer && !\block_edupublisher\lib::is_maintainer()) {
@@ -81,10 +83,10 @@ class package_create_form extends moodleform {
                 $label = $this->get_label($channels, $channel, $_field, $_field, $stringman, $required);
 
                 unset($addedfield);
-                switch($field['type']) {
+                switch ($field['type']) {
                     case 'editor':
                         $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label, $editoroptions);
-                    break;
+                        break;
                     case 'filemanager':
                         /* Drag & Drop did not work properly.
                         if ($channel == 'default' && $_field == 'image') {
@@ -102,16 +104,17 @@ class package_create_form extends moodleform {
                                 'maxbytes' => (!empty($field['maxbytes']) ? $field['maxbytes'] : self::$maxbytes),
                                 'maxfiles' => (!empty($field['maxfiles']) ? $field['maxfiles'] : self::$maxfiles),
                                 'subdirs' => (!empty($field['subdirs']) ? $field['subdirs'] : self::$subdirs),
-                                 //, 'return_types'=> FILE_INTERNAL | FILE_EXTERNAL
+                                //, 'return_types'=> FILE_INTERNAL | FILE_EXTERNAL
                             )
                         );
-                    break;
+                        break;
                     case 'hidden':
                         // We do not need hidden fields!!
                         $fieldname = $channel . '_' . $_field;
-                        if (!empty($field['multiple'])) $fieldname .= '[]';
+                        if (!empty($field['multiple']))
+                            $fieldname .= '[]';
                         //$addedfield = $mform->addElement($field['type'], $fieldname, isset($field['default']) ? $field['default'] : NULL);
-                    break;
+                        break;
                     case 'select':
                         $options = (!empty($field['options'])) ? $field['options'] : array();
                         if ($channel == 'commercial' && $_field == 'publisher') {
@@ -120,10 +123,11 @@ class package_create_form extends moodleform {
                             } else {
                                 $allpublishers = $DB->get_records_sql('SELECT ep.* FROM {block_edupublisher_pub} ep, {block_edupublisher_pub_user} epu WHERE ep.id=epu.publisherid AND epu.userid=? ORDER BY name ASC', array($USER->id));
                             }
-                            foreach($allpublishers AS $publisher) {
+                            foreach ($allpublishers as $publisher) {
                                 if (\block_edupublisher\lib::is_admin()) {
                                     $chk = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisher->id, 'userid' => $USER->id));
-                                    if (!$chk) $publisher->name = '! ' . $publisher->name;
+                                    if (!$chk)
+                                        $publisher->name = '! ' . $publisher->name;
                                 }
                                 $options[$publisher->id] = $publisher->name;
                             }
@@ -148,11 +152,11 @@ class package_create_form extends moodleform {
                             $addedfield->setSelected($channel . '_' . $_field, $selected);
                             */
                         }
-                    break;
+                        break;
                     case 'static':
                         $default = !empty($field['default']) ? $field['default'] : '';
                         $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label, $default);
-                    break;
+                        break;
                     case 'tags':
                         if (empty($field['tagparams'])) {
                             $field['tagparams'] = array();
@@ -164,11 +168,11 @@ class package_create_form extends moodleform {
                             $field['tagparams']['component'] = 'block_edupublisher';
                         }
                         $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label, $field['tagparams']);
-                    break;
+                        break;
                     case 'text':
                     case 'url':
                         $addedfield = $mform->addElement($field['type'], $channel . '_' . $_field, $label, array('type' => $field['type']));
-                    break;
+                        break;
                 }
                 if (isset($addedfield) && isset($field['default'])) {
                     $mform->setDefault($channel . '_' . $_field, $field['default']);
@@ -176,7 +180,7 @@ class package_create_form extends moodleform {
                 if (isset($addedfield) && isset($field['datatype'])) {
                     $mform->setType($channel . '_' . $_field, $field['datatype']);
                 }
-                if(isset($addedfield) && $this->has_help_button($channel, $_field, $stringman)) {
+                if (isset($addedfield) && $this->has_help_button($channel, $_field, $stringman)) {
                     $mform->addHelpButton($channel . '_' . $_field, $channel . '_' . $_field, 'block_edupublisher');
                 }
                 if (isset($field['hidden_on_init']) && $field['hidden_on_init']) {
@@ -192,9 +196,11 @@ class package_create_form extends moodleform {
                 $mform->setDefault('clonecourse', 1);
 
                 $boxes = array();
-                foreach($channels AS $_channel => $fields) {
-                    if ($_channel == 'default') continue;
-                    if ($_channel == 'commercial' && !$ALLOW_COMMERCIAL) continue;
+                foreach ($channels as $_channel => $fields) {
+                    if ($_channel == 'default')
+                        continue;
+                    if ($_channel == 'commercial' && !$ALLOW_COMMERCIAL)
+                        continue;
                     $label = $this->get_label($channels, $_channel, 'publish_as', ucfirst($_channel), $stringman);
                     $boxes[] = $mform->createElement('advcheckbox', $_channel . '_publishas', $label, NULL, array('onclick' => 'var inp = this; require(["jquery"], function($) { $("#id_' . $_channel . '_publish_as").css("display", $(inp).is(":checked") ? "block" : "none"); });'), array(0, 1));
                     //$mform->setType($_channel . '_publishas', PARAM_INT);
@@ -216,6 +222,7 @@ class package_create_form extends moodleform {
 
         $this->add_action_buttons();
     }
+
     /**
      * Checks if there is a localized string for a label.
      * @param channel channel of this field.
@@ -223,12 +230,13 @@ class package_create_form extends moodleform {
      * @param label default label text.
      * @param stringman (optional)
      * @return localized label or default label.
-    **/
+     **/
     function get_label($definition, $channel, $field, $label, &$stringman = NULL, $required = false) {
-        if (!isset($stringman)) $stringman = get_string_manager();
+        if (!isset($stringman))
+            $stringman = get_string_manager();
         if ($stringman->string_exists($channel . '_' . $field, 'block_edupublisher')) {
             $label = get_string($channel . '_' . $field, 'block_edupublisher');
-        } elseif(isset($definition['channel'][$field]['label'])) {
+        } elseif (isset($definition['channel'][$field]['label'])) {
             $label = $definition['channel'][$field]['label'];
         } else {
             $label = ucfirst($label);
@@ -242,56 +250,65 @@ class package_create_form extends moodleform {
         }
         return $label;
     }
+
     /**
      * Checks if there is a localized string for a help button.
      * @param channel channel of this field.
      * @param field field from channel_definition.
      * @param stringman (optional)
      * @return true or false
-    **/
+     **/
     function has_help_button($channel, $field, &$stringman = NULL) {
-        if (!isset($stringman)) $stringman = get_string_manager();
+        if (!isset($stringman))
+            $stringman = get_string_manager();
         return $stringman->string_exists($channel . '_' . $field . '_help', 'block_edupublisher');
     }
+
     /**
      * Checks if there is a localized string for a required text.
      * @param channel channel of this field.
      * @param field field from channel_definition.
      * @param stringman (optional)
      * @return true or false
-    **/
+     **/
     function has_required_text($channel, $field, &$stringman = NULL) {
-        if (!isset($stringman)) $stringman = get_string_manager();
+        if (!isset($stringman))
+            $stringman = get_string_manager();
         return $stringman->string_exists($channel . '_' . $field . '_missing', 'block_edupublisher');
     }
+
     /**
      * Checks if there is a localized string for a channel description
      * @param channel channel of this field.
      * @param stringman (optional)
      * @return true or false
-    **/
+     **/
     function has_channel_description($channel, &$stringman = NULL) {
-        if (!isset($stringman)) $stringman = get_string_manager();
+        if (!isset($stringman))
+            $stringman = get_string_manager();
         return $stringman->string_exists($channel . '__description', 'block_edupublisher');
     }
+
     //Custom validation should be added here
     function validation($data, $files) {
         $stringman = get_string_manager();
         $errors = array();
         $definition = \block_edupublisher\lib::get_channel_definition();
         $channels = array_keys($definition);
-        foreach ($channels AS $channel) {
-            if ($channel != 'default' && (!isset($data[$channel . '_publishas']) || !$data[$channel . '_publishas'])) continue;
+        foreach ($channels as $channel) {
+            if ($channel != 'default' && (!isset($data[$channel . '_publishas']) || !$data[$channel . '_publishas']))
+                continue;
 
             $fields = array_keys($definition[$channel]);
-            foreach($fields AS $field) {
+            foreach ($fields as $field) {
                 $ofield = &$definition[$channel][$field];
                 if ($channel == 'etapas' && $field == 'kompetenzen') {
                     global $package;
                     $package->exacompetencies();
                     $data['etapas_kompetenzen'] = $package->get('kompetenzen', 'etapas');
                 }
-                if (!isset($ofield['type']) || empty($ofield['required'])) continue;
+                if (!isset($ofield['type']) || empty($ofield['required']))
+                    continue;
                 $haserror = false;
                 if (isset($ofield['multiple']) && $ofield['multiple']) {
                     if (!isset($data[$channel . '_' . $field]) || count($data[$channel . '_' . $field]) == 0) {

@@ -18,7 +18,7 @@
  * @package    block_edupublisher
  * @copyright  2018 Digital Education Society (http://www.dibig.at)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-**/
+ **/
 
 define('NO_OUTPUT_BUFFERING', true);
 
@@ -32,20 +32,20 @@ raise_memory_limit(MEMORY_EXTRA);
 
 // Import a certain package to a course, if sectionid given move it to that position
 
-$assubcourse    = optional_param('assubcourse', 1, PARAM_INT);
-$cancel         = optional_param('cancel', '', PARAM_ALPHA);
-$packageid      = required_param('package', PARAM_INT);
-$sectionid      = optional_param('section', 0, PARAM_INT);
-$stage          = optional_param('stage', restore_ui::STAGE_DESTINATION, PARAM_INT);
+$assubcourse = optional_param('assubcourse', 1, PARAM_INT);
+$cancel = optional_param('cancel', '', PARAM_ALPHA);
+$packageid = required_param('package', PARAM_INT);
+$sectionid = optional_param('section', 0, PARAM_INT);
+$stage = optional_param('stage', restore_ui::STAGE_DESTINATION, PARAM_INT);
 $targetcourseid = required_param('course', PARAM_INT);
 
-$filepath       = optional_param('filepath', '', PARAM_ALPHANUM);
+$filepath = optional_param('filepath', '', PARAM_ALPHANUM);
 
 // Load package and importcourse + context
 $package = new \block_edupublisher\package($packageid, false);
 
-$targetcourse   = $DB->get_record('course', array('id' => $targetcourseid), '*', MUST_EXIST);
-$targetcontext  = \context_course::instance($targetcourse->id);
+$targetcourse = $DB->get_record('course', array('id' => $targetcourseid), '*', MUST_EXIST);
+$targetcontext = \context_course::instance($targetcourse->id);
 require_login($targetcourse);
 
 $sourcecontext = \context_course::instance($package->get('course'));
@@ -56,7 +56,7 @@ $file = $fs->get_file($sourcecontext->id, 'block_edupublisher', 'coursebackup', 
 
 $PAGE->set_title(get_string('import'));
 $PAGE->set_heading(get_string('import'));
-$PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/import.php', array('package' => $packageid, 'course'=>$targetcourseid, 'section' => $sectionid)));
+$PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/import.php', array('package' => $packageid, 'course' => $targetcourseid, 'section' => $sectionid)));
 $PAGE->set_context($targetcontext);
 $PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');

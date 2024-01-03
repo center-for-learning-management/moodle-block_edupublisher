@@ -64,9 +64,9 @@ class block_edupublisher_coursebackup extends \core\task\scheduled_task {
             \mtrace("Backing up #$course->id ($course->fullname) to $targetfilename");
 
             $bc = new \backup_controller(
-                        \backup::TYPE_1COURSE, $course->id, \backup::FORMAT_MOODLE,
-                        \backup::INTERACTIVE_YES, \backup::MODE_GENERAL, $admin->id
-                    );
+                \backup::TYPE_1COURSE, $course->id, \backup::FORMAT_MOODLE,
+                \backup::INTERACTIVE_YES, \backup::MODE_GENERAL, $admin->id
+            );
             $format = $bc->get_format();
             $type = $bc->get_type();
             $id = $bc->get_id();
@@ -86,9 +86,9 @@ class block_edupublisher_coursebackup extends \core\task\scheduled_task {
 
             $ctx = \context_course::instance($course->id);
             $fs = \get_file_storage();
-            $fr = array('contextid'=>$ctx->id, 'component'=>'block_edupublisher', 'filearea'=>'coursebackup',
-                'itemid'=>0, 'filepath'=>'/', 'filename'=> $targetfilename,
-                'timecreated'=>time(), 'timemodified'=>time()
+            $fr = array('contextid' => $ctx->id, 'component' => 'block_edupublisher', 'filearea' => 'coursebackup',
+                'itemid' => 0, 'filepath' => '/', 'filename' => $targetfilename,
+                'timecreated' => time(), 'timemodified' => time(),
             );
 
             $testfile = $fs->get_file($fr['contextid'], $fr['component'], $fr['filearea'], $fr['itemid'], $fr['filepath'], $fr['filename']);

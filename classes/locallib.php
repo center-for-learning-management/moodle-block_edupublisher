@@ -29,16 +29,16 @@ class locallib {
     /**
      * Used to split the metadata table into separate tables.
      */
-    public static function atomize_database() : bool {
+    public static function atomize_database(): bool {
         global $CFG, $DB;
 
         $metadatas = $DB->get_records('block_edupublisher_metadata', null, 'package ASC');
-        $curpackage = (object) [
-            'commercial' => (object) [],
-            'default' => (object) [],
-            'eduthek' => (object) [],
-            'etapas' => (object) [],
-            'exacomp' => []
+        $curpackage = (object)[
+            'commercial' => (object)[],
+            'default' => (object)[],
+            'eduthek' => (object)[],
+            'etapas' => (object)[],
+            'exacomp' => [],
         ];
         $exacompdatasources = $DB->get_records('block_exacompdatasources', [], '', 'id,source');
         foreach ($metadatas as $md) {
@@ -67,7 +67,7 @@ class locallib {
                         $curpackage->default->tags = array_map('trim', explode(' ', $curpackage->default->tags));
                     }
                     if (!is_array($curpackage->default->tags)) {
-                        $curpackage->default->tags = [ $curpackage->default->tags ];
+                        $curpackage->default->tags = [$curpackage->default->tags];
                     }
 
                     $curpackage->default->tags = implode(
@@ -80,14 +80,14 @@ class locallib {
                 if (!empty($curpackage->default->exacompsourceids)) {
                     for ($i = 0; $i < count($curpackage->default->exacompsourceids); $i++) {
                         $_id = $curpackage->default->exacompsourceids[$i];
-                        $_comp = $DB->get_record('block_exacompdescriptors', [ 'id' => $_id ]);
+                        $_comp = $DB->get_record('block_exacompdescriptors', ['id' => $_id]);
                         if (!empty($_comp->title)) {
                             $_title = $_comp->title;
                             $_source = $exacompdatasources[$_comp->source]->source;
-                            $curpackage->exacomp[] = (object) [
+                            $curpackage->exacomp[] = (object)[
                                 'datasource' => $_source,
                                 'sourceid' => $_id,
-                                'title' => $_title
+                                'title' => $_title,
                             ];
                         }
 
@@ -118,7 +118,7 @@ class locallib {
                 }
                 if (!empty($curpackage->eduthek->type)) {
                     if (!is_array($curpackage->eduthek->type)) {
-                        $curpackage->eduthek->type = [ $curpackage->eduthek->type ];
+                        $curpackage->eduthek->type = [$curpackage->eduthek->type];
                     }
                     $curpackage->eduthek->type = implode(
                         \block_edupublisher\package::ARRAY_DELIMITER,
@@ -140,12 +140,13 @@ class locallib {
                     $curpackage->default->image = str_replace('https://www.eduvidual.at', '', $curpackage->default->image);
                 }
 
-                $channels = [ 'commercial', 'default', 'eduthek', 'etapas' ];
-                $tables = [ 'com', 'def', 'edu', 'eta' ];
+                $channels = ['commercial', 'default', 'eduthek', 'etapas'];
+                $tables = ['com', 'def', 'edu', 'eta'];
 
                 for ($i = 0; $i < count($channels); $i++) {
-                    $chan = $channels[$i]; $tab = $tables[$i];
-                    $chk = $DB->get_record("block_edupublisher_md_$tab", [ 'package' => $curpackage->package ]);
+                    $chan = $channels[$i];
+                    $tab = $tables[$i];
+                    $chk = $DB->get_record("block_edupublisher_md_$tab", ['package' => $curpackage->package]);
                     $curpackage->{$chan}->package = $curpackage->package;
 
                     if (!empty($chk->id)) {
@@ -160,7 +161,7 @@ class locallib {
                     $para = [
                         'package' => $curpackage->package,
                         'datasource' => $exa->datasource,
-                        'sourceid' => $exa->sourceid
+                        'sourceid' => $exa->sourceid,
                     ];
                     $chk = $DB->get_record('block_edupublisher_md_exa', $para);
                     if (!empty($chk->id)) {
@@ -171,12 +172,12 @@ class locallib {
                     }
                 }
 
-                $curpackage = (object) [
-                    'commercial' => (object) [],
-                    'default' => (object) [],
-                    'eduthek' => (object) [],
-                    'etapas' => (object) [],
-                    'exacomp' => []
+                $curpackage = (object)[
+                    'commercial' => (object)[],
+                    'default' => (object)[],
+                    'eduthek' => (object)[],
+                    'etapas' => (object)[],
+                    'exacomp' => [],
                 ];
             }
 
@@ -185,7 +186,7 @@ class locallib {
             $channel = $field[0];
             $param = $field[1];
             if (empty($curpackage->{$channel})) {
-                $curpackage->{$channel} = (object) [ 'package' => $curpackage->packageid ];
+                $curpackage->{$channel} = (object)['package' => $curpackage->packageid];
             }
             if (count($field) == 3) {
                 // This is a multiple-field.

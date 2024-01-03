@@ -18,7 +18,7 @@
  * @package    block_edupublisher
  * @copyright  2018 Digital Education Society (http://www.dibig.at)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
+ */
 
 defined('MOODLE_INTERNAL') || die;
 
@@ -40,21 +40,21 @@ if ($hassiteconfig) {
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         $definition = \block_edupublisher\lib::get_channel_definition();
         $channels = array_keys($definition);
-        foreach($channels AS $channel) {
+        foreach ($channels as $channel) {
             $settings->add(new admin_setting_configtext('block_edupublisher/channelkey_' . $channel, get_string($channel . '_fetchchannel', 'block_edupublisher'), '', md5(time() . rand(0, 1000)), PARAM_TEXT, 32));
         }
 
         $roles = $DB->get_records_sql('SELECT r.* FROM {role} AS r, {role_context_levels} AS rcl WHERE r.id=rcl.roleid  AND rcl.contextlevel = 50 ORDER BY r.name ASC', array());
         $options = array();
-        foreach($roles AS $role) {
+        foreach ($roles as $role) {
             $options[$role->id] = (!empty($role->name) ? $role->name : $role->shortname);
         }
 
         $settings->add(new admin_setting_configselect('block_edupublisher/defaultrolestudent', get_string('defaultrolestudent', 'block_edupublisher'),
-                           get_string('defaultrolestudent:description', 'block_edupublisher'), get_config('block_edupublisher', 'defaultrolestudent'), $options));
+            get_string('defaultrolestudent:description', 'block_edupublisher'), get_config('block_edupublisher', 'defaultrolestudent'), $options));
 
         $settings->add(new admin_setting_configselect('block_edupublisher/defaultroleteacher', get_string('defaultroleteacher', 'block_edupublisher'),
-                          get_string('defaultroleteacher:description', 'block_edupublisher'), get_config('block_edupublisher', 'defaultroleteacher'), $options));
+            get_string('defaultroleteacher:description', 'block_edupublisher'), get_config('block_edupublisher', 'defaultroleteacher'), $options));
 
         // Open to guests?
         $settings->add(new admin_setting_configcheckbox('block_edupublisher/allowguests', get_string('allowguests', 'block_edupublisher'), get_string('allowguests_desc', 'block_edupublisher'), 0));
@@ -68,7 +68,7 @@ if ($hassiteconfig) {
 
         $defaulttemplate = $OUTPUT->render_from_template('block_edupublisher/mail', array('content' => '{{{content}}}', 'subject' => '{{{subject}}}'));
         $settings->add(new admin_setting_configtextarea('block_edupublisher/mail_template', get_string('mail_template', 'block_edupublisher'),
-                          get_string('mail_template:description', 'block_edupublisher'), $defaulttemplate));
+            get_string('mail_template:description', 'block_edupublisher'), $defaulttemplate));
 
         $settings->add(
             new admin_setting_configtext(

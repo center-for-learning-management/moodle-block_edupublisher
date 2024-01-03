@@ -76,7 +76,7 @@ switch ($act) {
                 )
             );
         }
-    break;
+        break;
 }
 
 $package->load_origins();

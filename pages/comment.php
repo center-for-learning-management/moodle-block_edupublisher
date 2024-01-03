@@ -32,9 +32,12 @@ $perma = optional_param('perma', '', PARAM_TEXT);
 
 $urlpath = $CFG->wwwroot . '/blocks/edupublisher/pages/comment.php';
 $urlparams = [];
-if (!empty($id)) $urlparams['id'] = $id;
-if (!empty($id)) $urlparams['packageid'] = $packageid;
-if (!empty($id)) $urlparams['perma'] = $perma;
+if (!empty($id))
+    $urlparams['id'] = $id;
+if (!empty($id))
+    $urlparams['packageid'] = $packageid;
+if (!empty($id))
+    $urlparams['perma'] = $perma;
 $url = new \moodle_url($urlpath, $urlparams);
 $PAGE->set_url($url);
 
@@ -90,7 +93,7 @@ echo $OUTPUT->header();
 require_once($CFG->dirroot . '/blocks/edupublisher/classes/comment_create_form.php');
 $form = new \block_edupublisher\comment_create_form();
 if ($data = $form->get_data()) {
-    $sendto = [ 'author', 'allmaintainers' ];
+    $sendto = ['author', 'allmaintainers'];
     if (!empty($data->ispublic)) {
         $sendto[] = 'commentors';
     }
@@ -105,7 +108,7 @@ if (!empty($id)) {
     // Show single item
     $showsingle = true;
     $comments = array(
-        $package->load_comment($id)
+        $package->load_comment($id),
     );
     $package = new \block_edupublisher\package($comments[0]->package);
 } else {
@@ -118,7 +121,7 @@ if (!$showsingle && isloggedin() && !isguestuser($USER)) {
     $userpictureurl = $CFG->wwwroot . '/pluginfile.php/' . $ctx->id . '/user/icon';
     ?>
     <a href="#" class="btn btn-primary"
-        onclick="require(['jquery'], function($) { $('#block_edupublisher_comment_form').toggleClass('hidden'); });">
+       onclick="require(['jquery'], function($) { $('#block_edupublisher_comment_form').toggleClass('hidden'); });">
         <?php echo get_string('reply', 'block_edupublisher'); ?>
     </a>
     <div class="hidden" style="border-radius: 15px; border: 2px solid darkblue; margin-bottom: 10px; overflow: hidden;" id="block_edupublisher_comment_form">
@@ -134,13 +137,13 @@ if (!$showsingle && isloggedin() && !isguestuser($USER)) {
                 -->
                 <td valign="top">
                     <?php
-                        $form->set_data(
-                            (object) array(
-                                'package' => $packageid,
-                                'packageid' => $packageid,
-                            )
-                        );
-                        $form->display();
+                    $form->set_data(
+                        (object)array(
+                            'package' => $packageid,
+                            'packageid' => $packageid,
+                        )
+                    );
+                    $form->display();
                     ?>
                 </td>
             </tr>
@@ -160,7 +163,7 @@ if (count($comments) == 0) {
     );
 } else {
     require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
-    foreach ($comments AS $comment) {
+    foreach ($comments as $comment) {
         if ($comment->isautocomment) {
             if (!empty($comment->linkurl)) {
                 $package->set($comment->linkurl->__toString(), 'commentlink');

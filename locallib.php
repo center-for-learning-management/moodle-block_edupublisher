@@ -35,17 +35,17 @@ function get_subjectareas_sorted($selectedarea = "") {
     $locs = array();
     $loc_key = array();
 
-    foreach ($definition['default']['subjectarea']['options'] AS $key => $localized) {
+    foreach ($definition['default']['subjectarea']['options'] as $key => $localized) {
         $locs[] = $localized;
         $loc_key[$localized] = $key;
     }
     sort($locs);
     $sorted = array();
-    foreach ($locs AS $loc) {
+    foreach ($locs as $loc) {
         $sorted[] = array(
             'key' => $loc_key[$loc],
             'name' => $loc,
-            'isselected' => ($loc_key[$loc] == $selectedarea)
+            'isselected' => ($loc_key[$loc] == $selectedarea),
         );
     }
     return $sorted;
@@ -62,17 +62,17 @@ function get_schoollevels_sorted($selectedarea = "") {
     $locs = array();
     $loc_key = array();
 
-    foreach ($definition['default']['schoollevel']['options'] AS $key => $localized) {
+    foreach ($definition['default']['schoollevel']['options'] as $key => $localized) {
         $locs[] = $localized;
         $loc_key[$localized] = $key;
     }
     sort($locs);
     $sorted = array();
-    foreach ($locs AS $loc) {
+    foreach ($locs as $loc) {
         $sorted[] = array(
             'key' => $loc_key[$loc],
             'name' => $loc,
-            'isselected' => ($loc_key[$loc] == $selectedarea)
+            'isselected' => ($loc_key[$loc] == $selectedarea),
         );
     }
     return $sorted;

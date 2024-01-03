@@ -39,12 +39,12 @@ class channelexport extends \core\task\scheduled_task {
 
         $channels = \block_edupublisher\lib::channels();
         $filters = [
-            'default' => [ 'default' ],
-            'eduthek' => [ 'default', 'eduthek', 'etapas' ],
-            'etapas' => [ 'default', 'etapas' ],
+            'default' => ['default'],
+            'eduthek' => ['default', 'eduthek', 'etapas'],
+            'etapas' => ['default', 'etapas'],
         ];
         $xmls = [];
-        foreach ($filters AS $filter => $chans) {
+        foreach ($filters as $filter => $chans) {
             $xmls[$filter] = new \SimpleXMLElement('<items />');
         }
 
@@ -53,7 +53,7 @@ class channelexport extends \core\task\scheduled_task {
                     ORDER BY id ASC";
 
         $packageids = $DB->get_records_sql($sql, []);
-        foreach($packageids AS $packageid) {
+        foreach ($packageids as $packageid) {
             $package = new \block_edupublisher\package($packageid->id, true);
             foreach ($filters as $filter => $chans) {
                 if (!empty($package->get('publishas', $filter))) {
@@ -71,7 +71,7 @@ class channelexport extends \core\task\scheduled_task {
                 'filearea' => 'channelexport',
                 'itemid' => 0,
                 'filepath' => '/',
-                'filename' => "{$filter}.xml"
+                'filename' => "{$filter}.xml",
             );
 
             $file = $fs->get_file($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid'], $fileinfo['filepath'], $fileinfo['filename']);

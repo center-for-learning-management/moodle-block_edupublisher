@@ -18,7 +18,7 @@
  * @package    block_edupublisher
  * @copyright  2018 Digital Education Society (http://www.dibig.at)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-**/
+ **/
 
 define('NO_OUTPUT_BUFFERING', true);
 
@@ -49,7 +49,7 @@ if (!empty($sourcecourseid)) {
 
 if (empty($publish->id)) {
     $sourcecoureid = required_param('sourcecourseid', PARAM_INT);
-    $publish = (object) array(
+    $publish = (object)array(
         'sourcecourseid' => $sourcecourseid,
         'targetcourseid' => 0,
         'packageid' => 0,
@@ -62,7 +62,7 @@ if (empty($publish->id)) {
 $publish->timemodified = time();
 $DB->set_field('block_edupublisher_publish', 'timemodified', $publish->timemodified, array('id' => $publish->id));
 
-$packageid      = $publish->packageid;
+$packageid = $publish->packageid;
 $sourcecourseid = $publish->sourcecourseid;
 $targetcourseid = $publish->targetcourseid;
 
@@ -118,10 +118,10 @@ if (!empty($targetcourseid)) {
 if (!empty($packageid)) {
     $publish->publishstage_finish = 1;
     $publishstage = 5;
-} elseif(!empty($publish->importcompleted)) {
+} elseif (!empty($publish->importcompleted)) {
     $publish->publishstage_metadata = 1;
     $publishstage = 4;
-} elseif(!empty($targetcourseid) && file_exists("$CFG->backuptempdir/source$sourcecourseid/moodle_backup.xml")) {
+} elseif (!empty($targetcourseid) && file_exists("$CFG->backuptempdir/source$sourcecourseid/moodle_backup.xml")) {
     $publish->publishstage_import = 1;
     $publishstage = 3;
 } else {
@@ -141,20 +141,20 @@ if (!empty($packageid)) {
 echo $OUTPUT->header();
 echo $OUTPUT->render_from_template('block_edupublisher/publish_navbar', $publish);
 
-switch($publishstage) {
+switch ($publishstage) {
     case 0:
         echo get_string('publish_stage_confirm_text', 'block_edupublisher');
         $url = new \moodle_url('/blocks/edupublisher/pages/publish.php', $urlparams + ['confirmed' => 1]);
         $label = get_string('publish_stage_confirm_button', 'block_edupublisher');
         echo "<div style=\"text-align: center;\"><a href=\"$url\" class=\"btn btn-primary\">$label</a></div>\n";
-    break;
+        break;
     case 1:
         // 1.) Create a backup.
         require_capability('moodle/backup:backuptargetimport', $sourcecontext);
         $bc = new \backup_controller(
-                    \backup::TYPE_1COURSE, $sourcecourseid, \backup::FORMAT_MOODLE,
-                    \backup::INTERACTIVE_YES, \backup::MODE_SAMESITE, $USER->id
-                );
+            \backup::TYPE_1COURSE, $sourcecourseid, \backup::FORMAT_MOODLE,
+            \backup::INTERACTIVE_YES, \backup::MODE_SAMESITE, $USER->id
+        );
         $format = $bc->get_format();
         $type = $bc->get_type();
         $id = $bc->get_id();
@@ -168,7 +168,7 @@ switch($publishstage) {
         foreach ($settings as $setting => $value) {
             try {
                 $bc->get_plan()->get_setting($setting)->set_value($value);
-            } catch(Exception $e) {
+            } catch (Exception $e) {
 
             }
         }
@@ -188,7 +188,7 @@ switch($publishstage) {
         if (empty($targetcourseid)) {
             // Create a target.
             $category = \get_config('block_edupublisher', 'category');
-            $targetcourse = (object) array();
+            $targetcourse = (object)array();
             $targetcourse->category = intval($category);
             $targetcourse->fullname = get_string('pending_publication', 'block_edupublisher', array('courseid' => $sourcecourseid));
             $targetcourse->summary = '';
@@ -230,12 +230,12 @@ switch($publishstage) {
         // Must hold restoretargetimport in the current course
         require_capability('moodle/restore:restoretargetimport', $sourcecontext);
 
-        $renderer = $PAGE->get_renderer('core','backup');
+        $renderer = $PAGE->get_renderer('core', 'backup');
 
-        $cancel      = optional_param('cancel', '', PARAM_ALPHA);
-        $contextid   = optional_param('contextid', $targetcontext->id, PARAM_INT);
-        $stage       = optional_param('stage', \restore_ui::STAGE_DESTINATION, PARAM_INT);
-        $restore     = optional_param('restore', '', PARAM_ALPHANUM);
+        $cancel = optional_param('cancel', '', PARAM_ALPHA);
+        $contextid = optional_param('contextid', $targetcontext->id, PARAM_INT);
+        $stage = optional_param('stage', \restore_ui::STAGE_DESTINATION, PARAM_INT);
+        $restore = optional_param('restore', '', PARAM_ALPHANUM);
 
         // Prepare a progress bar which can display optionally during long-running
         // operations while setting up the UI.
@@ -265,11 +265,11 @@ switch($publishstage) {
             $rc = \restore_ui::load_controller($restoreid);
 
             if (!$rc) {
-                $restore = \restore_ui::engage_independent_stage($stage/2, $contextid);
+                $restore = \restore_ui::engage_independent_stage($stage / 2, $contextid);
 
                 if ($restore->process()) {
                     $rc = new \restore_controller($restore->get_filepath(), $restore->get_course_id(), \backup::INTERACTIVE_YES,
-                            \backup::MODE_SAMESITE, $USER->id, $restore->get_target(), null, \backup::RELEASESESSION_YES);
+                        \backup::MODE_SAMESITE, $USER->id, $restore->get_target(), null, \backup::RELEASESESSION_YES);
                 }
             }
             if ($rc) {
@@ -295,10 +295,10 @@ switch($publishstage) {
             $rc = \restore_ui::load_controller($restoreid);
 
             if (!$rc) {
-                $restore = \restore_ui::engage_independent_stage($stage/2, $contextid);
+                $restore = \restore_ui::engage_independent_stage($stage / 2, $contextid);
                 if ($restore->process()) {
                     $rc = new \restore_controller($restore->get_filepath(), $restore->get_course_id(), \backup::INTERACTIVE_YES,
-                            \backup::MODE_SAMESITE, $USER->id, $restore->get_target(), null, \backup::RELEASESESSION_YES);
+                        \backup::MODE_SAMESITE, $USER->id, $restore->get_target(), null, \backup::RELEASESESSION_YES);
                 }
             }
             if ($rc) {
@@ -382,7 +382,7 @@ switch($publishstage) {
                         $loghtml = $logger->get_html();
                     }
                     echo \html_writer::end_div();
-                } catch(\Exception $e) {
+                } catch (\Exception $e) {
                     $restore->cleanup();
                     throw $e;
                 }
@@ -407,7 +407,7 @@ switch($publishstage) {
         if ($loghtml != '') {
             echo $renderer->log_display($loghtml);
         }
-    break;
+        break;
     case 4:
         // 3.) Enter metadata.
         require_once($CFG->dirroot . '/blocks/edupublisher/classes/package_create_form.php');
@@ -448,7 +448,7 @@ switch($publishstage) {
             $form->set_data($package->get_flattened());
             $form->display();
         }
-    break;
+        break;
     case 5:
         // Deny the user editor permission afterthe import.
         $roleid = \get_config('local_eduvidual', 'defaultroleteacher');
@@ -462,7 +462,7 @@ switch($publishstage) {
         $label = get_string('publish_stage_finish_button', 'block_edupublisher');
         echo "<div style=\"text-align: center;\"><a href=\"$url\" class=\"btn btn-primary\">$label</a></div>\n";
         $DB->delete_records('block_edupublisher_publish', array('id' => $publish->id));
-    break;
+        break;
 }
 
 echo $OUTPUT->footer();

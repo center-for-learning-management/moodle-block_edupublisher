@@ -15,15 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
-* @package    block_edupublisher
-* @copyright  2019 Digital Education Society (http://www.dibig.at)
-* @author     Robert Schrenk
-* @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-*/
+ * @package    block_edupublisher
+ * @copyright  2019 Digital Education Society (http://www.dibig.at)
+ * @author     Robert Schrenk
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 
 defined('MOODLE_INTERNAL') || die;
 
-function xmldb_block_edupublisher_upgrade($oldversion=0) {
+function xmldb_block_edupublisher_upgrade($oldversion = 0) {
     global $DB;
     $dbman = $DB->get_manager();
 
@@ -223,12 +223,12 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
 
         $olduses = $DB->get_records('block_edupublisher_uses', array());
-        foreach ($olduses AS $olduse) {
+        foreach ($olduses as $olduse) {
             $data = array(
                 'packageid' => $olduse->package,
                 'userid' => $olduse->userid,
                 'timeentered' => $olduse->created,
-                'cloned' => 1
+                'cloned' => 1,
             );
             $DB->insert_record('block_edupublisher_log', $data);
         }
@@ -390,7 +390,7 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
     if ($oldversion < 2021011801) {
         // Define index packageid_externalid (unique) to be added to block_edupublisher_extsect.
         $table = new xmldb_table('block_edupublisher_extsect');
-        $index = new xmldb_index('packageid_externalid', XMLDB_INDEX_UNIQUE, ['packageid','externalid']);
+        $index = new xmldb_index('packageid_externalid', XMLDB_INDEX_UNIQUE, ['packageid', 'externalid']);
 
         // Conditionally launch add index coursesection.
         if (!$dbman->index_exists($table, $index)) {
@@ -691,7 +691,7 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
         $tabname = "{$CFG->prefix}block_edupublisher_md_def";
         $shortname = "{$CFG->prefix}blocedupmddef";
-        $fulltexts = [ 'summary', 'tags' ];
+        $fulltexts = ['summary', 'tags'];
         foreach ($fulltexts as $col) {
             $sql = "CREATE FULLTEXT INDEX
                         {$shortname}_{$col}_ix
@@ -721,7 +721,7 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
         $tabname = "{$CFG->prefix}block_edupublisher_md_edu";
         $shortname = "{$CFG->prefix}blocedupmdedu";
-        $fulltexts = [ 'curriculum', 'educationallevel', 'schooltype', 'type' ];
+        $fulltexts = ['curriculum', 'educationallevel', 'schooltype', 'type'];
         foreach ($fulltexts as $col) {
             $sql = "CREATE FULLTEXT INDEX
                         {$shortname}_{$col}_ix
@@ -767,7 +767,7 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         }
         $tabname = "{$CFG->prefix}block_edupublisher_md_eta";
         $shortname = "{$CFG->prefix}blocedupmdeta";
-        $fulltexts = [ 'kompetenzen', 'stundenablauf', 'voraussetzungen', 'vorkenntnisse' ];
+        $fulltexts = ['kompetenzen', 'stundenablauf', 'voraussetzungen', 'vorkenntnisse'];
         foreach ($fulltexts as $col) {
             $sql = "CREATE FULLTEXT INDEX
                         {$shortname}_{$col}_ix
@@ -795,12 +795,12 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
         $etapas = $DB->get_records('block_edupublisher_md_eta', [], '', 'id,package,published');
         foreach ($etapas as $etapa) {
             if (!empty($etapa->published)) {
-                $DB->set_field('block_edupublisher_md_eta', 'status', 'public', [ 'package' => $etapa->package ]);
+                $DB->set_field('block_edupublisher_md_eta', 'status', 'public', ['package' => $etapa->package]);
             }
         }
         $evaluations = $DB->get_records('block_edupublisher_evaluatio', [], '', 'id,packageid');
         foreach ($evaluations as $evaluation) {
-            $DB->set_field('block_edupublisher_md_eta', 'status', 'eval', [ 'package' => $evaluation->packageid ]);
+            $DB->set_field('block_edupublisher_md_eta', 'status', 'eval', ['package' => $evaluation->packageid]);
         }
     }
     if ($oldversion < 2022032201) {
@@ -823,7 +823,7 @@ function xmldb_block_edupublisher_upgrade($oldversion=0) {
                     GROUP BY package";
         $ratings = $DB->get_records_sql($sql, []);
         foreach ($ratings as $rating) {
-            $DB->set_field('block_edupublisher_packages', 'rating', round($rating->avg, 0), [ 'id' => $rating->package ]);
+            $DB->set_field('block_edupublisher_packages', 'rating', round($rating->avg, 0), ['id' => $rating->package]);
         }
         upgrade_block_savepoint(true, 2022032201, 'edupublisher');
     }

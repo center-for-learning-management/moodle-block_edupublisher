@@ -48,18 +48,18 @@ if (\block_edupublisher\lib::is_maintainer(array('commercial'))) {
     // else show list of publishers
     if ($id > 0) {
         ?>
-            <a href="<?php echo $CFG->wwwroot; ?>/blocks/edupublisher/pages/publishers.php" class="btn btn-primary"><?php echo get_string('back'); ?></a>
+        <a href="<?php echo $CFG->wwwroot; ?>/blocks/edupublisher/pages/publishers.php" class="btn btn-primary"><?php echo get_string('back'); ?></a>
         <?php
         // Publisher details and users
         require_once($CFG->dirroot . '/blocks/edupublisher/classes/publisher_form.php');
         $form = new block_edupublisher\publisher_form();
         if ($data = $form->get_data()) {
             file_save_draft_area_files($data->publisher_logo, $context->id, 'block_edupublisher', 'publisher_logo',
-                           $publisher->id, array('subdirs' => 0, 'maxbytes' => block_edupublisher\publisher_form::$maxbytes, 'maxfiles' => 1));
+                $publisher->id, array('subdirs' => 0, 'maxbytes' => block_edupublisher\publisher_form::$maxbytes, 'maxfiles' => 1));
         }
         $draftitemid = file_get_submitted_draft_itemid('publisher_logo');
         file_prepare_draft_area($draftitemid, $context->id, 'block_edupublisher', 'publisher_logo', $publisher->id,
-                                array('subdirs' => 0, 'maxbytes' => block_edupublisher\publisher_form::$maxbytes, 'maxfiles' => 1));
+            array('subdirs' => 0, 'maxbytes' => block_edupublisher\publisher_form::$maxbytes, 'maxfiles' => 1));
         $publisher->publisher_logo = $draftitemid;
         $form->set_data($publisher);
 
@@ -82,7 +82,7 @@ if (\block_edupublisher\lib::is_maintainer(array('commercial'))) {
             'block_edupublisher/publisher',
             array('header' => '1')
         );
-        foreach ($publishers AS $publisher) {
+        foreach ($publishers as $publisher) {
             echo $OUTPUT->render_from_template(
                 'block_edupublisher/publisher',
                 $publisher
@@ -96,7 +96,7 @@ if (\block_edupublisher\lib::is_maintainer(array('commercial'))) {
 } else {
     echo $OUTPUT->render_from_template(
         'block_edupublisher/alert',
-        (object) array(
+        (object)array(
             'content' => get_string('permission_denied', 'block_edupublisher'),
             'url' => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
             'type' => 'danger',

@@ -34,7 +34,8 @@ class block_edupublisher extends block_base {
     public static function get_publisher($publisherid) {
         global $DB, $USER;
         $publisher = $DB->get_record('block_edupublisher_pub', array('id' => $publisherid), '*', IGNORE_MISSING);
-        if (empty($publisher->id)) return null;
+        if (empty($publisher->id))
+            return null;
         $is_coworker = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisherid, 'userid' => $USER->id));
         $publisher->is_coworker = (!empty($is_coworker->userid) && $is_coworker->userid == $USER->id);
         // Load Logo of publisher.
@@ -42,7 +43,8 @@ class block_edupublisher extends block_base {
         $context = context_system::instance();
         $files = $fs->get_area_files($context->id, 'block_edupublisher', 'publisher_logo', $publisherid);
         foreach ($files as $f) {
-            if (empty(str_replace('.', '', $f->get_filename()))) continue;
+            if (empty(str_replace('.', '', $f->get_filename())))
+                continue;
             $publisher->publisher_logo = '' . moodle_url::make_pluginfile_url($f->get_contextid(), $f->get_component(), $f->get_filearea(), $f->get_itemid(), $f->get_filepath(), $f->get_filename(), false);
             break;
         }
@@ -52,6 +54,7 @@ class block_edupublisher extends block_base {
     public function init() {
         $this->title = get_string('pluginname', 'block_edupublisher');
     }
+
     public function get_content() {
         global $CFG, $COURSE, $DB, $OUTPUT, $PAGE, $USER;
 
@@ -65,9 +68,9 @@ class block_edupublisher extends block_base {
         if ($this->content !== null) {
             return $this->content;
         }
-        $this->content = (object) array(
+        $this->content = (object)array(
             'text' => '',
-            'footer' => ''
+            'footer' => '',
         );
 
         // 1. in a package-course: show author
@@ -104,7 +107,7 @@ class block_edupublisher extends block_base {
             $package->set(\block_edupublisher\lib::show_star_rating(), 'show_star_rating');
 
             $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_inpackage', $package->get_flattened());
-        } else if($canedit) {
+        } else if ($canedit) {
             $cache = \cache::make('block_edupublisher', 'publish');
             $pendingpublication = $cache->get("pending_publication_$COURSE->id");
             if (empty($pendingpublication)) {
@@ -113,32 +116,35 @@ class block_edupublisher extends block_base {
                             FROM {block_edupublisher_publish}
                             WHERE sourcecourseid = ?
                                 OR targetcourseid = ?";
-                $pendingpublications = $DB->get_records_sql($sql, [ $COURSE->id, $COURSE->id ]);
+                $pendingpublications = $DB->get_records_sql($sql, [$COURSE->id, $COURSE->id]);
                 foreach ($pendingpublications as $pendingpublication) {
                     $pendingpublication = $pendingpublication->sourcecourseid;
                     $cache->set("pending_publication_$COURSE->id", $pendingpublication);
                     break;
                 }
             }
-            $params = (object) [
+            $params = (object)[
                 'courseid' => $COURSE->id,
                 'packages' => array_values($DB->get_records_sql('SELECT * FROM {block_edupublisher_packages} WHERE sourcecourse=? AND (active=1 OR userid=?)', array($COURSE->id, $USER->id))),
                 'pendingpublication' => (intval($pendingpublication) == -1) ? 0 : $pendingpublication,
-                'uses'     => array_values($DB->get_records_sql('SELECT DISTINCT(package) FROM {block_edupublisher_uses} WHERE targetcourse=?', array($COURSE->id))),
+                'uses' => array_values($DB->get_records_sql('SELECT DISTINCT(package) FROM {block_edupublisher_uses} WHERE targetcourse=?', array($COURSE->id))),
             ];
             $params->haspackages = (count($params->packages) > 0) ? 1 : 0;
-            $params->hasuses     = (count($params->uses)     > 0) ? 1 : 0;
+            $params->hasuses = (count($params->uses) > 0) ? 1 : 0;
 
             $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_canedit', $params);
         }
         return $this->content;
     }
+
     public function hide_header() {
         return false;
     }
+
     public function has_config() {
         return true;
     }
+
     public function instance_allow_multiple() {
         return false;
     }

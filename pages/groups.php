@@ -28,7 +28,7 @@ $id = required_param('id', PARAM_INT);
 $package = new \block_edupublisher\package($id, true);
 $context = \context_course::instance($package->get('course'));
 // Must pass login
-$PAGE->set_url(new \moodle_url('/blocks/edupublisher/pages/groups.php', [ 'id' => $id ]));
+$PAGE->set_url(new \moodle_url('/blocks/edupublisher/pages/groups.php', ['id' => $id]));
 require_login($package->get('course'));
 
 if (!empty(optional_param('switchaccount', 0, PARAM_INT))) {
@@ -49,7 +49,7 @@ $PAGE->navbar->add(get_string('groups:create', 'block_edupublisher'), $PAGE->url
 echo $OUTPUT->header();
 
 if (!\block_edupublisher\lib::can_create_groups()) {
-    $params = (object) [
+    $params = (object)[
         'id' => $id,
         'maildomains' => explode("\n", get_config('block_edupublisher', 'groupsdomains')),
     ];
@@ -61,10 +61,10 @@ if (!\block_edupublisher\lib::can_create_groups()) {
 
     if (!empty(optional_param('edupublisher_group_name', '', PARAM_TEXT))) {
         // Set group mode of course
-        $DB->set_field('course', 'groupmode', 1, [ 'id' => $package->get('course') ]);
-        $DB->set_field('course', 'groupmodeforce', 1, [ 'id' => $package->get('course') ]);
+        $DB->set_field('course', 'groupmode', 1, ['id' => $package->get('course')]);
+        $DB->set_field('course', 'groupmodeforce', 1, ['id' => $package->get('course')]);
 
-        $data = (object) [
+        $data = (object)[
             'courseid' => $package->get('course'),
             'name' => optional_param('edupublisher_group_name', '', PARAM_TEXT),
         ];
@@ -72,11 +72,11 @@ if (!\block_edupublisher\lib::can_create_groups()) {
 
         if (!empty($newgroup)) {
             echo $OUTPUT->render_from_template('block_edupublisher/alert', [
-                'content' => get_string('groups:create:success', 'block_edupublisher', [ 'name' => $data->name ]),
+                'content' => get_string('groups:create:success', 'block_edupublisher', ['name' => $data->name]),
                 'type' => 'success',
             ]);
             if (!\block_edupublisher\lib::has_role($context, $roleteacher, $USER)) {
-                \block_edupublisher\lib::course_manual_enrolments([ $package->get('course') ], $USER->id, $roleteacher);
+                \block_edupublisher\lib::course_manual_enrolments([$package->get('course')], $USER->id, $roleteacher);
             }
             \groups_add_member($newgroup, $USER->id);
             require_once("$CFG->dirroot/blocks/enrolcode/locallib.php");
@@ -85,7 +85,7 @@ if (!\block_edupublisher\lib::can_create_groups()) {
             \block_enrolcode_lib::create_code($package->get('course'), $roleteacher, $newgroup, true, $expiration, 0, 0, true);
         } else {
             echo $OUTPUT->render_from_template('block_edupublisher/alert', [
-                'content' => get_string('groups:create:error', 'block_edupublisher', [ 'name' => $data->name ]),
+                'content' => get_string('groups:create:error', 'block_edupublisher', ['name' => $data->name]),
                 'type' => 'danger',
             ]);
         }
@@ -104,8 +104,8 @@ if (!\block_edupublisher\lib::can_create_groups()) {
     }
 
     foreach ($groups as &$group) {
-        $stud = $DB->get_record('block_enrolcode', [ 'courseid' => $package->get('course'), 'groupid' => $group->id, 'roleid' => $rolestudent ]);
-        $teac = $DB->get_record('block_enrolcode', [ 'courseid' => $package->get('course'), 'groupid' => $group->id, 'roleid' => $roleteacher ]);
+        $stud = $DB->get_record('block_enrolcode', ['courseid' => $package->get('course'), 'groupid' => $group->id, 'roleid' => $rolestudent]);
+        $teac = $DB->get_record('block_enrolcode', ['courseid' => $package->get('course'), 'groupid' => $group->id, 'roleid' => $roleteacher]);
         if (!empty($stud->code)) {
             $group->codestudent = $stud->code;
             $group->urlstudent = "$CFG->wwwroot/blocks/enrolcode/enrol.php?code=$stud->code";
@@ -120,7 +120,7 @@ if (!\block_edupublisher\lib::can_create_groups()) {
     }
 
     echo $OUTPUT->render_from_template('block_edupublisher/groups_list', [
-        'groups' => array_values($groups)
+        'groups' => array_values($groups),
     ]);
 }
 

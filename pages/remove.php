@@ -45,7 +45,7 @@ $PAGE->navbar->add(
     new moodle_url(
         '/blocks/edupublisher/pages/package.php',
         array(
-            'id' => $package->get('id')
+            'id' => $package->get('id'),
         )
     )
 );
@@ -59,10 +59,10 @@ echo $OUTPUT->header();
 if ($package->get('candelete')) {
     if ($confirmed) {
         $params = array(
-            'content' => get_string('removing_package_course', 'block_edupublisher', (object) $package),
+            'content' => get_string('removing_package_course', 'block_edupublisher', (object)$package),
             'type' => 'info',
         );
-        echo $OUTPUT->render_from_template('block_edupublisher/alert', (object) $params);
+        echo $OUTPUT->render_from_template('block_edupublisher/alert', (object)$params);
         delete_course($package->get('course'), false);
 
         $DB->delete_records('block_edupublisher_uses', array('package' => $id));
@@ -84,11 +84,11 @@ if ($package->get('candelete')) {
         $p->modified = time();
         $DB->update_record('block_edupublisher_packages', $p);
         $params = array(
-            'content' => get_string('removed_package', 'block_edupublisher', (object) $package->get_flattened()),
+            'content' => get_string('removed_package', 'block_edupublisher', (object)$package->get_flattened()),
             'type' => 'success',
-            'url' => $CFG->wwwroot . '/my'
+            'url' => $CFG->wwwroot . '/my',
         );
-        echo $OUTPUT->render_from_template('block_edupublisher/alert', (object) $params);
+        echo $OUTPUT->render_from_template('block_edupublisher/alert', (object)$params);
         \block_edupublisher\wordpress::action('deleted', $package);
     } else {
         $params = array(
@@ -97,15 +97,15 @@ if ($package->get('candelete')) {
             'urlconfirm' => $CFG->wwwroot . '/blocks/edupublisher/pages/remove.php?id=' . $id . '&confirmed=1',
             'urlcancel' => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $id,
         );
-        echo $OUTPUT->render_from_template('block_edupublisher/confirmation', (object) $params);
+        echo $OUTPUT->render_from_template('block_edupublisher/confirmation', (object)$params);
     }
 } else {
     $params = array(
         'content' => get_string('permission_denied', 'block_edupublisher'),
         'type' => 'warning',
-        'url' => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $id
+        'url' => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $id,
     );
-    echo $OUTPUT->render_from_template('block_edupublisher/alert', (object) $params);
+    echo $OUTPUT->render_from_template('block_edupublisher/alert', (object)$params);
 }
 
 echo $OUTPUT->footer();

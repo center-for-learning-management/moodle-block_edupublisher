@@ -26,11 +26,11 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 $courseid = required_param('id', PARAM_INT);
 $unenrol = optional_param('unenrol', 0, PARAM_INT);
-$prec = $DB->get_record('block_edupublisher_packages', [ 'course' => $courseid ]);
+$prec = $DB->get_record('block_edupublisher_packages', ['course' => $courseid]);
 
 if (empty($prec->id)) {
     // Show a warning that this is not a package.
-    $url = new \moodle_url('/course/view.php', [ 'id' => $courseid ]);
+    $url = new \moodle_url('/course/view.php', ['id' => $courseid]);
     throw new \moodle_exception('no_such_package', 'block_edupublisher', $url->__toString());
 }
 
@@ -81,11 +81,15 @@ if (empty($defaultrolestudent)) {
     $reply = array();
     if (!empty($canenrolasteacher)) {
         // We distinguish between student and teacher role.
-        if (!empty($asstudent)) \block_edupublisher\lib::course_manual_enrolments(array($package->get('course')), array($USER->id), $defaultrolestudent, !empty($unenrol));
-        if (!empty($asstudent)) \block_edupublisher\lib::course_manual_enrolments(array($package->get('course')), array($USER->id), $rolestudent, !empty($unenrol));
-        if (!empty($asstudent)) \block_edupublisher\lib::course_manual_enrolments(array($package->get('course')), array($USER->id), $roleteacher, !empty($unenrol));
+        if (!empty($asstudent))
+            \block_edupublisher\lib::course_manual_enrolments(array($package->get('course')), array($USER->id), $defaultrolestudent, !empty($unenrol));
+        if (!empty($asstudent))
+            \block_edupublisher\lib::course_manual_enrolments(array($package->get('course')), array($USER->id), $rolestudent, !empty($unenrol));
+        if (!empty($asstudent))
+            \block_edupublisher\lib::course_manual_enrolments(array($package->get('course')), array($USER->id), $roleteacher, !empty($unenrol));
         // Attention: asteacher means this person is a maintainer!!!
-        if (!empty($asteacher)) \block_edupublisher\lib::course_manual_enrolments(array($package->get('course')), array($USER->id), $defaultroleteacher, !empty($unenrol));
+        if (!empty($asteacher))
+            \block_edupublisher\lib::course_manual_enrolments(array($package->get('course')), array($USER->id), $defaultroleteacher, !empty($unenrol));
     } else {
         // There is only the student role.
         \block_edupublisher\lib::course_manual_enrolments(array($package->get('course')), array($USER->id), $defaultrolestudent, !empty($unenrol));
@@ -131,7 +135,7 @@ if (empty($defaultrolestudent)) {
             $package->get_flattened()
         );
     } else {
-        $url = new \moodle_url('/blocks/edupublisher/pages/groups.php', [ 'id' => $package->get('id') ]);
+        $url = new \moodle_url('/blocks/edupublisher/pages/groups.php', ['id' => $package->get('id')]);
         echo $OUTPUT->render_from_template(
             'block_edupublisher/self_enrol_isingroup',
             [

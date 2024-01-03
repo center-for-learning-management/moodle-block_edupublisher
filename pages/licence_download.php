@@ -58,8 +58,9 @@ if (!empty($publisherid) && \block_edupublisher\lib::is_maintainer(array('commer
         $escapechar = "\\";
 
         $headline = false;
-        foreach ($licenceids AS $licenceid) {
-            if ($data->licenceids[$licenceid] != 1) continue;
+        foreach ($licenceids as $licenceid) {
+            if ($data->licenceids[$licenceid] != 1)
+                continue;
             $lic = $DB->get_record('block_edupublisher_lic', array('id' => $licenceid));
             if ($lic->id == $licenceid && $lic->publisherid == $publisherid) {
                 $userid = $lic->userid;
@@ -69,7 +70,7 @@ if (!empty($publisherid) && \block_edupublisher\lib::is_maintainer(array('commer
                 $lic->maturity = date('Y-m-d H:i:s', $lic->maturity);
                 $packages = $DB->get_records('block_edupublisher_lic_pack', array('licenceid' => $lic->id));
                 $lic->packages = array();
-                foreach ($packages AS $package) {
+                foreach ($packages as $package) {
                     $package = new \block_edupublisher\package($package->packageid, false);
                     $lic->packages[] = $package->title;
                 }
@@ -82,13 +83,23 @@ if (!empty($publisherid) && \block_edupublisher\lib::is_maintainer(array('commer
                     $headline = true;
                 }
                 switch ($lic->target) {
-                    case 1: $lic->target = get_string('licence_target_org', 'block_edupublisher'); break;
-                    case 2: $lic->target = get_string('licence_target_course', 'block_edupublisher'); break;
-                    case 3: $lic->target = get_string('licence_target_user', 'block_edupublisher'); break;
+                    case 1:
+                        $lic->target = get_string('licence_target_org', 'block_edupublisher');
+                        break;
+                    case 2:
+                        $lic->target = get_string('licence_target_course', 'block_edupublisher');
+                        break;
+                    case 3:
+                        $lic->target = get_string('licence_target_user', 'block_edupublisher');
+                        break;
                 }
                 switch ($lic->type) {
-                    case 1: $lic->type = get_string('licence_collection', 'block_edupublisher'); break;
-                    case 2: $lic->type = get_string('licence_pool', 'block_edupublisher'); break;
+                    case 1:
+                        $lic->type = get_string('licence_collection', 'block_edupublisher');
+                        break;
+                    case 2:
+                        $lic->type = get_string('licence_pool', 'block_edupublisher');
+                        break;
                 }
                 fputcsv($out, (array)$lic, $delimiter, $enclosure, $escapechar);
             }
@@ -99,7 +110,7 @@ if (!empty($publisherid) && \block_edupublisher\lib::is_maintainer(array('commer
     echo $OUTPUT->header();
     echo $OUTPUT->render_from_template(
         'block_edupublisher/alert',
-        (object) array(
+        (object)array(
             'content' => get_string('permission_denied', 'block_edupublisher'),
             'url' => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
             'type' => 'danger',

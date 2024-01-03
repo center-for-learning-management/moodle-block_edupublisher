@@ -18,7 +18,7 @@
  * @package    block_edupublisher
  * @copyright  2018 Digital Education Society (http://www.dibig.at)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
-**/
+ **/
 
 define('NO_OUTPUT_BUFFERING', true);
 
@@ -45,7 +45,7 @@ if ($section == -1 && $sectionno > -1) {
                 ORDER BY section ASC";
     $params = array($course, $sectionno);
     $sections = $DB->get_records_sql($sql, $params);
-    foreach ($sections AS $_section) {
+    foreach ($sections as $_section) {
         if ($_section->section == $sectionno) {
             $section = $_section->id;
         }
@@ -81,11 +81,11 @@ $schoollevels = \block_edupublisher\get_schoollevels_sorted($schoollevel);
 $lic_orgids = array();
 $lic_courseids = array();
 $orgs = \local_eduvidual\locallib::get_organisations('teacher', false);
-foreach ($orgs AS $org) {
+foreach ($orgs as $org) {
     $lic_orgids[] = $org->orgid;
 }
 $courses = enrol_get_all_users_courses($USER->id, true);
-foreach ($courses AS $_course) {
+foreach ($courses as $_course) {
     $context = context_course::instance($_course->id);
     if (has_capability('moodle/course:update', $context)) {
         $lic_courseids[] = $_course->id;
@@ -108,7 +108,7 @@ $sql = "SELECT l.*,lp.packageid,p.name publishername FROM
 $lics = $DB->get_records_sql($sql, array($USER->id, implode(',', $lic_courseids), implode(',', $lic_orgids)));
 $publishers = array();
 
-foreach ($lics AS $lic) {
+foreach ($lics as $lic) {
     //print_r($lic);
     if (!isset($publishers[$lic->publishername])) {
         $publishers[$lic->publishername] = block_edupublisher::get_publisher($lic->publisherid);
@@ -133,8 +133,10 @@ if (!\block_edupublisher\lib::show_star_rating()) {
             continue;
         }
         $label = get_string('star_none', 'block_edupublisher');
-        if ($a == 1) $label = get_string('star_single', 'block_edupublisher');
-        else if ($a > 1) $label = get_string('star_multiple', 'block_edupublisher', [ 'stars' => $a ]);
+        if ($a == 1)
+            $label = get_string('star_single', 'block_edupublisher');
+        else if ($a > 1)
+            $label = get_string('star_multiple', 'block_edupublisher', ['stars' => $a]);
         $stars[] = (object)[
             'key' => $a,
             'name' => $label,
@@ -145,7 +147,7 @@ if (!\block_edupublisher\lib::show_star_rating()) {
 //print_r($publishers);
 echo $OUTPUT->render_from_template(
     'block_edupublisher/search',
-    (object) array(
+    (object)array(
         'courseid' => $course,
         'enablecommercial' => get_config('block_edupublisher', 'enablecommercial'),
         'importtocourseid' => $course, // Required together with showpreviewbutton for search_li.mustache

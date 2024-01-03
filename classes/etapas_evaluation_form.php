@@ -25,6 +25,7 @@ namespace block_edupublisher;
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir . "/formslib.php");
+
 class etapas_evaluation_form extends \moodleform {
     function definition() {
         $mform = $this->_form;
@@ -84,7 +85,7 @@ class etapas_evaluation_form extends \moodleform {
             $mform->createElement('html', $verytrue),
         );
         $mform->addElement('html', '<div class="form-group row fitem"><div class="col-md-12">' . get_string('rating_plausible', "block_edupublisher") . '</div></div>');
-        $mform->addGroup($ratingplausible, 'suitable_workflow','', array(' '), false);
+        $mform->addGroup($ratingplausible, 'suitable_workflow', '', array(' '), false);
         $mform->addRule('suitable_workflow', get_string('required'), 'required', 'extraruledata', 'client', false, false);
 
         $ratingpreconditions = array(
@@ -134,7 +135,7 @@ class etapas_evaluation_form extends \moodleform {
             $mform->createElement(
                 'radio', 'technology_application', '', get_string('redefinition', 'block_edupublisher'),
                 'redefinition', array()
-            )
+            ),
         );
         $mform->addGroup($technology, 'technology', get_string('technology', "block_edupublisher"), array('<br />', '<br />', '<br />', '<br />'), false);
         $mform->addHelpButton('technology', 'technology', 'block_edupublisher');
@@ -150,8 +151,9 @@ class etapas_evaluation_form extends \moodleform {
         $mform->addRule('comments', get_string('max_length', 'block_edupublisher'), 'maxlength', 4000, 'client');
         $mform->addRule('comments', get_string('required', 'block_edupublisher'), 'required', 'extraruledata', 'client', false, false);
 
-        $this->add_action_buttons($cancel = true, $submitlabel=null);
+        $this->add_action_buttons($cancel = true, $submitlabel = null);
     }
+
     //Custom validation should be added here
     function validation($data, $files) {
         return array();

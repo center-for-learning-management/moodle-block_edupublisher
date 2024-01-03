@@ -49,7 +49,7 @@ $PAGE->navbar->add(
     new moodle_url(
         '/course/view.php',
         array(
-            'id' => $package->get('course')
+            'id' => $package->get('course'),
         )
     )
 );
@@ -58,7 +58,7 @@ $PAGE->navbar->add(
     new \moodle_url(
         '/blocks/edupublisher/pages/evaluation.php',
         array(
-            'packageid' => $package->get('id')
+            'packageid' => $package->get('id'),
         )
     )
 );

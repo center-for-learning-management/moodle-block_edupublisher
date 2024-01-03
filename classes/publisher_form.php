@@ -29,7 +29,7 @@ require_once($CFG->libdir . "/formslib.php");
 class publisher_form extends \moodleform {
     static $accepted_types = '';
     static $areamaxbytes = 10485760;
-    static $maxbytes = 1024*1024;
+    static $maxbytes = 1024 * 1024;
     static $maxfiles = 1;
     static $subdirs = 0;
 
@@ -45,7 +45,7 @@ class publisher_form extends \moodleform {
                 'maxbytes' => self::$maxbytes,
                 'maxfiles' => self::$maxfiles,
                 'subdirs' => self::$subdirs,
-                 //, 'return_types'=> FILE_INTERNAL | FILE_EXTERNAL
+                //, 'return_types'=> FILE_INTERNAL | FILE_EXTERNAL
             )
         );
 

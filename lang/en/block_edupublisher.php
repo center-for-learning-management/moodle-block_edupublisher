@@ -466,6 +466,6 @@ $string['augmentation'] = 'There was moderate added value to learning.';
 $string['modification'] = 'Learning tasks have been defined that would not be possible without technology.';
 $string['redefinition'] = 'Through technology, new pedagogical methods have been implemented.';
 $string['feedback'] = 'Feedback to the author';
-$string['evaluations']  = 'Evaluations';
+$string['evaluations'] = 'Evaluations';
 $string['evaluation_general'] = 'General estimation';
 $string['evaluate'] = 'Evaluate';

@@ -29,13 +29,13 @@ class lib {
     /**
      * Ensures that within a context an instance of block_edupublisher exists.
      * @param
-    **/
+     **/
     public static function add_to_context($context) {
         global $DB;
         $count = $DB->count_records('block_instances', array('blockname' => 'edupublisher', 'parentcontextid' => $context->id));
         if ($count == 0) {
             // Create edupublisher-block in targetcourse.
-            $blockdata = (object) array(
+            $blockdata = (object)array(
                 'blockname' => 'edupublisher',
                 'parentcontextid' => $context->id,
                 'showinsubcontexts' => 1,
@@ -50,6 +50,7 @@ class lib {
             $DB->insert_record('block_instances', $blockdata);
         }
     }
+
     /**
      * Determines whether or not the user can create groups.
      * @return boolean
@@ -67,6 +68,7 @@ class lib {
         }
         return false;
     }
+
     /**
      * Return a list of all channels.
      * @return array
@@ -81,7 +83,7 @@ class lib {
      * @param die If true will show error and die if requirements are not fulfilled.
      * @param context Course context to test capabilities for.
      * @return true or false
-    **/
+     **/
     public static function check_requirements($die = true, $context = NULL) {
         global $CFG, $OUTPUT, $PAGE;
         $category = get_config('block_edupublisher', 'category');
@@ -104,53 +106,60 @@ class lib {
         }
         return true;
     }
+
     /**
      * Removes any files in this filearea.
-    **/
+     **/
     public static function clear_file_storage($context, $component, $fieldname, $itemid, $fs = NULL) {
         if (!isset($fs)) {
             $fs = get_file_storage();
         }
         $files = $fs->get_area_files($context->id, $component, $fieldname, $itemid);
         foreach ($files as $f) {
-            if (!$f) continue;
+            if (!$f)
+                continue;
             $f->delete();
         }
     }
+
     /**
      * Enrols users to specific courses
      * @param courseids array containing courseid or a single courseid
      * @param userids array containing userids or a single userid
      * @param roleid roleid to assign, or -1 if wants to unenrol
      * @return true or false
-    **/
+     **/
     public static function course_manual_enrolments($courseids, $userids, $roleid, $remove = 0) {
         global $CFG, $DB, $reply;
-        if (!isset($reply)) $reply = array();
+        if (!isset($reply))
+            $reply = array();
         //print_r($courseids); print_r($userids); echo $roleid;
-        if (!is_array($courseids)) $courseids = array($courseids);
-        if (!is_array($userids)) $userids = array($userids);
+        if (!is_array($courseids))
+            $courseids = array($courseids);
+        if (!is_array($userids))
+            $userids = array($userids);
         // Retrieve the manual enrolment plugin.
         $enrol = enrol_get_plugin('manual');
         if (empty($enrol)) {
             return false;
         }
         $failures = 0;
-        foreach ($courseids AS $courseid) {
+        foreach ($courseids as $courseid) {
             // Check if course exists.
             $course = $DB->get_record('course', array('id' => $courseid), '*', IGNORE_MISSING);
             $context = \context_course::instance($course->id);
             //$course = get_course($courseid);
-            if (empty($course->id)) continue;
+            if (empty($course->id))
+                continue;
             // Check manual enrolment plugin instance is enabled/exist.
             $instance = null;
             $enrolinstances = enrol_get_instances($courseid, false);
             $reply['enrolinstances'] = $enrolinstances;
             foreach ($enrolinstances as $courseenrolinstance) {
-              if ($courseenrolinstance->enrol == "manual") {
-                  $instance = $courseenrolinstance;
-                  break;
-              }
+                if ($courseenrolinstance->enrol == "manual") {
+                    $instance = $courseenrolinstance;
+                    break;
+                }
             }
             if (empty($instance)) {
                 // We have to add a "manual-enrolment"-instance
@@ -160,7 +169,7 @@ class lib {
                     'enrolperiod' => 0,
                     'expirynotify' => 0,
                     'expirytreshold' => 0,
-                    'notifyall' => 0
+                    'notifyall' => 0,
                 );
                 require_once($CFG->dirroot . '/enrol/manual/lib.php');
                 $emp = new enrol_manual_plugin();
@@ -180,13 +189,13 @@ class lib {
                     $emp->update_instance($instance, $data);
                     $instance->status = $data->status;
                 }
-                foreach ($userids AS $userid) {
+                foreach ($userids as $userid) {
                     if (!empty($remove)) {
                         role_unassign($roleid, $userid, $context->id);
                         // If this was the last role, we unenrol completely
                         $roles = get_user_roles($context, $userid);
                         $foundatleastone = false;
-                        foreach($roles AS $role) {
+                        foreach ($roles as $role) {
                             if ($role->contextid == $context->id) {
                                 $foundatleastone = true;
                                 break;
@@ -204,6 +213,7 @@ class lib {
         }
         return ($failures == 0);
     }
+
     /**
      * Generates a complete working html-body.
      * @param subject
@@ -213,6 +223,7 @@ class lib {
         $mailtemplate = get_config('block_edupublisher', 'mail_template');
         return str_replace(array("{{{content}}}", "{{{subject}}}"), array($content, $subject), $mailtemplate);
     }
+
     /**
      * Return the channel definition.
      * @return array.
@@ -221,7 +232,7 @@ class lib {
         $definition = array(
             'default' => array(
                 'suppresscomment' => array('type' => 'select', 'datatype' => PARAM_INT, 'hidden_except_maintainer' => 1, 'options' => array(
-                    '0' => get_string('no'), '1' => get_string('yes')
+                    '0' => get_string('no'), '1' => get_string('yes'),
                 ), 'donotstore' => 1),
                 'title' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1, 'searchable' => 1),
                 'licence' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
@@ -234,8 +245,8 @@ class lib {
                 'authorname' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1, 'searchable' => 1),
                 'authormail' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1, 'searchable' => 1),
                 'authormailshow' => array('type' => 'select', 'datatype' => PARAM_INT, 'default' => 1, 'options' => array(
-                    '1' => get_string('yes'), '0' => get_string('no')
-                    )
+                    '1' => get_string('yes'), '0' => get_string('no'),
+                ),
                 ),
                 'origins' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_INT),
                 'summary' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
@@ -253,7 +264,7 @@ class lib {
                         'philosophy' => get_string('default_subjectarea_philosophy', 'block_edupublisher'),
                         'physicaleducation' => get_string('default_subjectarea_physicaleducation', 'block_edupublisher'),
                         'other' => get_string('default_subjectarea_other', 'block_edupublisher'),
-                    )
+                    ),
                 ),
                 'schoollevel' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_TEXT,
                     'required' => 1, 'splitcols' => 1, 'options' => array(
@@ -261,7 +272,7 @@ class lib {
                         'secondary_1' => get_string('default_schoollevel_secondary_1', 'block_edupublisher'),
                         'secondary_2' => get_string('default_schoollevel_secondary_2', 'block_edupublisher'),
                         'tertiary' => get_string('default_schoollevel_tertiary', 'block_edupublisher'),
-                    )
+                    ),
                 ),
                 'tags' => array('type' => 'tags', 'datatype' => PARAM_TEXT, 'multiple' => 1, 'tagparams' => array('itemtype' => 'packages', 'component' => 'block_edupublisher'), 'searchable' => 1),
                 // Hidden elements
@@ -286,17 +297,17 @@ class lib {
                         'inspect' => get_string('etapas_status_inspect', 'block_edupublisher'),
                         'eval' => get_string('etapas_status_eval', 'block_edupublisher'),
                         'public' => get_string('etapas_status_public', 'block_edupublisher'),
-                    )
+                    ),
                 ),
                 'type' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'default' => 'lesson', 'required' => 1, 'searchable' => 1, 'options' => array(
-                    'lesson' => 'Unterricht', 'collection' => 'Beispielsammlung', 'learningroute' => 'Lernstrecke')
+                    'lesson' => 'Unterricht', 'collection' => 'Beispielsammlung', 'learningroute' => 'Lernstrecke'),
                 ),
                 'subtype' => array('type' => 'select', 'datatype' => PARAM_TEXT,
                     'hidden_except_maintainer' => true, 'searchable' => 1, 'default' => 'etapa',
                     'options' => array(
                         'etapa' => 'eTapa', 'digi.komp 4' => 'digi.komp 4', 'digi.komp 8' => 'digi.komp 8',
-                        'digi.komp 12' => 'digi.komp 12'
-                    )
+                        'digi.komp 12' => 'digi.komp 12',
+                    ),
                 ),
                 'gegenstand' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1, 'searchable' => 1),
                 //'vonschule' => array('type' => 'text', 'datatype' => PARAM_TEXT),
@@ -304,15 +315,15 @@ class lib {
                     'multiple' => 1, 'required' => 1, 'splitcols' => 1, 'options' => array(
                         1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5,
                         6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11,
-                        12 => 12, 13 => 13
-                    )
+                        12 => 12, 13 => 13,
+                    ),
                 ),
                 'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_RAW, 'required' => 0, 'default' => get_string('etapas_kompetenzen_help', 'block_edupublisher'), 'searchable' => 1),
                 'stundenablauf' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
                 'vorkenntnisse' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
                 'voraussetzungen' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
                 'zeitbedarf' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
-                    '01:00' => '01:00', '02:00' => '02:00', '03:00' => '03:00'
+                    '01:00' => '01:00', '02:00' => '02:00', '03:00' => '03:00',
                 )),
             ),
             'eduthek' => array(
@@ -351,7 +362,7 @@ class lib {
                         'edu_scenario' => 'Unterrichtsszenario',
                         'edu_animation' => 'Animation/Simulation/Impuls',
                         'edu_competence' => 'Kompetenzmodell',
-                    )
+                    ),
                 ),
                 'schooltype' => array('type' => 'select', 'datatype' => PARAM_TEXT,
                     'multiple' => 1, 'required' => 1, 'options' => array(
@@ -377,7 +388,7 @@ class lib {
                         '6000' => 'Land- und forstwirtschaftliche Berufsschulen',
                         '6100' => 'Land- und forstwirtschaftliche Fachschulen',
                         '6200' => 'Höhere Lehranstalten für Land- und Forstwirtschaft',
-                    )
+                    ),
                 ),
                 'topic' => array('type' => 'select', 'datatype' => PARAM_TEXT,
                     'multiple' => 1, 'required' => 1, 'options' => array(
@@ -458,13 +469,13 @@ class lib {
                         'T750' => 'Wirtschaft und Recht',
                         'T760' => 'Wirtschafts-& Verbraucherbildung',
                         'T999' => 'Sonstiges',
-                    )
+                    ),
                 ),
                 'educationallevel' => array('type' => 'select', 'datatype' => PARAM_TEXT,
                     'multiple' => 1, 'required' => 1, 'options' => array(
                         1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5,
-                        6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11
-                    )
+                        6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11,
+                    ),
                 ),
             ),
             'commercial' => array(
@@ -475,7 +486,7 @@ class lib {
                 'shoplink' => array('type' => 'url', 'datatype' => PARAM_TEXT),
                 'validation' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
                     'external' => get_string('commercial_validateexternal', 'block_edupublisher'),
-                    'internal' => get_string('commercial_validateinternal', 'block_edupublisher'))
+                    'internal' => get_string('commercial_validateinternal', 'block_edupublisher')),
                 ),
             ),
         );
@@ -484,15 +495,15 @@ class lib {
             $package->set(1, 'publishash', 'default');
             // Customize definition to package.
             $channels = array_keys($definition);
-            foreach($channels AS $channel) {
+            foreach ($channels as $channel) {
                 // If not set in package check for POST.
                 if (empty($package->get('publishas', $channel)) && !empty(optional_param($channel . '_publishas', 0, PARAM_INT))) {
                     $package->set(1, 'publishas', $channel);
-                } elseif(empty($package->get('publishas', $channel))) {
+                } elseif (empty($package->get('publishas', $channel))) {
                     $package->set(0, 'publishas', $channel);
                 }
                 $fields = array_keys($definition[$channel]);
-                foreach($fields AS $field) {
+                foreach ($fields as $field) {
                     $ofield = &$definition[$channel][$field];
                     if (!empty($ofield['required'])) {
                         //echo $channel . '_' . $field . " is " . (!empty($ofield['required']) ? 'required' : 'not required') . " and is " . $package->{$channel . '_' . $field} ."\n";
@@ -505,8 +516,9 @@ class lib {
                     if ($channel == 'default' && $field == 'origins') {
                         $possible_origins = $package->load_possible_origins();
                         $options = array();
-                        foreach($possible_origins AS $po) {
-                            if (empty($po->id)) continue;
+                        foreach ($possible_origins as $po) {
+                            if (empty($po->id))
+                                continue;
                             $options[$po->id] = $po->title;
                         }
                         if (count($options) > 0) {
@@ -531,12 +543,13 @@ class lib {
 
         return $definition;
     }
+
     /**
      * Gets a course image if exists.
      * @param course course object
      * @param localpath true if we want local path, false for wwwpath
      * @return object containing fields 'imagename' and 'imagepath'
-    **/
+     **/
     public static function get_course_image($course, $localpath = false) {
         global $CFG;
         // Get Course image if any
@@ -548,15 +561,15 @@ class lib {
                 $imagename = $file->get_filename();
                 $contenthash = $file->get_contenthash();
                 $imagepath = ($localpath)
-                                ? $CFG->dataroot . '/filedir/' . substr($contenthash, 0, 2) . '/' . substr($contenthash, 2, 2) . '/' . $contenthash
-                                : $CFG->wwwroot . '/pluginfile.php/' . $file->get_contextid() . '/' . $file->get_component() . '/' . $file->get_filearea() . '/' . $file->get_filename()
-                                //: '' . moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename())
-                            ;
+                    ? $CFG->dataroot . '/filedir/' . substr($contenthash, 0, 2) . '/' . substr($contenthash, 2, 2) . '/' . $contenthash
+                    : $CFG->wwwroot . '/pluginfile.php/' . $file->get_contextid() . '/' . $file->get_component() . '/' . $file->get_filearea() . '/' . $file->get_filename()//: '' . moodle_url::make_pluginfile_url($file->get_contextid(), $file->get_component(), $file->get_filearea(), $file->get_itemid(), $file->get_filepath(), $file->get_filename())
+                ;
                 break;
             }
         }
-        return (object) array('imagename' => $imagename, 'imagepath' => $imagepath);
+        return (object)array('imagename' => $imagename, 'imagepath' => $imagepath);
     }
+
     /**
      * Create a temporary directory and return its path.
      * @return path to tempdir.
@@ -569,6 +582,7 @@ class lib {
         }
         return $dir;
     }
+
     /**
      * Returns a list of courses from a user
      * Note: teacher is identified by capability 'moodle/course:update'
@@ -585,14 +599,16 @@ class lib {
             return $courses;
         } else {
             $ids = array_keys($courses);
-            foreach($ids AS $id) {
+            foreach ($ids as $id) {
                 $context = \context_course::instance($id);
                 $canedit = has_capability($capability, $context);
-                if (!$canedit) unset($courses[$id]);
+                if (!$canedit)
+                    unset($courses[$id]);
             }
             return $courses;
         }
     }
+
     /**
      * Hold the path of visited packages in cache and
      * receive danube.ai-recommendations.
@@ -609,7 +625,7 @@ class lib {
             }
 
             $pathdata = array();
-            foreach ($path AS $p) {
+            foreach ($path as $p) {
                 $pathdata[] = array('page' => $p);
             }
             $data = array(
@@ -635,6 +651,7 @@ class lib {
             $response = json_decode($json_response, true);
         }
     }
+
     /**
      * Gets an existing package by its courseid.
      * @param courseid the courseid.
@@ -647,17 +664,18 @@ class lib {
         $item = $DB->get_record('block_edupublisher_packages', array('course' => $courseid), '*', $strictness);
         if (!empty($item->id)) {
             return new \block_edupublisher\package($item->id);
-        } else if($createifmissing) {
+        } else if ($createifmissing) {
             $package = self::get_package_from_course($courseid);
             $package->store_package((object)[]);
             return $package;
         }
     }
+
     /**
      * Creates an empty package and fills with data from course.
      * This is used when we create a new package.
-    **/
-    public static function get_package_from_course($courseid){
+     **/
+    public static function get_package_from_course($courseid) {
         global $DB, $USER;
         $package = new \block_edupublisher\package(0);
         $course = \get_course($courseid);
@@ -671,6 +689,7 @@ class lib {
 
         return $package;
     }
+
     /**
      * Load all roles of a user in a context and check if it contains a given roleid.
      * @param context the context to check.
@@ -679,28 +698,34 @@ class lib {
      */
     public static function has_role($context, $roleid, $userorid = null) {
         global $USER;
-        if (is_object($userorid)) $userid = $userorid->id;
-        elseif (is_numeric($userorid)) $userid = $userorid;
+        if (is_object($userorid))
+            $userid = $userorid->id;
+        elseif (is_numeric($userorid))
+            $userid = $userorid;
         else $userid = $USER->id;
         $roles = \get_user_roles($context, $userid);
         foreach ($roles as $role) {
-            if ($role->roleid == $roleid) return true;
+            if ($role->roleid == $roleid)
+                return true;
         }
         return false;
     }
+
     /**
      * @return true if user is sysadmin
-    **/
+     **/
     public static function is_admin() {
         $sysctx = \context_system::instance();
         return has_capability('moodle/site:config', $sysctx);
     }
+
     /**
      * @param (optional) array of channels we want to check
      * @return true if user is a maintainer
-    **/
+     **/
     public static function is_maintainer($channels = array()) {
-        if (\block_edupublisher\lib::is_admin()) return true;
+        if (\block_edupublisher\lib::is_admin())
+            return true;
 
         $category = get_config('block_edupublisher', 'category');
         $context = \context_coursecat::instance($category);
@@ -711,18 +736,23 @@ class lib {
         if (count($channels) == 0) {
             return $maintainer_default || $maintainer_etapas || $maintainer_eduthek;
         }
-        if (in_array('default', $channels) && $maintainer_default) return true;
-        if (in_array('etapas', $channels) && $maintainer_etapas) return true;
-        if (in_array('eduthek', $channels) && $maintainer_eduthek) return true;
+        if (in_array('default', $channels) && $maintainer_default)
+            return true;
+        if (in_array('etapas', $channels) && $maintainer_etapas)
+            return true;
+        if (in_array('eduthek', $channels) && $maintainer_eduthek)
+            return true;
         return false;
     }
+
     /**
      * Indicates if the current user is acting as a publisher for commercial content.
      * @param publisherid (optional) if user is co-worker of a specific publisher.
      * @return true if is publisher or site-admin.
      */
     public static function is_publisher($publisherid = 0) {
-        if (\block_edupublisher\lib::is_admin()) return true;
+        if (\block_edupublisher\lib::is_admin())
+            return true;
         global $DB, $USER;
         if (empty($publisherid)) {
             $chk = $DB->get_record('block_edupublisher_pub_user', array('userid' => $USER->id));
@@ -731,15 +761,18 @@ class lib {
         }
         return (!empty($chk->id) && $chk->id > 0);
     }
+
     /**
      * Log that a user visited a course-page of a package.
      * @param packageid that is visited.
      * @param action String, either 'viewed', 'enrolled', 'unenrolled' or 'cloned'
      */
     public static function log_user_visit($packageid, $action) {
-        if (empty($packageid)) return;
+        if (empty($packageid))
+            return;
         // Ensure the action is a valid value.
-        if (!in_array($action, array('viewed', 'enrolled', 'unenrolled', 'cloned'))) return;
+        if (!in_array($action, array('viewed', 'enrolled', 'unenrolled', 'cloned')))
+            return;
 
         global $DB, $USER;
         // The viewed action is only logged if it does not double the last entry.
@@ -754,7 +787,8 @@ class lib {
                         ORDER BY id DESC
                         LIMIT 0,1";
             $lastrecord = $DB->get_record_sql($sql, array($USER->id));
-            if (!empty($lastrecord->packageid) && $lastrecord->packageid == $packageid) return;
+            if (!empty($lastrecord->packageid) && $lastrecord->packageid == $packageid)
+                return;
         }
 
         // Log this event now.
@@ -766,31 +800,32 @@ class lib {
         );
         $DB->insert_record('block_edupublisher_log', $data);
     }
+
     /**
      * Notifies maintainers of a specific channel about changes.
      * @param channel array of channels to select the maintainers for notification, if not set or empty use autodetection.
-    **/
+     **/
     public function notify_maintainers($channels = array()) {
         global $CFG, $OUTPUT;
         if (count($channels) == 0) {
             if (!empty($this->get('publishas', 'etapas'))
-                    &&
-                    !empty($this->get('ltisecret', 'etapas'))
-                    &&
-                    empty($this->get('active', 'etapas'))
-                ) {
+                &&
+                !empty($this->get('ltisecret', 'etapas'))
+                &&
+                empty($this->get('active', 'etapas'))
+            ) {
                 $channels[] = 'etapas';
             }
             if (!empty($this->get('publishas', 'eduthek'))
-                    &&
-                    !empty($this->get('ltisecret', 'eduthek'))
-                    &&
-                    empty($this->get('active', 'eduthek'))
-                ) {
+                &&
+                !empty($this->get('ltisecret', 'eduthek'))
+                &&
+                empty($this->get('active', 'eduthek'))
+            ) {
                 $channels[] = 'eduthek';
             }
             // Nobody would be responsible for this item. Fall back to default maintainers.
-            if (count($channels) == 0 && empty($this->get('active','default'))) {
+            if (count($channels) == 0 && empty($this->get('active', 'default'))) {
                 $channels[] = 'default';
             }
         }
@@ -798,30 +833,32 @@ class lib {
         // Prepare e-Mail
         $fromuser = \core_user::get_support_user();
         $possiblechannels = array('default', 'eduthek', 'etapas');
-        foreach($channels AS $channel) {
-            if (!in_array($channel, $possiblechannels)) continue;
+        foreach ($channels as $channel) {
+            if (!in_array($channel, $possiblechannels))
+                continue;
 
             $this->_wwwroot = $CFG->wwwroot;
             $messagehtml = $OUTPUT->render_from_template(
                 'block_edupublisher/package_' . $channel . '_notify',
                 $this->metadata
             );
-            $subject = get_string($channel . '__mailsubject' , 'block_edupublisher');
+            $subject = get_string($channel . '__mailsubject', 'block_edupublisher');
             $messagehtml = enhance_mail_body($subject, $messagehtml);
             $messagetext = html_to_text($messagehtml);
             $category = get_config('block_edupublisher', 'category');
             $context = \context_coursecat::instance($category);
             $recipients = get_users_by_capability($context, 'block/edupublisher:manage' . $channel, '', '', '', 10);
-            foreach($recipients AS $recipient) {
+            foreach ($recipients as $recipient) {
                 email_to_user($recipient, $fromuser, $subject, $messagetext, $messagehtml, "", true);
             }
         }
     }
+
     /**
      * Sets the capabilities of a course to allow course imports.
      * @param courseid.
      * @param trigger true if we enable the package, false if we disable it.
-    **/
+     **/
     public static function package_setcaps($courseid, $trigger) {
         global $DB, $USER;
 
@@ -843,6 +880,7 @@ class lib {
             \role_change_permission($roles[$a], $contexts[$a], $capabilities[$a], $permission);
         }
     }
+
     /**
      * Checks if a package has a coursebackup and extracts to backuptempdir for restore.
      * @param package
@@ -883,6 +921,7 @@ class lib {
 
         return 'edupublisher' . $package->get('id');
     }
+
     /**
      * Grants or revokes a role from a course.
      * @param courseids array with courseids
@@ -892,26 +931,30 @@ class lib {
     public static function role_set($courseids, $userids, $role) {
         global $CFG, $DB;
         require_once("$CFG->dirroot/enrol/manual/lib.php");
-        if ($role == 'defaultroleteacher') $role = get_config('block_edupublisher', 'defaultroleteacher');
-        if ($role == 'defaultrolestudent') $role = get_config('block_edupublisher', 'defaultrolestudent');
-        if (empty($role)) return;
+        if ($role == 'defaultroleteacher')
+            $role = get_config('block_edupublisher', 'defaultroleteacher');
+        if ($role == 'defaultrolestudent')
+            $role = get_config('block_edupublisher', 'defaultrolestudent');
+        if (empty($role))
+            return;
 
         $enrol = enrol_get_plugin('manual');
         if (empty($enrol)) {
             return false;
         }
-        foreach ($courseids AS $courseid) {
+        foreach ($courseids as $courseid) {
             // Check if course exists.
             $course = get_course($courseid);
-            if (empty($course->id)) continue;
+            if (empty($course->id))
+                continue;
             // Check manual enrolment plugin instance is enabled/exist.
             $instance = null;
             $enrolinstances = enrol_get_instances($courseid, false);
             foreach ($enrolinstances as $courseenrolinstance) {
-              if ($courseenrolinstance->enrol == "manual") {
-                  $instance = $courseenrolinstance;
-                  break;
-              }
+                if ($courseenrolinstance->enrol == "manual") {
+                    $instance = $courseenrolinstance;
+                    break;
+                }
             }
             if (empty($instance)) {
                 // We have to add a "manual-enrolment"-instance
@@ -921,7 +964,7 @@ class lib {
                     'enrolperiod' => 0,
                     'expirynotify' => 0,
                     'expirytreshold' => 0,
-                    'notifyall' => 0
+                    'notifyall' => 0,
                 );
                 $emp = new enrol_manual_plugin();
                 $instance = $emp->add_instance($course, $fields);
@@ -933,7 +976,7 @@ class lib {
                 $emp->update_instance($instance, $data);
                 $instance->status = $data->status;
             }
-            foreach ($userids AS $userid) {
+            foreach ($userids as $userid) {
                 if ($role == -1) {
                     $enrol->unenrol_user($instance, $userid);
                 } else {
@@ -942,6 +985,7 @@ class lib {
             }
         }
     }
+
     /**
      * Enables or disables guest access to a course.
      * @param courseid the course id
@@ -963,11 +1007,13 @@ class lib {
             require_once($CFG->dirroot . '/lib/enrollib.php');
             $instances = \enrol_get_instances($courseid, false);
             foreach ($instances as $instance) {
-                if ($instance->enrol != 'guest') continue;
+                if ($instance->enrol != 'guest')
+                    continue;
                 $gp->delete_instance($instance);
             }
         }
     }
+
     /**
      * Gets the user picture and returns it as base64 encoded string.
      * @param userid
@@ -987,11 +1033,12 @@ class lib {
         }
         return '';
     }
+
     /**
      * Checks whether or not local_eduvidual is installed
      * @return true or false
-    **/
-    public static function uses_eduvidual(){
+     **/
+    public static function uses_eduvidual() {
         global $CFG;
         return file_exists($CFG->dirroot . '/local/eduvidual/version.php');
     }

@@ -31,10 +31,10 @@ $events = array(
     '\core\event\course_updated',
 
 );
-foreach ($events AS $event) {
+foreach ($events as $event) {
     $observers[] = array(
-            'eventname' => $event,
-            'callback' => '\block_edupublisher\observer::coursechanged',
-            'priority' => 9999,
-        );
+        'eventname' => $event,
+        'callback' => '\block_edupublisher\observer::coursechanged',
+        'priority' => 9999,
+    );
 }

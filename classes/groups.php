@@ -29,7 +29,7 @@ class groups {
     /**
      * Add required settings to admin settings page.
      * @param settings the node settings are attached to.
-    **/
+     **/
     public static function admin_settings_page($settings) {
         global $ADMIN, $DB;
         if (empty($ADMIN) || !$ADMIN->fulltree) {
@@ -37,7 +37,7 @@ class groups {
         }
 
         $heading = get_string('groups:settings', 'block_edupublisher');
-        $text    = get_string('groups:settings:description', 'block_edupublisher');
+        $text = get_string('groups:settings:description', 'block_edupublisher');
         $settings->add(new \admin_setting_heading('block_edupublisher_groups', '', "<h3>$heading</h3><p>$text</p>"));
 
         $settings->add(
@@ -66,7 +66,7 @@ class groups {
                 ORDER BY r.name ASC";
         $roles = $DB->get_records_sql($sql, []);
         $options = array();
-        foreach($roles AS $role) {
+        foreach ($roles as $role) {
             $options[$role->id] = (!empty($role->name) ? $role->name : $role->shortname);
         }
 

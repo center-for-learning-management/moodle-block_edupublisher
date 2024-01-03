@@ -52,10 +52,11 @@ if (empty($publisherid)) {
     } else {
         $allpublishers = $DB->get_records_sql('SELECT ep.* FROM {block_edupublisher_pub} ep, {block_edupublisher_pub_user} epu WHERE ep.id=epu.publisherid AND epu.userid=? ORDER BY name ASC', array($USER->id));
     }
-    foreach($allpublishers AS $publisher) {
+    foreach ($allpublishers as $publisher) {
         if (\block_edupublisher\lib::is_admin()) {
             $chk = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisher->id, 'userid' => $USER->id));
-            if (!$chk) $publisher->name = '! ' . $publisher->name;
+            if (!$chk)
+                $publisher->name = '! ' . $publisher->name;
         }
         $options[] = array('id' => $publisher->id, 'name' => $publisher->name);
     }
@@ -68,13 +69,13 @@ if (empty($publisherid)) {
     );
 } elseif (\block_edupublisher\lib::is_maintainer(array('commercial')) || $publisher->is_coworker) {
     $action = optional_param('action', '', PARAM_TEXT);
-    $data = (object) array(
+    $data = (object)array(
         'action' => $action,
         'amounts' => optional_param('amounts', 0, PARAM_INT),
         'confirmed' => optional_param('confirmed', 0, PARAM_INT),
         'failed' => array(),
         'licencekeys' => optional_param('licencekeys', '', PARAM_TEXT),
-        'maturity' => time() + 60*60*24*365*7, // 7 years in future. @todo: make it customizable.
+        'maturity' => time() + 60 * 60 * 24 * 365 * 7, // 7 years in future. @todo: make it customizable.
         'publisherid' => $publisherid,
         'target' => optional_param('target', 0, PARAM_INT),
         'type' => optional_param('type', 0, PARAM_INT),
@@ -92,7 +93,7 @@ if (empty($publisherid)) {
                       ORDER BY p.title ASC";
             $allpackages = $DB->get_records_sql($sql, array('commercial_publisher', $publisherid));
             $data->packages = array();
-            foreach ($allpackages AS $package) {
+            foreach ($allpackages as $package) {
                 $package = new \block_edupublisher\package($package->id, true);
                 $package->_isselected = (!empty($data->selectedpackages[$package->id]));
                 $package->{'type_' . $data->type} = 1;
@@ -116,7 +117,7 @@ if (empty($publisherid)) {
             if ($data->step == 2 && !empty($data->licencekeys)) {
                 $data->step = 3;
                 $keys = explode(' ', $data->licencekeys);
-                foreach ($keys AS $key) {
+                foreach ($keys as $key) {
                     $chk = $DB->get_record('block_edupublisher_lic', array('licencekey' => $key), 'id', IGNORE_MISSING);
                     if (!empty($chk->id)) {
                         $data->failed[] = $key;
@@ -127,7 +128,7 @@ if (empty($publisherid)) {
                 // We really insert the licences.
                 $data->_licencekeys = explode(' ', $data->licencekeys);
                 $data->licenceids = array();
-                foreach ($data->_licencekeys AS $key) {
+                foreach ($data->_licencekeys as $key) {
                     $data->created = time();
                     $data->redeemid = 0;
                     $data->userid = $USER->id;
@@ -137,7 +138,7 @@ if (empty($publisherid)) {
 
                     if (!empty($licenceid)) {
                         $packageids = array_keys($data->selectedpackages);
-                        foreach ($packageids AS $packageid) {
+                        foreach ($packageids as $packageid) {
                             $obj = array(
                                 'active' => 1,
                                 'amounts' => $data->amounts,
@@ -164,13 +165,13 @@ if (empty($publisherid)) {
                 'block_edupublisher/licence_generate_' . $data->step,
                 $data
             );
-        break;
+            break;
         case 'list':
             require_once($CFG->dirroot . '/blocks/edupublisher/classes/licence_list_form.php');
             $form = new block_edupublisher\licence_list_form('licence_download.php');
             $form->set_data($data);
             $form->display();
-        break;
+            break;
         default:
             echo $OUTPUT->render_from_template(
                 'block_edupublisher/licence_dashboard',
@@ -180,7 +181,7 @@ if (empty($publisherid)) {
 } else {
     echo $OUTPUT->render_from_template(
         'block_edupublisher/alert',
-        (object) array(
+        (object)array(
             'content' => get_string('permission_denied', 'block_edupublisher'),
             'url' => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->id,
             'type' => 'danger',

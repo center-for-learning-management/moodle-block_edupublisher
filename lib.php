@@ -72,16 +72,17 @@ function block_edupublisher_before_standard_html_head() {
  * @param array $options additional options affecting the file serving
  * @return bool false if the file not found, just send the file otherwise and do not return anything
  */
-function block_edupublisher_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options=array()) {
+function block_edupublisher_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, array $options = array()) {
     global $CFG;
     require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
     $definition = \block_edupublisher\lib::get_channel_definition();
     $areas = array('publisher_logo');
     $channels = array_keys($definition);
-    foreach($channels AS $channel) {
+    foreach ($channels as $channel) {
         $fields = array_keys($definition[$channel]);
-        foreach($fields AS $field) {
-            if ($definition[$channel][$field]['type'] == 'filemanager') $areas[] = $channel . '_' . $field;
+        foreach ($fields as $field) {
+            if ($definition[$channel][$field]['type'] == 'filemanager')
+                $areas[] = $channel . '_' . $field;
         }
     }
 
@@ -120,7 +121,7 @@ function block_edupublisher_pluginfile($course, $cm, $context, $filearea, $args,
     if (!$args) {
         $filepath = '/'; // $args is empty => the path is '/'
     } else {
-        $filepath = '/'.implode('/', $args).'/'; // $args contains elements of the filepath
+        $filepath = '/' . implode('/', $args) . '/'; // $args contains elements of the filepath
     }
 
     // Retrieve the file from the Files API.

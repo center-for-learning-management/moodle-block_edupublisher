@@ -29,7 +29,7 @@ class block_edupublisher_external extends external_api {
     public static function group_rename_parameters() {
         return new external_function_parameters(array(
             'groupid' => new external_value(PARAM_INT, 'the groupid'),
-            'name'    => new external_value(PARAM_TEXT, 'the new name'),
+            'name' => new external_value(PARAM_TEXT, 'the new name'),
         ));
     }
 
@@ -40,7 +40,7 @@ class block_edupublisher_external extends external_api {
     public static function group_rename($groupid, $name) {
         $params = self::validate_parameters(
             self::group_rename_parameters(),
-            [ 'groupid' => $groupid, 'name' => $name ]
+            ['groupid' => $groupid, 'name' => $name]
         );
 
         $result = (object)[];
@@ -66,6 +66,7 @@ class block_edupublisher_external extends external_api {
 
         return json_encode($result);
     }
+
     /**
      * Return definition.
      * @return external_value
@@ -93,7 +94,7 @@ class block_edupublisher_external extends external_api {
         $package = new \block_edupublisher\package($params['packageid']);
         if (!empty($package->get('publishas', 'commercial'))) {
             // The licence must allow us to import into certain courses.
-            foreach ($courses AS $courseid => $course) {
+            foreach ($courses as $courseid => $course) {
                 $orgid = 0;
 
                 if (\block_edupublisher\lib::uses_eduvidual()) {
@@ -127,11 +128,12 @@ class block_edupublisher_external extends external_api {
 
         // Re-sort by name.
         $_courses = array();
-        foreach ($courses AS $course) {
+        foreach ($courses as $course) {
             $_courses[$course->fullname . '_' . $course->id] = $course;
         }
         return json_encode(array('courses' => array_reverse(array_values($_courses))));
     }
+
     /**
      * Return definition.
      * @return external_value
@@ -166,6 +168,7 @@ class block_edupublisher_external extends external_api {
             return json_encode(array('error' => 'no permission'));
         }
     }
+
     /**
      * Return definition.
      * @return external_value
@@ -173,6 +176,7 @@ class block_edupublisher_external extends external_api {
     public static function init_import_load_sections_returns() {
         return new external_value(PARAM_RAW, 'All sections as JSON-string');
     }
+
     /**
      * Returns description of method parameters
      * @return external_function_parameters
@@ -194,17 +198,19 @@ class block_edupublisher_external extends external_api {
         if (\block_edupublisher\lib::is_admin() || \block_edupublisher\lib::is_publisher($params['publisherid'])) {
             $licencekeys = array();
             $pre = $params['publisherid'];
-            while(count($licencekeys) < $params['amount']) {
+            while (count($licencekeys) < $params['amount']) {
                 $code = substr(md5(rand(0, 9999) . time()), 0, 10);
                 $licencekey = $pre . '-' . $code;
                 $chk = $DB->get_record('block_edupublisher_lic', array('licencekey' => $licencekey));
-                if (!$chk) $licencekeys[] = $licencekey;
+                if (!$chk)
+                    $licencekeys[] = $licencekey;
             }
             return implode(' ', $licencekeys);
         } else {
             return json_encode(array('error' => 'no permission'));
         }
     }
+
     /**
      * Return definition.
      * @return external_value
@@ -239,7 +245,7 @@ class block_edupublisher_external extends external_api {
                 $licencekeys = explode(' ', $params['licencekeys']);
                 $createdkeys = array();
                 $failedkeys = array();
-                foreach ($licencekeys AS $licencekey) {
+                foreach ($licencekeys as $licencekey) {
                     $chk = $DB->get_record('block_edupublisher_lic', array('licencekey' => $licencekey));
                     if (!$chk) {
                         $DB->insert_record('block_edupublisher_lic', array(
@@ -247,17 +253,18 @@ class block_edupublisher_external extends external_api {
                             'userid' => $USER->id,
                             'licencekey' => $licencekey,
                             'type' => $params['type'],
-                            'amount' => $params['amount']
+                            'amount' => $params['amount'],
                         ));
                     }
                 }
                 $licencekeys = array();
                 $pre = substr(md5($params['publisherid']), 0, 10);
-                while(count($licencekeys) < $params['amount']) {
+                while (count($licencekeys) < $params['amount']) {
                     $code = substr(md5(rand(0, 9999) . time()), 0, 10);
                     $licencekey = $pre . '-' . $code;
                     $chk = $DB->get_record('block_edupublisher_lic', array('licencekey' => $licencekey));
-                    if (!$chk) $licencekeys[] = $licencekey;
+                    if (!$chk)
+                        $licencekeys[] = $licencekey;
                 }
                 return implode(' ', $licencekeys);
             } else {
@@ -267,6 +274,7 @@ class block_edupublisher_external extends external_api {
             return json_encode(array('error' => 'no permission'));
         }
     }
+
     /**
      * Return definition.
      * @return external_value
@@ -299,6 +307,7 @@ class block_edupublisher_external extends external_api {
             return json_encode(array('error' => 'no permission'));
         }
     }
+
     /**
      * Return definition.
      * @return external_value
@@ -306,6 +315,7 @@ class block_edupublisher_external extends external_api {
     public static function licence_list_returns() {
         return new external_value(PARAM_RAW, 'All licencekeys as JSON-string');
     }
+
     /**
      * Returns description of method parameters
      * @return external_function_parameters
@@ -316,6 +326,7 @@ class block_edupublisher_external extends external_api {
             'targetid' => new external_value(PARAM_INT, 'target id'),
         ));
     }
+
     /**
      * Redeem a licence.
      * @param licencekey
@@ -333,7 +344,7 @@ class block_edupublisher_external extends external_api {
         } elseif (!empty($lic->redeemid)) {
             $result['heading'] = get_string('error');
             $result['error'] = get_string('licence_already_redeemed', 'block_edupublisher');
-        } elseif($params['targetid'] > 0) {
+        } elseif ($params['targetid'] > 0) {
             $lic->redeemid = $params['targetid'];
             $DB->update_record('block_edupublisher_lic', $lic);
             $result['heading'] = get_string('success');
@@ -344,37 +355,38 @@ class block_edupublisher_external extends external_api {
                 case 1: // org, only in use for local_eduvidual
                     $result['heading'] = get_string('licence_target_org', 'block_edupublisher');
                     $orgs = \local_eduvidual\locallib::get_organisations('teacher');
-                    foreach ($orgs AS $org) {
+                    foreach ($orgs as $org) {
                         $result['options'][] = array(
                             'id' => $org->orgid,
-                            'name' => $org->orgid . ': ' . $org->name
+                            'name' => $org->orgid . ': ' . $org->name,
                         );
                     }
-                break;
+                    break;
                 case 2: // course
                     $result['heading'] = get_string('licence_target_course', 'block_edupublisher');
                     $courses = enrol_get_all_users_courses($USER->id, true);
-                    foreach ($courses AS $course) {
+                    foreach ($courses as $course) {
                         $context = context_course::instance($course->id);
                         if (has_capability('moodle/course:update', $context)) {
                             $result['options'][] = array(
                                 'id' => $course->id,
-                                'name' => $course->fullname
+                                'name' => $course->fullname,
                             );
                         }
                     }
-                break;
+                    break;
                 case 3: // user
                     $result['heading'] = get_string('licence_target_user', 'block_edupublisher');
                     $result['options'][] = array(
                         'id' => $USER->id,
-                        'name' => fullname($USER)
+                        'name' => fullname($USER),
                     );
-                break;
+                    break;
             }
         }
         return json_encode($result, JSON_NUMERIC_CHECK);
     }
+
     /**
      * Return definition.
      * @return external_value
@@ -382,13 +394,14 @@ class block_edupublisher_external extends external_api {
     public static function licence_redeem_returns() {
         return new external_value(PARAM_RAW, 'JSON encoded data for licencekey or success for redeem.');
     }
+
     /**
      * Returns description of method parameters
      * @return external_function_parameters
      */
     public static function list_parameters() {
         return new external_function_parameters(array(
-            'channel' => new external_value(PARAM_INT, 'Channel to generate list, 0 for all')
+            'channel' => new external_value(PARAM_INT, 'Channel to generate list, 0 for all'),
         ));
     }
 
@@ -404,6 +417,7 @@ class block_edupublisher_external extends external_api {
         */
         return null;
     }
+
     /**
      * Returns description of method result value
      * @return external_description
@@ -418,6 +432,7 @@ class block_edupublisher_external extends external_api {
             'to' => new external_value(PARAM_INT, 'Value to set to'),
         ));
     }
+
     public static function rate($packageid, $to) {
         $params = self::validate_parameters(self::rate_parameters(), array('packageid' => $packageid, 'to' => $to));
         // Store rating if we are permitted to.
@@ -436,7 +451,7 @@ class block_edupublisher_external extends external_api {
                     $DB->update_record('block_edupublisher_rating', $rating);
                 }
             } else {
-                $rating = (object) array(
+                $rating = (object)array(
                     'userid' => $USER->id,
                     'package' => $package->get('id'),
                     'rating' => $params['to'],
@@ -450,9 +465,9 @@ class block_edupublisher_external extends external_api {
         $sql = "SELECT AVG(rating) avg, COUNT(rating) cnt
                     FROM {block_edupublisher_rating}
                     WHERE package=?";
-        $average = $DB->get_records_sql($sql, [ $params['packageid'] ]);
+        $average = $DB->get_records_sql($sql, [$params['packageid']]);
         $avg = -1;
-        foreach($average AS $average) {
+        foreach ($average as $average) {
             $avg = $average->avg;
             $cnt = $average->cnt;
             break;
@@ -461,9 +476,10 @@ class block_edupublisher_external extends external_api {
         return [
             'average' => intval($avg),
             'amount' => intval($cnt),
-            'current' => intval(($rating && $rating->id > 0) ? $rating->rating : -1)
+            'current' => intval(($rating && $rating->id > 0) ? $rating->rating : -1),
         ];
     }
+
     public static function rate_returns() {
         return new external_single_structure(
             array(
@@ -473,6 +489,7 @@ class block_edupublisher_external extends external_api {
             )
         );
     }
+
     /**
      * Returns description of method parameters
      * @return external_function_parameters
@@ -502,7 +519,7 @@ class block_edupublisher_external extends external_api {
                 'search' => $search,
                 'schoollevels' => $schoollevels,
                 'subjectareas' => $subjectareas,
-                'stars' => $stars
+                'stars' => $stars,
             )
         );
 
@@ -532,7 +549,8 @@ class block_edupublisher_external extends external_api {
 
         $filters_stars = [];
         foreach ($params['stars'] as $star) {
-            if ($star == -1) $star = 0;
+            if ($star == -1)
+                $star = 0;
             $filters_stars[] = "p.rating=$star";
         }
 
@@ -552,19 +570,25 @@ class block_edupublisher_external extends external_api {
                 $filters_search_sub = [];
                 foreach ($channels as $channel => $fields) {
                     $table = '';
-                    if ($channel == 'default') $table = 'mdef';
-                    if ($channel == 'eduthek') $table = 'medu';
-                    if ($channel == 'etapas') $table = 'meta';
-                    if (empty($table)) continue; // unsupported channel.
+                    if ($channel == 'default')
+                        $table = 'mdef';
+                    if ($channel == 'eduthek')
+                        $table = 'medu';
+                    if ($channel == 'etapas')
+                        $table = 'meta';
+                    if (empty($table))
+                        continue; // unsupported channel.
 
                     foreach ($fields as $field => $fieldparams) {
                         if (empty($fieldparams['searchable'])) {
                             continue;
                         }
                         // Certain fields have own filters.
-                        if ($channel == 'default' && in_array($field, ['schoollevels', 'subjectareas'])) continue;
+                        if ($channel == 'default' && in_array($field, ['schoollevels', 'subjectareas']))
+                            continue;
                         // Only search in text-fields.
-                        if (!in_array($fieldparams['datatype'], [ PARAM_TEXT ])) continue;
+                        if (!in_array($fieldparams['datatype'], [PARAM_TEXT]))
+                            continue;
                         if (!empty($fieldparams['multiple']) && !empty($fieldparams['options'])) {
                             foreach ($fieldparams['options'] as $option) {
                                 $filters_search_sub[] = "{$table}.{$field}_{$option} LIKE '%$s%'";
@@ -610,7 +634,7 @@ class block_edupublisher_external extends external_api {
         $show_star_rating = \block_edupublisher\lib::show_star_rating();
 
         for ($a = 0; $a < count($reply['packages']); $a++) {
-            $package = new \block_edupublisher\package($reply['packages'][$a]->id, true, [ 'internal', 'rating' ]);
+            $package = new \block_edupublisher\package($reply['packages'][$a]->id, true, ['internal', 'rating']);
             $data = $package->get_flattened();
 
             if (!$show_star_rating) {
@@ -627,6 +651,7 @@ class block_edupublisher_external extends external_api {
         }
         return json_encode($reply, JSON_NUMERIC_CHECK);
     }
+
     /**
      * Return definition.
      * @return external_value
@@ -662,7 +687,7 @@ class block_edupublisher_external extends external_api {
                 if ($params['id'] > 0) {
                     $obj = $DB->get_record('block_edupublisher_pub', array('id' => $params['id']), '*', MUST_EXIST);
                 } else {
-                    $obj = (object) array('id' => 0);
+                    $obj = (object)array('id' => 0);
                 }
                 $obj->active = $params['active'];
                 $obj->name = $params['name'];
@@ -679,6 +704,7 @@ class block_edupublisher_external extends external_api {
             return json_encode(array('error' => 'no permission'));
         }
     }
+
     /**
      * Return definition.
      * @return external_value
@@ -710,9 +736,9 @@ class block_edupublisher_external extends external_api {
             $params = self::validate_parameters(self::store_publisher_user_parameters(), array('action' => $action, 'publisherid' => $publisherid, 'userids' => $userids));
 
             $userids = explode(' ', $params['userids']);
-            switch($params['action']) {
+            switch ($params['action']) {
                 case 'add':
-                    foreach($userids AS $userid) {
+                    foreach ($userids as $userid) {
                         $user = $DB->get_record('user', array('id' => $userid), '*', IGNORE_MISSING);
                         if ($user && $user->id == $userid) {
                             $chk = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $params['publisherid'], 'userid' => $userid));
@@ -721,20 +747,20 @@ class block_edupublisher_external extends external_api {
                             }
                         }
                     }
-                break;
+                    break;
                 case 'remove':
-                    foreach($userids AS $userid) {
+                    foreach ($userids as $userid) {
                         $DB->delete_records('block_edupublisher_pub_user', array('publisherid' => $params['publisherid'], 'userid' => $userid));
                     }
-                break;
+                    break;
             }
 
             $_users = $DB->get_records_sql('SELECT u.* FROM {user} AS u, {block_edupublisher_pub_user} pu WHERE u.id=pu.userid AND pu.publisherid=? ORDER BY u.lastname ASC, u.firstname ASC', array($params['publisherid']));
             $users = array();
-            foreach($_users AS $user) {
+            foreach ($_users as $user) {
                 $users[$user->id] = array(
                     'id' => $user->id,
-                    'fullname' => $user->lastname . ' ' . $user->firstname . ' (' . $user->email . ')'
+                    'fullname' => $user->lastname . ' ' . $user->firstname . ' (' . $user->email . ')',
                 );
             }
             return json_encode($users, JSON_NUMERIC_CHECK);
@@ -742,6 +768,7 @@ class block_edupublisher_external extends external_api {
             return json_encode(array('error' => 'no permission'));
         }
     }
+
     /**
      * Return definition.
      * @return external_value
@@ -757,6 +784,7 @@ class block_edupublisher_external extends external_api {
             'to' => new external_value(PARAM_INT, 'Value to set to'),
         ));
     }
+
     public static function trigger_active($packageid, $type, $to) {
         global $CFG, $DB, $USER;
         $params = self::validate_parameters(
@@ -764,7 +792,7 @@ class block_edupublisher_external extends external_api {
             array(
                 'packageid' => $packageid,
                 'type' => $type,
-                'to' => $to
+                'to' => $to,
             )
         );
         $package = new \block_edupublisher\package($params['packageid'], true);
@@ -779,7 +807,7 @@ class block_edupublisher_external extends external_api {
                 if ($published > 0) {
                     // If any channel gets activated, also activate default
                     $package->set($published, 'published', 'default');
-                } else if(empty($package->get('published', 'eduthek')) && empty($package->get('published', 'etapas'))) {
+                } else if (empty($package->get('published', 'eduthek')) && empty($package->get('published', 'etapas'))) {
                     // If last gets deactivated, also deactivate default
                     $package->set(0, 'published', 'default');
                 }
@@ -802,7 +830,7 @@ class block_edupublisher_external extends external_api {
 
             $published = $package->get('published', 'etapas');
             if (!empty($published)) {
-                $evaluation = $DB->get_record('block_edupublisher_evaluatio', [ 'packageid' => $package->get('id')]);
+                $evaluation = $DB->get_record('block_edupublisher_evaluatio', ['packageid' => $package->get('id')]);
                 if (!empty($evaluation->id)) {
                     $package->set('eval', 'status', 'etapas');
                 } else {
@@ -835,6 +863,7 @@ class block_edupublisher_external extends external_api {
 
         return json_encode($statusses);
     }
+
     public static function trigger_active_returns() {
         return new external_value(PARAM_RAW, 'Returns current state of all types as json encoded object.');
     }
