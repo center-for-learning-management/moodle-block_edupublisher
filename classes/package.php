@@ -76,7 +76,7 @@ class package {
                         continue;
                     foreach ($cr as $field => $value) {
                         $this->set($value, $field, $channel);
-                        if (preg_match('/<\s?[^\>]*\/?\s?>/i', $value)) {
+                        if (preg_match('/<\s?[^\>]*\/?\s?>/i', $value ?? '')) {
                             $this->set(strip_tags($value), "$field:stripped", $channel);
                         }
                     }
@@ -138,8 +138,8 @@ class package {
             $this->set($ratingown, 'ratingown');
             $ratings = $DB->get_records_sql('SELECT AVG(rating) avg,COUNT(rating) cnt FROM {block_edupublisher_rating} WHERE package=?', array($this->get('id')));
             foreach ($ratings as $rating) {
-                $this->set(round($rating->avg), 'ratingaverage');
-                $this->set(intval($rating->cnt), 'ratingcount');
+                $this->set(round($rating->avg ?? 0), 'ratingaverage');
+                $this->set(intval($rating->cnt ?? 0), 'ratingcount');
             }
             $ratingselection = [];
             $max = 5;
@@ -159,7 +159,7 @@ class package {
         foreach ($channels as $channel => $fields) {
             foreach ($fields as $field => $fieldparams) {
                 if (!empty($fieldparams['multiple']) && empty($fieldparams['splitcols'])) {
-                    $this->set(explode(self::ARRAY_DELIMITER, $this->get($field, $channel)), $field, $channel);
+                    $this->set(explode(self::ARRAY_DELIMITER, $this->get($field, $channel) ?? ''), $field, $channel);
                 }
             }
         }
