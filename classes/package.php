@@ -853,11 +853,6 @@ class package {
         }
         $this->set(',' . implode(',', $_channels) . ',', 'channels');
 
-        $wordpressaction = 'updated';
-        if (empty($this->get('id'))) {
-            $wordpressaction = 'created';
-        }
-
         $this->exacompetencies();
 
         // Now store all data.
@@ -995,8 +990,6 @@ class package {
         $DB->update_record('course', $course);
         rebuild_course_cache($course->id, true);
         $this->store_package_db();
-
-        \block_edupublisher\wordpress::action($wordpressaction, $this);
     }
 
     /**

@@ -99,6 +99,5 @@ if ($hassiteconfig) {
         );
 
         \block_edupublisher\groups::admin_settings_page($settings);
-        \block_edupublisher\wordpress::admin_settings_page($settings);
     }
 }

@@ -826,7 +826,6 @@ class block_edupublisher_external extends external_api {
             \rebuild_course_cache($course->id, true);
 
             \block_edupublisher\lib::toggle_guest_access($package->get('course'), $package->get('active'));
-            \block_edupublisher\wordpress::action((!empty($package->get('active')) ? 'published' : 'unpublished'), $package);
 
             $published = $package->get('published', 'etapas');
             if (!empty($published)) {

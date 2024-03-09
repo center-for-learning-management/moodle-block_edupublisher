@@ -375,63 +375,6 @@ $string['trigger_editing_permission_remove'] = 'Der/dem Autor/in Schreibrechte w
 $string['type'] = 'Typ';
 $string['votes'] = 'Stimme(n)';
 
-$string['wordpress:notification:subject_created'] = 'Das neue Lernpaket "{$a->title}" wurde erstellt!';
-$string['wordpress:notification:subject_published'] = 'Das Lernpaket "{$a->title}" wurde soeben veröffentlicht!';
-$string['wordpress:notification:subject_unpublished'] = '{$a->title} wurde inaktiv gestellt!';
-$string['wordpress:notification:subject_updated'] = '{$a->title} wurde akualisiert!';
-$string['wordpress:notification:subject_deleted'] = '{$a->title} wurde gelöscht!';
-
-$string['wordpress:notification:text_created'] = '
-    <p>Lieber Nutzer/innen,</p>
-    <p>Das neue Lernpaket mit dem Titel <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a> wurde erstellt. Wir werden es so rasch als möglich veröffentlichen!</p>
-    <p>Die Beschreibung dieses Lernpakets lautet wie folgt:</p>
-    <p>{$a->default_summary}</p>
-    <p>Mit besten Grüßen,<br />Ihr Team von {$a->moodlesitename}</p>
-    {$a->wpshortcodes}';
-$string['wordpress:notification:text_published'] = '
-    <p>Lieber Nutzer/innen,</p>
-    <p>Das Lernpaket mit dem Titel <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a> wurde soeben veröffentlicht!</p>
-    <p>Die Beschreibung dieses Lernpakets lautet wie folgt:</p>
-    <p>{$a->default_summary}</p>
-    <p>Mit besten Grüßen,<br />Ihr Team von {$a->moodlesitename}</p>
-    {$a->wpshortcodes}';
-$string['wordpress:notification:text_unpublished'] = '
-    <p>Lieber Nutzer/innen,</p>
-    <p>Das Lernpaket mit dem Titel <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a> wurde inaktiv gestellt.</p>
-    <p>Mit besten Grüßen,<br />Ihr Team von {$a->moodlesitename}</p>
-    {$a->wpshortcodes}';
-$string['wordpress:notification:text_updated'] = '
-    <p>Lieber Nutzer/innen,</p>
-    <p>Das Lernpaket <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a> wurde aktualisiert.</p>
-    <p>Mit besten Grüßen,<br />Ihr Team von {$a->moodlesitename}</p>
-    {$a->wpshortcodes}';
-$string['wordpress:notification:text_deleted'] = '
-    <p>Lieber Nutzer/innen,</p>
-    <p>Leider mussten wir das Lernpaket <a href="{$a->moodlecourseurl}" target="_blank">{$a->title}</a> entfernen.</p>
-    <p>Mit besten Grüßen,<br />Ihr Team von {$a->moodlesitename}</p>
-    {$a->wpshortcodes}';
-
-$string['wordpress:settings'] = 'Wordpress settings';
-$string['wordpress:settings:description'] = 'For each kind of action, you can set a particular e-mail address to which a notification will be sent. If it is empty, no e-mail will be send whatsover. Also, for each kind of action you can customize shortcodes. Shortcodes can be used to customize how wordpress handles your posts. Please refer to the following <a href="https://wordpress.com/support/post-by-email/" target="_blank">page</a>.';
-$string['wordpress:settings:email'] = 'E-Mail';
-$string['wordpress:settings:postifcreated'] = 'Post if created';
-$string['wordpress:settings:postifpublished'] = 'Post if published';
-$string['wordpress:settings:postifunpublished'] = 'Post if unpublished';
-$string['wordpress:settings:postifupdated'] = 'Post if updated';
-$string['wordpress:settings:postifdeleted'] = 'Post if deleted';
-$string['wordpress:settings:shortcodes'] = 'Shortcodes';
-
-$string['wordpress:settings'] = 'Wordpress Einstellungen';
-$string['wordpress:settings:description'] = 'Für jede Art von Aktion können Sie eine separate E-Mailadresse angeben, an die eine Benachrichtigung geschickt wird. Sofern keine E-Mailadresse angegeben wird, wird keine Benachrichtigung geschickt. Außerdem können Sie für jede Art von Aktion unterschiedliche Shortcodes eingeben. Mit Shortcodes kann gesteuert werden, wie Wordpress mit den Beiträgen umgeht. Mehr Informationen finden Sie auf der folgenden <a href="https://wordpress.com/support/post-by-email/" target="_blank">Seite</a>.';
-$string['wordpress:settings:email'] = 'E-Mail';
-$string['wordpress:settings:postifcreated'] = 'Beitrag bei Erstellung';
-$string['wordpress:settings:postifpublished'] = 'Beitrag bei Veröffentlichung';
-$string['wordpress:settings:postifunpublished'] = 'Beitrag bei Inaktivschaltung';
-$string['wordpress:settings:postifupdated'] = 'Beitrag bei Aktualisierung';
-$string['wordpress:settings:postifdeleted'] = 'Beitrag bei Löschung';
-$string['wordpress:settings:shortcodes'] = 'Shortcodes';
-
-
 $string['evaluation_by'] = 'Evaluation von {$a->fullname}';
 $string['evaluation_introtext'] = 'Bevor Sie eine Evaluation erfassen, sollten Sie das Lernpaket mit einer tatsächlichen Klasse und echten Schüler/innen ausprobiert haben. Bitte teilen Sie danach anderen Lehrer/innen mit, wie die Qualität dieser Lernressource war und welche Verbesserungen für den Lernprozess damit möglich wurden, indem Sie das folgende Evaluationsformular ausfüllen.';
 $string['evaluation_none'] = 'Bisher wurde keine Evaluation durchgeführt.';
