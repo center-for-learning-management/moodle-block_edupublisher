@@ -609,50 +609,7 @@ class lib {
         }
     }
 
-    /**
-     * Hold the path of visited packages in cache and
-     * receive danube.ai-recommendations.
-     * @param packageid that is visited.
-     */
-    public static function get_danubeai_recommendations($packageid = 0) {
-        $danubeai_apikey = get_config('block_edupublisher', 'danubeai_apikey');
-        if (!empty($danubeai_apikey)) {
-            $cache = \cache::make('block_edupublisher', 'packagepath');
-            $path = explode(',', $cache->get('path'));
-            if (!empty($packageid)) {
-                $path[] = $packageid;
-                $cache->set('path', implode(',', $path));
-            }
-
-            $pathdata = array();
-            foreach ($path as $p) {
-                $pathdata[] = array('page' => $p);
-            }
-            $data = array(
-                'query' => 'mutation ($data: RecommendationInputData!) { danubeRecommendation(data: $data) { correlatedData } }',
-                'variables' => array(
-                    'data' => array('data' => json_encode($pathdata, JSON_NUMERIC_CHECK)),
-                    'n' => 3,
-                ),
-            );
-
-            $url = "https://api.danube.ai/graphql";
-            $content = json_encode($data);
-
-            $curl = curl_init($url);
-            curl_setopt($curl, CURLOPT_HEADER, false);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($curl, CURLOPT_HTTPHEADER, array("Content-type: application/json", "apitoken: Bearer $danubeai_apikey"));
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $content);
-            $json_response = curl_exec($curl);
-            $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            curl_close($curl);
-            $response = json_decode($json_response, true);
-        }
-    }
-
-    /**
+     /**
      * Gets an existing package by its courseid.
      * @param courseid the courseid.
      * @param strictness by default MUST_EXIST

@@ -78,9 +78,6 @@ $string['commercial_validateinternal'] = 'internal: Licence must exist before im
 $string['commercial_validation'] = 'Licence validation';
 $string['commercial_validation_help'] = '<strong>External validation:</strong> Content can always be imported to courses. Learning ressources remain on an external site. Validation of licence is done on the external site.<br /><strong>Internal:</strong> Content can be imported only if a licence has been stored in eduvidual (User-, Course-, oder Schoolcontext)';
 
-$string['danubeai:apikey'] = 'Danube.ai API Key';
-$string['danubeai:apikey:description'] = 'This is the API Key for danube.ai';
-
 $string['default__mailsubject'] = 'eduPublisher-item handed in for inspection';
 $string['default_header'] = 'eduvidual';
 $string['default_authorname'] = 'Name of author';
