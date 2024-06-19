@@ -71,6 +71,7 @@ class package {
             if ($withmetadata) {
                 foreach (\block_edupublisher\lib::channels() as $channel) {
                     $short = substr($channel, 0, 3);
+                    if ($channel == 'eduthekneu') $short = 'eduneu';
                     $cr = $DB->get_record("block_edupublisher_md_$short", ['package' => $id], '*', IGNORE_MISSING);
                     if (empty($cr->id))
                         continue;
@@ -101,15 +102,18 @@ class package {
                 || $this->is_author_editing()
                 || (!empty($this->get('publishas', 'default')) && has_capability('block/edupublisher:managedefault', $context))
                 || (!empty($this->get('publishas', 'etapas')) && has_capability('block/edupublisher:manageetapas', $context))
+                || (!empty($this->get('publishas', 'eduthekneu')) && has_capability('block/edupublisher:manageeduthekneu', $context))
                 || (!empty($this->get('publishas', 'eduthek')) && has_capability('block/edupublisher:manageeduthek', $context));
             $this->set($canedit, 'canedit');
             $this->set(has_capability('block/edupublisher:managedefault', $context), 'cantriggeractive', 'default');
             $this->set(has_capability('block/edupublisher:manageeduthek', $context), 'cantriggeractive', 'eduthek');
+            $this->set(has_capability('block/edupublisher:manageeduthekneu', $context), 'cantriggeractive', 'eduthekneu');
             $this->set(has_capability('block/edupublisher:manageetapas', $context), 'cantriggeractive', 'etapas');
 
             $canmoderate =
                 $this->get('cantriggeractive', 'default')
                 || $this->get('cantriggeractive', 'eduthek')
+                || $this->get('cantriggeractive', 'eduthekneu')
                 || $this->get('cantriggeractive', 'etapas')
                 || \block_edupublisher\lib::is_admin();
             $this->set($canmoderate, 'canmoderate');
@@ -117,7 +121,7 @@ class package {
             $this->set($cantriggeractive, 'cantriggeractive');
             $canrate = ($this->get('userid') != $USER->id);
             $this->set($canrate, 'canrate');
-            $haslti = (!empty($this->get('channel', 'etapas')) || !empty($this->get('channel', 'eduthek')));
+            $haslti = (!empty($this->get('channel', 'etapas')) || !empty($this->get('channel', 'eduthek')) || !empty($this->get('channel', 'eduthekneu')));
             $this->set($haslti, 'haslti');
             if (\block_edupublisher\lib::is_admin() || $this->get('cantriggeractive', 'etapas')) {
                 $this->set(true, 'canviewuser');
@@ -183,7 +187,7 @@ class package {
             'id', 'course', 'title', 'created', 'modified', 'deleted', 'active',
             'rating', 'ratingaverage', 'ratingcount',
         ];
-        if (in_array('etapas', $includechannels)) {
+        if (in_array('etapas', $includechannels) || in_array('eduthekneu', $includechannels)) {
             $this->exacompetencies();
         }
         $flattened = $this->get_flattened(true);
@@ -376,6 +380,7 @@ class package {
             }
         }
         $this->set(nl2br(implode("\n", $exacomptitles)), 'kompetenzen', 'etapas');
+        $this->set(nl2br(implode("\n", $exacomptitles)), 'kompetenzen', 'eduthekneu');
         $this->set($exacompdatasources, 'exacompdatasources', 'default');
         $this->set($exacompsourceids, 'exacompsourceids', 'default');
         $this->set($exacomptitles, 'exacomptitles', 'default');
@@ -831,6 +836,7 @@ class package {
             $this->set($id, 'package', 'commercial');
             $this->set($id, 'package', 'default');
             $this->set($id, 'package', 'eduthek');
+            $this->set($id, 'package', 'eduthekneu');
             $this->set($id, 'package', 'etapas');
 
             $id = $DB->insert_record('block_edupublisher_md_com', $this->get_channel('commercial', true));
@@ -839,6 +845,8 @@ class package {
             $this->set($id, 'id', 'default');
             $id = $DB->insert_record('block_edupublisher_md_edu', $this->get_channel('eduthek', true));
             $this->set($id, 'id', 'eduthek');
+            $id = $DB->insert_record('block_edupublisher_md_eduneu', $this->get_channel('eduthekneu', true));
+            $this->set($id, 'id', 'eduthekneu');
             $id = $DB->insert_record('block_edupublisher_md_eta', $this->get_channel('etapas', true));
             $this->set($id, 'id', 'etapas');
         }
@@ -925,7 +933,7 @@ class package {
             $targetcontext = \context_course::instance($this->get('course'));
             require_once("$CFG->dirroot/enrol/lti/lib.php");
             $elp = new \enrol_lti_plugin();
-            $ltichannels = array('etapas', 'eduthek');
+            $ltichannels = array('etapas', 'eduthek', 'eduthekneu');
             $_channels = explode(',', $this->get('channels'));
             foreach ($_channels as $_channel) {
                 // Only some channels allow to be published as lti tool.
@@ -1003,6 +1011,7 @@ class package {
             'com' => 'commercial',
             'def' => 'default',
             'edu' => 'eduthek',
+            'eduneu' => 'eduthekneu',
             'eta' => 'etapas',
         ];
         foreach ($channels as $chan => $channel) {

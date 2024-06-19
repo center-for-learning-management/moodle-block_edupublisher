@@ -574,6 +574,8 @@ class block_edupublisher_external extends external_api {
                         $table = 'mdef';
                     if ($channel == 'eduthek')
                         $table = 'medu';
+                    if ($channel == 'eduthekneu')
+                        $table = 'meduneu';
                     if ($channel == 'etapas')
                         $table = 'meta';
                     if (empty($table))
@@ -618,6 +620,7 @@ class block_edupublisher_external extends external_api {
                     FROM {block_edupublisher_packages} p,
                          {block_edupublisher_md_def} mdef,
                          {block_edupublisher_md_edu} medu,
+                         {block_edupublisher_md_eduneu} meduneu,
                          {block_edupublisher_md_eta} meta
                     WHERE p.id = mdef.package
                         AND p.id = medu.package
@@ -807,7 +810,7 @@ class block_edupublisher_external extends external_api {
                 if ($published > 0) {
                     // If any channel gets activated, also activate default
                     $package->set($published, 'published', 'default');
-                } else if (empty($package->get('published', 'eduthek')) && empty($package->get('published', 'etapas'))) {
+                } else if (empty($package->get('published', 'eduthek')) && empty($package->get('published', 'eduthekneu')) && empty($package->get('published', 'etapas'))) {
                     // If last gets deactivated, also deactivate default
                     $package->set(0, 'published', 'default');
                 }

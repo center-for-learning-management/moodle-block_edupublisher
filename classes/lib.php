@@ -268,10 +268,12 @@ class lib {
                 ),
                 'schoollevel' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_TEXT,
                     'required' => 1, 'splitcols' => 1, 'options' => array(
+                        'elementary' => get_string('default_schoollevel_elementary', 'block_edupublisher'),
                         'primary' => get_string('default_schoollevel_primary', 'block_edupublisher'),
                         'secondary_1' => get_string('default_schoollevel_secondary_1', 'block_edupublisher'),
                         'secondary_2' => get_string('default_schoollevel_secondary_2', 'block_edupublisher'),
                         'tertiary' => get_string('default_schoollevel_tertiary', 'block_edupublisher'),
+                        'adult' => get_string('default_schoollevel_adult', 'block_edupublisher'),
                     ),
                 ),
                 'tags' => array('type' => 'tags', 'datatype' => PARAM_TEXT, 'multiple' => 1, 'tagparams' => array('itemtype' => 'packages', 'component' => 'block_edupublisher'), 'searchable' => 1),
@@ -475,6 +477,32 @@ class lib {
                     'multiple' => 1, 'required' => 1, 'options' => array(
                         1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5,
                         6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11,
+                    ),
+                ),
+            ),
+            'eduthekneu' => array(
+                'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
+                'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL, 'default' => 1),
+                'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
+                'ltiurl' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
+                'lticartridge' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
+                'ltisecret' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
+                'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_RAW, 'required' => 0, 'default' => get_string('eduthekneu_kompetenzen_help', 'block_edupublisher'), 'searchable' => 1),
+                'contenttype' => array('type' => 'select', 'datatype' => PARAM_TEXT,
+                    'multiple' => 1, 'required' => 1, 'options' => array(
+                        'assignment' => 'Aufgabe',
+                        'exercise' => 'Interaktive Übung',
+                        'learningtrack' => 'Lernstrecke',
+                        'supportmaterial' => 'Begleitmaterial',
+
+                    ),
+                ),
+                'purpose' => array(
+                    'type' => 'select', 'datatype' => PARAM_TEXT,
+                    'multiple' => 1, 'required' => 1, 'options' => array(
+                        'preparation' => 'Unterrichtsvorbereitung',
+                        'supervised' => 'Lernen mit Begleitung',
+                        'selfpaced' => 'Lernen ohne Begleitung/Selbstlernen',
                     ),
                 ),
             ),

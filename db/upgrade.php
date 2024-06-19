@@ -836,5 +836,45 @@ function xmldb_block_edupublisher_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2022040104, 'edupublisher');
         \block_edupublisher\locallib::atomize_database();
     }
+    if ($oldversion < 2024061900) {
+        $table = new xmldb_table('block_edupublisher_md_def');
+        $field = new xmldb_field('schoollevel_elementary', XMLDB_TYPE_INTEGER, '2', null, null, null, '0', 'published');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $field = new xmldb_field('schoollevel_adult', XMLDB_TYPE_INTEGER, '2', null, null, null, '0', 'schoollevel_secondary_2');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $index = new xmldb_index('idx_schoollevel_elementary', XMLDB_INDEX_NOTUNIQUE, ['schoollevel_elementary']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        $index = new xmldb_index('idx_schoollevel_adult', XMLDB_INDEX_NOTUNIQUE, ['schoollevel_adult']);
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+        $table = new xmldb_table('block_edupublisher_md_eduneu');
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('publishas', XMLDB_TYPE_INTEGER, '2', null, null, null, '0');
+        $table->add_field('published', XMLDB_TYPE_INTEGER, '19', null, null, null, '0');
+        $table->add_field('lticartridge', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('ltisecret', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('ltiurl', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        $table->add_field('contenttype_assignment', XMLDB_TYPE_INTEGER, '2', null, null, null, '0');
+        $table->add_field('contenttype_exercise', XMLDB_TYPE_INTEGER, '2', null, null, null, '0');
+        $table->add_field('contenttype_learningtrack', XMLDB_TYPE_INTEGER, '2', null, null, null, '0');
+        $table->add_field('contenttype_supportmaterial', XMLDB_TYPE_INTEGER, '2', null, null, null, '0');
+        $table->add_field('kompetenzen', XMLDB_TYPE_TEXT, null, null, null, null, null);
+        $table->add_field('purpose_preparation', XMLDB_TYPE_INTEGER, '2', null, null, null, '0');
+        $table->add_field('purpose_supervised', XMLDB_TYPE_INTEGER, '2', null, null, null, '0');
+        $table->add_field('purpose_selfpaced', XMLDB_TYPE_INTEGER, '2', null, null, null, '0');
+        $table->add_key('primary', XMLDB_KEY_PRIMARY, ['id']);
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+        upgrade_block_savepoint(true, 2024061900, 'edupublisher');
+    }
+
     return true;
 }

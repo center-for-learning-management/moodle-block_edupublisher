@@ -83,6 +83,8 @@ $string['default_licence_missing'] = 'Sie müssen sich für eine Lizenz entschei
 $string['default_licenceother'] = 'Sonstige Lizenz';
 $string['default_publish_as'] = 'In eduvidual veröffentlichen';
 $string['default_schoollevel'] = 'Schulstufe';
+$string['default_schoollevel_adult'] = 'Erwachsenenbildung';
+$string['default_schoollevel_elementary'] = 'Elementarstufe';
 $string['default_schoollevel_primary'] = 'Primarstufe';
 $string['default_schoollevel_secondary_1'] = 'Sekundarstufe 1';
 $string['default_schoollevel_secondary_2'] = 'Sekundarstufe 2';
@@ -142,6 +144,16 @@ $string['eduthek_schooltype'] = 'Schultyp';
 $string['eduthek_topic'] = 'Themengebiet';
 $string['eduthek_trigger_active'] = 'In eduthek aktiv!';
 $string['eduthek_type'] = 'Typ';
+
+$string['eduthekneu_fetchchannel'] = 'eduthek.neu-Kanal abrufen';
+$string['eduthekneu_header'] = 'eduthek.neu';
+$string['eduthekneu_kompetenzen'] = 'Kompetenzen';
+$string['eduthekneu_kompetenzen_help'] = '<p class="alert alert-danger">Die Verlinkung von Ressourcen des Moodle-Kurses mit Kompetenzen ist erforderlich, um ein Lernpaket als eTapa einreichen zu können. Bitte verwenden Sie dazu entweder die Moodle-Kompetenzen oder den Block "Kompetenzraster" (exacomp).</p>';
+$string['eduthekneu_kompetenzen_missing'] = 'Bitte Kompetenzen zu Aktivitäten und Ressourcen zuordnen';
+$string['eduthekneu_lticartridge'] = 'LTI Cartridge';
+$string['eduthekneu_ltisecret'] = 'LTI Secret';
+$string['eduthekneu_ltiurl'] = 'LTI URL';
+$string['eduthekneu_publish_as'] = 'In eduthek.neu veröffentlichen';
 
 $string['enablecommercial'] = 'Erlaube kommerziellen Inhalt';
 $string['enablecommercial_desc'] = 'Mit dieser Checkbox kann die Findbarkeit von kommerziellen Inhalten global gesteuert werden.';

@@ -24,10 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2022080900;
+$plugin->version = 2024061900;
 $plugin->requires = 2014051200;
 $plugin->component = 'block_edupublisher';
-$plugin->release = '2.1';
+$plugin->release = '2.2';
 $plugin->maturity = MATURITY_STABLE;
 
 $plugin->dependencies = array(

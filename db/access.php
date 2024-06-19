@@ -85,6 +85,12 @@ $capabilities = array(
         'contextlevel' => CONTEXT_SYSTEM,
         'archetypes' => array(),
     ),
+    'block/edupublisher:manageeduthekneu' => array(
+        'riskbitmask' => RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_SYSTEM,
+        'archetypes' => array(),
+    ),
     'block/edupublisher:manageetapas' => array(
         'riskbitmask' => RISK_SPAM,
         'captype' => 'write',

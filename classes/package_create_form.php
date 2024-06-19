@@ -216,8 +216,10 @@ class package_create_form extends moodleform {
         if ($ALLOW_COMMERCIAL) {
             $mform->disabledIf('commercial_publishas', 'etapas_publishas', 'checked');
             $mform->disabledIf('commercial_publishas', 'eduthek_publishas', 'checked');
+            $mform->disabledIf('commercial_publishas', 'eduthekneu_publishas', 'checked');
             $mform->disabledIf('etapas_publishas', 'commercial_publishas', 'checked');
             $mform->disabledIf('eduthek_publishas', 'commercial_publishas', 'checked');
+            $mform->disabledIf('eduthekneu_publishas', 'commercial_publishas', 'checked');
         }
 
         $this->add_action_buttons();
@@ -302,10 +304,10 @@ class package_create_form extends moodleform {
             $fields = array_keys($definition[$channel]);
             foreach ($fields as $field) {
                 $ofield = &$definition[$channel][$field];
-                if ($channel == 'etapas' && $field == 'kompetenzen') {
+                if (in_array($channel, [ 'etapas', 'eduthekneu' ]) && $field == 'kompetenzen') {
                     global $package;
                     $package->exacompetencies();
-                    $data['etapas_kompetenzen'] = $package->get('kompetenzen', 'etapas');
+                    $data["{$channel}_kompetenzen"] = $package->get('kompetenzen', $channel);
                 }
                 if (!isset($ofield['type']) || empty($ofield['required']))
                     continue;
@@ -334,6 +336,9 @@ class package_create_form extends moodleform {
         }
         if (!empty($data['etapas_publishas']) && empty($data['etapas_kompetenzen'])) {
             $errors['etapas_kompetenzen'] = get_string('etapas_kompetenzen_missing', 'block_edupublisher');
+        }
+        if (!empty($data['eduthekneu_publishas']) && empty($data['eduthekneu_kompetenzen'])) {
+            $errors['eduthekneu_kompetenzen'] = get_string('eduthekneu_kompetenzen_missing', 'block_edupublisher');
         }
         return $errors;
     }

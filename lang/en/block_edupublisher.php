@@ -97,6 +97,8 @@ $string['default_licence_missing'] = 'You have to choose a licence';
 $string['default_licenceother'] = 'Other licence';
 $string['default_publish_as'] = 'Publish on this site';
 $string['default_schoollevel'] = 'Schoollevel';
+$string['default_schoollevel_adult'] = 'Adult education';
+$string['default_schoollevel_elementary'] = 'Elementary level';
 $string['default_schoollevel_primary'] = 'Primary level';
 $string['default_schoollevel_secondary_1'] = 'Secondary 1';
 $string['default_schoollevel_secondary_2'] = 'Secondary 2';
@@ -157,6 +159,16 @@ $string['eduthek_schooltype'] = 'Schooltype';
 $string['eduthek_topic'] = 'Topic';
 $string['eduthek_trigger_active'] = 'Check this box to publish this in eduthek!';
 $string['eduthek_type'] = 'Type';
+
+$string['eduthekneu_fetchchannel'] = 'Fetch eduthek.new channel';
+$string['eduthekneu_header'] = 'eduthek.neu';
+$string['eduthekneu_kompetenzen'] = 'Competencies';
+$string['eduthekneu_kompetenzen_help'] = '<p class="alert alert-danger">The linking of resources from the moodle course with competencies is essential, when you want to publish an eTapa. Please use either the Moodle competencies or exacomp.</p>';
+$string['eduthekneu_kompetenzen_missing'] = 'Please add competencies to activities and resources';
+$string['eduthekneu_lticartridge'] = 'LTI cartridge';
+$string['eduthekneu_ltisecret'] = 'LTI secret';
+$string['eduthekneu_ltiurl'] = 'LTI URL';
+$string['eduthekneu_publish_as'] = 'Publish in eduthek.new';
 
 $string['enablecommercial'] = 'Enable commercial content';
 $string['enablecommercial_desc'] = 'With this checkbox you can globally control if commercial packages can be found in edupublisher.';
