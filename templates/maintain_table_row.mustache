@@ -75,6 +75,14 @@
         {{^eduthek_published}} {{#pix}} i/completion-auto-fail, core, is NOT published {{/pix}} {{/eduthek_published}}
     </td>
     <td>
+        {{#eduthekneu_publishas}} {{#pix}} i/completion-auto-y, core, requested publishing {{/pix}} {{/eduthekneu_publishas}}
+        {{^eduthekneu_publishas}} {{#pix}} i/completion-auto-fail, core, NO require publishing {{/pix}} {{/eduthekneu_publishas}}
+    </td>
+    <td>
+        {{#eduthekneu_published}} {{#pix}} i/completion-auto-pass, core, is published {{/pix}} {{/eduthekneu_published}}
+        {{^eduthekneu_published}} {{#pix}} i/completion-auto-fail, core, is NOT published {{/pix}} {{/eduthekneu_published}}
+    </td>
+    <td>
         {{> block_edupublisher/package_rating }}
     </td>
 </tr>
