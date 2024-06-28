@@ -345,6 +345,7 @@
     <TABLE NAME="block_edupublisher_md_eduneu" COMMENT="Channel for eduthek.neu">
         <FIELDS>
             <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+            <FIELD NAME="package" TYPE="int" LENGTH="19" NOTNULL="true" SEQUENCE="false"/>
             <FIELD NAME="publishas" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
             <FIELD NAME="published" TYPE="int" LENGTH="19" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
             <FIELD NAME="lticartridge" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
@@ -361,6 +362,7 @@
         </FIELDS>
     <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="key_package" TYPE="unique" FIELDS="package"/>
     </KEYS>
     </TABLE>
       <TABLE NAME="block_edupublisher_md_eta" COMMENT="etapas channel">

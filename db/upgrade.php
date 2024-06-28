@@ -875,6 +875,17 @@ function xmldb_block_edupublisher_upgrade($oldversion = 0) {
         }
         upgrade_block_savepoint(true, 2024061900, 'edupublisher');
     }
+    if ($oldversion < 2024062800) {
+        $table = new xmldb_table('block_edupublisher_md_eduneu');
+        $field = new xmldb_field('package', XMLDB_TYPE_INTEGER, '19', null, null, null, null, 'id');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        $key = new xmldb_key('key_package', XMLDB_KEY_UNIQUE, ['package']);
+        $dbman->add_key($table, $key);
+        upgrade_block_savepoint(true, 2024062800, 'edupublisher');
+    }
+
 
     return true;
 }
