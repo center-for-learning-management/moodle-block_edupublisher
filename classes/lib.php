@@ -488,7 +488,7 @@ class lib {
                 'lticartridge' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
                 'ltisecret' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
                 'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_RAW, 'required' => 0, 'default' => get_string('eduthekneu_kompetenzen_help', 'block_edupublisher'), 'searchable' => 1),
-                'contenttype' => array('type' => 'select', 'datatype' => PARAM_TEXT,
+                'contenttype' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'splitcols' => 1,
                     'multiple' => 1, 'required' => 1, 'options' => array(
                         'assignment' => 'Aufgabe',
                         'exercise' => 'Interaktive Übung',
@@ -498,7 +498,7 @@ class lib {
                     ),
                 ),
                 'purpose' => array(
-                    'type' => 'select', 'datatype' => PARAM_TEXT,
+                    'type' => 'select', 'datatype' => PARAM_TEXT, 'splitcols' => 1,
                     'multiple' => 1, 'required' => 1, 'options' => array(
                         'preparation' => 'Unterrichtsvorbereitung',
                         'supervised' => 'Lernen mit Begleitung',

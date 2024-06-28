@@ -169,6 +169,7 @@ $string['eduthekneu_lticartridge'] = 'LTI cartridge';
 $string['eduthekneu_ltisecret'] = 'LTI secret';
 $string['eduthekneu_ltiurl'] = 'LTI URL';
 $string['eduthekneu_publish_as'] = 'Publish in eduthek.new';
+$string['eduthekneu_trigger_active'] = 'Check this box to publish this in eduthek.new!';
 
 $string['enablecommercial'] = 'Enable commercial content';
 $string['enablecommercial_desc'] = 'With this checkbox you can globally control if commercial packages can be found in edupublisher.';

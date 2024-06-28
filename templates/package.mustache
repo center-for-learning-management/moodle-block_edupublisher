@@ -171,6 +171,31 @@
     </table>
 </div>
 {{/eduthek_publishas}}
+{{#eduthekneu_publishas}}
+<div id="channel-eduthekneu" class="channel-block{{^eduthekneu_published}} channel-inactive{{/eduthekneu_published}}">
+    <table border="0" width="100%">
+        <tr><th colspan="2">{{#str}} eduthekneu_header, block_edupublisher {{/str}}</th></tr>
+        {{#eduthekneu_cantriggeractive}}
+        <tr>
+            <td colspan="2">
+                <label>
+                    <input type="checkbox"{{#eduthekneu_published}} checked="checked"{{/eduthekneu_published}}
+                           onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'eduthekneu', chkbox); } );" />
+                    {{#str}} eduthekneu_trigger_active, block_edupublisher {{/str}}
+                </label>
+            </td>
+        </tr>
+        {{/eduthekneu_cantriggeractive}}
+        <tr>
+            <th colspan="2">{{#str}} lti_data, block_edupublisher {{/str}}</th>
+        </tr>
+        <tr>
+            <td><a href="{{eduthekneu_lticartridge}}" target="_blank">{{#str}} eduthekneu_lticartridge, block_edupublisher {{/str}}</a></td>
+            <td>{{eduthekneu_ltisecret}}</td>
+        </tr>
+    </table>
+</div>
+{{/eduthekneu_publishas}}
 {{#commercial_publishas}}
 <div id="channel-commercial" class="channel-block{{^commercial_published}} channel-inactive{{/commercial_published}}">
     <table border="0" width="100%">

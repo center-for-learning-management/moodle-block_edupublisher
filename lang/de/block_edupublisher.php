@@ -154,6 +154,7 @@ $string['eduthekneu_lticartridge'] = 'LTI Cartridge';
 $string['eduthekneu_ltisecret'] = 'LTI Secret';
 $string['eduthekneu_ltiurl'] = 'LTI URL';
 $string['eduthekneu_publish_as'] = 'In eduthek.neu veröffentlichen';
+$string['eduthekneu_trigger_active'] = 'In eduthek.neu aktiv!';
 
 $string['enablecommercial'] = 'Erlaube kommerziellen Inhalt';
 $string['enablecommercial_desc'] = 'Mit dieser Checkbox kann die Findbarkeit von kommerziellen Inhalten global gesteuert werden.';

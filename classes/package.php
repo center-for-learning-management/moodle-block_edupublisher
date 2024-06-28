@@ -830,25 +830,29 @@ class package {
         }
 
         // To proceed we must have a package id!
+        $subtables = [
+            'com' => 'commercial',
+            'def' => 'default',
+            'edu' => 'eduthek',
+            'eduneu' => 'eduthekneu',
+            'eta' => 'etapas'
+        ];
         if (empty($this->get('id'))) {
             $id = $DB->insert_record('block_edupublisher_packages', $this->get_channel('_'));
             $this->set($id, 'id');
-            $this->set($id, 'package', 'commercial');
-            $this->set($id, 'package', 'default');
-            $this->set($id, 'package', 'eduthek');
-            $this->set($id, 'package', 'eduthekneu');
-            $this->set($id, 'package', 'etapas');
-
-            $id = $DB->insert_record('block_edupublisher_md_com', $this->get_channel('commercial', true));
-            $this->set($id, 'id', 'commercial');
-            $id = $DB->insert_record('block_edupublisher_md_def', $this->get_channel('default', true));
-            $this->set($id, 'id', 'default');
-            $id = $DB->insert_record('block_edupublisher_md_edu', $this->get_channel('eduthek', true));
-            $this->set($id, 'id', 'eduthek');
-            $id = $DB->insert_record('block_edupublisher_md_eduneu', $this->get_channel('eduthekneu', true));
-            $this->set($id, 'id', 'eduthekneu');
-            $id = $DB->insert_record('block_edupublisher_md_eta', $this->get_channel('etapas', true));
-            $this->set($id, 'id', 'etapas');
+            foreach ($subtables as $subtable => $channel) {
+                $this->set($id, 'package', $channel);
+                $id = $DB->insert_record("block_edupublisher_md_{$subtable}", $this->get_channel($channel, true));
+                $this->set($id, 'id', $channel);
+            }
+        } else {
+            foreach ($subtables as $subtable => $channel) {
+                if ($DB->record_exists("block_edupublisher_md_{$subtable}", [ 'package' => $data->package ])) {
+                    $this->set($data->id, 'package', $channel);
+                    $id = $DB->insert_record("block_edupublisher_md_{$subtable}", $this->get_channel($channel, true));
+                    $this->set($id, 'id', $channel);
+                }
+            }
         }
 
         // Retrieve all channels that we publish to.
