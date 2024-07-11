@@ -841,9 +841,10 @@ class package {
             $id = $DB->insert_record('block_edupublisher_packages', $this->get_channel('_'));
             $this->set($id, 'id');
             foreach ($subtables as $subtable => $channel) {
-                $this->set($id, 'package', $channel);
-                $id = $DB->insert_record("block_edupublisher_md_{$subtable}", $this->get_channel($channel, true));
-                $this->set($id, 'id', $channel);
+                if (!$DB->record_exists("block_edupublisher_md_{$subtable}", [ 'package' => $data->package ])) {
+                    $id = $DB->insert_record("block_edupublisher_md_{$subtable}", $this->get_channel($channel, true));
+                    $this->set($id, 'id', $channel);
+                }
             }
         } else {
             foreach ($subtables as $subtable => $channel) {
