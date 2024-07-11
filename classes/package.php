@@ -842,6 +842,7 @@ class package {
             $this->set($id, 'id');
             foreach ($subtables as $subtable => $channel) {
                 if (!$DB->record_exists("block_edupublisher_md_{$subtable}", [ 'package' => $data->package ])) {
+                    $this->set($data->id, 'package', $channel);
                     $id = $DB->insert_record("block_edupublisher_md_{$subtable}", $this->get_channel($channel, true));
                     $this->set($id, 'id', $channel);
                 }
