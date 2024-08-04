@@ -838,22 +838,16 @@ class package {
             'eta' => 'etapas'
         ];
         if (empty($this->get('id'))) {
-            $id = $DB->insert_record('block_edupublisher_packages', $this->get_channel('_'));
-            $this->set($id, 'id');
-            foreach ($subtables as $subtable => $channel) {
-                if (!$DB->record_exists("block_edupublisher_md_{$subtable}", [ 'package' => $data->package ])) {
-                    $this->set($data->id, 'package', $channel);
-                    $id = $DB->insert_record("block_edupublisher_md_{$subtable}", $this->get_channel($channel, true));
-                    $this->set($id, 'id', $channel);
-                }
-            }
+            $packageid = $DB->insert_record('block_edupublisher_packages', $this->get_channel('_'));
+            $this->set($packageid, 'id');
         } else {
-            foreach ($subtables as $subtable => $channel) {
-                if ($DB->record_exists("block_edupublisher_md_{$subtable}", [ 'package' => $data->package ])) {
-                    $this->set($data->id, 'package', $channel);
-                    $id = $DB->insert_record("block_edupublisher_md_{$subtable}", $this->get_channel($channel, true));
-                    $this->set($id, 'id', $channel);
-                }
+            $packageid = $this->get('id');
+        }
+        foreach ($subtables as $subtable => $channel) {
+            if (!$DB->record_exists("block_edupublisher_md_{$subtable}", [ 'package' => $packageid ])) {
+                $this->set($packageid, 'package', $channel);
+                $id = $DB->insert_record("block_edupublisher_md_{$subtable}", $this->get_channel($channel, true));
+                $this->set($id, 'id', $channel);
             }
         }
 
