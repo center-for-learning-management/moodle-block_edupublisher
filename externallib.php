@@ -616,7 +616,7 @@ class block_edupublisher_external extends external_api {
 
         $limit = "LIMIT 50 OFFSET 0";
 
-        $sql = "SELECT p.id
+        $sql = "SELECT DISTINCT p.id
                     FROM {block_edupublisher_packages} p,
                          {block_edupublisher_md_def} mdef,
                          {block_edupublisher_md_edu} medu,
