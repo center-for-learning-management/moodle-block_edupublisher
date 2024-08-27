@@ -42,6 +42,7 @@ class channelexport extends \core\task\scheduled_task {
             'default' => ['default'],
             'eduthek' => ['default', 'eduthek', 'etapas'],
             'etapas' => ['default', 'etapas'],
+            'eduthekneu' => ['default', 'etapas', 'eduthekneu'],
         ];
         $xmls = [];
         foreach ($filters as $filter => $chans) {
