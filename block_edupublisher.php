@@ -78,13 +78,11 @@ class block_edupublisher extends block_base {
         // 3. show nothing
 
         $context = \context_course::instance($COURSE->id);
-        $isenrolled = is_enrolled($context, $USER->id, '', true);
         $canedit = has_capability('moodle/course:update', $context);
 
         $package = $DB->get_record('block_edupublisher_packages', array('course' => $COURSE->id), '*', IGNORE_MULTIPLE);
-        $options = array();
 
-        if (!empty($package->id)) {
+        if ($package) {
             $package = new \block_edupublisher\package($package->id, true);
             if ($package->get('licence', 'default') == 'other') {
                 $package->set(get_string('default_licenceother', 'block_edupublisher'), 'licence', 'default');
@@ -107,7 +105,7 @@ class block_edupublisher extends block_base {
             $package->set(\block_edupublisher\lib::show_star_rating(), 'show_star_rating');
 
             $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_inpackage', $package->get_flattened());
-        } else if ($canedit) {
+        } elseif ($canedit) {
             $cache = \cache::make('block_edupublisher', 'publish');
             $pendingpublication = $cache->get("pending_publication_$COURSE->id");
             if (empty($pendingpublication)) {
@@ -124,6 +122,7 @@ class block_edupublisher extends block_base {
                 }
             }
             $params = (object)[
+                'wwwroot' => $CFG->wwwroot,
                 'courseid' => $COURSE->id,
                 'packages' => array_values($DB->get_records_sql('SELECT * FROM {block_edupublisher_packages} WHERE sourcecourse=? AND (active=1 OR userid=?)', array($COURSE->id, $USER->id))),
                 'pendingpublication' => (intval($pendingpublication) == -1) ? 0 : $pendingpublication,
@@ -134,6 +133,7 @@ class block_edupublisher extends block_base {
 
             $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_canedit', $params);
         }
+
         return $this->content;
     }
 

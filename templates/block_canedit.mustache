@@ -18,12 +18,12 @@
 <div class="row">
     {{#pix}} i/publish, core {{/pix}}
     {{#pendingpublication}}
-        <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/publish.php?sourcecourseid={{pendingpublication}}">
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/publish.php?sourcecourseid={{pendingpublication}}">
             {{#str}} publish_new_package_proceed, block_edupublisher {{/str}}
         </a>
     {{/pendingpublication}}
     {{^pendingpublication}}
-        <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/publish.php?sourcecourseid={{courseid}}">
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/publish.php?sourcecourseid={{courseid}}">
             {{#str}} publish_new_package, block_edupublisher {{/str}}
         </a>
     {{/pendingpublication}}
@@ -36,7 +36,7 @@
     {{#packages}}
         <div class="row">
             {{#pix}} i/edit, core {{/pix}}
-            <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}">
+            <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}">
                 {{#shortentext}} 25, {{{title}}} {{/shortentext}}
             </a>
         </div>
@@ -50,7 +50,7 @@
     {{#uses}}
         <div class="row">
             {{#pix}} i/withsubcat, core {{/pix}}
-            <a href="{{CFG.wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}">
+            <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}">
                 {{#shortentext}} 25, {{{title}}} {{/shortentext}}
                 {{#str}} by, block_edupublisher {{/str}} {{default_authorname}}
             </a>

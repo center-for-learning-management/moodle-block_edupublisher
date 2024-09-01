@@ -24,6 +24,8 @@ defined('MOODLE_INTERNAL') || die;
 
 if ($hassiteconfig) {
     if ($ADMIN->fulltree) {
+        // this does not work anymore:
+        /*
         $link = implode("\n", array(
             '<div class="form-item row">',
             '  <div class="form-label col-sm-3 text-sm-right">' . get_string('category', 'block_edupublisher') . '</div>',
@@ -35,7 +37,10 @@ if ($hassiteconfig) {
             '</div>',
         ));
         $settings->add(new admin_setting_heading('block_edupublisher_category', '', $link));
-
+        */
+        // $name, $visiblename, $description, $defaultsetting
+        $settings->add(new admin_settings_coursecat_select('block_edupublisher/category', get_string('category', 'block_edupublisher'),
+            get_string('category_help', 'block_edupublisher'), ''));
 
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
         $definition = \block_edupublisher\lib::get_channel_definition();
