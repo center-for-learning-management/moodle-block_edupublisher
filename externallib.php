@@ -473,6 +473,7 @@ class block_edupublisher_external extends external_api {
             break;
         }
         $rating = $DB->get_record('block_edupublisher_rating', array('package' => $params['packageid'], 'userid' => $USER->id));
+        $DB->set_field('block_edupublisher_packages', 'modified', time(), [ 'id' => $params['packageid'] ]);
         return [
             'average' => intval($avg),
             'amount' => intval($cnt),
