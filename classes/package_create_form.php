@@ -304,7 +304,7 @@ class package_create_form extends moodleform {
             $fields = array_keys($definition[$channel]);
             foreach ($fields as $field) {
                 $ofield = &$definition[$channel][$field];
-                if (in_array($channel, [ 'etapas', 'eduthekneu' ]) && $field == 'kompetenzen') {
+                if (in_array($channel, ['etapas', 'eduthekneu']) && $field == 'kompetenzen') {
                     global $package;
                     $package->exacompetencies();
                     $data["{$channel}_kompetenzen"] = $package->get('kompetenzen', $channel);

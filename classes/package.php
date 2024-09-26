@@ -71,7 +71,8 @@ class package {
             if ($withmetadata) {
                 foreach (\block_edupublisher\lib::channels() as $channel) {
                     $short = substr($channel, 0, 3);
-                    if ($channel == 'eduthekneu') $short = 'eduneu';
+                    if ($channel == 'eduthekneu')
+                        $short = 'eduneu';
                     $cr = $DB->get_record("block_edupublisher_md_$short", ['package' => $id], '*', IGNORE_MISSING);
                     if (empty($cr->id))
                         continue;
@@ -835,7 +836,7 @@ class package {
             'def' => 'default',
             'edu' => 'eduthek',
             'eduneu' => 'eduthekneu',
-            'eta' => 'etapas'
+            'eta' => 'etapas',
         ];
         if (empty($this->get('id'))) {
             $packageid = $DB->insert_record('block_edupublisher_packages', $this->get_channel('_'));
@@ -844,7 +845,7 @@ class package {
             $packageid = $this->get('id');
         }
         foreach ($subtables as $subtable => $channel) {
-            if (!$DB->record_exists("block_edupublisher_md_{$subtable}", [ 'package' => $packageid ])) {
+            if (!$DB->record_exists("block_edupublisher_md_{$subtable}", ['package' => $packageid])) {
                 $this->set($packageid, 'package', $channel);
                 $id = $DB->insert_record("block_edupublisher_md_{$subtable}", $this->get_channel($channel, true));
                 $this->set($id, 'id', $channel);

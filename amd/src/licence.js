@@ -9,7 +9,7 @@ define(
 
         AJAX.call([{
           methodname: 'block_edupublisher_licence_generate',
-          args: { amount: amount, publisherid: publisherid },
+          args: {amount: amount, publisherid: publisherid},
           done: function (result) {
             $('#licencekeys-' + uniqid).val(result);
           },
@@ -21,7 +21,7 @@ define(
         var publisherid = $('#publisherid-' + uniqid).val();
         AJAX.call([{
           methodname: 'block_edupublisher_licence_generatenow',
-          args: { licencekeys: licencekeys, publisherid: publisherid },
+          args: {licencekeys: licencekeys, publisherid: publisherid},
           done: function () {
             $('#licencekeys-' + uniqid).val('');
           },
@@ -47,9 +47,9 @@ define(
             var amount = parseInt(line.find('.package_amount').val());
 
             STR.get_strings([
-              { 'key': 'licence_amount_usages', component: 'block_edupublisher', param: { amount: amount } },
-              { 'key': 'licence_amount_infinite', component: 'block_edupublisher' },
-              { 'key': 'licence_amount_none', component: 'block_edupublisher' },
+              {'key': 'licence_amount_usages', component: 'block_edupublisher', param: {amount: amount}},
+              {'key': 'licence_amount_infinite', component: 'block_edupublisher'},
+              {'key': 'licence_amount_none', component: 'block_edupublisher'},
             ]).done(function (s) {
                 if ((type == 2 && pc.prop('checked')) || amount > 0) {
                   line.find('.package_choice').prop('checked', true);
@@ -76,7 +76,7 @@ define(
         var publisherid = $('#publisherid-' + uniqid).val();
         AJAX.call([{
           methodname: 'block_edupublisher_licence_list',
-          args: { publisherid: publisherid },
+          args: {publisherid: publisherid},
           done: function (result) {
             try {
               result = JSON.parse(result);
@@ -84,7 +84,7 @@ define(
               var ul = $('#licences-' + uniqid).empty();
               if (licences.length == 0) {
                 STR.get_strings([
-                  { 'key': 'licences_none', component: 'block_edupublisher' },
+                  {'key': 'licences_none', component: 'block_edupublisher'},
                 ]).done(function (s) {
                     $(ul).append($('<li>').html(s[0]));
                   }
@@ -118,7 +118,7 @@ define(
 
         AJAX.call([{
           methodname: 'block_edupublisher_licence_redeem',
-          args: { licencekey: licencekey, targetid: targetid },
+          args: {licencekey: licencekey, targetid: targetid},
           done: function (result) {
             try {
               result = JSON.parse(result);

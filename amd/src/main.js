@@ -6,10 +6,10 @@ define(
       loadpositions: {},
       cancelPackageForm: function (url) {
         STR.get_strings([
-          { 'key': 'removal:title', component: 'block_edupublisher' },
-          { 'key': 'removal:text', component: 'block_edupublisher' },
-          { 'key': 'yes' },
-          { 'key': 'no' }
+          {'key': 'removal:title', component: 'block_edupublisher'},
+          {'key': 'removal:text', component: 'block_edupublisher'},
+          {'key': 'yes'},
+          {'key': 'no'}
         ]).done(function (s) {
             NOTIFICATION.confirm(s[0], s[1], s[2], s[3], function () {
               top.location.href = url;
@@ -22,10 +22,10 @@ define(
       },
       confirmDeleteGroup: function (url) {
         STR.get_strings([
-          { 'key': 'groups:remove:title', component: 'block_edupublisher' },
-          { 'key': 'groups:remove:text', component: 'block_edupublisher' },
-          { 'key': 'yes' },
-          { 'key': 'no' }
+          {'key': 'groups:remove:title', component: 'block_edupublisher'},
+          {'key': 'groups:remove:text', component: 'block_edupublisher'},
+          {'key': 'yes'},
+          {'key': 'no'}
         ]).done(function (s) {
             NOTIFICATION.confirm(s[0], s[1], s[2], s[3], function () {
               top.location.href = url;
@@ -35,10 +35,10 @@ define(
       },
       confirmRemoval: function (url) {
         STR.get_strings([
-          { 'key': 'removal:title', component: 'block_edupublisher' },
-          { 'key': 'removal:text', component: 'block_edupublisher' },
-          { 'key': 'yes' },
-          { 'key': 'no' }
+          {'key': 'removal:title', component: 'block_edupublisher'},
+          {'key': 'removal:text', component: 'block_edupublisher'},
+          {'key': 'yes'},
+          {'key': 'no'}
         ]).done(function (s) {
             NOTIFICATION.confirm(s[0], s[1], s[2], s[3], function () {
               top.location.href = url;
@@ -50,10 +50,10 @@ define(
         var active = $('#id_exportcourse').is(':checked');
         if (!active) {
           STR.get_strings([
-            { 'key': 'exportcourse', component: 'block_edupublisher' },
-            { 'key': 'exportcourse_help', component: 'block_edupublisher' },
-            { 'key': 'yes' },
-            { 'key': 'no' }
+            {'key': 'exportcourse', component: 'block_edupublisher'},
+            {'key': 'exportcourse_help', component: 'block_edupublisher'},
+            {'key': 'yes'},
+            {'key': 'no'}
           ]).done(function (s) {
               NOTIFICATION.confirm(s[0], s[1], s[2], s[3], function () {
               }, function () {
@@ -65,13 +65,13 @@ define(
       },
       initImportSelection: function (packageid, courseid, allowsubcourses) {
         STR.get_strings([
-          { 'key': 'import', component: 'core' },
+          {'key': 'import', component: 'core'},
         ]).done(function (s) {
             ModalFactory.create({
               title: s[0],
               body: TEMPLATES.render(
                 'block_edupublisher/init_import_selection',
-                { packageid: packageid, courseid: courseid, allowsubcourses: allowsubcourses }
+                {packageid: packageid, courseid: courseid, allowsubcourses: allowsubcourses}
               ),
             }).done(function (modal) {
               modal.show();
@@ -104,12 +104,12 @@ define(
         $('#sectionid-' + uniqid).empty().attr('disabled', 'disabled');
         var packageid = +$('#packageid-' + uniqid).val();
         STR.get_strings([
-          { 'key': 'loading', component: 'core' },
+          {'key': 'loading', component: 'core'},
         ]).done(function (s) {
             $('#courseid-' + uniqid + ', #sectionid-' + uniqid).append($('<option>').html(s[0]));
             AJAX.call([{
               methodname: 'block_edupublisher_init_import_load_courses',
-              args: { packageid: packageid },
+              args: {packageid: packageid},
               done: function (result) {
                 // console.log('Result', result);
                 var result = JSON.parse(result);
@@ -131,7 +131,7 @@ define(
                   MAIN.initImportLoadSections(uniqid);
                 } else {
                   STR.get_strings([
-                    { 'key': 'error', component: 'core' },
+                    {'key': 'error', component: 'core'},
                   ]).done(function (s) {
                       $('#courseid-' + uniqid).append($('<option>').html(s[0]));
                       $('#sectionid-' + uniqid).append($('<option>').html(s[0]));
@@ -148,12 +148,12 @@ define(
       initImportLoadSections: function (uniqid) {
         $('#sectionid-' + uniqid).empty().attr('disabled', 'disabled');
         STR.get_strings([
-          { 'key': 'loading', component: 'core' },
+          {'key': 'loading', component: 'core'},
         ]).done(function (s) {
             $('#sectionid-' + uniqid).append($('<option>').html(s[0]));
             AJAX.call([{
               methodname: 'block_edupublisher_init_import_load_sections',
-              args: { courseid: +$('#courseid-' + uniqid).val() },
+              args: {courseid: +$('#courseid-' + uniqid).val()},
               done: function (result) {
                 // console.log('Result', result);
                 var result = JSON.parse(result);
@@ -171,7 +171,7 @@ define(
                   });
                 } else {
                   STR.get_strings([
-                    { 'key': 'error', component: 'core' },
+                    {'key': 'error', component: 'core'},
                   ]).done(function (s) {
                       $('#sectionid-' + uniqid).append($('<option>').html(s[0]));
                     }
@@ -188,7 +188,7 @@ define(
         //if (isguestuser) return;
         var context = {
           isguestuser: isguestuser,
-          url: URL.relativeUrl('/blocks/edupublisher/pages/self_enrol.php', { id: courseid }),
+          url: URL.relativeUrl('/blocks/edupublisher/pages/self_enrol.php', {id: courseid}),
         };
 
         // This will call the function to load and render our template.
@@ -301,7 +301,7 @@ define(
 
                 if (result.packages.length === 0) {
                   STR.get_strings([
-                    { 'key': 'search:enter_term', component: 'block_edupublisher' },
+                    {'key': 'search:enter_term', component: 'block_edupublisher'},
                   ]).done(function (s) {
                       $('ul#' + o.uniqid + '-results').append($('<li>').append('<a href="#">').append('<h3>').html(s[0]));
                     }
@@ -378,7 +378,7 @@ define(
           .render(template, o)
           .then(function (html, js) {
             //console.log('Received a template', template, ' for object', o);
-            MAIN.loadpositions[uniqid][position] = { html: html, js: js };
+            MAIN.loadpositions[uniqid][position] = {html: html, js: js};
             MAIN.searchPrint(uniqid);
             //templates.appendNodeContents('ul#' + o.uniqid + '-results', html, js);
           })
@@ -396,7 +396,7 @@ define(
         if (name.length == 0) {
           return;
         }
-        var data = { active: active, id: id, name: name, mail: mail };
+        var data = {active: active, id: id, name: name, mail: mail};
         //console.log(data, sender);
         AJAX.call([{
           methodname: 'block_edupublisher_store_publisher',
@@ -416,7 +416,7 @@ define(
                   $(form).find('#edit-' + uniqid + '>*')
                     .css('opacity', 1)
                     .attr('href', '/blocks/edupublisher/pages/publishers.php?id=' + publisher.id);
-                  TEMPLATES.render('block_edupublisher/publisher', { id: 0, name: '' })
+                  TEMPLATES.render('block_edupublisher/publisher', {id: 0, name: ''})
                     .then(function (html) {
                       $(html).insertAfter($('.edupublisher-publishers').last());
                     }).fail(function (ex) {
@@ -449,7 +449,7 @@ define(
         if (action == 'remove') {
           userids = $('#users-' + uniqid).val().join(' ');
         }
-        var data = { action: action, publisherid: publisherid, userids: userids };
+        var data = {action: action, publisherid: publisherid, userids: userids};
         // console.log(data);
         AJAX.call([{
           methodname: 'block_edupublisher_store_publisher_user',
@@ -476,7 +476,7 @@ define(
         // console.log({ packageid: packageid, type: type, to: $(sender).is(':checked') ? 1 : 0 });
         AJAX.call([{
           methodname: 'block_edupublisher_trigger_active',
-          args: { packageid: packageid, type: type, to: $(sender).is(':checked') ? 1 : 0 },
+          args: {packageid: packageid, type: type, to: $(sender).is(':checked') ? 1 : 0},
           done: function (result) {
             // console.log(type, result);
             try {
@@ -508,7 +508,7 @@ define(
         // console.log({ packageid: packageid, to: to });
         AJAX.call([{
           methodname: 'block_edupublisher_rate',
-          args: { packageid: packageid, to: to },
+          args: {packageid: packageid, to: to},
           done: function (result) {
             // console.log(packageid, result);
             $('#' + uniqid + '-ratingcount').html(result.amount);

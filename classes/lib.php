@@ -637,7 +637,7 @@ class lib {
         }
     }
 
-     /**
+    /**
      * Gets an existing package by its courseid.
      * @param courseid the courseid.
      * @param strictness by default MUST_EXIST

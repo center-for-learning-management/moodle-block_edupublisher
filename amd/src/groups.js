@@ -30,7 +30,7 @@ define(
 
         Ajax.call([{
           methodname: 'block_edupublisher_group_rename',
-          args: { groupid: groupid, name: name },
+          args: {groupid: groupid, name: name},
           done: function (result) {
             result = JSON.parse(result);
             if (typeof result.error == 'undefined') {
@@ -44,7 +44,7 @@ define(
               }, 2000);
             } else {
               Str.get_strings([
-                { 'key': 'error', component: 'core' },
+                {'key': 'error', component: 'core'},
               ]).done(function (s) {
                   Notification.alert(s[0], result.error);
                 }
