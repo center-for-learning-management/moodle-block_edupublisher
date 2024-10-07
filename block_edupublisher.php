@@ -121,15 +121,16 @@ class block_edupublisher extends block_base {
                     break;
                 }
             }
+
             $params = (object)[
                 'wwwroot' => $CFG->wwwroot,
                 'courseid' => $COURSE->id,
                 'packages' => array_values($DB->get_records_sql('SELECT * FROM {block_edupublisher_packages} WHERE sourcecourse=? AND (active=1 OR userid=?)', array($COURSE->id, $USER->id))),
                 'pendingpublication' => (intval($pendingpublication) == -1) ? 0 : $pendingpublication,
-                'uses' => array_values($DB->get_records_sql('SELECT DISTINCT(package) FROM {block_edupublisher_uses} WHERE targetcourse=?', array($COURSE->id))),
+                'uses' => array_values($DB->get_records_sql('SELECT DISTINCT package.id, package.title FROM {block_edupublisher_packages} package JOIN {block_edupublisher_uses} uses ON package.id=uses.package AND uses.targetcourse=?', array($COURSE->id))),
             ];
-            $params->haspackages = (count($params->packages) > 0) ? 1 : 0;
-            $params->hasuses = (count($params->uses) > 0) ? 1 : 0;
+            $params->haspackages = !!count($params->packages);
+            $params->hasuses = !!count($params->uses);
 
             $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_canedit', $params);
         }

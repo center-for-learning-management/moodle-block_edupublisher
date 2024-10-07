@@ -336,6 +336,14 @@ if (!$restore->is_independent()) {
             require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
             \block_edupublisher\lib::log_user_visit($package->get('id'), 'cloned');
 
+            // log the usage
+            $DB->insert_record('block_edupublisher_uses', (object)array(
+                'userid' => $USER->id,
+                'package' => $package->get('id'),
+                'targetcourse' => $course->id,
+                'created' => time(),
+            ));
+
             // Get HTML from logger.
             if ($CFG->debugdisplay) {
                 $loghtml = $logger->get_html();
