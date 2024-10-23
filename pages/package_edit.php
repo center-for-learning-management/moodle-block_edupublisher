@@ -25,56 +25,125 @@ require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 
-$id = required_param('id', PARAM_INT);
-$package = new \block_edupublisher\package($id, true);
-$context = \context_course::instance($package->get('course'));
+$id = optional_param('id', 0, PARAM_INT);
+$returnurl = new moodle_url(optional_param('returnurl', '/blocks/edupublisher/pages/list.php', PARAM_URL));
+// check for local url
+$returnurl->out_as_local_url();
+
+if (!$id) {
+    $package = null;
+} else {
+    $package = new \block_edupublisher\package($id, true);
+}
+
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/package_edit.php?id=' . $id);
-require_login($package->get('course'));
-$PAGE->set_context($context);
-$PAGE->set_title(get_string('package', 'block_edupublisher'));
-$PAGE->set_heading(get_string('package', 'block_edupublisher'));
-$PAGE->set_pagelayout('incourse');
+require_login($package ? $package->courseid : null);
+
+$PAGE->set_context(\context_system::instance());
+
+$title = get_string('package', 'block_edupublisher') . ($package ? ': ' . $package->title : '');
+$PAGE->set_title($title);
+$PAGE->set_heading($title);
+
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
-$PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->get('id'))));
-$PAGE->navbar->add(get_string('edit'), $PAGE->url);
+// $PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $id)));
+// $PAGE->navbar->add(get_string('edit'), $PAGE->url);
 
 \block_edupublisher\lib::check_requirements();
 
-echo $OUTPUT->header();
-if ($package->get('canedit')) {
-    $package->load_origins();
-    require_once("$CFG->dirroot/blocks/edupublisher/classes/package_create_form.php");
-    $form = new package_create_form(null, null, 'post', '_self', array('onsubmit' => 'this.querySelectorAll("input").forEach( i => i.disabled = false)'), true);
-    // get_data as dummy to validate under mode_show_form precondition.
-    $form->get_data();
-    $package->prepare_package_form();
-
-    if ($data = $form->get_data()) {
-        $package->store_package($data);
-        if (empty($package->get('suppresscomment', 'default'))) {
-            $sendto = array('allmaintainers');
-            $package->store_comment('comment:template:package_updated', $sendto, true, false);
-        }
-        echo "<p class=\"alert alert-success\">" . get_string('successfully_saved_package', 'block_edupublisher') . "</p>";
-    }
-    $flattened = $package->get_flattened();
-    $flattened->origins = $package->load_origins();
-    $form->set_data($flattened);
-    echo "<div class=\"skip-ui-eduvidual ui-edupublisher-skip\">";
-    $form->display();
-    echo "</div>";
-} else {
-    echo $OUTPUT->render_from_template(
-        'block_edupublisher/alert',
-        (object)array(
-            'content' => get_string('permission_denied', 'block_edupublisher'),
-            'url' => $CFG->wwwroot . '/blocks/edupublisher/pages/package.php?id=' . $package->get('id'),
-            'type' => 'danger',
-        )
-    );
+if ($package && !$package->can_edit()) {
+    throw new \moodle_exception('no permission');
 }
+
+if ($package) {
+    $content_items_old = $DB->get_records('block_edupublisher_pkg_items', ['packageid' => $package->id], 'sorting');
+} else {
+    $content_items_old = [];
+}
+
+$package?->load_origins();
+$form = new \block_edupublisher\package_edit_form(null, [
+    'package' => $package,
+    'content_items_old' => $content_items_old,
+], 'post', '_self', array('onsubmit' => 'this.querySelectorAll("input").forEach( i => i.disabled = false)'), true);
+
+if ($form->is_cancelled()) {
+    redirect(new moodle_url('/blocks/edupublisher/pages/list.php'));
+} elseif ($data = $form->get_data()) {
+    if ($package) {
+        $package->store_package($data);
+        $package_created = false;
+    } else {
+        $package = \block_edupublisher\package::create($data);
+        $package_created = true;
+
+        $session_competencies = $_REQUEST['session_competencies'] ?? '';
+        if ($session_competencies) {
+            $session_competencies = explode(',', $session_competencies);
+            foreach ($session_competencies as $competencyid) {
+                \core_competency\api::add_competency_to_course($package->courseid, $competencyid);
+            }
+        }
+    }
+
+    \block_edupublisher\lib::sync_package_to_course($package);
+
+    if (empty($package->get('suppresscomment', 'default'))) {
+        $sendto = array('allmaintainers');
+        $package->store_comment('comment:template:package_updated', $sendto, true, false);
+    }
+
+    if ($package_created) {
+        // danke seite usw. für die Einreichung
+
+        echo $OUTPUT->header();
+
+        echo get_string('publish_stage_finish_text', 'block_edupublisher');
+        $url = new \moodle_url('/blocks/edupublisher/pages/package.php', ['id' => $package->id]);
+        $label = get_string('publish_stage_finish_button', 'block_edupublisher');
+        echo "<div style=\"text-align: center;\"><a href=\"$url\" class=\"btn btn-primary\">$label</a></div>\n";
+
+        echo $OUTPUT->footer();
+        exit;
+    }
+
+
+    redirect(new moodle_url('/blocks/edupublisher/pages/list.php', array('id' => $package->id)),
+        get_string('successfully_saved_package', 'block_edupublisher'),
+        null,
+        \core\output\notification::NOTIFY_SUCCESS);
+}
+
+if ($package) {
+    $data = $package->get_form_data();
+} else {
+    $data = (object)[];
+
+    $data->etapas_publishas = 1;
+    $data->eduthekneu_publishas = 1;
+
+    $data->content_items = [];
+
+    // show first content item
+    $data->content_items[] = [
+        'id' => 0,
+        'delete' => 0,
+    ];
+}
+
+$form->set_data($data);
+
+echo $OUTPUT->header();
+
+?>
+    <div>
+        <a href="<?=$returnurl?>" class="btn btn-secondary mb-2"><?= get_string('back') ?></a>
+    </div>
+<?php
+
+$form->display();
 
 echo $OUTPUT->footer();

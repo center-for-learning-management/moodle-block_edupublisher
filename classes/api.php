@@ -16,21 +16,29 @@
 
 /**
  * @package    block_edupublisher
- * @copyright  2018-2019 Digital Education Society (http://www.dibig.at)
- *             2020 onwards Center for Learning Management (http://www.lernmanagement.at)
+ * @copyright  2020 Center for Learningmanagement (www.lernmanagement.at)
  * @author     Robert Schrenk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+namespace block_edupublisher;
+
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2024101605;
-$plugin->requires = 2014051200;
-$plugin->component = 'block_edupublisher';
-$plugin->release = '2.2';
-$plugin->maturity = MATURITY_STABLE;
-
-$plugin->dependencies = array(
-    'block_enrolcode' => 2021111801,
-    'block_exacomp' => 2020091000,
-);
+class api {
+    // public static function get_course_summary(int $courseid): ?string {
+    //     global $PAGE;
+    //
+    //     $package = \block_edupublisher\lib::get_package_by_courseid($courseid, IGNORE_MISSING, false);
+    //
+    //     if (!$package) {
+    //         return null;
+    //     }
+    //
+    //     // hack: also add the styles
+    //     // $PAGE->requires->css does not work here, because header is already printed
+    //     $styles = '<style> ' . file_get_contents(__DIR__ . '/../style/course_summary.css') . ' </style>';
+    //
+    //     return $styles . output::render_package_details($package);
+    // }
+}

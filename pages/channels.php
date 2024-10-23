@@ -29,19 +29,19 @@ $modified = optional_param('modified', 0, PARAM_INT);
 
 $_channels = \block_edupublisher\lib::channels();
 $channel = array();
+$channels = [];
 foreach ($_channels as $channel) {
     $token = get_config('block_edupublisher', 'channelkey_' . $channel);
-    if (empty($token))
+    if (empty($token)) {
         continue;
+    }
     if (in_array($token, $tokens)) {
         $channels[] = $channel;
     }
 }
 
 if (count($channels) == 0) {
-    echo $OUTPUT->header();
     echo 'No valid token';
-    echo $OUTPUT->footer();
     die();
 }
 
@@ -72,8 +72,9 @@ if (empty($modified)) {
 } else {
     header('Content-type: application/xml');
     $sql = "SELECT id
-                FROM {block_edupublisher_packages}
+                FROM {block_edupublisher_packages} p
                 WHERE modified > ?";
+    // auch inaktivte und gelöschte mitübertragen, damit sie bei den anderen System gelöscht werden können
 
     $items = new SimpleXMLElement('<items />');
     $packageids = $DB->get_records_sql($sql, array($modified));

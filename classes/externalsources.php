@@ -427,7 +427,7 @@ class externalsources {
                         'contextid' => $context->id,
                         'component' => 'block_edupublisher',
                         'filearea' => 'default_image',
-                        'itemid' => $pubpackage->get('id'),
+                        'itemid' => $pubpackage->id,
                     );
 
                     $curldata = $external;
@@ -441,7 +441,7 @@ class externalsources {
                 // Enter additional metadata provided from xml-file
                 $required_missing = array();
                 foreach ($channels as $channel) {
-                    $pubpackage->set($pubpackage->get('id'), 'package', $channel);
+                    $pubpackage->set($pubpackage->id, 'package', $channel);
                     $fields = array_keys($definition[$channel]);
                     foreach ($fields as $field) {
                         if (!empty($package->{$channel . '_' . $field})) {

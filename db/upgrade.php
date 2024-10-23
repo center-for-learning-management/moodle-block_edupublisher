@@ -886,6 +886,229 @@ function xmldb_block_edupublisher_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2024062800, 'edupublisher');
     }
 
+    if ($oldversion < 2024101605) {
+
+        // Define field filling_mode to be added to block_edupublisher_md_def.
+        $table = new xmldb_table('block_edupublisher_md_def');
+        $field = new xmldb_field('filling_mode', XMLDB_TYPE_INTEGER, '5', null, null, null, null, 'title');
+
+        // Conditionally launch add field filling_mode.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // for old items the mode = expert
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET filling_mode = 100 WHERE filling_mode IS NULL");
+
+        // Define table block_edupublisher_pkg_items to be created.
+        $table = new xmldb_table('block_edupublisher_pkg_items');
+
+        // Adding fields to table block_edupublisher_pkg_items.
+        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
+        $table->add_field('packageid', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('description', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+        $table->add_field('link', XMLDB_TYPE_CHAR, '250', null, XMLDB_NOTNULL, null, null);
+        $table->add_field('sorting', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, null, '0');
+        $table->add_field('didaktische_hinweise', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null);
+
+        // Adding keys to table block_edupublisher_pkg_items.
+        $table->add_key('idx_id', XMLDB_KEY_PRIMARY, ['id']);
+
+        // Adding indexes to table block_edupublisher_pkg_items.
+        $table->add_index('idx_packageid', XMLDB_INDEX_NOTUNIQUE, ['packageid']);
+
+        // Conditionally launch create table for block_edupublisher_pkg_items.
+        if (!$dbman->table_exists($table)) {
+            $dbman->create_table($table);
+        }
+
+        // trim leading and trailing commas from a field channels
+        $DB->execute("UPDATE {block_edupublisher_packages}
+            SET channels = TRIM(BOTH ',' FROM channels)
+            WHERE channels IS NOT NULL");
+
+        // new delimiter
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET tags=REPLACE(REPLACE(TRIM(BOTH '~~~|~~~' FROM tags), ',',''), '~~~|~~~', ',') WHERE tags LIKE '%~~~|~~~%'");
+        $DB->execute("UPDATE {block_edupublisher_md_edu} SET type=REPLACE(REPLACE(TRIM(BOTH '~~~|~~~' FROM type), ',',''), '~~~|~~~', ',') WHERE type LIKE '%~~~|~~~%'");
+        $DB->execute("UPDATE {block_edupublisher_md_edu} SET schooltype=REPLACE(REPLACE(TRIM(BOTH '~~~|~~~' FROM schooltype), ',',''), '~~~|~~~', ',') WHERE schooltype LIKE '%~~~|~~~%'");
+        $DB->execute("UPDATE {block_edupublisher_md_edu} SET topic=REPLACE(REPLACE(TRIM(BOTH '~~~|~~~' FROM topic), ',',''), '~~~|~~~', ',') WHERE topic LIKE '%~~~|~~~%'");
+        $DB->execute("UPDATE {block_edupublisher_md_edu} SET educationallevel=REPLACE(REPLACE(TRIM(BOTH '~~~|~~~' FROM educationallevel), ',',''), '~~~|~~~', ',') WHERE educationallevel LIKE '%~~~|~~~%'");
+
+        $table = new xmldb_table('block_edupublisher_md_def');
+        $field = new xmldb_field('image', XMLDB_TYPE_CHAR, '255', null, null, null, null);
+        if ($dbman->field_exists($table, $field)) {
+            $dbman->drop_field($table, $field);
+        }
+
+        // Define field schoollevels to be added to block_edupublisher_md_def.
+        $table = new xmldb_table('block_edupublisher_md_def');
+        $field = new xmldb_field('schoollevels', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'published');
+
+        // Conditionally launch add field schoollevels.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field subjectareas to be added to block_edupublisher_md_def.
+        $table = new xmldb_table('block_edupublisher_md_def');
+        $field = new xmldb_field('subjectareas', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'schoollevels');
+
+        // Conditionally launch add field subjectareas.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field contenttypes to be added to block_edupublisher_md_eduneu.
+        $table = new xmldb_table('block_edupublisher_md_eduneu');
+        $field = new xmldb_field('contenttypes', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'ltiurl');
+
+        // Conditionally launch add field contenttypes.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Define field purposes to be added to block_edupublisher_md_eduneu.
+        $table = new xmldb_table('block_edupublisher_md_eduneu');
+        $field = new xmldb_field('purposes', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'kompetenzen');
+
+        // Conditionally launch add field purposes.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET schoollevels = ''");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET schoollevels = CONCAT(schoollevels, ',elementary') WHERE schoollevel_elementary = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET schoollevels = CONCAT(schoollevels, ',primary') WHERE schoollevel_primary = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET schoollevels = CONCAT(schoollevels, ',secondary_1') WHERE schoollevel_secondary_1 = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET schoollevels = CONCAT(schoollevels, ',secondary_2') WHERE schoollevel_secondary_2 = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET schoollevels = CONCAT(schoollevels, ',tertiary') WHERE schoollevel_tertiary = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET schoollevels = CONCAT(schoollevels, ',adult') WHERE schoollevel_adult = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET schoollevels = TRIM(BOTH ',' FROM schoollevels)");
+
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = ''");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',arts') WHERE subjectarea_arts = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',economics') WHERE subjectarea_economics = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',geography') WHERE subjectarea_geography = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',history') WHERE subjectarea_history = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',informatics') WHERE subjectarea_informatics = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',languages') WHERE subjectarea_languages = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',mathematics') WHERE subjectarea_mathematics = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',naturalsciences') WHERE subjectarea_naturalsciences = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',philosophy') WHERE subjectarea_philosophy = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',physic leducation') WHERE subjectarea_physicaleducation = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',other') WHERE subjectarea_other = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = TRIM(BOTH ',' FROM subjectareas)");
+
+        $DB->execute("UPDATE {block_edupublisher_md_eduneu} SET contenttypes = ''");
+        $DB->execute("UPDATE {block_edupublisher_md_eduneu} SET contenttypes = CONCAT(contenttypes, ',assignment') WHERE contenttype_assignment = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_eduneu} SET contenttypes = CONCAT(contenttypes, ',exercise') WHERE contenttype_exercise = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_eduneu} SET contenttypes = CONCAT(contenttypes, ',learningtrack') WHERE contenttype_learningtrack = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_eduneu} SET contenttypes = CONCAT(contenttypes, ',supportmaterial') WHERE contenttype_supportmaterial = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_eduneu} SET contenttypes = TRIM(BOTH ',' FROM contenttypes)");
+
+        $DB->execute("UPDATE {block_edupublisher_md_eduneu} SET purposes = ''");
+        $DB->execute("UPDATE {block_edupublisher_md_eduneu} SET purposes = CONCAT(purposes, ',preparation') WHERE purpose_preparation = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_eduneu} SET purposes = CONCAT(purposes, ',supervised') WHERE purpose_supervised = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_eduneu} SET purposes = CONCAT(purposes, ',selfpaced') WHERE purpose_selfpaced = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_eduneu} SET purposes = TRIM(BOTH ',' FROM purposes)");
+
+        $table = new xmldb_table('block_edupublisher_md_def');
+        $fields = [
+            'schoollevel_elementary',
+            'schoollevel_primary',
+            'schoollevel_secondary_1',
+            'schoollevel_secondary_2',
+            'schoollevel_tertiary',
+            'schoollevel_adult',
+            'subjectarea_arts',
+            'subjectarea_economics',
+            'subjectarea_geography',
+            'subjectarea_history',
+            'subjectarea_informatics',
+            'subjectarea_languages',
+            'subjectarea_mathematics',
+            'subjectarea_naturalsciences',
+            'subjectarea_philosophy',
+            'subjectarea_physicaleducation',
+            'subjectarea_other',
+        ];
+
+        foreach ($fields as $field) {
+            $index = new xmldb_index("idx_{$field}", XMLDB_INDEX_NOTUNIQUE, [$field]);
+            if ($dbman->index_exists($table, $index)) {
+                $dbman->drop_index($table, $index);
+            }
+
+            $field = new xmldb_field($field);
+            // Conditionally launch drop field schoollevel_adult.
+            if ($dbman->field_exists($table, $field)) {
+                $dbman->drop_field($table, $field);
+            }
+        }
+
+        $table = new xmldb_table('block_edupublisher_md_eduneu');
+        $fields = [
+            'contenttype_assignment',
+            'contenttype_exercise',
+            'contenttype_learningtrack',
+            'contenttype_supportmaterial',
+            'purpose_preparation',
+            'purpose_supervised',
+            'purpose_selfpaced',
+        ];
+
+        foreach ($fields as $field) {
+            $index = new xmldb_index("idx_{$field}", XMLDB_INDEX_NOTUNIQUE, [$field]);
+            if ($dbman->index_exists($table, $index)) {
+                $dbman->drop_index($table, $index);
+            }
+
+            $field = new xmldb_field($field);
+            // Conditionally launch drop field schoollevel_adult.
+            if ($dbman->field_exists($table, $field)) {
+                $dbman->drop_field($table, $field);
+            }
+        }
+
+        // Define index idx_schoollevels (not unique) to be added to block_edupublisher_md_def.
+        $table = new xmldb_table('block_edupublisher_md_def');
+        $index = new xmldb_index('idx_schoollevels', XMLDB_INDEX_NOTUNIQUE, ['schoollevels']);
+
+        // Conditionally launch add index idx_schoollevels.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index idx_subjectareas (not unique) to be added to block_edupublisher_md_def.
+        $table = new xmldb_table('block_edupublisher_md_def');
+        $index = new xmldb_index('idx_subjectareas', XMLDB_INDEX_NOTUNIQUE, ['subjectareas']);
+
+        // Conditionally launch add index idx_subjectareas.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index idx_contenttypes (not unique) to be added to block_edupublisher_md_eduneu.
+        $table = new xmldb_table('block_edupublisher_md_eduneu');
+        $index = new xmldb_index('idx_contenttypes', XMLDB_INDEX_NOTUNIQUE, ['contenttypes']);
+
+        // Conditionally launch add index idx_contenttypes.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Define index idx_purposes (not unique) to be added to block_edupublisher_md_eduneu.
+        $table = new xmldb_table('block_edupublisher_md_eduneu');
+        $index = new xmldb_index('idx_purposes', XMLDB_INDEX_NOTUNIQUE, ['purposes']);
+
+        // Conditionally launch add index idx_purposes.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2024101605, 'edupublisher');
+    }
 
     return true;
 }

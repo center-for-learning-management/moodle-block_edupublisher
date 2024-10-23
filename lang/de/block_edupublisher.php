@@ -66,8 +66,8 @@ $string['commercial_validation_help'] = '<strong>Externe Prüfung:</strong> Pake
 
 $string['default__mailsubject'] = 'eduPublisher-Item eingereicht';
 $string['default_header'] = 'eduvidual';
-$string['default_authorname'] = 'Autor';
-$string['default_authorname_missing'] = 'Bitte geben Sie den Namen des Autors/der Autorin/nen ein!';
+$string['default_authorname'] = 'Urheber/innen';
+$string['default_authorname_missing'] = 'Bitte geben Sie den Namen der Urheber/innen ein!';
 $string['default_authormail'] = 'Kontakt e-Mail';
 $string['default_authormail_missing'] = 'Bitte geben Sie eine gültige Mailadresse ein!';
 $string['default_authormailshow'] = 'Zeige e-Mail öffentlich';
@@ -82,14 +82,14 @@ $string['default_licence'] = 'Lizenz';
 $string['default_licence_missing'] = 'Sie müssen sich für eine Lizenz entscheiden!';
 $string['default_licenceother'] = 'Sonstige Lizenz';
 $string['default_publish_as'] = 'In eduvidual veröffentlichen';
-$string['default_schoollevel'] = 'Schulstufe';
+$string['default_schoollevels'] = 'Schulstufen';
 $string['default_schoollevel_adult'] = 'Erwachsenenbildung';
 $string['default_schoollevel_elementary'] = 'Elementarstufe';
 $string['default_schoollevel_primary'] = 'Primarstufe';
 $string['default_schoollevel_secondary_1'] = 'Sekundarstufe 1';
 $string['default_schoollevel_secondary_2'] = 'Sekundarstufe 2';
 $string['default_schoollevel_tertiary'] = 'Tertiär';
-$string['default_subjectarea'] = 'Gegenstandsbereich';
+$string['default_subjectareas'] = 'Gegenstandsbereiche';
 $string['default_subjectarea_arts'] = 'Kunst';
 $string['default_subjectarea_economics'] = 'Wirtschaft';
 $string['default_subjectarea_geography'] = 'Geographie';
@@ -103,7 +103,7 @@ $string['default_subjectarea_philosophy'] = 'Philosophie';
 $string['default_subjectarea_physicaleducation'] = 'Sport';
 $string['default_suppresscomment'] = 'Kein Kommentar';
 $string['default_suppresscomment_help'] = 'Speichere, ohne einen Kommentar zu generieren';
-$string['default_tags'] = 'Schlüsselworte';
+$string['default_tags'] = 'Tags / Suchbegriffe';
 $string['default_title'] = 'Titel';
 $string['default_trigger_active'] = 'Paket aktiv!';
 $string['default_summary'] = 'Beschreibung';
@@ -155,6 +155,8 @@ $string['eduthekneu_ltisecret'] = 'LTI Secret';
 $string['eduthekneu_ltiurl'] = 'LTI URL';
 $string['eduthekneu_publish_as'] = 'In eduthek.neu veröffentlichen';
 $string['eduthekneu_trigger_active'] = 'In eduthek.neu aktiv!';
+$string['eduthekneu_contenttypes'] = 'Inhaltstypen';
+$string['eduthekneu_purposes'] = 'Zwecke';
 
 $string['enablecommercial'] = 'Erlaube kommerziellen Inhalt';
 $string['enablecommercial_desc'] = 'Mit dieser Checkbox kann die Findbarkeit von kommerziellen Inhalten global gesteuert werden.';
@@ -182,9 +184,10 @@ $string['etapas_stundenablauf'] = 'Stundenablauf';
 $string['etapas_subtype'] = 'Untergruppe';
 $string['etapas_type'] = 'Art';
 $string['etapas_trigger_active'] = 'Als eTapa aktiv!';
-$string['etapas_voraussetzungen'] = 'Voraussetzungen';
+$string['etapas_voraussetzungen'] = 'Voraussetzungen (technische Hilfsmittel)';
 $string['etapas_vorkenntnisse'] = 'Vorkenntnisse';
-$string['etapas_zeitbedarf'] = 'Zeitbedarf';
+$string['etapas_vorkenntnisse_help'] = 'Geben Sie an, welche Lehrinhalte Schüler:innen bereits erlernt haben müssen, um mit dieser Ressource arbeiten zu können';
+$string['etapas_zeitbedarf'] = 'Dauer';
 
 $string['exception:name_must_not_be_empty'] = 'Der Name darf nicht leer sein!';
 $string['export'] = 'Export';
@@ -276,7 +279,7 @@ $string['only_viewing_unenrol_button'] = 'Ja, mich aus diesem Kurs austragen!';
 $string['only_viewing_unenrol_as_student'] = 'Ja, mich aus diesem Kurs als Lernende/r austragen!';
 $string['only_viewing_unenrol_as_teacher'] = 'Ja, mich aus diesem Kurs als Verwalter/in austragen!';
 $string['overview'] = 'Überblick';
-$string['package'] = 'Paket';
+$string['package'] = 'Ressource';
 $string['parts_based_upon'] = 'Inhalte basieren auf';
 $string['parts_published'] = 'Inhalte veröffentlicht als';
 $string['pending_publication'] = 'Offene Publikation von Kurs {$a->courseid}';
@@ -331,10 +334,10 @@ $string['publish_stage_finish'] = 'Fertig';
 $string['publish_stage_finish_text'] = '
     <h3>Veröffentlichung erfolgreich</h3>
     <p>
-        Vielen Dank für die Veröffentlichung dieser Inhalte als offene Bildungsressource!
+        Vielen Dank für die Erstellung dieser Inhalte als offene Bildungsressource!
     </p>
     <p>
-        Unser Redaktionsteam wird das Lernpaket nach einer kurzen Prüfung freigeben.
+        Unser Redaktionsteam wird das Lernpaket nach der Prüfung freigeben.
     </p>';
 $string['publish_stage_finish_button'] = 'Zum Lernpaket';
 $string['publisher'] = 'Anbieter';

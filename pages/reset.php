@@ -43,7 +43,7 @@ if (\block_edupublisher\lib::is_admin() && optional_param('confirmed', 0, PARAM_
             'type' => 'info',
         );
         echo $OUTPUT->render_from_template('block_edupublisher/alert', (object)$params);
-        delete_course($package->get('course'), false);
+        delete_course($package->courseid, false);
     }
     $DB->execute('TRUNCATE {block_edupublisher_packages}');
     $DB->execute('TRUNCATE {block_edupublisher_md_com}');

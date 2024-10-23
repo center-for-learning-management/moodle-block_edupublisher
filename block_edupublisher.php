@@ -21,6 +21,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_edupublisher\output;
+
 defined('MOODLE_INTERNAL') || die;
 
 require_once($CFG->libdir . '/adminlib.php');
@@ -84,12 +86,14 @@ class block_edupublisher extends block_base {
 
         if ($package) {
             $package = new \block_edupublisher\package($package->id, true);
+
             if ($package->get('licence', 'default') == 'other') {
                 $package->set(get_string('default_licenceother', 'block_edupublisher'), 'licence', 'default');
             }
             if ($package->get('subtype', 'etapas') == 'etapa' && has_capability('block/edupublisher:canseeevaluation', \context_system::instance())) {
-                $package->set(true, 'can_see_evaluation');
+                $package->set_v2('can_see_evaluation', true);
             }
+
             // Show use package-button
             $courses = \block_edupublisher\lib::get_courses(null, 'moodle/course:update');
             if (count(array_keys($courses)) > 0) {
@@ -102,9 +106,24 @@ class block_edupublisher extends block_base {
                 $package->set(str_replace(array(' ', '.'), '', $package->etapas_subtype), 'graphic', 'etapas');
             }
 
-            $package->set(\block_edupublisher\lib::show_star_rating(), 'show_star_rating');
+            if ($this->is_displayed_in_course_content()) {
+                // inside a course
 
-            $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_inpackage', $package->get_flattened());
+                // hack: also add the styles
+                // $PAGE->requires->css does not work here, because header is already printed
+                $styles = '<style> ' . file_get_contents(__DIR__ . '/style/course_summary.css') . ' </style>';
+
+                $this->content->text .= $styles .
+                    '<div class="ui-edupublisher">' .
+                    output::render_package_details($package, 'course_content') .
+                    '</div>';
+                $this->title = ''; // get_string('summary', 'block_edupublisher');
+            } else {
+
+                $package->set(\block_edupublisher\lib::show_star_rating(), 'show_star_rating');
+
+                $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_inpackage', $package->get_flattened());
+            }
         } elseif ($canedit) {
             $cache = \cache::make('block_edupublisher', 'publish');
             $pendingpublication = $cache->get("pending_publication_$COURSE->id");
@@ -136,6 +155,12 @@ class block_edupublisher extends block_base {
         }
 
         return $this->content;
+    }
+
+    public function is_displayed_in_course_content() {
+        global $COURSE;
+
+        return $this->instance->region == 'content-upper' && $this->context->get_parent_context() instanceof \context_course && $COURSE->id > 1;
     }
 
     public function hide_header() {

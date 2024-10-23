@@ -48,7 +48,7 @@ $targetcourse = $DB->get_record('course', array('id' => $targetcourseid), '*', M
 $targetcontext = \context_course::instance($targetcourse->id);
 require_login($targetcourse);
 
-$sourcecontext = \context_course::instance($package->get('course'));
+$sourcecontext = \context_course::instance($package->courseid);
 
 $fs = \get_file_storage();
 $pathnamehash = $fs->get_pathname_hash($sourcecontext->id, 'block_edupublisher', 'coursebackup', 0, '/', 'coursebackup.mbz');
@@ -115,7 +115,7 @@ if ($file) {
         */
 
         // Create the course.
-        $importcourse = $DB->get_record('course', array('id' => $package->get('course')));
+        $importcourse = $DB->get_record('course', array('id' => $package->courseid));
         $subcourse = $importcourse;
         $subcourse->id = 0;
         $subcourse->category = intval($categorysubcourse);
@@ -160,7 +160,7 @@ if ($file) {
         'contextid' => $targetcontext->id,
         'contenthash' => $file->get_contenthash(),
         'pathnamehash' => $pathnamehash,
-        'packageid' => $package->get('id'),
+        'packageid' => $package->id,
         'sectionid' => $sectionid,
     ));
     redirect($url->__toString());

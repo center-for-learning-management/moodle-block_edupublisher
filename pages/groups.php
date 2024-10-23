@@ -26,10 +26,10 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 $id = required_param('id', PARAM_INT);
 $package = new \block_edupublisher\package($id, true);
-$context = \context_course::instance($package->get('course'));
+$context = \context_course::instance($package->courseid);
 // Must pass login
 $PAGE->set_url(new \moodle_url('/blocks/edupublisher/pages/groups.php', ['id' => $id]));
-require_login($package->get('course'));
+require_login($package->courseid);
 
 if (!empty(optional_param('switchaccount', 0, PARAM_INT))) {
     require_logout();
@@ -61,11 +61,11 @@ if (!\block_edupublisher\lib::can_create_groups()) {
 
     if (!empty(optional_param('edupublisher_group_name', '', PARAM_TEXT))) {
         // Set group mode of course
-        $DB->set_field('course', 'groupmode', 1, ['id' => $package->get('course')]);
-        $DB->set_field('course', 'groupmodeforce', 1, ['id' => $package->get('course')]);
+        $DB->set_field('course', 'groupmode', 1, ['id' => $package->courseid]);
+        $DB->set_field('course', 'groupmodeforce', 1, ['id' => $package->courseid]);
 
         $data = (object)[
-            'courseid' => $package->get('course'),
+            'courseid' => $package->courseid,
             'name' => optional_param('edupublisher_group_name', '', PARAM_TEXT),
         ];
         $newgroup = \groups_create_group($data, false, null);
@@ -76,13 +76,13 @@ if (!\block_edupublisher\lib::can_create_groups()) {
                 'type' => 'success',
             ]);
             if (!\block_edupublisher\lib::has_role($context, $roleteacher, $USER)) {
-                \block_edupublisher\lib::course_manual_enrolments([$package->get('course')], $USER->id, $roleteacher);
+                \block_edupublisher\lib::course_manual_enrolments([$package->courseid], $USER->id, $roleteacher);
             }
             \groups_add_member($newgroup, $USER->id);
             require_once("$CFG->dirroot/blocks/enrolcode/locallib.php");
             $expiration = strtotime("31.12.2099");
-            \block_enrolcode_lib::create_code($package->get('course'), $rolestudent, $newgroup, true, $expiration, 0, 0, true);
-            \block_enrolcode_lib::create_code($package->get('course'), $roleteacher, $newgroup, true, $expiration, 0, 0, true);
+            \block_enrolcode_lib::create_code($package->courseid, $rolestudent, $newgroup, true, $expiration, 0, 0, true);
+            \block_enrolcode_lib::create_code($package->courseid, $roleteacher, $newgroup, true, $expiration, 0, 0, true);
         } else {
             echo $OUTPUT->render_from_template('block_edupublisher/alert', [
                 'content' => get_string('groups:create:error', 'block_edupublisher', ['name' => $data->name]),
@@ -92,20 +92,20 @@ if (!\block_edupublisher\lib::can_create_groups()) {
     }
 
     echo $OUTPUT->render_from_template('block_edupublisher/groups_create', []);
-    $groups = \groups_get_all_groups($package->get('course'), $USER->id);
+    $groups = \groups_get_all_groups($package->courseid, $USER->id);
     if (!empty(optional_param('deletegroup', 0, PARAM_INT))) {
         foreach ($groups as $group) {
             if ($group->id == optional_param('deletegroup', 0, PARAM_INT)) {
                 \groups_delete_group($group);
-                $groups = \groups_get_all_groups($package->get('course'), $USER->id);
+                $groups = \groups_get_all_groups($package->courseid, $USER->id);
                 break;
             }
         }
     }
 
     foreach ($groups as &$group) {
-        $stud = $DB->get_record('block_enrolcode', ['courseid' => $package->get('course'), 'groupid' => $group->id, 'roleid' => $rolestudent]);
-        $teac = $DB->get_record('block_enrolcode', ['courseid' => $package->get('course'), 'groupid' => $group->id, 'roleid' => $roleteacher]);
+        $stud = $DB->get_record('block_enrolcode', ['courseid' => $package->courseid, 'groupid' => $group->id, 'roleid' => $rolestudent]);
+        $teac = $DB->get_record('block_enrolcode', ['courseid' => $package->courseid, 'groupid' => $group->id, 'roleid' => $roleteacher]);
         if (!empty($stud->code)) {
             $group->codestudent = $stud->code;
             $group->urlstudent = "$CFG->wwwroot/blocks/enrolcode/enrol.php?code=$stud->code";

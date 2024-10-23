@@ -1,0 +1,199 @@
+{{#get_preview_image_url}}
+<p><img src="{{.}}" alt="" role="presentation" class="img-fluid"></p>
+{{/get_preview_image_url}}
+
+<p>{{{default_summary}}}</p>
+
+{{#display_course_content}}
+<div class="d-flex align-items-start position-relative ui-edupublisher-skip">
+    <a role="button" data-toggle="collapse" href="#block_edupublisher_collapse" aria-expanded="false" aria-controls="block_edupublisher_collapse" class="btn btn-icon mr-1 icons-collapse-expand collapsed justify-content-center stretched-link" aria-label="Details">
+        <span class="expanded-icon icon-no-margin p-2" title="Einklappen">
+            <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
+        </span>
+        <span class="collapsed-icon icon-no-margin p-2" title="Ausklappen">
+            <i class="icon fa fa-chevron-right fa-fw " aria-hidden="true"></i>
+        </span>
+    </a>
+    <h4 class="align-self-stretch" style="display: inline-block; margin-top: 4px;">
+        Details
+    </h4>
+</div>
+
+<div id="block_edupublisher_collapse" class="content course-content-item-content collapse">
+{{/display_course_content}}
+
+<div class="row">
+    <div class="col-md-4">
+        {{#str}} rating, block_edupublisher {{/str}}:
+    </div>
+    <div class="col-md-8">
+        {{#get_rating_data}}
+            {{> block_edupublisher/package_rating }}
+        {{/get_rating_data}}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{#str}} default_summary, block_edupublisher {{/str}}:
+    </div>
+    <div class="col-md-8">
+        {{{default_summary}}}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{#str}} default_licence, block_edupublisher {{/str}}:
+    </div>
+    <div class="col-md-8">
+        {{default_licence}}
+    </div>
+</div>
+{{#canviewuser}}
+<div class="row">
+    <div class="col-md-4">
+        {{#str}} default_authorname, block_edupublisher {{/str}}:
+    </div>
+    <div class="col-md-8">
+        <a href="{{wwwroot}}/user/profile.php?id={{userid}}" target="_blank">{{default_authorname}}</a>
+        <a href="mailto:{{default_authormail}}">Email</a>
+    </div>
+</div>
+{{/canviewuser}}
+
+<div class="row">
+    <div class="col-md-4">
+        {{#str}} default_schoollevels, block_edupublisher {{/str}}:
+    </div>
+    <div class="col-md-8">
+        <ul class="text-divider comma" style="margin: 0; padding: 0;">{{#get_formatted_schoollevels}}<li>{{.}}</li>{{/get_formatted_schoollevels}}</ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{#str}} default_subjectareas, block_edupublisher {{/str}}:
+    </div>
+    <div class="col-md-8">
+        <ul class="text-divider comma" style="margin: 0; padding: 0;">{{#get_formatted_subjectareas}}<li>{{.}}</li>{{/get_formatted_subjectareas}}</ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{#str}} etapas_zeitbedarf, block_edupublisher {{/str}}:
+    </div>
+    <div class="col-md-8">
+        {{get_formatted_zeitbedarf}}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{#str}} default_licence, block_edupublisher {{/str}}:
+    </div>
+    <div class="col-md-8">
+        {{default_licence}}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{#str}} default_tags, block_edupublisher {{/str}}:
+    </div>
+    <div class="col-md-8">
+        <ul class="text-divider comma" style="margin: 0; padding: 0;">{{#default_tags}}<li>{{.}}</li>{{/default_tags}}</ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{#str}} eduthekneu_contenttypes, block_edupublisher {{/str}}:
+    </div>
+    <div class="col-md-8">
+        <ul class="text-divider comma" style="margin: 0; padding: 0;">{{#get_formatted_contenttypes}}<li>{{.}}</li>{{/get_formatted_contenttypes}}</ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{#str}} eduthekneu_purposes, block_edupublisher {{/str}}:
+    </div>
+    <div class="col-md-8">
+        <ul class="text-divider comma" style="margin: 0; padding: 0;">{{#get_formatted_purposes}}<li>{{.}}</li>{{/get_formatted_purposes}}</ul>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{#str}} etapas_vorkenntnisse, block_edupublisher {{/str}}:
+    </div>
+    <div class="col-md-8">
+        {{{etapas_vorkenntnisse}}}
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        {{#str}} etapas_voraussetzungen, block_edupublisher {{/str}}:
+    </div>
+    <div class="col-md-8">
+        {{{etapas_voraussetzungen}}}
+    </div>
+</div>
+
+{{{competencylist}}}
+
+{{#display_course_content}}
+<div class="row">
+    <div class="col-md-12">
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}">
+            <i class="fa fa-eye icon"></i>
+            {{#str}} details, block_edupublisher {{/str}}
+        </a>
+    </div>
+</div>
+{{/display_course_content}}
+
+<div class="row">
+    <div class="col-md-12">
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/comment.php?packageid={{id}}">
+            <i class="fa fa-comments icon"></i>
+            {{#str}} comments {{/str}}
+        </a>
+    </div>
+</div>
+{{#can_see_evaluation}}
+<div class="row">
+    <div class="col-md-12">
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/evaluation.php?packageid={{id}}">
+            <i class="fa fa-area-chart icon"></i>
+            {{#str}} evaluations, block_edupublisher {{/str}}
+        </a>
+    </div>
+</div>
+{{/can_see_evaluation}}
+
+{{#can_import}}
+<div class="row" style="margin-top: 10px;">
+    <div class="col-md-12">
+        <a href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportSelection({{id}}, 0, {{allow_subcourses}}); }); return false;"
+           class="btn btn-primary btn-block" style="margin-top: 10px;">
+           {{#str}} initialize_import, block_edupublisher {{/str}}
+        </a>
+    </div>
+</div>
+{{/can_import}}
+
+<div class="row" style="margin-top: 10px;">
+    <div class="col-md-12">
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/groups.php?id={{id}}" class="btn btn-primary btn-block">
+            {{#str}} groups:create, block_edupublisher {{/str}}
+        </a>
+    </div>
+</div>
+
+{{#can_unenrol}}
+<div class="row" style="margin-top: 10px;">
+    <div class="col-md-12">
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/self_enrol.php?id={{course}}&unenrol=1" class="btn btn-primary btn-block">
+            {{#str}} self_unenrol, block_edupublisher {{/str}}
+        </a>
+    </div>
+</div>
+{{/can_unenrol}}
+
+{{#display_course_content}}
+</div>
+{{/display_course_content}}

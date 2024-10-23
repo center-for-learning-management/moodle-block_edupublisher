@@ -4,6 +4,7 @@ define(
     return {
       searchid: 0, // Ensures that only the last search is shown.
       loadpositions: {},
+      /*
       cancelPackageForm: function (url) {
         STR.get_strings([
           {'key': 'removal:title', component: 'block_edupublisher'},
@@ -17,6 +18,7 @@ define(
           }
         ).fail(NOTIFICATION.exception);
       },
+      */
       clickImportConfirmation: function () {
         $('#page-content div[role="main"] form[action*="/edupublisher/pages/import.php"]').submit();
       },
@@ -202,6 +204,7 @@ define(
           })
           .fail(NOTIFICATION.exception);
       },
+      /*
       preparePackageForm: function (channels) {
         // console.log('MAIN.preparePackageForm(channels)', channels);
         require(["jquery"], function ($) {
@@ -216,12 +219,13 @@ define(
                 $('div[role="main"] #id_' + channels[a] + '_publish_as').css("display", "none");
               } else if ($('div[role="main"] input[name="id"]').val() > 0) {
                 // If id greater 0 and already active disable this box.
-                $('div[role="main"] #id_' + channels[a] + '_publishas').attr('disabled', 'disabled');
+                // $('div[role="main"] #id_' + channels[a] + '_publishas').attr('disabled', 'disabled');
               }
             }
           }
         });
       },
+      */
       search: function (uniqid, courseid, sectionid) {
         var MAIN = this;
         // console.log('MAIN.search(uniqid, courseid, sectionid)', uniqid, courseid, sectionid);
@@ -313,7 +317,7 @@ define(
                   item.importtocourseid = o.courseid;
                   item.importtosectionid = o.sectionid;
                   item.showpreviewbutton = false;
-                  item.url = item.wwwroot + '/course/view.php?id=' + item.course;
+                  item.url = M.cfg.wwwroot + '/course/view.php?id=' + item.course;
                   //console.log('Call list-template for item ', item);
                   TEMPLATES
                     .render('block_edupublisher/search_item', item)

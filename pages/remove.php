@@ -32,7 +32,7 @@ $package = new \block_edupublisher\package($id, true);
 $context = context_course::instance($package->course);
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/remove.php?id=' . $id);
-require_login($package->get('course'));
+require_login($package->courseid);
 $PAGE->set_context($context);
 $PAGE->set_title($package->get('title'));
 $PAGE->set_heading($package->get('title'));
@@ -45,7 +45,7 @@ $PAGE->navbar->add(
     new moodle_url(
         '/blocks/edupublisher/pages/package.php',
         array(
-            'id' => $package->get('id'),
+            'id' => $package->id,
         )
     )
 );
@@ -63,7 +63,7 @@ if ($package->get('candelete')) {
             'type' => 'info',
         );
         echo $OUTPUT->render_from_template('block_edupublisher/alert', (object)$params);
-        delete_course($package->get('course'), false);
+        delete_course($package->courseid, false);
 
         $DB->delete_records('block_edupublisher_uses', array('package' => $id));
         $DB->delete_records('block_edupublisher_rating', array('package' => $id));

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/edupublisher/db" VERSION="20240806" COMMENT="XMLDB file for Moodle blocks/edupublisher"
+<XMLDB PATH="blocks/edupublisher/db" VERSION="20241014" COMMENT="XMLDB file for Moodle blocks/edupublisher"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -232,68 +232,38 @@
         <INDEX NAME="idx_packageid" UNIQUE="false" FIELDS="packageid"/>
       </INDEXES>
     </TABLE>
-      <TABLE NAME="block_edupublisher_md_def" COMMENT="default channel">
-          <FIELDS>
-              <FIELD NAME="id" TYPE="int" LENGTH="19" NOTNULL="true" SEQUENCE="true"/>
-              <FIELD NAME="package" TYPE="int" LENGTH="19" NOTNULL="true" SEQUENCE="false"/>
-              <FIELD NAME="authormail" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-              <FIELD NAME="authormailshow" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="authorname" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-              <FIELD NAME="image" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-              <FIELD NAME="licence" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-              <FIELD NAME="origins" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-              <FIELD NAME="publishas" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="1" SEQUENCE="false"/>
-              <FIELD NAME="published" TYPE="int" LENGTH="19" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="schoollevel_elementary" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="schoollevel_primary" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="schoollevel_secondary_1" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="schoollevel_secondary_2" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="schoollevel_adult" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="schoollevel_tertiary" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="subjectarea_arts" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="subjectarea_economics" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="subjectarea_geography" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="subjectarea_history" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="subjectarea_informatics" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="subjectarea_languages" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="subjectarea_mathematics" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="subjectarea_naturalsciences" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="subjectarea_other" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="subjectarea_philosophy" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="subjectarea_physicaleducation" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-              <FIELD NAME="summary" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-              <FIELD NAME="tags" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-              <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-          </FIELDS>
-          <KEYS>
-              <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
-              <KEY NAME="oer_blocedupmddef_pac_uix" TYPE="unique" FIELDS="package"/>
-          </KEYS>
-          <INDEXES>
-              <INDEX NAME="idx_authormail" UNIQUE="false" FIELDS="authormail"/>
-              <INDEX NAME="idx_authorname" UNIQUE="false" FIELDS="authorname"/>
-              <INDEX NAME="idx_licence" UNIQUE="false" FIELDS="licence"/>
-              <INDEX NAME="idx_schoollevel_elementary" UNIQUE="false" FIELDS="schoollevel_elementary"/>
-              <INDEX NAME="idx_schoollevel_primary" UNIQUE="false" FIELDS="schoollevel_primary"/>
-              <INDEX NAME="idx_schoollevel_secondary_1" UNIQUE="false" FIELDS="schoollevel_secondary_1"/>
-              <INDEX NAME="idx_schoollevel_secondary_2" UNIQUE="false" FIELDS="schoollevel_secondary_2"/>
-              <INDEX NAME="idx_schoollevel_tertiary" UNIQUE="false" FIELDS="schoollevel_tertiary"/>
-              <INDEX NAME="idx_schoollevel_adult" UNIQUE="false" FIELDS="schoollevel_adult"/>
-              <INDEX NAME="idx_subjectarea_arts" UNIQUE="false" FIELDS="subjectarea_arts"/>
-              <INDEX NAME="idx_subjectarea_economics" UNIQUE="false" FIELDS="subjectarea_economics"/>
-              <INDEX NAME="idx_subjectarea_geography" UNIQUE="false" FIELDS="subjectarea_geography"/>
-              <INDEX NAME="idx_subjectarea_history" UNIQUE="false" FIELDS="subjectarea_history"/>
-              <INDEX NAME="idx_subjectarea_informatics" UNIQUE="false" FIELDS="subjectarea_informatics"/>
-              <INDEX NAME="idx_subjectarea_languages" UNIQUE="false" FIELDS="subjectarea_languages"/>
-              <INDEX NAME="idx_subjectarea_mathematics" UNIQUE="false" FIELDS="subjectarea_mathematics"/>
-              <INDEX NAME="idx_subjectarea_naturalsciences" UNIQUE="false" FIELDS="subjectarea_naturalsciences"/>
-              <INDEX NAME="idx_subjectarea_other" UNIQUE="false" FIELDS="subjectarea_other"/>
-              <INDEX NAME="idx_subjectarea_philosophy" UNIQUE="false" FIELDS="subjectarea_philosophy"/>
-              <INDEX NAME="idx_subjectarea_physicaleducation" UNIQUE="false" FIELDS="subjectarea_physicaleducation"/>
-              <INDEX NAME="idx_title" UNIQUE="false" FIELDS="title"/>
-          </INDEXES>
-      </TABLE>
-      <TABLE NAME="block_edupublisher_md_com" COMMENT="Metadata for channel commercial">
+    <TABLE NAME="block_edupublisher_md_def" COMMENT="default channel">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="19" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="package" TYPE="int" LENGTH="19" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="authormail" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="authormailshow" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="authorname" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="licence" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="origins" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="publishas" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="published" TYPE="int" LENGTH="19" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="schoollevels" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="subjectareas" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="summary" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="tags" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="filling_mode" TYPE="int" LENGTH="5" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="oer_blocedupmddef_pac_uix" TYPE="unique" FIELDS="package"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_authormail" UNIQUE="false" FIELDS="authormail"/>
+        <INDEX NAME="idx_authorname" UNIQUE="false" FIELDS="authorname"/>
+        <INDEX NAME="idx_licence" UNIQUE="false" FIELDS="licence"/>
+        <INDEX NAME="idx_title" UNIQUE="false" FIELDS="title"/>
+        <INDEX NAME="idx_schoollevels" UNIQUE="false" FIELDS="schoollevels"/>
+        <INDEX NAME="idx_subjectareas" UNIQUE="false" FIELDS="subjectareas"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="block_edupublisher_md_com" COMMENT="Metadata for channel commercial">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="package" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
@@ -346,29 +316,28 @@
       </KEYS>
     </TABLE>
     <TABLE NAME="block_edupublisher_md_eduneu" COMMENT="Channel for eduthek.neu">
-        <FIELDS>
-            <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
-            <FIELD NAME="package" TYPE="int" LENGTH="19" NOTNULL="true" SEQUENCE="false"/>
-            <FIELD NAME="publishas" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-            <FIELD NAME="published" TYPE="int" LENGTH="19" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-            <FIELD NAME="lticartridge" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-            <FIELD NAME="ltisecret" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-            <FIELD NAME="ltiurl" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
-            <FIELD NAME="contenttype_assignment" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-            <FIELD NAME="contenttype_exercise" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-            <FIELD NAME="contenttype_learningtrack" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-            <FIELD NAME="contenttype_supportmaterial" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-            <FIELD NAME="kompetenzen" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
-            <FIELD NAME="purpose_preparation" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-            <FIELD NAME="purpose_supervised" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-            <FIELD NAME="purpose_selfpaced" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
-        </FIELDS>
-    <KEYS>
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="package" TYPE="int" LENGTH="19" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="publishas" TYPE="int" LENGTH="2" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="published" TYPE="int" LENGTH="19" NOTNULL="false" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="lticartridge" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="ltisecret" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="ltiurl" TYPE="char" LENGTH="255" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="contenttypes" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="kompetenzen" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="purposes" TYPE="char" LENGTH="255" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
         <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
         <KEY NAME="key_package" TYPE="unique" FIELDS="package"/>
-    </KEYS>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_contenttypes" UNIQUE="false" FIELDS="contenttypes"/>
+        <INDEX NAME="idx_purposes" UNIQUE="false" FIELDS="purposes"/>
+      </INDEXES>
     </TABLE>
-      <TABLE NAME="block_edupublisher_md_eta" COMMENT="etapas channel">
+    <TABLE NAME="block_edupublisher_md_eta" COMMENT="etapas channel">
       <FIELDS>
         <FIELD NAME="id" TYPE="int" LENGTH="19" NOTNULL="true" SEQUENCE="true"/>
         <FIELD NAME="package" TYPE="int" LENGTH="19" NOTNULL="true" SEQUENCE="false"/>
@@ -424,6 +393,22 @@
         <INDEX NAME="idx_subtype" UNIQUE="false" FIELDS="subtype"/>
         <INDEX NAME="idx_type" UNIQUE="false" FIELDS="type"/>
         <INDEX NAME="idx_zeitbedarf" UNIQUE="false" FIELDS="zeitbedarf"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="block_edupublisher_pkg_items" COMMENT="content_items">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="packageid" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="description" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="link" TYPE="char" LENGTH="250" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="sorting" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="didaktische_hinweise" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="idx_id" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="idx_packageid" UNIQUE="false" FIELDS="packageid"/>
       </INDEXES>
     </TABLE>
   </TABLES>

@@ -158,7 +158,7 @@ if ($stage == restore_ui::STAGE_SETTINGS) {
 
     $url = new \moodle_url('/blocks/edupublisher/pages/restore.php', array(
         'contextid' => $context->id,
-        'packageid' => $package->get('id'),
+        'packageid' => $package->id,
         'restore' => $restore->get_restoreid(),
         'sectionid' => $sectionid,
         'stage' => restore_ui::STAGE_SCHEMA,
@@ -265,7 +265,7 @@ if (!$restore->is_independent()) {
 
                 // 1.) We have to create empty sections at the beginning of the course,
                 //     where the new contents can be imported to.
-                $sections_import = array_values($DB->get_records('course_sections', array('course' => $package->get('course'))));
+                $sections_import = array_values($DB->get_records('course_sections', array('course' => $package->courseid)));
                 $createdsectionids = array();
 
                 $sql = "UPDATE {course_sections}
@@ -334,12 +334,12 @@ if (!$restore->is_independent()) {
 
             // Log that we cloned a package.
             require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
-            \block_edupublisher\lib::log_user_visit($package->get('id'), 'cloned');
+            \block_edupublisher\lib::log_user_visit($package->id, 'cloned');
 
             // log the usage
             $DB->insert_record('block_edupublisher_uses', (object)array(
                 'userid' => $USER->id,
-                'package' => $package->get('id'),
+                'package' => $package->id,
                 'targetcourse' => $course->id,
                 'created' => time(),
             ));

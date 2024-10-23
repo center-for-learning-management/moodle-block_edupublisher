@@ -50,7 +50,8 @@ class channelexport extends \core\task\scheduled_task {
         }
 
         $sql = "SELECT id
-                    FROM {block_edupublisher_packages}
+                    FROM {block_edupublisher_packages} p
+                    WHERE p.active=1
                     ORDER BY id ASC";
 
         $packageids = $DB->get_records_sql($sql, []);

@@ -1,172 +1,149 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
-//
-// Moodle is free software: you can redistribute it and/or modify
-// it under the terms of the GNU General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-//
-// Moodle is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * @package    block_edupublisher
- * @copyright  2018 Digital Education Society (http://www.dibig.at)
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
+require __DIR__ . '/../inc.php';
 
-require_once('../../../config.php');
-require_once($CFG->libdir . '/adminlib.php');
-require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
+require_once("$CFG->libdir/formslib.php");
 
-$channels = array('default', 'etapas', 'eduthek');
-$channel = optional_param('channel', '', PARAM_TEXT);
-$page = optional_param('page', 0, PARAM_INT);
-$sort = optional_param('sort', '', PARAM_TEXT);
-$search = trim(optional_param('search', '', PARAM_TEXT));
+$PAGE->set_url('/blocks/edupublisher/pages/list.php');
 
-$context = context_system::instance();
-// Must pass login
-$PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/list.php', array('channel' => $channel, 'page' => $page)));
 require_login();
-$PAGE->set_context($context);
-$title = get_string('channels', 'block_edupublisher');
-if (!empty($channel) && in_array($channel, $channels)) {
-    $title = get_string($channel . '_header', 'block_edupublisher');
-} elseif (!empty($channel)) {
-    $title = get_string('error');
-}
-$PAGE->set_title($title);
-$PAGE->set_heading($title);
-$PAGE->set_pagelayout('standard');
+
+$PAGE->set_context(\context_system::instance());
+$PAGE->set_title('Eduthek-Ressourcen');
+$PAGE->set_heading('Eduthek-Ressourcen');
+
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
-$PAGE->navbar->add(get_string('resource_catalogue', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/search.php', array()));
-$PAGE->navbar->add(get_string('channels', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/list.php', array()));
-if (!empty($channel)) {
-    $PAGE->navbar->add($title, $PAGE->url);
+\block_edupublisher\lib::check_requirements();
+
+class block_edupublisher_resources_table extends \local_table_sql\table_sql {
+    protected function define_table_configs() {
+        global $USER;
+
+        $category = get_config('block_edupublisher', 'category');
+        $context = context_coursecat::instance($category);
+
+        $maintainer_default = has_capability('block/edupublisher:managedefault', $context);
+        if ($maintainer_default) {
+            // can manage all
+            $where = '';
+        } else {
+            // can only edit own
+            $where = 'AND resource.userid = ' . $USER->id;
+        }
+
+        $sql = "
+            SELECT resource.*, def.publishas AS default_publishas, def.published AS default_published, u.username, u.firstname, u.lastname
+            FROM {block_edupublisher_packages} resource
+            JOIN {user} u ON resource.userid = u.id
+            JOIN {block_edupublisher_md_def} def ON resource.id = def.package
+            WHERE resource.deleted = 0
+            $where
+        ";
+        $this->set_sql_query($sql);
+
+        // Define headers and columns.
+        $cols = array_filter([
+            'image' => '',
+            'title' => get_string('title', 'block_edupublisher'),
+            'username' => $maintainer_default ? 'Benutzer' : null,
+            'state' => 'Status',
+            'channel_default' => $maintainer_default ? 'eduvidual' : null,
+            'channel_eduthekneu' => $maintainer_default ? 'eduthek.neu' : null,
+            'channel_etapas' => $maintainer_default ? 'etapa' : null,
+            'channel_eduthek' => $maintainer_default ? 'eduthek' : null,
+        ], fn($col) => $col !== null);
+
+        $this->set_table_columns($cols);
+
+        $this->sortable(true, 'title', SORT_ASC);
+
+        $this->no_sorting('image');
+        $this->no_filter('image');
+        $this->no_sorting('state');
+        $this->no_filter('state');
+
+        $this->no_sorting('state');
+        $this->no_filter('state');
+        $this->no_sorting('channel_default');
+        $this->no_filter('channel_default');
+        $this->no_sorting('channel_etapas');
+        $this->no_filter('channel_etapas');
+        $this->no_sorting('channel_eduthek');
+        $this->no_filter('channel_eduthek');
+        $this->no_sorting('channel_eduthekneu');
+        $this->no_filter('channel_eduthekneu');
+
+        $this->add_row_action('package_edit.php?action=edit&id={id}&return_url=' . urlencode((new moodle_url(qualified_me()))->out_as_local_url(false)), 'edit');
+        // $this->add_row_action('package_edit.php?action=delete&id={id}', 'delete');
+    }
+
+    function col_title($row) {
+        return $this->format_col_content($row->title, 'package.php?id=' . $row->id);
+    }
+
+    function col_image($row) {
+        $package = $this->get_package($row->id);
+
+        $url = $package->get_preview_image_url();
+        return $url ? '<img src="' . $url . '" style="width: 40px;"/>' : '';
+    }
+
+    function col_state($row) {
+        $package = $this->get_package($row->id);
+
+        if ($row->active) {
+            return '<span class="badge badge-success">Veröffentlicht</span>';
+        } elseif ($row->default_published) {
+            return 'Freigegeben';
+        } elseif ($row->default_publishas) {
+            return '<span class="badge badge-warning">Eingereicht</span>';
+        } else {
+            return 'Entwurf';
+        }
+    }
+
+    function get_package($id): \block_edupublisher\package {
+        static $packages = [];
+
+        return $packages[$id] ??= new \block_edupublisher\package($id, true);
+    }
+
+    function get_row_actions(object $row, array $row_actions): ?array {
+        $row_actions[0]->disabled = !$this->get_package($row->id)->can_edit();
+        return $row_actions;
+    }
+
+    function other_cols($column, $row) {
+        $package = $this->get_package($row->id);
+
+        if (preg_match('!^channel_(.*)$!', $column, $matches)) {
+            $channel = $matches[1];
+            $published = $package->get('published', $channel);
+            $publishas = $package->get('publishas', $channel);
+
+            if ($published) {
+                return '<span class="badge badge-success">Veröffentlicht</span>';
+            } elseif ($publishas) {
+                return '<span class="badge badge-warning">Todo</span>';
+            } else {
+                return '-';
+            }
+        }
+
+        return parent::other_cols($column, $row);
+    }
 }
 
+$resources_table = new block_edupublisher_resources_table();
 
-\block_edupublisher\lib::check_requirements();
 echo $OUTPUT->header();
 
-if (empty($channel) && !\block_edupublisher\lib::is_maintainer() || !empty($channel) && !\block_edupublisher\lib::is_maintainer(array($channel))) {
-    echo $OUTPUT->render_from_template(
-        'block_edupublisher/alert',
-        array(
-            'content' => get_string('permission_denied', 'block_edupublisher'),
-            'type' => 'warning',
-            'url' => $CFG->wwwroot . '/my',
-        )
-    );
-    echo $OUTPUT->footer();
-    die();
-}
+?>
+    <a class="btn btn-secondary my-3" href="package_edit.php?action=add">Ressource erstellen</a>
+<?php
 
-$category = get_config('block_edupublisher', 'category');
-$context = context_coursecat::instance($category);
-$maintainer_default = has_capability('block/edupublisher:managedefault', $context);
-$maintainer_etapas = has_capability('block/edupublisher:manageetapas', $context);
-$maintainer_eduthek = has_capability('block/edupublisher:manageeduthek', $context);
-
-if (empty($channel)) {
-    echo $OUTPUT->render_from_template(
-        'block_edupublisher/maintain_channelselection',
-        array(
-            'maintainer_default' => $maintainer_default,
-            'maintainer_etapas' => $maintainer_etapas,
-            'maintainer_eduthek' => $maintainer_eduthek,
-            'wwwroot' => $CFG->wwwroot,
-        )
-    );
-} else {
-    if (!$maintainer_default && !$maintainer_etapas && !$maintainer_eduthek) {
-        throw new \moodle_exception('permission_denied', 'block_edupublisher');
-    }
-    /*
-    if (!\block_edupublisher\lib::is_maintainer(array($channel))) {
-        throw new \moodle_exception('permission_denied', 'block_edupublisher');
-    }
-    */
-
-    $params = [];
-    $search_where = '';
-    if ($search) {
-        $search_where = 'AND package.title LIKE ?';
-        $params[] = '%' . str_replace(' ', '%', $search) . '%';
-    }
-
-    $sql = "SELECT id
-                FROM {block_edupublisher_packages} AS package
-                WHERE deleted = 0
-                $search_where
-                ORDER BY id DESC";
-    $packages = array_values($DB->get_records_sql($sql, $params));
-
-    $all = count($packages);
-    $amount = 50;
-    $pages = ceil($all / $amount);
-    $pagination = (object)[
-        'pages' => [],
-    ];
-    for ($a = 0; $a < $pages; $a++) {
-        $url = new \moodle_url('/blocks/edupublisher/pages/list.php', array('channel' => $channel, 'page' => $a, 'search' => $search));
-        $pagination->pages[$a] = [
-            'active' => ($page == $a) ? '1' : '0',
-            'label' => ($a + 1),
-            'link' => $url->__toString(),
-        ];
-    }
-
-    echo $OUTPUT->render_from_template('block_edupublisher/maintain_table_head', array(
-        'channel' => $channel,
-        'maintainer_default' => $maintainer_default,
-        'maintainer_etapas' => $maintainer_etapas,
-        'maintainer_eduthek' => $maintainer_eduthek,
-        'sort' => $sort,
-        'search' => $search,
-        'pages' => $pagination->pages,
-    ));
-
-    $start = $page * $amount;
-    for ($a = $start; $a < $start + $amount && $a < $all; $a++) {
-        $p = $packages[$a];
-        $package = new \block_edupublisher\package($p->id, true);
-        $package->set($maintainer_default, 'maintainer', 'default');
-        $package->set($maintainer_eduthek, 'maintainer', 'eduthek');
-        $package->set($maintainer_etapas, 'maintainer', 'etapas');
-
-        $hasexacompsourceids = !empty($package->get('exacompsourceids', 'default')) && count($package->get('exacompsourceids', 'default')) > 0;
-        $package->set($hasexacompsourceids, 'hasexacompsourceids', 'etapas');
-
-        $exclamation = (
-            $maintainer_default && !empty($package->get('publishas', 'default')) && empty($package->get('published', 'default'))
-            ||
-            $maintainer_etapas && !empty($package->get('publishas', 'etapas')) && empty($package->get('published', 'etapas'))
-            ||
-            $maintainer_eduthek && !empty($package->get('publishas', 'eduthek')) && empty($package->get('published', 'eduthek'))
-        );
-        $package->set($exclamation, 'exclamation');
-        $package->set(1, 'ratingshowcount');
-        echo $OUTPUT->render_from_template(
-            'block_edupublisher/maintain_table_row',
-            $package->get_flattened()
-        );
-    }
-    echo $OUTPUT->render_from_template('block_edupublisher/maintain_table_foot', array());
-
-    echo $OUTPUT->render_from_template(
-        'block_edupublisher/maintain_pagination',
-        $pagination
-    );
-
-}
+$resources_table->out();
 
 echo $OUTPUT->footer();

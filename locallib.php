@@ -35,7 +35,7 @@ function get_subjectareas_sorted($selectedarea = "") {
     $locs = array();
     $loc_key = array();
 
-    foreach ($definition['default']['subjectarea']['options'] as $key => $localized) {
+    foreach ($definition['default']['subjectareas']['options'] as $key => $localized) {
         $locs[] = $localized;
         $loc_key[$localized] = $key;
     }
@@ -53,7 +53,6 @@ function get_subjectareas_sorted($selectedarea = "") {
 
 /**
  * List all schoollevels in an localized, alphabetically sorted array.
- * @param selectedarea mark a schoollevel as selected.
  **/
 function get_schoollevels_sorted($selectedarea = "") {
     global $CFG;
@@ -62,7 +61,7 @@ function get_schoollevels_sorted($selectedarea = "") {
     $locs = array();
     $loc_key = array();
 
-    foreach ($definition['default']['schoollevel']['options'] as $key => $localized) {
+    foreach ($definition['default']['schoollevels']['options'] as $key => $localized) {
         $locs[] = $localized;
         $loc_key[$localized] = $key;
     }

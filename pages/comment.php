@@ -53,7 +53,7 @@ if (!empty($comment->package)) {
 }
 
 $package = new \block_edupublisher\package($packageid, true);
-if (empty($package->get('id')) && empty($id)) {
+if (empty($package->id) && empty($id)) {
     // No such package exists.
     $PAGE->set_context(context_system::instance());
     $PAGE->set_title(get_string('error'));
@@ -72,13 +72,13 @@ if (empty($package->get('id')) && empty($id)) {
     die();
 }
 
-$context = \context_course::instance($package->get('course'));
+$context = \context_course::instance($package->courseid);
 
 // Attention! Guest access will only be active, if the package was published by a moderator!
 $PAGE->set_context($context);
 require_login();
-$PAGE->navbar->add($package->get('title', 'default'), new moodle_url('/course/view.php', array('id' => $package->get('course'))));
-$PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->get('id'))));
+$PAGE->navbar->add($package->get('title', 'default'), new moodle_url('/course/view.php', array('id' => $package->courseid)));
+$PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->id)));
 $PAGE->navbar->add(get_string('comments'), $PAGE->url);
 
 
@@ -113,7 +113,7 @@ if (!empty($id)) {
     $package = new \block_edupublisher\package($comments[0]->package);
 } else {
     $showsingle = false;
-    $comments = $package->load_comments($package->get('canmoderate') || $package->get('userid') == $USER->id, 'DESC');
+    $comments = $package->load_comments($package->get('canmoderate') || $package->userid == $USER->id, 'DESC');
 }
 
 if (!$showsingle && isloggedin() && !isguestuser($USER)) {

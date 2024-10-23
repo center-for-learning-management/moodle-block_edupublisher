@@ -30,10 +30,10 @@ class lib {
      * Ensures that within a context an instance of block_edupublisher exists.
      * @param
      **/
-    public static function add_to_context($context) {
+    public static function add_to_context($context, $region = null) {
         global $DB;
-        $count = $DB->count_records('block_instances', array('blockname' => 'edupublisher', 'parentcontextid' => $context->id));
-        if ($count == 0) {
+        $blocks = $DB->get_records('block_instances', array('blockname' => 'edupublisher', 'parentcontextid' => $context->id));
+        if (!$blocks) {
             // Create edupublisher-block in targetcourse.
             $blockdata = (object)array(
                 'blockname' => 'edupublisher',
@@ -41,13 +41,25 @@ class lib {
                 'showinsubcontexts' => 1,
                 'requiredbytheme' => 0,
                 'pagetypepattern' => 'course-view-*',
-                'defaultregion' => 'side-post',
+                'defaultregion' => $region ?: 'side-post',
                 'defaultweight' => -10,
                 'configdata' => '',
                 'timecreated' => time(),
                 'timemodified' => time(),
             );
             $DB->insert_record('block_instances', $blockdata);
+        } elseif ($region) {
+            // move block to correct region if none exists yet
+            $hasBlockInRegion = array_filter($blocks, fn($block) => $block->defaultregion == $region);
+            if (!$hasBlockInRegion) {
+                $block = current($blocks);
+
+                $DB->update_record('block_instances', (object)[
+                    'id' => $block->id,
+                    'defaultregion' => $region,
+                    'showinsubcontexts' => $region == 'side-post' ? 1 : 0,
+                ]);
+            }
         }
     }
 
@@ -229,30 +241,46 @@ class lib {
      * @return array.
      */
     public static function get_channel_definition() {
+        global $CFG, $USER;
+
+        $required_value = empty($CFG->developermode) ? 1 : 0;
+
         $definition = array(
             'default' => array(
-                'suppresscomment' => array('type' => 'select', 'datatype' => PARAM_INT, 'hidden_except_maintainer' => 1, 'options' => array(
-                    '0' => get_string('no'), '1' => get_string('yes'),
-                ), 'donotstore' => 1),
+                // 'suppresscomment' => array('type' => 'select', 'datatype' => PARAM_INT, 'hidden_except_maintainer' => 1, 'options' => array(
+                //     '0' => get_string('no'), '1' => get_string('yes'),
+                // ), 'donotstore' => 1),
                 'title' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1, 'searchable' => 1),
+                'summary' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
                 'licence' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
                     //'Public Domain' => 'Public Domain',
+                    'cc-by' => 'cc-by',
                     'cc-0' => 'cc-0',
-                    'cc-by' => 'cc-by', 'cc-by-sa' => 'cc-by-sa',
-                    'cc-by-nc' => 'cc-by-nc', 'cc-by-nc-sa' => 'cc-by-nc-sa',
+                    'cc-by-sa' => 'cc-by-sa',
+                    'cc-by-nc' => 'cc-by-nc',
+                    'cc-by-nc-sa' => 'cc-by-nc-sa',
                     'other' => get_string('default_licenceother', 'block_edupublisher'),
-                ), 'required' => 1, 'searchable' => 1),
-                'authorname' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1, 'searchable' => 1),
-                'authormail' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1, 'searchable' => 1),
-                'authormailshow' => array('type' => 'select', 'datatype' => PARAM_INT, 'default' => 1, 'options' => array(
-                    '1' => get_string('yes'), '0' => get_string('no'),
+                ), 'required' => $required_value, 'searchable' => 1),
+                'authorname' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => $required_value, 'searchable' => 1, 'default' => fullname($USER)),
+                // 'authormail' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => $required_value, 'searchable' => 1),
+                // 'authormailshow' => array('type' => 'select', 'datatype' => PARAM_INT, 'default' => 1, 'options' => array(
+                //     '1' => get_string('yes'), '0' => get_string('no'),
+                // ),
+                // ),
+                // 'origins' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_INT),
+                'image' => array('type' => 'filemanager', 'accepted_types' => 'image', 'required' => $required_value),
+                'schoollevels' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_TEXT,
+                    'required' => $required_value, 'options' => array(
+                        'elementary' => get_string('default_schoollevel_elementary', 'block_edupublisher'),
+                        'primary' => get_string('default_schoollevel_primary', 'block_edupublisher'),
+                        'secondary_1' => get_string('default_schoollevel_secondary_1', 'block_edupublisher'),
+                        'secondary_2' => get_string('default_schoollevel_secondary_2', 'block_edupublisher'),
+                        'tertiary' => get_string('default_schoollevel_tertiary', 'block_edupublisher'),
+                        'adult' => get_string('default_schoollevel_adult', 'block_edupublisher'),
+                    ),
                 ),
-                ),
-                'origins' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_INT),
-                'summary' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
-                'image' => array('type' => 'filemanager', 'accepted_types' => 'image', 'required' => 1),
-                'subjectarea' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_TEXT,
-                    'required' => 1, 'splitcols' => 1, 'options' => array(
+                'subjectareas' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_TEXT,
+                    'required' => $required_value, 'options' => array(
                         'arts' => get_string('default_subjectarea_arts', 'block_edupublisher'),
                         'economics' => get_string('default_subjectarea_economics', 'block_edupublisher'),
                         'geography' => get_string('default_subjectarea_geography', 'block_edupublisher'),
@@ -262,71 +290,96 @@ class lib {
                         'mathematics' => get_string('default_subjectarea_mathematics', 'block_edupublisher'),
                         'naturalsciences' => get_string('default_subjectarea_naturalsciences', 'block_edupublisher'),
                         'philosophy' => get_string('default_subjectarea_philosophy', 'block_edupublisher'),
-                        'physicaleducation' => get_string('default_subjectarea_physicaleducation', 'block_edupublisher'),
+                        'physic leducation' => get_string('default_subjectarea_physicaleducation', 'block_edupublisher'),
                         'other' => get_string('default_subjectarea_other', 'block_edupublisher'),
                     ),
                 ),
-                'schoollevel' => array('type' => 'select', 'multiple' => 1, 'datatype' => PARAM_TEXT,
-                    'required' => 1, 'splitcols' => 1, 'options' => array(
-                        'elementary' => get_string('default_schoollevel_elementary', 'block_edupublisher'),
-                        'primary' => get_string('default_schoollevel_primary', 'block_edupublisher'),
-                        'secondary_1' => get_string('default_schoollevel_secondary_1', 'block_edupublisher'),
-                        'secondary_2' => get_string('default_schoollevel_secondary_2', 'block_edupublisher'),
-                        'tertiary' => get_string('default_schoollevel_tertiary', 'block_edupublisher'),
-                        'adult' => get_string('default_schoollevel_adult', 'block_edupublisher'),
-                    ),
-                ),
+                'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_RAW, 'required' => 0, 'searchable' => 1),
                 'tags' => array('type' => 'tags', 'datatype' => PARAM_TEXT, 'multiple' => 1, 'tagparams' => array('itemtype' => 'packages', 'component' => 'block_edupublisher'), 'searchable' => 1),
                 // Hidden elements
                 'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
                 'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
-                'exacompsourceids' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_INT),
-                'exacomptitles' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_TEXT),
-                'exacompdatasources' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_TEXT),
+                // 'exacompsourceids' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_INT),
+                // 'exacomptitles' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_TEXT),
+                // 'exacompdatasources' => array('type' => 'hidden', 'multiple' => 1, 'datatype' => PARAM_TEXT),
                 'imageurl' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
                 'publishas' => array('type' => 'hidden', 'datatype' => PARAM_BOOL, 'default' => 1),
+                'filling_mode' => ['type' => 'radio', 'label' => 'Eingabemodus', 'datatype' => PARAM_INT, 'default' => package::FILLING_MODE_SIMPLE, 'options' => [
+                    package::FILLING_MODE_SIMPLE => 'Einfacher Modus',
+                    package::FILLING_MODE_EXPERT => 'Experten Modus',
+                ]],
             ),
-            'etapas' => array(
+            'eduthekneu' => array(
                 'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
-                //'erprobungen' => array('type' => 'filemanager', 'multiple' => 1, 'hidden_on_init' => 1, 'maxfiles' => 20, 'accepted_types' => 'document'),
+                'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL, 'default' => 1),
+                'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
                 'ltiurl' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
                 'lticartridge' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
                 'ltisecret' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
-                'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL),
-                'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
-                'status' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'default' => 'inspect',
-                    'hidden_on_init' => true, 'options' => array(
-                        'inspect' => get_string('etapas_status_inspect', 'block_edupublisher'),
-                        'eval' => get_string('etapas_status_eval', 'block_edupublisher'),
-                        'public' => get_string('etapas_status_public', 'block_edupublisher'),
+                'contenttypes' => array('type' => 'select', 'datatype' => PARAM_TEXT,
+                    'multiple' => 1, 'required' => $required_value, 'options' => array(
+                        'assignment' => 'Aufgabe',
+                        'exercise' => 'Interaktive Übung',
+                        'learningtrack' => 'Lernstrecke',
+                        'supportmaterial' => 'Begleitmaterial',
+
                     ),
                 ),
-                'type' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'default' => 'lesson', 'required' => 1, 'searchable' => 1, 'options' => array(
-                    'lesson' => 'Unterricht', 'collection' => 'Beispielsammlung', 'learningroute' => 'Lernstrecke'),
-                ),
-                'subtype' => array('type' => 'select', 'datatype' => PARAM_TEXT,
-                    'hidden_except_maintainer' => true, 'searchable' => 1, 'default' => 'etapa',
-                    'options' => array(
-                        'etapa' => 'eTapa', 'digi.komp 4' => 'digi.komp 4', 'digi.komp 8' => 'digi.komp 8',
-                        'digi.komp 12' => 'digi.komp 12',
+                'purposes' => array(
+                    'type' => 'select', 'datatype' => PARAM_TEXT,
+                    'multiple' => 1, 'required' => $required_value, 'options' => array(
+                        'preparation' => 'Unterrichtsvorbereitung',
+                        'supervised' => 'Lernen mit Begleitung',
+                        'selfpaced' => 'Lernen ohne Begleitung/Selbstlernen',
                     ),
                 ),
-                'gegenstand' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1, 'searchable' => 1),
+            ),
+            'etapas' => array(
+                'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
+                'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL, 'default' => 1),
+                //'erprobungen' => array('type' => 'filemanager', 'multiple' => 1, 'hidden_on_init' => 1, 'maxfiles' => 20, 'accepted_types' => 'document'),
+                // 'ltiurl' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
+                // 'lticartridge' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
+                // 'ltisecret' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
+                // 'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
+                // 'status' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'default' => 'inspect',
+                //     'hidden_on_init' => true, 'options' => array(
+                //         'inspect' => get_string('etapas_status_inspect', 'block_edupublisher'),
+                //         'eval' => get_string('etapas_status_eval', 'block_edupublisher'),
+                //         'public' => get_string('etapas_status_public', 'block_edupublisher'),
+                //     ),
+                // ),
+                // 'type' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'default' => 'lesson', 'required' => $required_value, 'searchable' => 1, 'options' => array(
+                //     'lesson' => 'Unterricht', 'collection' => 'Beispielsammlung', 'learningroute' => 'Lernstrecke'),
+                // ),
+                // 'subtype' => array('type' => 'select', 'datatype' => PARAM_TEXT,
+                //     'hidden_except_maintainer' => true, 'searchable' => 1, 'default' => 'etapa',
+                //     'options' => array(
+                //         'etapa' => 'eTapa', 'digi.komp 4' => 'digi.komp 4', 'digi.komp 8' => 'digi.komp 8',
+                //         'digi.komp 12' => 'digi.komp 12',
+                //     ),
+                // ),
+                // 'gegenstand' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => $required_value, 'searchable' => 1),
                 //'vonschule' => array('type' => 'text', 'datatype' => PARAM_TEXT),
-                'schulstufe' => array('type' => 'select', 'datatype' => PARAM_TEXT,
-                    'multiple' => 1, 'required' => 1, 'splitcols' => 1, 'options' => array(
-                        1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5,
-                        6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11,
-                        12 => 12, 13 => 13,
-                    ),
-                ),
-                'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_RAW, 'required' => 0, 'default' => get_string('etapas_kompetenzen_help', 'block_edupublisher'), 'searchable' => 1),
-                'stundenablauf' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
-                'vorkenntnisse' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
-                'voraussetzungen' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
+                // 'schulstufe' => array('type' => 'select', 'datatype' => PARAM_TEXT,
+                //     'multiple' => 1, 'required' => $required_value, 'splitcols' => 1, 'options' => array(
+                //         1 => 1, 2 => 2, 3 => 3, 4 => 4, 5 => 5,
+                //         6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10, 11 => 11,
+                //         12 => 12, 13 => 13,
+                //     ),
+                // ),
+                // 'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_RAW, 'required' => 0, 'default' => get_string('etapas_kompetenzen_help', 'block_edupublisher'), 'searchable' => 1),
+                // 'stundenablauf' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => $required_value, 'searchable' => 1),
                 'zeitbedarf' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
-                    '01:00' => '01:00', '02:00' => '02:00', '03:00' => '03:00',
+                    '00:15' => '15 Minuten',
+                    '00:30' => '30 Minuten',
+                    '00:45' => '1 UE',
+                    '01:30' => '2 UE',
+                    '04:44' => 'mehr als 2 UE',
+                    '01:00' => '1 Std. (bitte nicht mehr verwenden)', '02:00' => '2 Std. (bitte nicht mehr verwenden)', '03:00' => '3 Std. (bitte nicht mehr verwenden)',
                 )),
+                'vorkenntnisse' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => $required_value, 'searchable' => 1),
+                'voraussetzungen' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => $required_value, 'searchable' => 1),
             ),
             'eduthek' => array(
                 'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
@@ -480,32 +533,6 @@ class lib {
                     ),
                 ),
             ),
-            'eduthekneu' => array(
-                'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
-                'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL, 'default' => 1),
-                'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
-                'ltiurl' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
-                'lticartridge' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
-                'ltisecret' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
-                'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_RAW, 'required' => 0, 'default' => get_string('eduthekneu_kompetenzen_help', 'block_edupublisher'), 'searchable' => 1),
-                'contenttype' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'splitcols' => 1,
-                    'multiple' => 1, 'required' => 1, 'options' => array(
-                        'assignment' => 'Aufgabe',
-                        'exercise' => 'Interaktive Übung',
-                        'learningtrack' => 'Lernstrecke',
-                        'supportmaterial' => 'Begleitmaterial',
-
-                    ),
-                ),
-                'purpose' => array(
-                    'type' => 'select', 'datatype' => PARAM_TEXT, 'splitcols' => 1,
-                    'multiple' => 1, 'required' => 1, 'options' => array(
-                        'preparation' => 'Unterrichtsvorbereitung',
-                        'supervised' => 'Lernen mit Begleitung',
-                        'selfpaced' => 'Lernen ohne Begleitung/Selbstlernen',
-                    ),
-                ),
-            ),
             'commercial' => array(
                 'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
                 'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL, 'default' => 1),
@@ -520,7 +547,7 @@ class lib {
         );
         global $CFG, $package, $MODE_SHOW_FORM;
         if (isset($package)) {
-            $package->set(1, 'publishash', 'default');
+            // $package->set(1, 'publishas', 'default');
             // Customize definition to package.
             $channels = array_keys($definition);
             foreach ($channels as $channel) {
@@ -537,7 +564,7 @@ class lib {
                         //echo $channel . '_' . $field . " is " . (!empty($ofield['required']) ? 'required' : 'not required') . " and is " . $package->{$channel . '_' . $field} ."\n";
                     }
                     if (isset($ofield['hidden_on_init']) && $ofield['hidden_on_init']) {
-                        if (empty($package->get('id'))) {
+                        if (empty($package->id)) {
                             $ofield['type'] = 'hidden';
                         }
                     }
@@ -644,15 +671,18 @@ class lib {
      * @param createifmissing if no package is found for this course, create package?
      * @return object of type \block_edupublisher\package or null
      */
-    public static function get_package_by_courseid($courseid, $strictness = MUST_EXIST, $createifmissing = false) {
+    public static function get_package_by_courseid($courseid, $strictness = MUST_EXIST, $createifmissing = false): ?package {
         global $DB;
         $item = $DB->get_record('block_edupublisher_packages', array('course' => $courseid), '*', $strictness);
+
         if (!empty($item->id)) {
-            return new \block_edupublisher\package($item->id);
+            return new \block_edupublisher\package($item->id, true) ?: null;
         } else if ($createifmissing) {
             $package = self::get_package_from_course($courseid);
             $package->store_package((object)[]);
             return $package;
+        } else {
+            return null;
         }
     }
 
@@ -876,13 +906,13 @@ class lib {
             $alert = array(
                 'content' => \get_string('coursebackup:missing', 'block_edupublisher'),
                 'type' => 'danger',
-                'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->get('course'),
+                'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->courseid,
             );
             echo $OUTPUT->render_from_template('block_edupublisher/alert', $alert);
             return;
         }
 
-        $course = $DB->get_record('course', array('id' => $package->get('course')), '*', MUST_EXIST);
+        $course = $DB->get_record('course', array('id' => $package->courseid), '*', MUST_EXIST);
         $ctx = \context_course::instance($course->id);
 
         $fs = \get_file_storage();
@@ -892,19 +922,19 @@ class lib {
             $alert = array(
                 'content' => \get_string('coursebackup:notfound', 'block_edupublisher'),
                 'type' => 'danger',
-                'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->get('course'),
+                'url' => $CFG->wwwroot . '/course/view.php?id=' . $package->courseid,
             );
             echo $OUTPUT->render_from_template('block_edupublisher/alert', $alert);
             return;
         }
 
         $fp = \get_file_packer('application/vnd.moodle.backup');
-        $backuptempdir = \make_backup_temp_directory('edupublisher' . $package->get('id'));
+        $backuptempdir = \make_backup_temp_directory('edupublisher' . $package->id);
         if (!is_dir($backuptempdir) || !file_exists($backuptempdir . '/moodle_backup.xml')) {
             $file->extract_to_pathname($fp, $backuptempdir);
         }
 
-        return 'edupublisher' . $package->get('id');
+        return 'edupublisher' . $package->id;
     }
 
     /**
@@ -1040,5 +1070,333 @@ class lib {
         } else {
             return false;
         }
+    }
+
+
+    public static function sync_package_to_course(package $package) {
+
+        if ($package->get('filling_mode', 'default') == package::FILLING_MODE_EXPERT) {
+            // bei expert modus nicht syncen
+            return;
+        }
+        global $CFG, $DB;
+
+        require_once($CFG->dirroot . '/course/lib.php');
+        require_once($CFG->dirroot . '/course/modlib.php');
+
+        // add block to context
+        static::add_to_context($package->get_context(), 'content-upper');
+
+        $fs = get_file_storage();
+
+        $content_items = array_values($DB->get_records('block_edupublisher_pkg_items', ['packageid' => $package->id], 'sorting'));
+        $course = get_course($package->courseid);
+
+        $course_sections = $DB->get_records('course_sections', ['course' => $package->courseid], 'section');
+        $make_section = function() use ($course, &$course_sections, $package) {
+            $section = array_shift($course_sections);
+            if (!$section) {
+                $section = course_create_section($package->courseid);
+            } else {
+                // clean section
+                $modinfo = get_fast_modinfo($course->id);
+
+                // Step 3: Get all course modules (activities/resources) in the specified section
+                $sections = $modinfo->get_sections();
+                if (isset($sections[$section->section])) {
+                    $moduleIds = $sections[$section->section]; // Get module IDs in the section
+
+                    // Step 4: Loop through all module IDs in the section and delete each one
+                    foreach ($moduleIds as $cmid) {
+                        $cm = $modinfo->get_cm($cmid); // Get the course module object
+                        if ($cm && !$cm->deletioninprogress) {
+                            // Delete the module
+                            course_delete_module($cm->id);
+                        }
+                    }
+                }
+            }
+
+            return $section;
+        };
+
+        $summary = '';
+        // $summary = $package->get_course_summary();
+        // if ($preview_image = $package->get_preview_image()) {
+        //     var_dump($preview_image);
+        //
+        //     $fileinfo = array(
+        //         'contextid' => $package->get_context()->id,
+        //         'component' => 'course',
+        //         'filearea' => 'section',
+        //         'itemid' => $section->id,
+        //         'filepath' => '/',
+        //         'filename' => $preview_image->get_filename(),
+        //     );
+        //     $fs->delete_area_files($fileinfo['contextid'], $fileinfo['component'], $fileinfo['filearea'], $fileinfo['itemid']);
+        //     $fs->create_file_from_storedfile($fileinfo, $preview_image);
+        //
+        //     $summary = '<p><img src="@@PLUGINFILE@@/' . $preview_image->get_filename() . '" alt="" role="presentation" class="img-fluid"></p>' . $summary;
+        // }
+
+        $context = $package->get_context();
+
+        // the first section is the course summary
+        // $section = $make_section();
+
+        // course_update_section($package->courseid, $section, [
+        //     'name' => 'Zusammenfassung',
+        //     'summary' => $summary,
+        // ]);
+        //
+        //
+        // if ($exameta = $DB->get_field('modules', 'id', array('name' => 'exameta'))) {
+        //     $moduleInfo = new \stdClass();
+        //     $moduleInfo->module = $exameta;
+        //     $moduleInfo->modulename = 'exameta';
+        //     $moduleInfo->section = $section->section;
+        //     $moduleInfo->display = 1;
+        //     $moduleInfo->visible = 1;
+        //     $moduleInfo->name = 'Zusammenfassung';
+        //     $moduleInfo->intro = '';
+        //     $moduleInfo->introformat = FORMAT_HTML;
+        //     $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+        // }
+
+        foreach ($content_items as $i => $content_item) {
+            $section = $make_section();
+
+            // $modinfo = get_fast_modinfo($course);
+            // $section = $modinfo->get_section_info_by_id($sectionid, MUST_EXIST);
+            // course_update_section($course, $section, ['visible' => $visible]);
+            course_update_section($package->courseid, $section, [
+                'name' => ($i + 1) . '. Aktivität/Ressource',
+                'summary' => nl2br(clean_param($content_item->description, PARAM_TEXT)),
+            ]);
+
+            if ($link = trim($content_item->link)) {
+                $moduleInfo = new \stdClass();
+                $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'url'));
+                $moduleInfo->modulename = 'url';
+                $moduleInfo->section = $section->section;
+                $moduleInfo->display = 1;
+                $moduleInfo->visible = 1;
+                $moduleInfo->name = $link;
+                $moduleInfo->intro = '';
+                $moduleInfo->introformat = FORMAT_HTML;
+                $moduleInfo->externalurl = $link;
+                $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+            }
+
+            $files = $fs->get_area_files($context->id, 'block_edupublisher', 'pkg_item_files', $content_item->id, 'itemid, filepath, filename', false);
+
+            $h5ps = [];
+            foreach ($files as $key => $file) {
+                if (str_ends_with(strtolower($file->get_filename()), '.h5p')) {
+                    $h5ps[] = $file;
+                    unset($files[$key]);
+                }
+            }
+
+            if ($files) {
+                $moduleInfo = new \stdClass();
+                $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'folder'));
+                $moduleInfo->modulename = 'folder';
+                $moduleInfo->section = $section->section;
+                $moduleInfo->display = 1;
+                $moduleInfo->visible = 1;
+                $moduleInfo->name = 'Dateien';
+                $moduleInfo->intro = '';
+                $moduleInfo->introformat = FORMAT_HTML;
+                $moduleInfo->files = []; // $files; // geht so nicht
+                $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+
+                $mod_context = \context_module::instance($moduleInfo->coursemodule);
+                foreach ($files as $file) {
+                    $fileinfo = array(
+                        'contextid' => $mod_context->id,
+                        'component' => 'mod_folder',
+                        'filearea' => 'content',
+                        'itemid' => 0,
+                        'filepath' => '/',
+                        'filename' => $file->get_filename(),
+                    );
+
+                    $fs->create_file_from_storedfile($fileinfo, $file);
+                }
+
+                // not working:
+                // $resource = new \stdClass();
+                // $resource->course = $course->id;
+                // $resource->name = 'Dateien';
+                // $resource->intro = '';
+                // $resource->introformat = FORMAT_HTML;
+                // $resource->tobemigrated = 0;
+                // $resource->section = $section->section;
+                // $resource->visible = 1;
+                // $resource->modulename = 'resource';
+                // $resource->module = $DB->get_field('modules', 'id', array('name' => 'resource'));
+                // $resource->instance = 0;
+                // $resource->add = 'resource';
+                // $resource->coursemodule = \add_course_module($resource);
+                // $sectionreturn = 0;
+                // \course_add_cm_to_section($course, $resource->coursemodule, $section->section, $sectionreturn);
+                //
+                // $mod_context = \context_module::instance($resource->coursemodule);
+                // $fileinfo = array(
+                //     'contextid' => $mod_context->id,
+                //     'component' => 'mod_resource',
+                //     'filearea'  => 'content',
+                //     'itemid'    => 0,
+                //     'filepath'  => '/',
+                //     'filename'  => $file->get_filename()
+                // );
+                //
+                // $fs->create_file_from_storedfile($fileinfo, $file);
+                //
+                // // Set display options
+                // $displayoptions = array(
+                //     'printintro' => 1,
+                //     'showsize' => 1,
+                //     'showtype' => 1,
+                //     'popupwidth' => 620,
+                //     'popupheight' => 450
+                // );
+                //
+                // // Update the resource
+                // $info = new \stdClass();
+                // $info->display = RESOURCELIB_DISPLAY_AUTO;
+                // $info->displayoptions = serialize($displayoptions);
+                // $info->id = $resource->coursemodule;
+                // var_dump($info);
+                // $DB->update_record('resource', $info);
+
+
+                // working:
+                // $moduleInfo = new \stdClass();
+                // // $moduleInfo->course = $package->courseid;
+                // $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'resource'));
+                // $moduleInfo->modulename = 'resource';
+                // $moduleInfo->section = $section->section;
+                // $moduleInfo->display = 1;
+                // $moduleInfo->visible = 1;
+                // $moduleInfo->name = 'Dateien';
+                // $moduleInfo->intro = '';
+                // $moduleInfo->introformat = FORMAT_HTML;
+                // $moduleInfo->files = []; // $files;
+                // $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+                //
+                // $mod_context = \context_module::instance($moduleInfo->coursemodule);
+                // foreach ($files as $file) {
+                //     $fileinfo = array(
+                //         'contextid' => $mod_context->id,
+                //         'component' => 'mod_resource',
+                //         'filearea' => 'content',
+                //         'itemid' => 0,
+                //         'filepath' => '/',
+                //         'filename' => $file->get_filename(),
+                //     );
+                //
+                //     $fs->create_file_from_storedfile($fileinfo, $file);
+                // }
+                //
+                // // Set display options
+                // $displayoptions = array(
+                //     'printintro' => 1,
+                //     'showsize' => 1,
+                //     'showtype' => 1,
+                //     'popupwidth' => 620,
+                //     'popupheight' => 450,
+                // );
+                //
+                // // Update the resource
+                // $info = new \stdClass();
+                // $info->display = RESOURCELIB_DISPLAY_AUTO;
+                // $info->displayoptions = serialize($displayoptions);
+                // $info->id = $moduleInfo->id;
+                // $DB->update_record('resource', $info);
+                //
+                // rebuild_course_cache($course->id, true);
+                // die('done');
+            }
+
+            if ($h5ps) {
+                foreach ($h5ps as $file) {
+                    $moduleInfo = new \stdClass();
+                    $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'h5pactivity'));
+                    $moduleInfo->modulename = 'h5pactivity';
+                    $moduleInfo->section = $section->section;
+                    $moduleInfo->display = 1;
+                    $moduleInfo->visible = 1;
+                    $moduleInfo->name = $file->get_filename();
+                    $moduleInfo->intro = '';
+                    $moduleInfo->introformat = FORMAT_HTML;
+                    $moduleInfo->files = []; // $files; // geht so nicht
+                    $moduleInfo->grade = 0;
+                    $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+
+                    $mod_context = \context_module::instance($moduleInfo->coursemodule);
+                    $fileinfo = array(
+                        'contextid' => $mod_context->id,
+                        'component' => 'mod_h5pactivity',
+                        'filearea' => 'package',
+                        'itemid' => 0,
+                        'filepath' => '/',
+                        'filename' => $file->get_filename(),
+                    );
+
+                    $fs->create_file_from_storedfile($fileinfo, $file);
+                }
+            }
+
+            $files = $fs->get_area_files($context->id, 'block_edupublisher', 'pkg_item_dh_files', $content_item->id, 'itemid, filepath, filename', false);
+            if ($files || trim($content_item->didaktische_hinweise)) {
+                // hat didaktische hinweise
+
+                $section = $make_section();
+
+                course_update_section($package->courseid, $section, [
+                    'name' => ($i + 1) . '. Aktivität/Ressource: Didaktische Hinweise',
+                    'summary' => nl2br(clean_param($content_item->didaktische_hinweise, PARAM_TEXT)),
+                ]);
+
+                if ($files) {
+                    $moduleInfo = new \stdClass();
+                    $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'folder'));
+                    $moduleInfo->modulename = 'folder';
+                    $moduleInfo->section = $section->section;
+                    $moduleInfo->display = 1;
+                    $moduleInfo->visible = 1;
+                    $moduleInfo->name = 'Dateien';
+                    $moduleInfo->intro = '';
+                    $moduleInfo->introformat = FORMAT_HTML;
+                    $moduleInfo->files = []; // $files; // geht so nicht
+                    $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+
+                    $mod_context = \context_module::instance($moduleInfo->coursemodule);
+                    foreach ($files as $file) {
+                        $fileinfo = array(
+                            'contextid' => $mod_context->id,
+                            'component' => 'mod_folder',
+                            'filearea' => 'content',
+                            'itemid' => 0,
+                            'filepath' => '/',
+                            'filename' => $file->get_filename(),
+                        );
+
+                        $fs->create_file_from_storedfile($fileinfo, $file);
+                    }
+                }
+            }
+
+            // $section->summary = $content_item->description;
+            // $DB->update_record('course_sections', $section);
+        }
+
+        while ($section = array_shift($course_sections)) {
+            course_delete_section($package->courseid, $section);
+        }
+
+        rebuild_course_cache($course->id, true);
     }
 }

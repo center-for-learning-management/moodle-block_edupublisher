@@ -1,0 +1,32 @@
+// out: ../style/course_summary.css, sourcemap: false, compress: true
+
+ul.text-divider {
+    list-style-type: none;
+
+    & > li {
+        display: inline-block;
+    }
+}
+
+ul.text-divider.comma li:not(:last-child):after {
+    content: ", ";
+    padding-right: 6px;
+}
+
+.ui-edupublisher {
+    .row {
+        margin-top: 10px;
+    }
+
+    .row .col-md-4 {
+        font-weight: bold;
+    }
+}
+
+.block_edupublisher.card {
+    border: 0;
+
+    & > .card-body {
+        padding: 0 !important;
+    }
+}

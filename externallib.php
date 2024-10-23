@@ -118,7 +118,7 @@ class block_edupublisher_external extends external_api {
                                 OR
                                 (l.target = 1 AND l.redeemid>0 AND l.redeemid = ?)
                             )";
-                $licence = $DB->get_records_sql($sql, array($package->get('id'), $USER->id, $courseid, $orgid));
+                $licence = $DB->get_records_sql($sql, array($package->id, $USER->id, $courseid, $orgid));
                 if (empty($licence->id)) {
                     // No licence for this course.
                     unset($courses[$courseid]);
@@ -453,7 +453,7 @@ class block_edupublisher_external extends external_api {
             } else {
                 $rating = (object)array(
                     'userid' => $USER->id,
-                    'package' => $package->get('id'),
+                    'package' => $package->id,
                     'rating' => $params['to'],
                     'created' => time(),
                     'modified' => time(),
@@ -527,36 +527,32 @@ class block_edupublisher_external extends external_api {
         $params['subjectareas'] = array_filter(explode('zzzZZZzzz', $params['subjectareas']));
         $params['stars'] = array_filter(explode('zzzZZZzzz', $params['stars']));
 
-        $reply = [];
+        $filters = [];
+        $filter_params = [];
 
-        $filters_schoollevels = [];
-        foreach ($params['schoollevels'] as $schoollevel) {
-            $filters_schoollevels[] = "mdef.schoollevel_$schoollevel=1";
-        }
-        $filters_schoollevels = implode(' OR ', $filters_schoollevels);
-        if (!empty($filters_schoollevels)) {
-            $filters_schoollevels = "AND ($filters_schoollevels)";
+        if ($params['schoollevels']) {
+            $filter_params = array_merge($filter_params, $params['schoollevels']);
+            $subfilter = array_map(fn() => \block_edupublisher\locallib::db_find_in_set('?', "mdef.schoollevels"), $params['schoollevels']);
+            $filters[] = join(' OR ', $subfilter);
         }
 
-        $filters_subjectareas = [];
-        foreach ($params['subjectareas'] as $subjectarea) {
-            $filters_subjectareas[] = "mdef.subjectarea_$subjectarea=1";
-        }
-        $filters_subjectareas = implode(' OR ', $filters_subjectareas);
-        if (!empty($filters_subjectareas)) {
-            $filters_subjectareas = "AND ($filters_subjectareas)";
+        if ($params['subjectareas']) {
+            $filter_params = array_merge($filter_params, $params['subjectareas']);
+            $subfilter = array_map(fn() => \block_edupublisher\locallib::db_find_in_set('?', "mdef.subjectareas"), $params['subjectareas']);
+            $filters[] = join(' OR ', $subfilter);
         }
 
-        $filters_stars = [];
-        foreach ($params['stars'] as $star) {
-            if ($star == -1)
-                $star = 0;
-            $filters_stars[] = "p.rating=$star";
-        }
+        if ($params['stars']) {
+            $subfilter = [];
+            foreach ($params['stars'] as $star) {
+                if ($star == -1) {
+                    $star = 0;
+                }
 
-        $filters_stars = implode(' OR ', $filters_stars);
-        if (!empty($filters_stars)) {
-            $filters_stars = "AND ($filters_stars)";
+                $subfilter[] = 'p.rating=?';
+                $filter_params[] = $star;
+            }
+            $filters[] = join(' OR ', $subfilter);
         }
 
         $filters_search = [];
@@ -604,8 +600,13 @@ class block_edupublisher_external extends external_api {
             }
         }
 
+        $filters = implode(') AND (', $filters);
+        if ($filters) {
+            $filters = "AND ($filters)";
+        }
+
         $filters_search = implode(' AND ', $filters_search);
-        if (!empty($filters_search)) {
+        if ($filters_search) {
             $filters_search = "AND ($filters_search)";
         }
 
@@ -626,19 +627,20 @@ class block_edupublisher_external extends external_api {
                         AND p.id = medu.package
                         AND p.id = meta.package
                         AND p.active > 0
-                        $filters_schoollevels
-                        $filters_subjectareas
-                        $filters_stars
+                        $filters
                         $filters_search
                     $order_by
                     $limit";
-        $reply['packages'] = array_values($DB->get_records_sql($sql));
+
+        $reply['packages'] = array_values($DB->get_records_sql($sql, $filter_params));
 
         $show_star_rating = \block_edupublisher\lib::show_star_rating();
 
         for ($a = 0; $a < count($reply['packages']); $a++) {
             $package = new \block_edupublisher\package($reply['packages'][$a]->id, true, ['internal', 'rating']);
             $data = $package->get_flattened();
+
+            $data->default_image ??= $package->get_preview_image_url()?->out(false);
 
             if (!$show_star_rating) {
                 // remove rating info
@@ -806,10 +808,11 @@ class block_edupublisher_external extends external_api {
             $published = !empty($params['to']) ? time() : 0;
             // Trigger the channel itself.
             $package->set($published, 'published', $params['type']);
+
             if ($params['type'] != 'default') {
                 if ($published > 0) {
                     // If any channel gets activated, also activate default
-                    $package->set($published, 'published', 'default');
+                    // $package->set($published, 'published', 'default');
                 } else if (empty($package->get('published', 'eduthek')) && empty($package->get('published', 'eduthekneu')) && empty($package->get('published', 'etapas'))) {
                     // If last gets deactivated, also deactivate default
                     $package->set(0, 'published', 'default');
@@ -823,16 +826,16 @@ class block_edupublisher_external extends external_api {
             $package->set(empty($package->get('published', 'default')) ? 0 : 1, 'active');
 
             // Toggle course visibility
-            $course = \get_course($package->get('course'));
+            $course = \get_course($package->courseid);
             $course->visible = !empty($package->get('active')) ? 1 : 0;
             $DB->update_record('course', $course);
             \rebuild_course_cache($course->id, true);
 
-            \block_edupublisher\lib::toggle_guest_access($package->get('course'), $package->get('active'));
+            \block_edupublisher\lib::toggle_guest_access($package->courseid, $package->get('active'));
 
             $published = $package->get('published', 'etapas');
             if (!empty($published)) {
-                $evaluation = $DB->get_record('block_edupublisher_evaluatio', ['packageid' => $package->get('id')]);
+                $evaluation = $DB->get_record('block_edupublisher_evaluatio', ['packageid' => $package->id]);
                 if (!empty($evaluation->id)) {
                     $package->set('eval', 'status', 'etapas');
                 } else {

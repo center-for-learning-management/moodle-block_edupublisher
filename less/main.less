@@ -21,8 +21,10 @@ section.block_edupublisher.block {
 }
 
 .channel-block {
-    max-width: 500px; width: 100%; float: left; margin-right: 10px;
+    max-width: 300px;
     border-radius: 15px; border: 2px solid black;
+    padding: 4px 20px;
+    margin-bottom: 10px;
 }
 
 .licence_object {
@@ -62,6 +64,7 @@ ul.text-divider {
 
 ul.text-divider.comma li:not(:last-child):after {
     content: ", ";
+    padding-right: 6px;
 }
 
 @media screen and (min-width: 801px) {
@@ -95,3 +98,5 @@ ul.text-divider.comma li:not(:last-child):after {
         margin: 2px !important;
     }
 }
+
+@import './course_summary';

@@ -410,17 +410,18 @@ switch ($publishstage) {
         break;
     case 4:
         // 3.) Enter metadata.
-        require_once($CFG->dirroot . '/blocks/edupublisher/classes/package_create_form.php');
-
         if (empty($packageid)) {
             $sourcecourse = \get_course($sourcecourseid);
             $package = \block_edupublisher\lib::get_package_from_course($sourcecourseid);
         }
         $package->set($targetcourseid, 'course');
+        $package->set_v2('filling_mode', \block_edupublisher\package::FILLING_MODE_EXPERT, 'default');
 
         $package->exacompetencies();
 
-        $form = new package_create_form($PAGE->url, $package->get_flattened());
+        $form = new \block_edupublisher\package_edit_form($PAGE->url, [
+            'package' => $package,
+        ]);
         if ($form->is_submitted()) {
             // Serialize form data and store to payload.
             $publish->payload = serialize($form->get_submitted_data());
@@ -433,7 +434,7 @@ switch ($publishstage) {
         if ($data = $form->get_data()) {
             $package->store_package($data);
 
-            $publish->packageid = $package->get('id');
+            $publish->packageid = $package->id;
             $DB->set_field('block_edupublisher_publish', 'packageid', $publish->packageid, array('id' => $publish->id));
 
             echo $OUTPUT->render_from_template('block_edupublisher/alert', array(
@@ -444,8 +445,9 @@ switch ($publishstage) {
 
             redirect($PAGE->url->__toString());
         } else {
-            $package->prepare_package_form();
-            $form->set_data($package->get_flattened());
+            $package->set_v2('publishas', 1, 'etapas');
+            $package->set_v2('publishas', 1, 'eduthekneu');
+            $form->set_data($package->get_form_data());
             $form->display();
         }
         break;
@@ -454,6 +456,8 @@ switch ($publishstage) {
         $roleid = \get_config('local_eduvidual', 'defaultroleteacher');
         \block_edupublisher\lib::course_manual_enrolments([$targetcourseid], [$USER->id], $roleid, true);
 
+        $DB->delete_records('block_edupublisher_publish', array('id' => $publish->id));
+
         $cache = cache::make('block_edupublisher', 'publish');
         $cache->delete("pending_publication_{$COURSE->id}");
 
@@ -461,7 +465,7 @@ switch ($publishstage) {
         $url = new \moodle_url('/blocks/edupublisher/pages/package.php', ['id' => $publish->packageid]);
         $label = get_string('publish_stage_finish_button', 'block_edupublisher');
         echo "<div style=\"text-align: center;\"><a href=\"$url\" class=\"btn btn-primary\">$label</a></div>\n";
-        $DB->delete_records('block_edupublisher_publish', array('id' => $publish->id));
+
         break;
 }
 

@@ -70,14 +70,34 @@ $PAGE->set_pagelayout($layout);
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/search.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
-$PAGE->navbar->add(get_string('search_in_edupublisher', 'block_edupublisher'), $PAGE->url);
+// $PAGE->navbar->add(get_string('search_in_edupublisher', 'block_edupublisher'), $PAGE->url);
 
 \block_edupublisher\lib::check_requirements();
 echo $OUTPUT->header();
 
+?>
+    <div style="position: relative;">
+        <a href="list.php" class="btn btn-secondary" id="ressourcen-verwalten-button">Meine Einreichungen verwalten</a>
+    </div>
+    <style>
+        #ressourcen-verwalten-button {
+            margin-bottom: 20px;
+        }
+
+        @media (min-width: 800px) {
+            #ressourcen-verwalten-button {
+                position: absolute;
+                top: -60px;
+                right: 0;
+            }
+        }
+    </style>
+<?php
 $subjectareas = \block_edupublisher\get_subjectareas_sorted($subjectarea);
 $schoollevels = \block_edupublisher\get_schoollevels_sorted($schoollevel);
 
+// not used anymore?!?
+/*
 $lic_orgids = array();
 $lic_courseids = array();
 $orgs = \local_eduvidual\locallib::get_organisations('teacher', false);
@@ -93,17 +113,17 @@ foreach ($courses as $_course) {
 }
 
 $sql = "SELECT l.*,lp.packageid,p.name publishername FROM
-            {block_edupublisher_lic} l,
-            {block_edupublisher_lic_pack} lp,
-            {block_edupublisher_pub} p
-            WHERE l.publisherid=p.id
-                AND l.id=lp.licenceid
-                AND (
-                    (type=3 AND redeemid=?)
-                    OR (type=2 AND redeemid IN (?))
-                    OR (type=1 AND redeemid IN (?))
-                )
-            ORDER BY p.name ASC";
+        {block_edupublisher_lic} l,
+        {block_edupublisher_lic_pack} lp,
+        {block_edupublisher_pub} p
+        WHERE l.publisherid=p.id
+            AND l.id=lp.licenceid
+            AND (
+                (type=3 AND redeemid=?)
+                OR (type=2 AND redeemid IN (?))
+                OR (type=1 AND redeemid IN (?))
+            )
+        ORDER BY p.name ASC";
 
 $lics = $DB->get_records_sql($sql, array($USER->id, implode(',', $lic_courseids), implode(',', $lic_orgids)));
 $publishers = array();
@@ -123,6 +143,7 @@ $publishers = array_values($publishers);
 for ($a = 0; $a < count($publishers); $a++) {
     $publishers[$a]->items = array_values($publishers[$a]->items);
 }
+*/
 
 if (!\block_edupublisher\lib::show_star_rating()) {
     $stars = null;
@@ -152,7 +173,7 @@ echo $OUTPUT->render_from_template(
         'enablecommercial' => get_config('block_edupublisher', 'enablecommercial'),
         'importtocourseid' => $course, // Required together with showpreviewbutton for search_li.mustache
         'layout' => $layout,
-        'publishers' => $publishers,
+        // 'publishers' => $publishers,
         'sectionid' => $sectionno,
         'search' => $search,
         'showpreviewbutton' => $course, // Required together with importtocourseid for search_li.mustache

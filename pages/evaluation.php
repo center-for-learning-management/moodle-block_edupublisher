@@ -34,9 +34,9 @@ $package = new \block_edupublisher\package($packageid, false);
 
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/evaluation.php', array('id' => $id, 'packageid' => $packageid, 'perma' => $perma)));
 
-$context = \context_course::instance($package->get('course'));
+$context = \context_course::instance($package->courseid);
 $PAGE->set_context($context);
-$title = !empty($package->get('id')) ? $package->get('title') : get_string('etapas_evaluation', 'block_edupublisher');
+$title = !empty($package->id) ? $package->get('title') : get_string('etapas_evaluation', 'block_edupublisher');
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->set_pagelayout('incourse');
@@ -53,7 +53,7 @@ $PAGE->navbar->add(
     new moodle_url(
         '/course/view.php',
         array(
-            'id' => $package->get('course'),
+            'id' => $package->courseid,
         )
     )
 );
@@ -62,7 +62,7 @@ $PAGE->navbar->add(
     new \moodle_url(
         '/blocks/edupublisher/pages/evaluation.php',
         array(
-            'packageid' => $package->get('id'),
+            'packageid' => $package->id,
         )
     )
 );
@@ -90,7 +90,7 @@ if (!has_capability('block/edupublisher:canseeevaluation', \context_system::inst
                 ), new \moodle_url(
                     '/blocks/edupublisher/pages/evaluation.php',
                     array(
-                        'packageid' => $package->get('id'),
+                        'packageid' => $package->id,
                         'id' => $id,
                     )
                 )

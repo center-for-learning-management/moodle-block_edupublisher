@@ -32,6 +32,8 @@ class locallib {
     public static function atomize_database(): bool {
         global $CFG, $DB;
 
+        throw new \moodle_exception('disabled, old code!');
+
         $metadatas = $DB->get_records('block_edupublisher_metadata', null, 'package ASC');
         $curpackage = (object)[
             'commercial' => (object)[],
@@ -206,5 +208,24 @@ class locallib {
             }
         }
         return true;
+    }
+
+    public static function db_find_in_set($needle, $haystack) {
+        global $DB;
+
+        // Determine the database family (mysql, pgsql, etc.)
+        $dbfamily = $DB->get_dbfamily();
+
+        // MySQL version
+        if ($dbfamily === 'mysql') {
+            return "FIND_IN_SET($needle, $haystack)";
+        } // PostgreSQL version
+        elseif ($dbfamily === 'postgres') {
+            // PostgreSQL doesn't have FIND_IN_SET, use string matching.
+            return "$needle = ANY (string_to_array($haystack, ','))";
+        }
+
+        // Default case (just in case we want to extend it to other databases)
+        throw new \coding_exception('Unsupported database type for find_in_set');
     }
 }
