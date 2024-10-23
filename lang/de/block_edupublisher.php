@@ -148,7 +148,8 @@ $string['eduthek_type'] = 'Typ';
 $string['eduthekneu_fetchchannel'] = 'eduthek.neu-Kanal abrufen';
 $string['eduthekneu_header'] = 'eduthek.neu';
 $string['eduthekneu_kompetenzen'] = 'Kompetenzen';
-$string['eduthekneu_kompetenzen_help'] = '<p class="alert alert-danger">Die Verlinkung von Ressourcen des Moodle-Kurses mit Kompetenzen ist erforderlich, um ein Lernpaket als eTapa einreichen zu können. Bitte verwenden Sie dazu entweder die Moodle-Kompetenzen oder den Block "Kompetenzraster" (exacomp).</p>';
+$string['eduthekneu_kompetenzen_help'] = '<p class="alert alert-warning">Die Verlinkung von Ressourcen des Moodle-Kurses mit Kompetenzen ist erforderlich, um Ressourcen einreichen zu können.</p>';
+// Bitte verwenden Sie dazu entweder die Moodle-Kompetenzen oder den Block "Kompetenzraster" (exacomp)
 $string['eduthekneu_kompetenzen_missing'] = 'Bitte Kompetenzen zu Aktivitäten und Ressourcen zuordnen';
 $string['eduthekneu_lticartridge'] = 'LTI Cartridge';
 $string['eduthekneu_ltisecret'] = 'LTI Secret';

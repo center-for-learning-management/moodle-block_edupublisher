@@ -107,7 +107,7 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
     function get_package($id): \block_edupublisher\package {
         static $packages = [];
 
-        return $packages[$id] ??= new \block_edupublisher\package($id, true);
+        return $packages[$id] ??= \block_edupublisher\package::get_package($id, true);
     }
 
     function get_row_actions(object $row, array $row_actions): ?array {

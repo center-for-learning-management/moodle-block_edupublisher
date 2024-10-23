@@ -163,7 +163,8 @@ $string['eduthek_type'] = 'Type';
 $string['eduthekneu_fetchchannel'] = 'Fetch eduthek.new channel';
 $string['eduthekneu_header'] = 'eduthek.neu';
 $string['eduthekneu_kompetenzen'] = 'Competencies';
-$string['eduthekneu_kompetenzen_help'] = '<p class="alert alert-danger">The linking of resources from the moodle course with competencies is essential, when you want to publish an eTapa. Please use either the Moodle competencies or exacomp.</p>';
+$string['eduthekneu_kompetenzen_help'] = '<p class="alert alert-warning">The linking of resources from the moodle course with competencies is essential, when you want to publish a ressource.</p>';
+//  Please use either the Moodle competencies or exacomp
 $string['eduthekneu_kompetenzen_missing'] = 'Please add competencies to activities and resources';
 $string['eduthekneu_lticartridge'] = 'LTI cartridge';
 $string['eduthekneu_ltisecret'] = 'LTI secret';

@@ -112,8 +112,17 @@ class package_edit_form extends \moodleform {
                     $package = $this->get_package();
 
                     if (!$package) {
+                        // is required
+                        $label = $field['label'] ?? $this->get_label($channels, $channel, $_field, $_field, $stringman, true);
+
                         // $value = 'Bitte speichern Sie zuerst, bevor Kompetenzen ausgewählt werden können';
                         $value = \local_displace\competencylib::render_competency_selector(0, 0);
+
+                        $mform->addElement('hidden', 'session_competencies', $label, $value);
+                        $mform->setType('session_competencies', PARAM_TEXT);
+
+                        $mform->addElement($field['type'], 'kompetenzen_output', $label, $value);
+                        continue;
                     } else {
                         $frameworkid = 0;
 
@@ -130,9 +139,9 @@ class package_edit_form extends \moodleform {
                         $value = ob_get_clean();
 
                         $value .= \local_displace\competencylib::render_competency_selector($package->courseid, 0, true);
+                        $mform->addElement($field['type'], 'kompetenzen_output', $label, $value);
+                        continue;
                     }
-                    $mform->addElement($field['type'], 'kompetenzen_output', $label, $value);
-                    continue;
                 }
 
                 $addedfield = null;
@@ -467,11 +476,17 @@ class package_edit_form extends \moodleform {
                         $haserror = true;
                     }
                 }
+
                 if ($haserror) {
                     $errlbl = $this->get_label($definition, $channel, $field, ucfirst($field), $stringman);
                     $errors[$channel . '_' . $field] = ($this->has_required_text($channel, $field, $stringman)) ? get_string($channel . '_' . $field . '_missing', 'block_edupublisher') : $errlbl . ': ' . get_string('required');
                 }
             }
+        }
+
+        if ($this->_form->elementExists('session_competencies') && empty($data['session_competencies'])) {
+            // Fehler im sichtbaren Feld "kompetenzen_output" anzeigen, session_competencies ist hidden
+            $errors['kompetenzen_output'] = 'Kompetenzen: ' . get_string('required');
         }
 
         if ($data['default_filling_mode'] == package::FILLING_MODE_SIMPLE) {

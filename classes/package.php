@@ -75,7 +75,8 @@ class package {
         $this->set_array($basedata);
         if ($id > 0) {
             $record = $DB->get_record('block_edupublisher_packages', array('id' => $id), '*', IGNORE_MISSING);
-            if (empty($record->channels)) {
+            if (!$record) {
+                // record not found, should throw an error
                 return;
             }
 
@@ -171,6 +172,15 @@ class package {
                 }
             }
         }
+    }
+
+    public static function get_package(int $id = 0, bool $withmetadata = false): ?static {
+        $package = new static($id, $withmetadata);
+        if ($id > 0 && $package->id == 0) {
+            // package not found
+            return null;
+        }
+        return $package;
     }
 
     private function load_metadata() {

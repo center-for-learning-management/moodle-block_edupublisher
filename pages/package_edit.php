@@ -122,6 +122,7 @@ if ($package) {
 } else {
     $data = (object)[];
 
+    $data->default_publishas = 1;
     $data->etapas_publishas = 1;
     $data->eduthekneu_publishas = 1;
 
