@@ -118,7 +118,7 @@ class package_edit_form extends \moodleform {
                         // $value = 'Bitte speichern Sie zuerst, bevor Kompetenzen ausgewählt werden können';
                         $value = \local_displace\competencylib::render_competency_selector(0, 0);
 
-                        $mform->addElement('hidden', 'session_competencies', $label, $value);
+                        $mform->addElement('hidden', 'session_competencies');
                         $mform->setType('session_competencies', PARAM_TEXT);
 
                         $mform->addElement($field['type'], 'kompetenzen_output', $label, $value);
