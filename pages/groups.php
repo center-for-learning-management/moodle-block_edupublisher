@@ -75,7 +75,7 @@ if (!\block_edupublisher\lib::can_create_groups()) {
                 'content' => get_string('groups:create:success', 'block_edupublisher', ['name' => $data->name]),
                 'type' => 'success',
             ]);
-            if (!\block_edupublisher\lib::has_role($context, $roleteacher, $USER)) {
+            if (!\block_edupublisher\permissions::has_role($context, $roleteacher, $USER)) {
                 \block_edupublisher\lib::course_manual_enrolments([$package->courseid], $USER->id, $roleteacher);
             }
             \groups_add_member($newgroup, $USER->id);

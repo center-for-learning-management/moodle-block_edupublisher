@@ -15,20 +15,6 @@
     along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 }}
 
-<div class="row">
-    {{#pix}} i/publish, core {{/pix}}
-    {{#pendingpublication}}
-        <a href="{{wwwroot}}/blocks/edupublisher/pages/publish.php?sourcecourseid={{pendingpublication}}">
-            {{#str}} publish_new_package_proceed, block_edupublisher {{/str}}
-        </a>
-    {{/pendingpublication}}
-    {{^pendingpublication}}
-        <a href="{{wwwroot}}/blocks/edupublisher/pages/publish.php?sourcecourseid={{courseid}}">
-            {{#str}} publish_new_package, block_edupublisher {{/str}}
-        </a>
-    {{/pendingpublication}}
-</div>
-
 {{#haspackages}}
     <div class="row">
         <strong>{{#str}} parts_published, block_edupublisher {{/str}}</strong>

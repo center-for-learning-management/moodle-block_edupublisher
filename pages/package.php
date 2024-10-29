@@ -33,7 +33,7 @@ require_login();
 
 $PAGE->set_context(\context_system::instance());
 
-$title = get_string('package', 'block_edupublisher').': '.$package->title;
+$title = get_string('package', 'block_edupublisher') . ': ' . $package->title;
 $PAGE->set_title($title);
 $PAGE->set_heading($title);
 
@@ -44,43 +44,57 @@ $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 // $PAGE->navbar->add(get_string('details', 'block_edupublisher'), $PAGE->url);
 
 \block_edupublisher\lib::check_requirements(false);
-echo $OUTPUT->header();
 
 $act = optional_param('act', '', PARAM_TEXT);
 switch ($act) {
     case 'authoreditingpermission':
-        if ($package->get('canmoderate')) {
-            $ctx = \context_course::instance($package->courseid);
-            if (optional_param('to', '', PARAM_TEXT) == 'grant') {
-                \block_edupublisher\lib::role_set(array($package->courseid), array($package->userid), 'defaultroleteacher');
-                $sendto = array('author');
-                $package->store_comment('comment:template:package_editing_granted', $sendto, true, false);
-            }
-            if (optional_param('to', '', PARAM_TEXT) == 'remove') {
-                \block_edupublisher\lib::role_set(array($package->courseid), array($package->userid), -1);
-                //role_unassign(get_config('block_edupublisher', 'defaultroleteacher'), $package->userid, $ctx->id);
-                $sendto = array('author');
-                $package->store_comment('comment:template:package_editing_sealed', $sendto, true, false);
-            }
-            echo $OUTPUT->render_from_template(
-                'block_edupublisher/alert',
-                array(
-                    'content' => get_string('successfully_saved_package', 'block_edupublisher'),
-                    'type' => 'success',
-                )
-            );
+        \block_edupublisher\permissions::require([
+            'canmoderate' => $package->get('canmoderate'),
+        ]);
+
+        $grant = required_param('grant', PARAM_BOOL);
+        if ($grant) {
+            \block_edupublisher\permissions::role_assign($package->courseid, $package->userid, 'defaultroleteacher');
+            // course_role_package_viewing doesn't need to be removed
+            $sendto = array('author');
+            $package->store_comment('comment:template:package_editing_granted', $sendto, true, false);
         } else {
-            echo $OUTPUT->render_from_template(
-                'block_edupublisher/alert',
-                array(
-                    'content' => get_string('permission_denied', 'block_edupublisher'),
-                    'type' => 'warning',
-                    'url' => $PAGE->url,
-                )
-            );
+            \block_edupublisher\permissions::role_assign($package->courseid, $package->userid, 'course_role_package_viewing');
+            \block_edupublisher\permissions::role_unassign($package->courseid, $package->userid, 'defaultroleteacher');
+            $sendto = array('author');
+            $package->store_comment('comment:template:package_editing_sealed', $sendto, true, false);
         }
+
+        redirect(new \moodle_url('/course/view.php?id=' . $package->courseid), get_string('successfully_saved_package', 'block_edupublisher'));
         break;
+
+    case 'submit_package':
+        \block_edupublisher\permissions::require([
+            'canedit' => $package->can_edit(),
+        ]);
+
+        $package->set_v2('publishas', 1, 'default');
+        $package->store_package_db();
+
+        \block_edupublisher\permissions::role_assign($package->courseid, $package->userid, 'course_role_package_viewing');
+        \block_edupublisher\permissions::role_unassign($package->courseid, $package->userid, 'defaultroleteacher');
+
+        redirect(new \moodle_url('/course/view.php?id=' . $package->courseid), 'Ressource wurde an das Redaktionsteam weitergeleitet');
+        break;
+
+    case '';
+        redirect(new \moodle_url('/course/view.php?id=' . $package->courseid));
+        break;
+
+    default:
+        throw new \moodle_exception('unknown action');
 }
+
+exit;
+
+// TODO: remove
+
+echo $OUTPUT->header();
 
 $package->load_origins();
 

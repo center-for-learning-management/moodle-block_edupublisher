@@ -1110,5 +1110,24 @@ function xmldb_block_edupublisher_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2024101605, 'edupublisher');
     }
 
+    if ($oldversion < 2024102801) {
+        // delete packages without course
+        $DB->execute("UPDATE {block_edupublisher_packages} set deleted=?, course=0 WHERE course not in (select id from {course}) and deleted=0", [time()]);
+
+        // delete packages remove course
+        $DB->execute("UPDATE {block_edupublisher_packages} set course=0 WHERE course>0 and deleted>0");
+
+        // trim the titles
+        $DB->execute("UPDATE {block_edupublisher_packages} set title=TRIM(title) WHERE title LIKE ' %'");
+
+        // update dauer
+        $DB->execute("UPDATE {block_edupublisher_md_eta} set zeitbedarf='00:45' WHERE zeitbedarf='01:00'");
+        $DB->execute("UPDATE {block_edupublisher_md_eta} set zeitbedarf='01:30' WHERE zeitbedarf='02:00'");
+        $DB->execute("UPDATE {block_edupublisher_md_eta} set zeitbedarf='02:15' WHERE zeitbedarf='03:00'");
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2024102801, 'edupublisher');
+    }
+
     return true;
 }

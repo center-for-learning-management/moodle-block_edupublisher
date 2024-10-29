@@ -419,9 +419,7 @@ switch ($publishstage) {
 
         $package->exacompetencies();
 
-        $form = new \block_edupublisher\package_edit_form($PAGE->url, [
-            'package' => $package,
-        ]);
+        $form = new \block_edupublisher\package_edit_form($package, []);
         if ($form->is_submitted()) {
             // Serialize form data and store to payload.
             $publish->payload = serialize($form->get_submitted_data());

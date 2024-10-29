@@ -375,8 +375,10 @@ class lib {
                     '00:30' => '30 Minuten',
                     '00:45' => '1 UE',
                     '01:30' => '2 UE',
-                    '04:44' => 'mehr als 2 UE',
-                    '01:00' => '1 Std. (bitte nicht mehr verwenden)', '02:00' => '2 Std. (bitte nicht mehr verwenden)', '03:00' => '3 Std. (bitte nicht mehr verwenden)',
+                    '02:15' => 'mehr als 2 UE',
+                    // '01:00' => '1 Std. (bitte nicht mehr verwenden)',
+                    // '02:00' => '2 Std. (bitte nicht mehr verwenden)',
+                    // '03:00' => '3 Std. (bitte nicht mehr verwenden)',
                 )),
                 'vorkenntnisse' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => $required_value, 'searchable' => 1),
                 'voraussetzungen' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => $required_value, 'searchable' => 1),
@@ -706,78 +708,6 @@ class lib {
     }
 
     /**
-     * Load all roles of a user in a context and check if it contains a given roleid.
-     * @param context the context to check.
-     * @param roleid the roleid to search for.
-     * @param userorid the user as integer or object. If non given, use $USER->id.
-     */
-    public static function has_role($context, $roleid, $userorid = null) {
-        global $USER;
-        if (is_object($userorid))
-            $userid = $userorid->id;
-        elseif (is_numeric($userorid))
-            $userid = $userorid;
-        else $userid = $USER->id;
-        $roles = \get_user_roles($context, $userid);
-        foreach ($roles as $role) {
-            if ($role->roleid == $roleid)
-                return true;
-        }
-        return false;
-    }
-
-    /**
-     * @return true if user is sysadmin
-     **/
-    public static function is_admin() {
-        $sysctx = \context_system::instance();
-        return has_capability('moodle/site:config', $sysctx);
-    }
-
-    /**
-     * @param (optional) array of channels we want to check
-     * @return true if user is a maintainer
-     **/
-    public static function is_maintainer($channels = array()) {
-        if (\block_edupublisher\lib::is_admin())
-            return true;
-
-        $category = get_config('block_edupublisher', 'category');
-        $context = \context_coursecat::instance($category);
-        $maintainer_default = has_capability('block/edupublisher:managedefault', $context);
-        $maintainer_etapas = has_capability('block/edupublisher:manageetapas', $context);
-        $maintainer_eduthek = has_capability('block/edupublisher:manageeduthek', $context);
-
-        if (count($channels) == 0) {
-            return $maintainer_default || $maintainer_etapas || $maintainer_eduthek;
-        }
-        if (in_array('default', $channels) && $maintainer_default)
-            return true;
-        if (in_array('etapas', $channels) && $maintainer_etapas)
-            return true;
-        if (in_array('eduthek', $channels) && $maintainer_eduthek)
-            return true;
-        return false;
-    }
-
-    /**
-     * Indicates if the current user is acting as a publisher for commercial content.
-     * @param publisherid (optional) if user is co-worker of a specific publisher.
-     * @return true if is publisher or site-admin.
-     */
-    public static function is_publisher($publisherid = 0) {
-        if (\block_edupublisher\lib::is_admin())
-            return true;
-        global $DB, $USER;
-        if (empty($publisherid)) {
-            $chk = $DB->get_record('block_edupublisher_pub_user', array('userid' => $USER->id));
-        } else {
-            $chk = $DB->get_record('block_edupublisher_pub_user', array('userid' => $USER->id, 'publisherid' => $publisherid));
-        }
-        return (!empty($chk->id) && $chk->id > 0);
-    }
-
-    /**
      * Log that a user visited a course-page of a package.
      * @param packageid that is visited.
      * @param action String, either 'viewed', 'enrolled', 'unenrolled' or 'cloned'
@@ -938,70 +868,6 @@ class lib {
     }
 
     /**
-     * Grants or revokes a role from a course.
-     * @param courseids array with courseids
-     * @param userids array with userids
-     * @param role -1 to remove user, number of role or known identifier (defaultroleteacher, defaultrolestudent) to assign role.
-     */
-    public static function role_set($courseids, $userids, $role) {
-        global $CFG, $DB;
-        require_once("$CFG->dirroot/enrol/manual/lib.php");
-        if ($role == 'defaultroleteacher')
-            $role = get_config('block_edupublisher', 'defaultroleteacher');
-        if ($role == 'defaultrolestudent')
-            $role = get_config('block_edupublisher', 'defaultrolestudent');
-        if (empty($role))
-            return;
-
-        $enrol = enrol_get_plugin('manual');
-        if (empty($enrol)) {
-            return false;
-        }
-        foreach ($courseids as $courseid) {
-            // Check if course exists.
-            $course = get_course($courseid);
-            if (empty($course->id))
-                continue;
-            // Check manual enrolment plugin instance is enabled/exist.
-            $instance = null;
-            $enrolinstances = enrol_get_instances($courseid, false);
-            foreach ($enrolinstances as $courseenrolinstance) {
-                if ($courseenrolinstance->enrol == "manual") {
-                    $instance = $courseenrolinstance;
-                    break;
-                }
-            }
-            if (empty($instance)) {
-                // We have to add a "manual-enrolment"-instance
-                $fields = array(
-                    'status' => 0,
-                    'roleid' => get_config('block_edupublisher', 'defaultrolestudent'),
-                    'enrolperiod' => 0,
-                    'expirynotify' => 0,
-                    'expirytreshold' => 0,
-                    'notifyall' => 0,
-                );
-                $emp = new enrol_manual_plugin();
-                $instance = $emp->add_instance($course, $fields);
-            }
-            if ($instance->status == 1) {
-                // It is inactive - we have to activate it!
-                $data = (object)array('status' => 0);
-                $emp = new enrol_manual_plugin();
-                $emp->update_instance($instance, $data);
-                $instance->status = $data->status;
-            }
-            foreach ($userids as $userid) {
-                if ($role == -1) {
-                    $enrol->unenrol_user($instance, $userid);
-                } else {
-                    $enrol->enrol_user($instance, $userid, $role, 0, 0, ENROL_USER_ACTIVE);
-                }
-            }
-        }
-    }
-
-    /**
      * Enables or disables guest access to a course.
      * @param courseid the course id
      * @param setto 1 (default) to enable, 0 to disable access.
@@ -1065,7 +931,7 @@ class lib {
 
         $highestrole = \local_eduvidual\locallib::get_highest_role();
         // only show star rating, when user is manager or teacher
-        if ($highestrole == \local_eduvidual\locallib::ROLE_MANAGER || $highestrole == \local_eduvidual\locallib::ROLE_TEACHER) {
+        if ($highestrole == \local_eduvidual\localpermissions::role_MANAGER || $highestrole == \local_eduvidual\localpermissions::role_TEACHER) {
             return true;
         } else {
             return false;
@@ -1074,18 +940,18 @@ class lib {
 
 
     public static function sync_package_to_course(package $package) {
-
-        if ($package->get('filling_mode', 'default') == package::FILLING_MODE_EXPERT) {
-            // bei expert modus nicht syncen
-            return;
-        }
         global $CFG, $DB;
 
         require_once($CFG->dirroot . '/course/lib.php');
         require_once($CFG->dirroot . '/course/modlib.php');
 
-        // add block to context
+        // block einfügen
         static::add_to_context($package->get_context(), 'content-upper');
+
+        if ($package->get('filling_mode', 'default') == package::FILLING_MODE_EXPERT) {
+            // bei expert modus nicht syncen
+            return;
+        }
 
         $fs = get_file_storage();
 
@@ -1093,7 +959,7 @@ class lib {
         $course = get_course($package->courseid);
 
         $course_sections = $DB->get_records('course_sections', ['course' => $package->courseid], 'section');
-        $make_section = function() use ($course, &$course_sections, $package) {
+        $make_section = function($data) use ($course, &$course_sections, $package) {
             $section = array_shift($course_sections);
             if (!$section) {
                 $section = course_create_section($package->courseid);
@@ -1116,6 +982,8 @@ class lib {
                     }
                 }
             }
+
+            course_update_section($package->courseid, $section, array_merge(['availability' => null], $data));
 
             return $section;
         };
@@ -1164,12 +1032,7 @@ class lib {
         // }
 
         foreach ($content_items as $i => $content_item) {
-            $section = $make_section();
-
-            // $modinfo = get_fast_modinfo($course);
-            // $section = $modinfo->get_section_info_by_id($sectionid, MUST_EXIST);
-            // course_update_section($course, $section, ['visible' => $visible]);
-            course_update_section($package->courseid, $section, [
+            $section = $make_section([
                 'name' => ($i + 1) . '. Aktivität/Ressource',
                 'summary' => nl2br(clean_param($content_item->description, PARAM_TEXT)),
             ]);
@@ -1321,31 +1184,142 @@ class lib {
             }
 
             if ($h5ps) {
+                // $create_hvp_activity = function($courseid, $name, \stored_file $file, $section = 0) {
+                //     global $DB, $USER;
+                //
+                //     // Verify the course exists
+                //     $course = $DB->get_record('course', array('id' => $courseid));
+                //     if (!$course) {
+                //         throw new moodle_exception('courseidnotfound');
+                //     }
+                //
+                //     // Prepare module data
+                //     $moduleinfo = new \stdClass();
+                //     $moduleinfo->course = $courseid;
+                //     $moduleinfo->name = $name;
+                //     $moduleinfo->intro = ''; // Optional introduction text
+                //     $moduleinfo->introformat = FORMAT_HTML;
+                //     $moduleinfo->section = $section;
+                //     $moduleinfo->visible = true;
+                //     $moduleinfo->modulename = 'hvp';
+                //     $moduleinfo->module = $DB->get_field('modules', 'id', array('name' => 'hvp'));
+                //     $moduleinfo->cmidnumber = '';
+                //     $moduleinfo->instance = 0;
+                //
+                //     // Create course module
+                //     $moduleinfo->coursemodule = add_course_module($moduleinfo);
+                //
+                //     // Create instance record
+                //     $hvp = new \stdClass();
+                //     $hvp->course = $courseid;
+                //     $hvp->name = $name;
+                //     $hvp->intro = '';
+                //     $hvp->introformat = FORMAT_HTML;
+                //     $hvp->timecreated = time();
+                //     $hvp->timemodified = time();
+                //     $hvp->json_content = '';
+                //     $hvp->main_library_id= 0;
+                //
+                //     $hvp->id = $DB->insert_record('hvp', $hvp);
+                //     $moduleinfo->instance = $hvp->id;
+                //
+                //     // Add to course_sections
+                //     course_add_cm_to_section($courseid, $moduleinfo->coursemodule, $section);
+                //
+                //     // Process H5P file
+                //         $fs = get_file_storage();
+                //         $context = \context_module::instance($moduleinfo->coursemodule);
+                //
+                //         // Prepare file record
+                //         $fileinfo = array(
+                //             'contextid' => $context->id,
+                //             'component' => 'mod_hvp',
+                //             'filearea' => 'package',
+                //             'itemid' => 0,
+                //             'filepath' => '/',
+                //             'filename' => $file->get_filename(),
+                //         );
+                //
+                //         // Create file from the H5P package
+                //         $fs->create_file_from_storedfile($fileinfo, $file);
+                //
+                //         // Process the H5P content
+                //         $core = \mod_hvp\framework::instance('storage');
+                //         $content_id = $core->savePackage(null, null, true);
+                //
+                //         // Update the HVP record with content ID
+                //         $DB->set_field('hvp', 'main_library_id', $content_id, array('id' => $hvp->id));
+                //
+                //     return $moduleinfo->coursemodule;
+                // };
+                //
+                // // Example usage:
+                // try {
+                //     $course_id = $package->courseid; // Replace with your course ID
+                //     $activity_name = "My H5P Activity";
+                //     $h5p_file_path = '/path/to/your/content.h5p';
+                //     $section_number = 1; // Optional section number
+                //
+                //     $cm_id = $create_hvp_activity($course_id, $activity_name, $h5ps[0], $section_number);
+                //     if ($cm_id) {
+                //         echo "H5P activity created successfully with course module ID: " . $cm_id;
+                //     }
+                // } catch (Exception $e) {
+                //     echo "Error creating H5P activity: " . $e->getMessage();
+                // }
+
                 foreach ($h5ps as $file) {
                     $moduleInfo = new \stdClass();
-                    $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'h5pactivity'));
-                    $moduleInfo->modulename = 'h5pactivity';
+                    $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'label'));
+                    $moduleInfo->modulename = 'label';
                     $moduleInfo->section = $section->section;
                     $moduleInfo->display = 1;
                     $moduleInfo->visible = 1;
-                    $moduleInfo->name = $file->get_filename();
-                    $moduleInfo->intro = '';
+                    $moduleInfo->name = 'H5P';
+                    $moduleInfo->intro = '<div class="h5p-placeholder" contenteditable="false">@@PLUGINFILE@@/' . $file->get_filename() . '</div>';
                     $moduleInfo->introformat = FORMAT_HTML;
                     $moduleInfo->files = []; // $files; // geht so nicht
-                    $moduleInfo->grade = 0;
                     $moduleInfo = \add_moduleinfo($moduleInfo, $course);
 
                     $mod_context = \context_module::instance($moduleInfo->coursemodule);
                     $fileinfo = array(
                         'contextid' => $mod_context->id,
-                        'component' => 'mod_h5pactivity',
-                        'filearea' => 'package',
+                        'component' => 'mod_label',
+                        'filearea' => 'intro',
                         'itemid' => 0,
                         'filepath' => '/',
                         'filename' => $file->get_filename(),
                     );
 
                     $fs->create_file_from_storedfile($fileinfo, $file);
+
+                    // $cm_id = create_hvp_activity($package->courseid, $activity_name, $h5p_file_path, $section_number);
+                    // exit;
+
+                    // $moduleInfo = new \stdClass();
+                    // $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'h5pactivity'));
+                    // $moduleInfo->modulename = 'h5pactivity';
+                    // $moduleInfo->section = $section->section;
+                    // $moduleInfo->display = 1;
+                    // $moduleInfo->visible = 1;
+                    // $moduleInfo->name = $file->get_filename();
+                    // $moduleInfo->intro = '';
+                    // $moduleInfo->introformat = FORMAT_HTML;
+                    // $moduleInfo->files = []; // $files; // geht so nicht
+                    // $moduleInfo->grade = 0;
+                    // $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+                    //
+                    // $mod_context = \context_module::instance($moduleInfo->coursemodule);
+                    // $fileinfo = array(
+                    //     'contextid' => $mod_context->id,
+                    //     'component' => 'mod_h5pactivity',
+                    //     'filearea' => 'package',
+                    //     'itemid' => 0,
+                    //     'filepath' => '/',
+                    //     'filename' => $file->get_filename(),
+                    // );
+                    //
+                    // $fs->create_file_from_storedfile($fileinfo, $file);
                 }
             }
 
@@ -1353,11 +1327,11 @@ class lib {
             if ($files || trim($content_item->didaktische_hinweise)) {
                 // hat didaktische hinweise
 
-                $section = $make_section();
-
-                course_update_section($package->courseid, $section, [
+                $availability = json_encode((object)array('op' => '&', 'c' => array((object)array('type' => 'role', 'typeid' => 1, 'id' => (int)get_config('local_eduvidual', 'defaultorgroleteacher'))), 'showc' => array(false)));
+                $section = $make_section([
                     'name' => ($i + 1) . '. Aktivität/Ressource: Didaktische Hinweise',
                     'summary' => nl2br(clean_param($content_item->didaktische_hinweise, PARAM_TEXT)),
+                    'availability' => $availability,
                 ]);
 
                 if ($files) {

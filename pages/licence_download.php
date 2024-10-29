@@ -42,7 +42,7 @@ $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
 $is_coworker = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisherid, 'userid' => $USER->id));
 
-if (!empty($publisherid) && \block_edupublisher\lib::is_maintainer(array('commercial')) || $is_coworker->userid == $USER->id) {
+if (!empty($publisherid) && \block_edupublisher\permissions::is_maintainer(array('commercial')) || $is_coworker->userid == $USER->id) {
     require_once($CFG->dirroot . '/blocks/edupublisher/classes/licence_list_form.php');
     $form = new block_edupublisher\licence_list_form('download.php');
     if ($data = $form->get_data()) {

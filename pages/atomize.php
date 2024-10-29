@@ -31,7 +31,7 @@ $PAGE->set_url('/blocks/edupublisher/pages/reset.php', array());
 $PAGE->set_title('Atomize DB');
 $PAGE->set_heading('Atomize DB');
 
-if (!\block_edupublisher\lib::is_admin()) {
+if (!\block_edupublisher\permissions::is_admin()) {
     throw new \moodle_exception('permission denied');
 }
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');

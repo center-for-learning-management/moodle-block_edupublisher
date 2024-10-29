@@ -58,7 +58,7 @@ require_capability('block/edupublisher:canselfenrol', $context);
 \block_edupublisher\lib::check_requirements();
 
 // determine if we are a maintainer of this package!
-$ismaintainer = \block_edupublisher\lib::is_maintainer(explode(',', $package->get('channels')));
+$ismaintainer = \block_edupublisher\permissions::is_maintainer(explode(',', $package->get('channels')));
 if (!empty($ismaintainer)) {
     $defaultroleteacher = get_config('block_edupublisher', 'defaultroleteacher');
 }
@@ -82,21 +82,21 @@ if (empty($defaultrolestudent)) {
     if (!empty($canenrolasteacher)) {
         // We distinguish between student and teacher role.
         if (!empty($asstudent))
-            \block_edupublisher\lib::course_manual_enrolments(array($package->courseid), array($USER->id), $defaultrolestudent, !empty($unenrol));
+            \block_edupublisher\lib::course_manual_enrolments([$package->courseid], array($USER->id), $defaultrolestudent, !empty($unenrol));
         if (!empty($asstudent))
-            \block_edupublisher\lib::course_manual_enrolments(array($package->courseid), array($USER->id), $rolestudent, !empty($unenrol));
+            \block_edupublisher\lib::course_manual_enrolments([$package->courseid], array($USER->id), $rolestudent, !empty($unenrol));
         if (!empty($asstudent))
-            \block_edupublisher\lib::course_manual_enrolments(array($package->courseid), array($USER->id), $roleteacher, !empty($unenrol));
+            \block_edupublisher\lib::course_manual_enrolments([$package->courseid], array($USER->id), $roleteacher, !empty($unenrol));
         // Attention: asteacher means this person is a maintainer!!!
         if (!empty($asteacher))
-            \block_edupublisher\lib::course_manual_enrolments(array($package->courseid), array($USER->id), $defaultroleteacher, !empty($unenrol));
+            \block_edupublisher\lib::course_manual_enrolments([$package->courseid], array($USER->id), $defaultroleteacher, !empty($unenrol));
     } else {
         // There is only the student role.
-        \block_edupublisher\lib::course_manual_enrolments(array($package->courseid), array($USER->id), $defaultrolestudent, !empty($unenrol));
-        \block_edupublisher\lib::course_manual_enrolments(array($package->courseid), array($USER->id), $rolestudent, !empty($unenrol));
+        \block_edupublisher\lib::course_manual_enrolments([$package->courseid], array($USER->id), $defaultrolestudent, !empty($unenrol));
+        \block_edupublisher\lib::course_manual_enrolments([$package->courseid], array($USER->id), $rolestudent, !empty($unenrol));
         if (!empty($unenrol)) {
             // Only change roleteacher if this is an unenrolment.
-            \block_edupublisher\lib::course_manual_enrolments(array($package->courseid), array($USER->id), $roleteacher, !empty($unenrol));
+            \block_edupublisher\lib::course_manual_enrolments([$package->courseid], array($USER->id), $roleteacher, !empty($unenrol));
         }
     }
 

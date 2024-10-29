@@ -43,7 +43,7 @@ if (!empty($publisher->name)) {
 }
 echo $OUTPUT->header();
 
-if (\block_edupublisher\lib::is_maintainer(array('commercial'))) {
+if (\block_edupublisher\permissions::is_maintainer(array('commercial'))) {
     // if id > 0 show publisher
     // else show list of publishers
     if ($id > 0) {

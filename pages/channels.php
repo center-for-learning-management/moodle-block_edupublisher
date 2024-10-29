@@ -76,7 +76,7 @@ if (empty($modified)) {
                 WHERE modified > ?";
     // auch inaktivte und gelöschte mitübertragen, damit sie bei den anderen System gelöscht werden können
 
-    $items = new SimpleXMLElement('<items />');
+    $items = new \block_edupublisher\SimpleXMLElement('<items />');
     $packageids = $DB->get_records_sql($sql, array($modified));
     foreach ($packageids as $packageid) {
         $package = new \block_edupublisher\package($packageid->id, true);
@@ -87,5 +87,9 @@ if (empty($modified)) {
         }
     }
 
-    echo $items->asXML();
+    if (optional_param('pretty', false, PARAM_BOOL)) {
+        echo $items->asPrettyXML();
+    } else {
+        echo $items->asXML();
+    }
 }

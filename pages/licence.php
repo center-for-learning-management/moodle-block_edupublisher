@@ -47,13 +47,13 @@ echo $OUTPUT->header();
 
 if (empty($publisherid)) {
     $options = array();
-    if (\block_edupublisher\lib::is_admin()) {
+    if (\block_edupublisher\permissions::is_admin()) {
         $allpublishers = $DB->get_records_sql('SELECT * FROM {block_edupublisher_pub} ORDER BY name ASC', array());
     } else {
         $allpublishers = $DB->get_records_sql('SELECT ep.* FROM {block_edupublisher_pub} ep, {block_edupublisher_pub_user} epu WHERE ep.id=epu.publisherid AND epu.userid=? ORDER BY name ASC', array($USER->id));
     }
     foreach ($allpublishers as $publisher) {
-        if (\block_edupublisher\lib::is_admin()) {
+        if (\block_edupublisher\permissions::is_admin()) {
             $chk = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisher->id, 'userid' => $USER->id));
             if (!$chk)
                 $publisher->name = '! ' . $publisher->name;
@@ -67,7 +67,7 @@ if (empty($publisherid)) {
         'block_edupublisher/licence_publisherselect',
         array('options' => $options)
     );
-} elseif (\block_edupublisher\lib::is_maintainer(array('commercial')) || $publisher->is_coworker) {
+} elseif (\block_edupublisher\permissions::is_maintainer(array('commercial')) || $publisher->is_coworker) {
     $action = optional_param('action', '', PARAM_TEXT);
     $data = (object)array(
         'action' => $action,

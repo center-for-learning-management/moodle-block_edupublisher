@@ -33,7 +33,7 @@ $search = trim(optional_param('search', '', PARAM_TEXT));
 $context = context_system::instance();
 // Must pass login
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/list.old.php', array('channel' => $channel, 'page' => $page)));
-require_login();
+\block_edupublisher\permissions::require_login();
 $PAGE->set_context($context);
 $title = get_string('channels', 'block_edupublisher');
 if (!empty($channel) && in_array($channel, $channels)) {
@@ -57,7 +57,7 @@ if (!empty($channel)) {
 \block_edupublisher\lib::check_requirements();
 echo $OUTPUT->header();
 
-if (empty($channel) && !\block_edupublisher\lib::is_maintainer() || !empty($channel) && !\block_edupublisher\lib::is_maintainer(array($channel))) {
+if (empty($channel) && !\block_edupublisher\permissions::is_maintainer() || !empty($channel) && !\block_edupublisher\permissions::is_maintainer(array($channel))) {
     echo $OUTPUT->render_from_template(
         'block_edupublisher/alert',
         array(
@@ -91,7 +91,7 @@ if (empty($channel)) {
         throw new \moodle_exception('permission_denied', 'block_edupublisher');
     }
     /*
-    if (!\block_edupublisher\lib::is_maintainer(array($channel))) {
+    if (!\block_edupublisher\permissions::is_maintainer(array($channel))) {
         throw new \moodle_exception('permission_denied', 'block_edupublisher');
     }
     */

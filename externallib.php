@@ -52,7 +52,7 @@ class block_edupublisher_external extends external_api {
         //$result->error = get_string('groups:not_member', 'block_edupublisher');
         if (empty($params['name'])) {
             throw new \moodle_exception('exception:name_must_not_be_empty', 'block_edupublisher');
-        } else if (!\block_edupublisher\lib::has_role($context, $roleteacher)) {
+        } else if (!\block_edupublisher\permissions::has_role($context, $roleteacher)) {
             $result->error = get_string('groups:no_permission', 'block_edupublisher');
         } else if (!\groups_is_member($group->id, $USER->id)) {
             $result->error = get_string('groups:not_member', 'block_edupublisher');
@@ -195,7 +195,7 @@ class block_edupublisher_external extends external_api {
     public static function licence_generate($amount, $publisherid) {
         global $CFG, $DB;
         $params = self::validate_parameters(self::licence_generate_parameters(), array('amount' => $amount, 'publisherid' => $publisherid));
-        if (\block_edupublisher\lib::is_admin() || \block_edupublisher\lib::is_publisher($params['publisherid'])) {
+        if (\block_edupublisher\permissions::is_admin() || \block_edupublisher\permissions::is_publisher($params['publisherid'])) {
             $licencekeys = array();
             $pre = $params['publisherid'];
             while (count($licencekeys) < $params['amount']) {
@@ -239,7 +239,7 @@ class block_edupublisher_external extends external_api {
     public static function licence_generatenow($amount, $licencekeys, $type, $publisherid) {
         global $CFG, $DB, $USER;
         $params = self::validate_parameters(self::licence_generatenow_parameters(), array('amount' => $amount, 'licencekeys' => $licencekeys, 'type' => $type, 'publisherid' => $publisherid));
-        if (\block_edupublisher\lib::is_admin() || \block_edupublisher\lib::is_publisher($params['publisherid'])) {
+        if (\block_edupublisher\permissions::is_admin() || \block_edupublisher\permissions::is_publisher($params['publisherid'])) {
             $types = array('course', 'org', 'user');
             if (in_array($params['type'], $types)) {
                 $licencekeys = explode(' ', $params['licencekeys']);
@@ -300,7 +300,7 @@ class block_edupublisher_external extends external_api {
     public static function licence_list($publisherid) {
         global $CFG, $DB;
         $params = self::validate_parameters(self::licence_list_parameters(), array('publisherid' => $publisherid));
-        if (\block_edupublisher\lib::is_admin() || \block_edupublisher\lib::is_publisher($params['publisherid'])) {
+        if (\block_edupublisher\permissions::is_admin() || \block_edupublisher\permissions::is_publisher($params['publisherid'])) {
             $licences = $DB->get_records_sql('SELECT * FROM {block_edupublisher_lic} WHERE publisherid=? ORDER BY licencekey ASC', array($params['publisherid']));
             return json_encode($licences, JSON_NUMERIC_CHECK);
         } else {
@@ -685,7 +685,7 @@ class block_edupublisher_external extends external_api {
     public static function store_publisher($active, $id, $name, $mail) {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
-        if (\block_edupublisher\lib::is_admin()) {
+        if (\block_edupublisher\permissions::is_admin()) {
             $params = self::validate_parameters(self::store_publisher_parameters(), array('active' => $active, 'id' => $id, 'name' => $name, 'mail' => $mail));
 
             if (!empty($params['name'])) {
@@ -737,7 +737,7 @@ class block_edupublisher_external extends external_api {
     public static function store_publisher_user($action, $publisherid, $userids) {
         global $CFG, $DB;
         require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
-        if (\block_edupublisher\lib::is_admin()) {
+        if (\block_edupublisher\permissions::is_admin()) {
             $params = self::validate_parameters(self::store_publisher_user_parameters(), array('action' => $action, 'publisherid' => $publisherid, 'userids' => $userids));
 
             $userids = explode(' ', $params['userids']);
@@ -786,79 +786,88 @@ class block_edupublisher_external extends external_api {
         return new external_function_parameters(array(
             'packageid' => new external_value(PARAM_INT, 'Package-ID'),
             'type' => new external_value(PARAM_TEXT, 'default for whole package otherwise channel name'),
-            'to' => new external_value(PARAM_INT, 'Value to set to'),
+            'to' => new external_value(PARAM_INT, 'Value to set to (0 or 1)'),
         ));
     }
 
     public static function trigger_active($packageid, $type, $to) {
-        global $CFG, $DB, $USER;
-        $params = self::validate_parameters(
-            self::trigger_active_parameters(),
-            array(
-                'packageid' => $packageid,
-                'type' => $type,
-                'to' => $to,
-            )
-        );
-        $package = new \block_edupublisher\package($params['packageid'], true);
+        global $DB;
+
+        [
+            'packageid' => $packageid,
+            'type' => $type,
+            'to' => $to,
+        ] = self::validate_parameters(self::trigger_active_parameters(), [
+            'packageid' => $packageid,
+            'type' => $type,
+            'to' => $to,
+        ]);
+        $package = new \block_edupublisher\package($packageid, true);
 
         $statusses = array();
-        $statusses['cantriggeractive' . $params['type']] = $package->get('cantriggeractive', $params['type']);
-        if (!empty($package->get('cantriggeractive', $params['type']))) {
-            $published = !empty($params['to']) ? time() : 0;
-            // Trigger the channel itself.
-            $package->set($published, 'published', $params['type']);
+        $statusses['cantriggeractive' . $type] = $package->get('cantriggeractive', $type);
+        if (!$package->get('cantriggeractive', $type)) {
+            throw new \moodle_exception('can not trigger active for type ' . $type);
+        }
 
-            if ($params['type'] != 'default') {
-                if ($published > 0) {
-                    // If any channel gets activated, also activate default
-                    // $package->set($published, 'published', 'default');
-                } else if (empty($package->get('published', 'eduthek')) && empty($package->get('published', 'eduthekneu')) && empty($package->get('published', 'etapas'))) {
-                    // If last gets deactivated, also deactivate default
-                    $package->set(0, 'published', 'default');
-                }
+
+        $published = !empty($to) ? time() : 0;
+        // Trigger the channel itself.
+        $package->set($published, 'published', $type);
+
+        if ($type != 'default') {
+            if ($published > 0) {
+                // OLD: If any channel gets activated, also activate default
+                // $package->set($published, 'published', 'default');
+            } elseif (empty($package->get('published', 'eduthek')) && empty($package->get('published', 'eduthekneu')) && empty($package->get('published', 'etapas'))) {
+                // If last gets deactivated, also deactivate default
+                $package->set(0, 'published', 'default');
             }
+        } else {
+            // $type == 'default'
+            // Schreibrechte entziehen
+            \block_edupublisher\permissions::role_unassign($package->courseid, $package->userid, 'defaultroleteacher');
+        }
 
-            if (!empty($package->get('published', 'etapas')) && $package->get('status', 'etapas') == 'inspect') {
+        if (!empty($package->get('published', 'etapas')) && $package->get('status', 'etapas') == 'inspect') {
+            $package->set('eval', 'status', 'etapas');
+        }
+
+        $package->set(empty($package->get('published', 'default')) ? 0 : 1, 'active');
+
+        // Toggle course visibility
+        $course = \get_course($package->courseid);
+        $course->visible = !empty($package->get('active')) ? 1 : 0;
+        $DB->update_record('course', $course);
+        \rebuild_course_cache($course->id, true);
+
+        \block_edupublisher\lib::toggle_guest_access($package->courseid, $package->get('active'));
+
+        $published = $package->get('published', 'etapas');
+        if (!empty($published)) {
+            $evaluation = $DB->get_record('block_edupublisher_evaluatio', ['packageid' => $package->id]);
+            if (!empty($evaluation->id)) {
                 $package->set('eval', 'status', 'etapas');
-            }
-
-            $package->set(empty($package->get('published', 'default')) ? 0 : 1, 'active');
-
-            // Toggle course visibility
-            $course = \get_course($package->courseid);
-            $course->visible = !empty($package->get('active')) ? 1 : 0;
-            $DB->update_record('course', $course);
-            \rebuild_course_cache($course->id, true);
-
-            \block_edupublisher\lib::toggle_guest_access($package->courseid, $package->get('active'));
-
-            $published = $package->get('published', 'etapas');
-            if (!empty($published)) {
-                $evaluation = $DB->get_record('block_edupublisher_evaluatio', ['packageid' => $package->id]);
-                if (!empty($evaluation->id)) {
-                    $package->set('eval', 'status', 'etapas');
-                } else {
-                    $package->set('public', 'status', 'etapas');
-                }
-
-            } else if (empty($published)) {
-                $package->set('inspect', 'status', 'etapas');
-            }
-
-            $package->store_package_db();
-
-            // The comment system is using mustache templates
-            // and requires a page context.
-            global $PAGE;
-            $PAGE->set_context(\context_system::instance());
-            require_login();
-            $sendto = array('author');
-            if ($package->get('active')) {
-                $package->store_comment('comment:template:package_published', $sendto, true, false, $params["type"]);
             } else {
-                $package->store_comment('comment:template:package_unpublished', $sendto, true, false, $params["type"]);
+                $package->set('public', 'status', 'etapas');
             }
+
+        } else if (empty($published)) {
+            $package->set('inspect', 'status', 'etapas');
+        }
+
+        $package->store_package_db();
+
+        // The comment system is using mustache templates
+        // and requires a page context.
+        global $PAGE;
+        $PAGE->set_context(\context_system::instance());
+        require_login();
+        $sendto = array('author');
+        if ($package->get('active')) {
+            $package->store_comment('comment:template:package_published', $sendto, true, false, $type);
+        } else {
+            $package->store_comment('comment:template:package_unpublished', $sendto, true, false, $type);
         }
 
         $channels = \block_edupublisher\lib::channels();

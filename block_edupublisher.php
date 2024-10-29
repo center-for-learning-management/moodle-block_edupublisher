@@ -111,10 +111,7 @@ class block_edupublisher extends block_base {
 
                 // hack: also add the styles
                 // $PAGE->requires->css does not work here, because header is already printed
-                $styles = '<style> ' . file_get_contents(__DIR__ . '/style/course_summary.css') . ' </style>';
-
-                $this->content->text .= $styles .
-                    '<div class="ui-edupublisher">' .
+                $this->content->text .= '<div class="ui-edupublisher">' .
                     output::render_package_details($package, 'course_content') .
                     '</div>';
                 $this->title = ''; // get_string('summary', 'block_edupublisher');
@@ -125,27 +122,27 @@ class block_edupublisher extends block_base {
                 $this->content->text .= $OUTPUT->render_from_template('block_edupublisher/block_inpackage', $package->get_flattened());
             }
         } elseif ($canedit) {
-            $cache = \cache::make('block_edupublisher', 'publish');
-            $pendingpublication = $cache->get("pending_publication_$COURSE->id");
-            if (empty($pendingpublication)) {
-                $cache->set("pending_publication_$COURSE->id", -1);
-                $sql = "SELECT *
-                            FROM {block_edupublisher_publish}
-                            WHERE sourcecourseid = ?
-                                OR targetcourseid = ?";
-                $pendingpublications = $DB->get_records_sql($sql, [$COURSE->id, $COURSE->id]);
-                foreach ($pendingpublications as $pendingpublication) {
-                    $pendingpublication = $pendingpublication->sourcecourseid;
-                    $cache->set("pending_publication_$COURSE->id", $pendingpublication);
-                    break;
-                }
-            }
+            // $cache = \cache::make('block_edupublisher', 'publish');
+            // $pendingpublication = $cache->get("pending_publication_$COURSE->id");
+            // if (empty($pendingpublication)) {
+            //     $cache->set("pending_publication_$COURSE->id", -1);
+            //     $sql = "SELECT *
+            //                 FROM {block_edupublisher_publish}
+            //                 WHERE sourcecourseid = ?
+            //                     OR targetcourseid = ?";
+            //     $pendingpublications = $DB->get_records_sql($sql, [$COURSE->id, $COURSE->id]);
+            //     foreach ($pendingpublications as $pendingpublication) {
+            //         $pendingpublication = $pendingpublication->sourcecourseid;
+            //         $cache->set("pending_publication_$COURSE->id", $pendingpublication);
+            //         break;
+            //     }
+            // }
 
             $params = (object)[
                 'wwwroot' => $CFG->wwwroot,
                 'courseid' => $COURSE->id,
                 'packages' => array_values($DB->get_records_sql('SELECT * FROM {block_edupublisher_packages} WHERE sourcecourse=? AND (active=1 OR userid=?)', array($COURSE->id, $USER->id))),
-                'pendingpublication' => (intval($pendingpublication) == -1) ? 0 : $pendingpublication,
+                // 'pendingpublication' => (intval($pendingpublication) == -1) ? 0 : $pendingpublication,
                 'uses' => array_values($DB->get_records_sql('SELECT DISTINCT package.id, package.title FROM {block_edupublisher_packages} package JOIN {block_edupublisher_uses} uses ON package.id=uses.package AND uses.targetcourse=?', array($COURSE->id))),
             ];
             $params->haspackages = !!count($params->packages);
@@ -160,7 +157,7 @@ class block_edupublisher extends block_base {
     public function is_displayed_in_course_content() {
         global $COURSE;
 
-        return $this->instance->region == 'content-upper' && $this->context->get_parent_context() instanceof \context_course && $COURSE->id > 1;
+        return isset($this->instance->region) && $this->instance->region == 'content-upper' && $this->context->get_parent_context() instanceof \context_course && $COURSE->id > 1;
     }
 
     public function hide_header() {

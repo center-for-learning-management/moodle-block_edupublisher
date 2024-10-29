@@ -18,78 +18,54 @@
     <a href="list.php" class="btn btn-secondary mb-2">Zurück zur Liste</a>
 </div>
 <div class="ui-edupublisher"><div>
-{{#canmoderate}}
-    <div style="display: grid; grid-template-columns: minmax(200px, 1fr) 2fr;">
-        <a href="{{wwwroot}}/course/view.php?id={{courseid}}" class="ui-btn btn btn-primary">Kurs anzeigen</a>
-        {{#authoreditingpermission}}
-            <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&act=authoreditingpermission&to=remove" class="ui-btn btn btn-primary">{{#str}} trigger_editing_permission_remove, block_edupublisher {{/str}}</a>
-        {{/authoreditingpermission}}
-        {{^authoreditingpermission}}
-            <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&act=authoreditingpermission&to=grant" class="ui-btn btn btn-primary">{{#str}} trigger_editing_permission_grant, block_edupublisher {{/str}}</a>
-        {{/authoreditingpermission}}
-    </div>
-{{/canmoderate}}
+
+<div style="display: grid; grid-template-columns: minmax(200px, 1fr) 2fr;">
+    <a href="{{wwwroot}}/course/view.php?id={{courseid}}" class="ui-btn btn btn-primary">Kurs anzeigen</a>
+    {{#authoreditingpermission}}
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&act=authoreditingpermission&to=remove" class="ui-btn btn btn-primary">{{#str}} trigger_editing_permission_remove, block_edupublisher {{/str}}</a>
+    {{/authoreditingpermission}}
+    {{^authoreditingpermission}}
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&act=authoreditingpermission&to=grant" class="ui-btn btn btn-primary">{{#str}} trigger_editing_permission_grant, block_edupublisher {{/str}}</a>
+    {{/authoreditingpermission}}
+</div>
+
 <div style="display: grid; grid-template-columns: minmax(200px, 1fr) minmax(200px, 1fr) minmax(200px, 1fr);">
 <a href="{{wwwroot}}/blocks/edupublisher/pages/comment.php?packageid={{id}}" class="btn">{{#str}} comments {{/str}}</a>
 {{#canedit}}
     <a href="{{wwwroot}}/blocks/edupublisher/pages/package_edit.php?id={{id}}&returnurl={{returnurl}}" class="btn">{{#str}} edit {{/str}}</a>
 {{/canedit}}
 {{#candelete}}
-    <a href="{{wwwroot}}/blocks/edupublisher/pages/remove.php?id={{id}}" class="btn">{{#str}} delete {{/str}}</a>
+    <a href="{{wwwroot}}/blocks/edupublisher/pages/package_delete.php?id={{id}}" class="btn">{{#str}} delete {{/str}}</a>
 {{/candelete}}
 </div>
 
 <h3 style="font-size: 130%; margin-top: 20px;">Veröffentlichung</h3>
 
-<div class="row">
-    <div class="col-md-4">
-        Channels
-    </div>
-    <div class="col-md-8">
-        {{#default_publishas}}
-        <div id="channel-default" class="channel-block{{^default_published}} channel-inactive{{/default_published}}">
+<div class="d-flex">
+    {{#default_publishas}}
+        <div id="channel-default" class="channel-block {{^default_published}}channel-inactive{{/default_published}}" style="margin-right: 15px;">
             {{#default_cantriggeractive}}
             <input type="checkbox"{{#default_published}} checked="checked"{{/default_published}}
                    onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'default', chkbox); } );"
                    id="channel-default-active"/>
             {{/default_cantriggeractive}}
-            Eduvdidual
+            in der Eduthek veröffentlicht
         </div>
-        {{/default_publishas}}
-
-        {{#eduthekneu_publishas}}
-        <div id="channel-eduthekneu" class="channel-block{{^eduthekneu_published}} channel-inactive{{/eduthekneu_published}}">
-            {{#eduthekneu_cantriggeractive}}
-            <input type="checkbox"{{#eduthekneu_published}} checked="checked"{{/eduthekneu_published}}
-                   onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'eduthekneu', chkbox); } );"
-                   id="channel-eduthekneu-active"/>
-            {{/eduthekneu_cantriggeractive}}
-            Eduthek.neu
-        </div>
-        {{/eduthekneu_publishas}}
-
         {{#etapas_publishas}}
-        <div id="channel-etapas" class="channel-block{{^etapas_published}} channel-inactive{{/etapas_published}}">
+        <div id="channel-etapas" class="channel-block {{^etapas_published}}channel-inactive{{/etapas_published}}">
             {{#etapas_cantriggeractive}}
             <input type="checkbox"{{#etapas_published}} checked="checked"{{/etapas_published}}
                    onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'etapas', chkbox); } );"
                    id="channel-etapas-active"/>
             {{/etapas_cantriggeractive}}
-            eTapas
+            als eTapa veröffentlicht
         </div>
         {{/etapas_publishas}}
+    {{/default_publishas}}
 
-        {{#eduthek_publishas}}
-        <div id="channel-eduthek" class="channel-block{{^eduthek_published}} channel-inactive{{/eduthek_published}}">
-            {{#eduthek_cantriggeractive}}
-            <input type="checkbox"{{#eduthek_published}} checked="checked"{{/eduthek_published}}
-                   onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'eduthek', chkbox); } );"
-                   id="channel-eduthek-active"/>
-            {{/eduthek_cantriggeractive}}
-            Eduthek (alt)
-        </div>
-        {{/eduthek_publishas}}
-    </div>
+    {{^default_publishas}}
+        Noch nicht zur Veröffentlichung an das Redaktionsteam weitergegeben
+    {{/default_publishas}}
 </div>
 
 <h3 style="font-size: 130%; margin-top: 20px;">Details:</h3>

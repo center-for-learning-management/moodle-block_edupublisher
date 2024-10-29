@@ -34,15 +34,19 @@ class package_edit_form extends \moodleform {
     static $maxfiles = 1;
     static $subdirs = 0;
 
+    function __construct(private ?package $package, private array $content_items_old) {
+        parent::__construct($_SERVER['REQUEST_URI']);
+    }
+
     function get_channel_definition() {
         $channels = \block_edupublisher\lib::get_channel_definition();
 
-        $ALLOW_COMMERCIAL = \block_edupublisher\lib::is_publisher();
+        $ALLOW_COMMERCIAL = \block_edupublisher\permissions::is_publisher();
         if (!$ALLOW_COMMERCIAL) {
             unset($channels['commercial']);
         }
 
-        $package = $this->_customdata['package'];
+        $package = $this->package;
         if (!$package || !$package->get('publishas', 'commercial')) {
             unset($channels['commercial']);
         }
@@ -54,7 +58,7 @@ class package_edit_form extends \moodleform {
     }
 
     private function get_package(): ?\block_edupublisher\package {
-        return $this->_customdata['package'] ?? null;
+        return $this->package ?? null;
     }
 
     function definition() {
@@ -83,6 +87,7 @@ class package_edit_form extends \moodleform {
         */
 
         $channels = $this->get_channel_definition();
+        $package = $this->get_package();
 
         $stringman = get_string_manager();
         foreach ($channels as $channel => $fields) {
@@ -102,15 +107,13 @@ class package_edit_form extends \moodleform {
 
                 $required = isset($field['required']) && $field['required'];
                 $hiddenexceptmaintainer = isset($field['hidden_except_maintainer']) && $field['hidden_except_maintainer'];
-                if ($hiddenexceptmaintainer && !\block_edupublisher\lib::is_maintainer()) {
+                if ($hiddenexceptmaintainer && !\block_edupublisher\permissions::is_maintainer()) {
                     continue;
                 }
 
                 $label = $field['label'] ?? $this->get_label($channels, $channel, $_field, $_field, $stringman, $required);
 
                 if ($_field == 'kompetenzen') {
-                    $package = $this->get_package();
-
                     if (!$package) {
                         // is required
                         $label = $field['label'] ?? $this->get_label($channels, $channel, $_field, $_field, $stringman, true);
@@ -180,13 +183,13 @@ class package_edit_form extends \moodleform {
                     case 'select':
                         $options = (!empty($field['options'])) ? $field['options'] : array();
                         if ($channel == 'commercial' && $_field == 'publisher') {
-                            if (\block_edupublisher\lib::is_admin()) {
+                            if (\block_edupublisher\permissions::is_admin()) {
                                 $allpublishers = $DB->get_records_sql('SELECT * FROM {block_edupublisher_pub} ORDER BY name ASC', array());
                             } else {
                                 $allpublishers = $DB->get_records_sql('SELECT ep.* FROM {block_edupublisher_pub} ep, {block_edupublisher_pub_user} epu WHERE ep.id=epu.publisherid AND epu.userid=? ORDER BY name ASC', array($USER->id));
                             }
                             foreach ($allpublishers as $publisher) {
-                                if (\block_edupublisher\lib::is_admin()) {
+                                if (\block_edupublisher\permissions::is_admin()) {
                                     $chk = $DB->get_record('block_edupublisher_pub_user', array('publisherid' => $publisher->id, 'userid' => $USER->id));
                                     if (!$chk)
                                         $publisher->name = '! ' . $publisher->name;
@@ -194,7 +197,7 @@ class package_edit_form extends \moodleform {
                                 $options[$publisher->id] = $publisher->name;
                             }
                         }
-                        if ($channel == 'default' && $_field == 'licence' && !\block_edupublisher\lib::is_publisher()) {
+                        if ($channel == 'default' && $_field == 'licence' && !\block_edupublisher\permissions::is_publisher()) {
                             unset($options['other']);
                         }
                         $addedfield = $mform->addElement('select', $channel . '_' . $_field, $label, $options);
@@ -274,7 +277,13 @@ class package_edit_form extends \moodleform {
                 $mform->setDefault('clonecourse', 1);
 
                 $boxes = array();
-                foreach ($channels as $_channel => $fields) {
+                // foreach ($channels as $_channel => $fields) {
+                $freigabe_channels = [];
+                if ($package) {
+                    $freigabe_channels[] = 'default';
+                }
+                $freigabe_channels[] = 'etapas';
+                foreach ($freigabe_channels as $_channel) {
                     // if ($_channel == 'default')
                     //     continue;
                     $label = $this->get_label($channels, $_channel, 'publish_as', ucfirst($_channel), $stringman);
@@ -288,10 +297,19 @@ class package_edit_form extends \moodleform {
             }
         }
 
+        $el = $mform->removeElement('default_filling_mode');
+        $mform->addElement($el);
+
+        $el = $mform->addElement('static', 'filling_mode_expert_help', '', '<div style="font-weight: bold">
+    Der Expert:innen-Modus adressiert erfahrene Benutzer:innen.
+    Es wird ein leerer eduvidual.at (Moodle)-Kurs für Sie bereitgestellt, den Sie entweder über einen Import oder mit dem Sharing Cart befüllen können.
+    </div>');
+        $el->updateAttributes(['class' => 'hidden']);
+
         // $mform->addElement('header', 'content_items_header', 'Aktivitäten/Ressourcen');
         // $mform->setExpanded('content_items_header');
 
-        $cnt = (isset($this->_customdata['content_items_old']) ? count($this->_customdata['content_items_old']) : 0) + 10;
+        $cnt = (isset($this->content_items_old) ? count($this->content_items_old) : 0) + 10;
         for ($content_i = 0; $content_i < $cnt; $content_i++) {
             $mform->addElement('header', "content_item_$content_i", '<span class="num"></span>. Aktivität/Ressource');
             $mform->setExpanded("content_item_$content_i");
@@ -316,7 +334,7 @@ class package_edit_form extends \moodleform {
             $mform->addElement('text', "content_items[$content_i][link]", 'Link');
             $mform->setType("content_items[$content_i][link]", PARAM_TEXT);
 
-            $mform->addElement('filemanager', "content_items[$content_i][files]", 'Dateien (Bilder, Dokumente oder H5p Inhalte)', null, [
+            $mform->addElement('filemanager', "content_items[$content_i][files]", 'Dateien (Bilder, Dokumente oder H5P Inhalte)', null, [
                 'subdirs' => 0,
                 'maxfiles' => 10,
                 'accepted_types' => ['image', 'document', '.h5p'],
@@ -442,6 +460,8 @@ class package_edit_form extends \moodleform {
         $errors = array();
         $definition = $this->get_channel_definition();
         $channels = array_keys($definition);
+        $package = $this->get_package();
+
         foreach ($channels as $channel) {
             if ($channel != 'default' && $channel != 'etapas' && $channel != 'eduthekneu' && $channel != 'default' && (!isset($data[$channel . '_publishas']) || !$data[$channel . '_publishas'])) {
                 continue;
@@ -451,7 +471,6 @@ class package_edit_form extends \moodleform {
             foreach ($fields as $field) {
                 $ofield = &$definition[$channel][$field];
                 if (in_array($channel, ['etapas', 'eduthekneu']) && $field == 'kompetenzen') {
-                    $package = $this->get_package();
                     if ($package) {
                         $package->exacompetencies();
                         $data["{$channel}_kompetenzen"] = $package->get('kompetenzen', $channel);
@@ -583,7 +602,8 @@ class package_edit_form extends \moodleform {
             require(['jquery'], function ($) {
 
                 function rerender() {
-                    if ($(':radio[name="default_filling_mode"][value="<?=package::FILLING_MODE_EXPERT?>"]').prop('checked')) {
+                    var isExpertFillingMode = $(':radio[name="default_filling_mode"][value="<?=package::FILLING_MODE_EXPERT?>"]').prop('checked');
+                    if (isExpertFillingMode) {
                         // hide all content_items
                         $('.content_item').hide();
                         $('.fieldset#id_content_item_list_buttons').hide();
@@ -597,6 +617,8 @@ class package_edit_form extends \moodleform {
                             $(this).find('.num').text((index + 1));
                         });
                     }
+
+                    $('#fitem_id_filling_mode_expert_help').toggleClass('hidden', !isExpertFillingMode);
                 }
 
                 $(function () {

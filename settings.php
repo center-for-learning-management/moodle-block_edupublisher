@@ -61,6 +61,9 @@ if ($hassiteconfig) {
         $settings->add(new admin_setting_configselect('block_edupublisher/defaultroleteacher', get_string('defaultroleteacher', 'block_edupublisher'),
             get_string('defaultroleteacher:description', 'block_edupublisher'), get_config('block_edupublisher', 'defaultroleteacher'), $options));
 
+        $settings->add(new admin_setting_configselect('block_edupublisher/course_role_package_viewing', get_string('course_role_package_viewing', 'block_edupublisher'),
+            get_string('course_role_package_viewing:description', 'block_edupublisher'), get_config('block_edupublisher', 'course_role_package_viewing'), $options));
+
         // Open to guests?
         $settings->add(new admin_setting_configcheckbox('block_edupublisher/allowguests', get_string('allowguests', 'block_edupublisher'), get_string('allowguests_desc', 'block_edupublisher'), 0));
 

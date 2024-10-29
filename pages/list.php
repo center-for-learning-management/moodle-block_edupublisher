@@ -6,7 +6,7 @@ require_once("$CFG->libdir/formslib.php");
 
 $PAGE->set_url('/blocks/edupublisher/pages/list.php');
 
-require_login();
+\block_edupublisher\permissions::require_login();
 
 $PAGE->set_context(\context_system::instance());
 $PAGE->set_title('Eduthek-Ressourcen');
@@ -15,7 +15,7 @@ $PAGE->set_heading('Eduthek-Ressourcen');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
-\block_edupublisher\lib::check_requirements();
+\block_edupublisher\lib::check_requirements(true);
 
 class block_edupublisher_resources_table extends \local_table_sql\table_sql {
     protected function define_table_configs() {
@@ -34,7 +34,10 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
         }
 
         $sql = "
-            SELECT resource.*, def.publishas AS default_publishas, def.published AS default_published, u.username, u.firstname, u.lastname
+            SELECT resource.*
+                 , def.publishas AS default_publishas
+                 , def.published AS default_published
+                , CONCAT(u.firstname, ' ', u.lastname, ' (', u.username, ')') AS user
             FROM {block_edupublisher_packages} resource
             JOIN {user} u ON resource.userid = u.id
             JOIN {block_edupublisher_md_def} def ON resource.id = def.package
@@ -45,14 +48,16 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
 
         // Define headers and columns.
         $cols = array_filter([
-            'image' => '',
+            'id' => 'id',
+            'image' => !$this->is_downloading() ? '' : null,
             'title' => get_string('title', 'block_edupublisher'),
-            'username' => $maintainer_default ? 'Benutzer' : null,
+            'user' => $maintainer_default ? 'Benutzer' : null,
             'state' => 'Status',
-            'channel_default' => $maintainer_default ? 'eduvidual' : null,
-            'channel_eduthekneu' => $maintainer_default ? 'eduthek.neu' : null,
-            'channel_etapas' => $maintainer_default ? 'etapa' : null,
-            'channel_eduthek' => $maintainer_default ? 'eduthek' : null,
+            // 'channel_default' => $maintainer_default ? 'eduvidual' : null,
+            // 'channel_eduthekneu' => $maintainer_default ? 'eduthek.neu' : null,
+            'channel_etapas' => $maintainer_default ? 'eTapa' : null,
+            // 'channel_eduthek' => $maintainer_default ? 'eduthek' : null,
+            'default_published' => 'Veröffentlicht',
         ], fn($col) => $col !== null);
 
         $this->set_table_columns($cols);
@@ -70,17 +75,28 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
         $this->no_filter('channel_default');
         $this->no_sorting('channel_etapas');
         $this->no_filter('channel_etapas');
-        $this->no_sorting('channel_eduthek');
-        $this->no_filter('channel_eduthek');
-        $this->no_sorting('channel_eduthekneu');
-        $this->no_filter('channel_eduthekneu');
+        // $this->no_sorting('channel_eduthek');
+        // $this->no_filter('channel_eduthek');
+        // $this->no_sorting('channel_eduthekneu');
+        // $this->no_filter('channel_eduthekneu');
 
-        $this->add_row_action('package_edit.php?action=edit&id={id}&return_url=' . urlencode((new moodle_url(qualified_me()))->out_as_local_url(false)), 'edit');
-        // $this->add_row_action('package_edit.php?action=delete&id={id}', 'delete');
+        $this->set_column_options('id', visible: false);
+        $this->set_column_options('default_published', data_type: static::PARAM_TIMESTAMP);
+
+        $this->add_row_action('package_edit.php?action=edit&id={id}&returnurl=' . urlencode((new moodle_url(qualified_me()))->out_as_local_url(false)), 'edit');
+        if (\block_edupublisher\permissions::is_admin()) {
+            $this->add_row_action('package_delete.php?id={id}', 'delete');
+        }
+
+        if ($maintainer_default) {
+            $this->is_downloadable(true, 'Edupublisher Ressourcen');
+        }
     }
 
     function col_title($row) {
-        return $this->format_col_content($row->title, 'package.php?id=' . $row->id);
+        // return $this->format_col_content($row->title, 'package.php?id=' . $row->id);
+        $package = $this->get_package($row->id);
+        return $this->format_col_content($row->title, new \moodle_url('/course/view.php?id=' . $package->courseid));
     }
 
     function col_image($row) {
@@ -88,6 +104,10 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
 
         $url = $package->get_preview_image_url();
         return $url ? '<img src="' . $url . '" style="width: 40px;"/>' : '';
+    }
+
+    function col_user($row) {
+        return '<a href="' . new moodle_url('/user/profile.php', ['id' => $row->userid]) . '">' . $row->user . '</a>';
     }
 
     function col_state($row) {

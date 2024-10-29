@@ -101,8 +101,8 @@ class package {
         if (count($withdetails) == 0 || in_array('internal', $withdetails)) {
             $category = get_config('block_edupublisher', 'category');
             $context = \context_coursecat::instance($category);
-            $this->set(\block_edupublisher\lib::is_admin(), 'candelete');
-            $canedit = \block_edupublisher\lib::is_admin()
+            $this->set(\block_edupublisher\permissions::is_admin(), 'candelete');
+            $canedit = \block_edupublisher\permissions::is_admin()
                 || $this->is_author_editing()
                 || (!empty($this->get('publishas', 'default')) && has_capability('block/edupublisher:managedefault', $context))
                 || (!empty($this->get('publishas', 'etapas')) && has_capability('block/edupublisher:manageetapas', $context))
@@ -119,21 +119,18 @@ class package {
                 || $this->get('cantriggeractive', 'eduthek')
                 || $this->get('cantriggeractive', 'eduthekneu')
                 || $this->get('cantriggeractive', 'etapas')
-                || \block_edupublisher\lib::is_admin();
+                || \block_edupublisher\permissions::is_admin();
             $this->set($canmoderate, 'canmoderate');
-            $cantriggeractive = ($this->userid == $USER->id) || $this->get('cantriggeractive', 'default') || \block_edupublisher\lib::is_admin();
+            $cantriggeractive = ($this->userid == $USER->id) || $this->get('cantriggeractive', 'default') || \block_edupublisher\permissions::is_admin();
             $this->set($cantriggeractive, 'cantriggeractive');
 
             $this->set($this->canrate(), 'canrate');
             $haslti = (!empty($this->get('channel', 'etapas')) || !empty($this->get('channel', 'eduthek')) || !empty($this->get('channel', 'eduthekneu')));
             $this->set($haslti, 'haslti');
             $this->set_v2('canviewuser', $this->canviewuser());
-            if (!empty($this->courseid)) {
-                $ctx = \context_course::instance($this->courseid, IGNORE_MISSING);
-                if (!empty($ctx->id)) {
-                    $authoreditingpermission = user_has_role_assignment($this->userid, get_config('block_edupublisher', 'defaultroleteacher'), $ctx->id);
-                    $this->set($authoreditingpermission, 'authoreditingpermission');
-                }
+            if ($this->courseid) {
+                $authoreditingpermission = user_has_role_assignment($this->userid, get_config('block_edupublisher', 'defaultroleteacher'), $this->get_context()->id);
+                $this->set($authoreditingpermission, 'authoreditingpermission');
             }
         }
         if (count($withdetails) == 0 || in_array('rating', $withdetails)) {
@@ -226,7 +223,7 @@ class package {
             'id', 'course', 'title', 'created', 'modified', 'deleted', 'active',
             'rating', 'ratingaverage', 'ratingcount',
         ];
-        if (in_array('etapas', $includechannels) || in_array('eduthekneu', $includechannels)) {
+        if (!$this->deleted && (in_array('etapas', $includechannels) || in_array('eduthekneu', $includechannels))) {
             $this->exacompetencies();
         }
         $flattened = $this->get_flattened(true);
@@ -246,6 +243,10 @@ class package {
                 $item->addChild($inc, htmlspecialchars($flattened->{$inc}));
             }
             $channels = \block_edupublisher\lib::get_channel_definition();
+            if ($this->deleted) {
+                // no channel export for deleted elements
+                $channels = [];
+            }
             foreach ($channels as $channel => $fields) {
                 if (!in_array($channel, $includechannels) && $includechannels[0] != '*') {
                     continue;
@@ -271,7 +272,7 @@ class package {
                         } else {
                             $valtoset = (!empty($flattened->{"{$channel}_{$field}"})) ? $flattened->{"{$channel}_{$field}"} : '';
                         }
-                        $item->addChild($channel . '_' . $field, htmlspecialchars(str_replace("\n", "", $valtoset)));
+                        $item->addChild($channel . '_' . $field, htmlspecialchars(str_replace("\n", "", $valtoset ?: '')));
                     }
                 }
             }
@@ -306,6 +307,25 @@ class package {
                     }
                 }
             }
+
+            // backwards compatibility
+            SimpleXMLElement::copyElement($item->course, $item, 'courseid');
+            $item->course->addAttribute('deprecated', 'use courseid');
+
+            SimpleXMLElement::copyElement($item->default_subjectareas, $item, 'default_subjectarea');
+            $item->default_subjectarea->addAttribute('deprecated', 'use default_subjectareas');
+
+            SimpleXMLElement::copyElement($item->default_schoollevels, $item, 'default_schoollevel');
+            $item->default_schoollevel->addAttribute('deprecated', 'use default_schoollevels');
+
+            SimpleXMLElement::copyElement($item->default_contenttypes, $item, 'default_contenttype');
+            $item->default_contenttype->addAttribute('deprecated', 'use default_contenttypes');
+
+            SimpleXMLElement::copyElement($item->default_purposes, $item, 'default_purpose');
+            $item->default_purpose->addAttribute('deprecated', 'use default_purposes');
+
+            SimpleXMLElement::copyElement($item->default_licence, $item, 'default_license');
+            $item->default_licence->addAttribute('deprecated', 'use default_license');
         }
         if ($items instanceof \SimpleXMLElement) {
             return $item->asXML();
@@ -530,7 +550,9 @@ class package {
         }
 
         $flattened->courseid = $flattened->course;
-        $flattened->preview_image_url = $this->get_preview_image_url();
+        if ($this->courseid) {
+            $flattened->preview_image_url = $this->get_preview_image_url();
+        }
 
         $this->flattened = $flattened;
         $this->flattened_absolute = \json_decode(\json_encode($flattened));
@@ -941,9 +963,12 @@ class package {
      * @param data Object containing additional data
      **/
     public function store_package($data) {
-        global $CFG, $DB;
-        // Every author must publish in  the default channel.
-        $this->set(1, 'publishas', 'default');
+        global $CFG, $DB, $USER;
+
+        // don't publish by default (for new created packages)
+        if ($this->get('publishas', 'default') === null) {
+            $this->set_v2('publishas', 0, 'default');
+        }
 
         $context = \context_course::instance($this->courseid);
 
@@ -1261,10 +1286,9 @@ class package {
         $package->set_v2('active', 0);
         $package->set_v2('course', $course->id);
 
-        $package->store_package($data);
+        \block_edupublisher\permissions::role_assign($package->courseid, $package->userid, 'course_role_package_viewing');
 
-        // Weiterhin Schreibrechte geben?
-        \block_edupublisher\lib::role_set(array($package->courseid), array($package->userid), 'defaultroleteacher');
+        $package->store_package($data);
 
         return $package;
     }
@@ -1329,6 +1353,14 @@ class package {
         return $this->get('canedit') ?: false;
     }
 
+    public function can_delete(): bool {
+        return $this->get('candelete') ?: false;
+    }
+
+    public function can_moderate(): bool {
+        return $this->get('canmoderate') ?: false;
+    }
+
     public function __isset(string $name): bool {
         return $this->__get_internal($name, true) !== null;
     }
@@ -1338,7 +1370,7 @@ class package {
     }
 
     private function __get_internal(string $name, bool $isset) {
-        if (in_array($name, ['id', 'userid'])) {
+        if (in_array($name, ['id', 'userid', 'deleted'])) {
             return (int)$this->get($name);
         } elseif (in_array($name, ['title'])) {
             return $this->get($name);
@@ -1354,8 +1386,13 @@ class package {
         }
     }
 
-    public function get_context(): \context_course {
-        return \context_course::instance($this->courseid);
+    public function get_context(): ?\context_course {
+        if ($this->deleted) {
+            // deleted package has no course anymore
+            return null;
+        } else {
+            return \context_course::instance($this->courseid);
+        }
     }
 
     public function get_preview_image(): ?\stored_file {
@@ -1374,7 +1411,7 @@ class package {
     }
 
     public function canviewuser(): bool {
-        return !!\block_edupublisher\lib::is_admin() || $this->get('cantriggeractive', 'etapas');
+        return !!\block_edupublisher\permissions::is_admin() || $this->get('cantriggeractive', 'etapas');
     }
 
     public function get_rating_data(): object {
@@ -1422,7 +1459,7 @@ class package {
         }
 
         $channels = \block_edupublisher\lib::get_channel_definition();
-        return $channels['etapas']['zeitbedarf']['options'][$value];
+        return $channels['etapas']['zeitbedarf']['options'][$value] ?? $value;
     }
 
     public function get_formatted_contenttypes() {

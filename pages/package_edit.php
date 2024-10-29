@@ -65,13 +65,10 @@ if ($package) {
 }
 
 $package?->load_origins();
-$form = new \block_edupublisher\package_edit_form(null, [
-    'package' => $package,
-    'content_items_old' => $content_items_old,
-], 'post', '_self', array('onsubmit' => 'this.querySelectorAll("input").forEach( i => i.disabled = false)'), true);
+$form = new \block_edupublisher\package_edit_form($package, $content_items_old);
 
 if ($form->is_cancelled()) {
-    redirect(new moodle_url('/blocks/edupublisher/pages/list.php'));
+    redirect($returnurl);
 } elseif ($data = $form->get_data()) {
     if ($package) {
         $package->store_package($data);
@@ -111,7 +108,7 @@ if ($form->is_cancelled()) {
     }
 
 
-    redirect(new moodle_url('/blocks/edupublisher/pages/list.php', array('id' => $package->id)),
+    redirect($returnurl,
         get_string('successfully_saved_package', 'block_edupublisher'),
         null,
         \core\output\notification::NOTIFY_SUCCESS);
@@ -122,9 +119,9 @@ if ($package) {
 } else {
     $data = (object)[];
 
-    $data->default_publishas = 1;
-    $data->etapas_publishas = 1;
-    $data->eduthekneu_publishas = 1;
+    // $data->default_publishas = 1;
+    // $data->etapas_publishas = 1;
+    // $data->eduthekneu_publishas = 1;
 
     $data->content_items = [];
 
