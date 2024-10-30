@@ -339,7 +339,7 @@ $string['publish_stage_finish_text'] = '
     <p>
         Vielen Dank für die Erstellung dieser Inhalte als offene Bildungsressource!
     </p>';
-$string['publish_stage_finish_button'] = 'Continue to course';
+$string['publish_stage_finish_button'] = 'Weiter zum Kurs';
 $string['publisher'] = 'Anbieter';
 $string['publisher_logo'] = 'Logo';
 $string['rating'] = 'Bewertung';

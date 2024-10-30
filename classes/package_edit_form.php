@@ -296,7 +296,7 @@ class package_edit_form extends \moodleform {
         $mform->addElement($el);
 
         $el = $mform->addElement('static', 'filling_mode_expert_help', '', '<div style="font-weight: bold">
-    Der Expert:innen-Modus adressiert erfahrene Benutzer:innen.
+    Der Expert/innen-Modus adressiert erfahrene Benutzer/innen.
     Es wird ein leerer eduvidual.at (Moodle)-Kurs für Sie bereitgestellt, den Sie entweder über einen Import oder mit dem Sharing Cart befüllen können.
     </div>');
         $el->updateAttributes(['class' => 'hidden']);

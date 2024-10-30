@@ -83,16 +83,13 @@ switch ($act) {
         break;
 
     case '';
-        redirect(new \moodle_url('/course/view.php?id=' . $package->courseid));
+        // is handled after the switch statement
+        // redirect(new \moodle_url('/course/view.php?id=' . $package->courseid));
         break;
 
     default:
         throw new \moodle_exception('unknown action');
 }
-
-exit;
-
-// TODO: remove
 
 echo $OUTPUT->header();
 

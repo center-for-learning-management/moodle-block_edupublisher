@@ -26,7 +26,6 @@
     </div>
 </div>
 
-{{#display_course_content}}
 <div class="d-flex align-items-start position-relative">
     <a role="button" data-toggle="collapse" href="#block_edupublisher_collapse" aria-expanded="false" aria-controls="block_edupublisher_collapse" class="btn btn-icon mr-1 icons-collapse-expand collapsed justify-content-center stretched-link" aria-label="Details">
         <span class="expanded-icon icon-no-margin p-2" title="Einklappen">
@@ -42,7 +41,6 @@
 </div>
 
 <div id="block_edupublisher_collapse" class="content course-content-item-content collapse mb-4">
-{{/display_course_content}}
 
 <div class="row">
     <div class="col-sm-4 col-lg-3">
@@ -149,9 +147,7 @@
 
 {{{competencylist}}}
 
-{{#display_course_content}}
 </div>
-{{/display_course_content}}
 
 <div class="d-flex mt-2">
     <a class="d-inline-block m-2 mx-4" href="{{wwwroot}}/blocks/edupublisher/pages/comment.php?packageid={{id}}">
@@ -185,7 +181,7 @@
     {{/can_unenrol}}
 </div>
 
-{{#display_course_content}}{{#can_edit}}
+{{#can_edit}}
 <div class="d-flex mt-2">
     <a class="d-inline-block m-2 mx-4" href="{{wwwroot}}/blocks/edupublisher/pages/package_edit.php?id={{id}}&returnurl={{returnurl}}">
         <i class="fa fa-pen icon"></i>
@@ -242,10 +238,19 @@
     {{/default_publishas}}
 </div>
 
-{{/can_edit}}{{/display_course_content}}
+{{/can_edit}}
 
-{{#display_course_content}}{{#can_edit}}
+{{#can_edit}}
 <div class="mx-2 mt-3"><b>Eingabemodus:</b>
-    {{^default_filling_mode}}Einfacher Modus{{/default_filling_mode}}
-    {{#default_filling_mode}}Experten Modus{{/default_filling_mode}}
-{{/can_edit}}{{/display_course_content}}
+    {{#is_filling_mode_simple}}Einfacher Modus{{/is_filling_mode_simple}}
+    {{^is_filling_mode_simple}}Expert/innen Modus{{/is_filling_mode_simple}}
+</div>
+{{#is_filling_mode_simple}}
+    <p class="alert alert-warning mt-3">
+        <i class="fa fa-exclamation-circle fa-2x fa-pull-left"></i>
+        Achtung: Im einfachen Modus werden die Kursinhalte automatisch aus Ihren Eingaben generiert.
+        Bitte bearbeiten Sie die Inhalte nicht im Kurs, sondern über die
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/package_edit.php?id={{id}}&returnurl={{returnurl}}">Bearbeiten Funktion</a>.
+    </p>
+{{/is_filling_mode_simple}}
+{{/can_edit}}

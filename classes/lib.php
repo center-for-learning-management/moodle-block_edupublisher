@@ -306,7 +306,7 @@ class lib {
                 'publishas' => array('type' => 'hidden', 'datatype' => PARAM_BOOL, 'default' => 1),
                 'filling_mode' => ['type' => 'radio', 'label' => 'Eingabemodus', 'datatype' => PARAM_INT, 'default' => package::FILLING_MODE_SIMPLE, 'options' => [
                     package::FILLING_MODE_SIMPLE => 'Einfacher Modus',
-                    package::FILLING_MODE_EXPERT => 'Experten Modus',
+                    package::FILLING_MODE_EXPERT => 'Expert/innen Modus',
                 ]],
             ),
             'eduthekneu' => array(

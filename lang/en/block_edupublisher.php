@@ -358,7 +358,7 @@ $string['publish_stage_finish_text'] = '
     <p>
         Thank you very much for publishing this as open educational resource!
     </p>';
-$string['publish_stage_finish_button'] = 'Weiter zum Kurs';
+$string['publish_stage_finish_button'] = 'Continue to course';
 $string['publisher'] = 'Publisher';
 $string['publisher_logo'] = 'Logo';
 $string['rating'] = 'Rating';
