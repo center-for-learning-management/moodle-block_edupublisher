@@ -931,7 +931,7 @@ class lib {
 
         $highestrole = \local_eduvidual\locallib::get_highest_role();
         // only show star rating, when user is manager or teacher
-        if ($highestrole == \local_eduvidual\localpermissions::role_MANAGER || $highestrole == \local_eduvidual\localpermissions::role_TEACHER) {
+        if ($highestrole == \local_eduvidual\locallib::ROLE_MANAGER || $highestrole == \local_eduvidual\locallib::ROLE_TEACHER) {
             return true;
         } else {
             return false;
