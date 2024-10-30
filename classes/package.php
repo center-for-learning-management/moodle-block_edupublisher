@@ -1488,6 +1488,6 @@ class package {
     }
 
     public function is_filling_mode_simple(): bool {
-        return $this->get('default_filling_mode') == package::FILLING_MODE_SIMPLE;
+        return $this->get('filling_mode', 'default') == package::FILLING_MODE_SIMPLE;
     }
 }
