@@ -1412,7 +1412,7 @@ class package {
     }
 
     public function canviewuser(): bool {
-        return !!\block_edupublisher\permissions::is_admin() || $this->get('cantriggeractive', 'etapas');
+        return permissions::is_admin() || permissions::is_maintainer();
     }
 
     public function get_rating_data(): object {

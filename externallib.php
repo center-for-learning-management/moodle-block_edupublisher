@@ -825,8 +825,10 @@ class block_edupublisher_external extends external_api {
             }
         } else {
             // $type == 'default'
-            // Schreibrechte entziehen
-            \block_edupublisher\permissions::role_unassign($package->courseid, $package->userid, 'defaultroleteacher');
+            if ($published > 0) {
+                // Schreibrechte entziehen
+                \block_edupublisher\permissions::role_unassign($package->courseid, $package->userid, 'defaultroleteacher');
+            }
         }
 
         if (!empty($package->get('published', 'etapas')) && $package->get('status', 'etapas') == 'inspect') {
