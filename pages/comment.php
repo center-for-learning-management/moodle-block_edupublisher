@@ -52,8 +52,8 @@ if (!empty($comment->package)) {
     $packageid = required_param('packageid', PARAM_INT);
 }
 
-$package = new \block_edupublisher\package($packageid, true);
-if (empty($package->id) && empty($id)) {
+$package =\block_edupublisher\package::get_package($packageid, true);
+if (!$package) {
     // No such package exists.
     $PAGE->set_context(context_system::instance());
     $PAGE->set_title(get_string('error'));
@@ -72,11 +72,9 @@ if (empty($package->id) && empty($id)) {
     die();
 }
 
-$context = \context_course::instance($package->courseid);
-
 // Attention! Guest access will only be active, if the package was published by a moderator!
-$PAGE->set_context($context);
-require_login();
+$PAGE->set_context($package->get_context());
+require_login($package->courseid);
 $PAGE->navbar->add($package->get('title', 'default'), new moodle_url('/course/view.php', array('id' => $package->courseid)));
 $PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->id)));
 $PAGE->navbar->add(get_string('comments'), $PAGE->url);
@@ -84,7 +82,6 @@ $PAGE->navbar->add(get_string('comments'), $PAGE->url);
 
 $PAGE->set_title($package->get('title'));
 $PAGE->set_heading($package->get('title'));
-$PAGE->set_pagelayout('incourse');
 $PAGE->requires->css('/blocks/edupublisher/style/main.css');
 $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
