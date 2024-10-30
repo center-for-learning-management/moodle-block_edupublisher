@@ -105,6 +105,11 @@ class permissions {
 
         $category = get_config('block_edupublisher', 'category');
         $context = \context_coursecat::instance($category);
+
+        return has_capability('block/edupublisher:managedefault', $context);
+
+        // old:
+        /*
         $maintainer_default = has_capability('block/edupublisher:managedefault', $context);
         $maintainer_etapas = has_capability('block/edupublisher:manageetapas', $context);
         $maintainer_eduthek = has_capability('block/edupublisher:manageeduthek', $context);
@@ -119,6 +124,7 @@ class permissions {
         if (in_array('eduthek', $channels) && $maintainer_eduthek)
             return true;
         return false;
+        */
     }
 
     /**

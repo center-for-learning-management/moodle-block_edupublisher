@@ -335,14 +335,11 @@ $string['publish_stage_import'] = 'Inhalte auswählen';
 $string['publish_stage_metadata'] = 'Metadaten angeben';
 $string['publish_stage_finish'] = 'Fertig';
 $string['publish_stage_finish_text'] = '
-    <h3>Veröffentlichung erfolgreich</h3>
+    <h3>Ressource erfolgreich erstellt</h3>
     <p>
         Vielen Dank für die Erstellung dieser Inhalte als offene Bildungsressource!
-    </p>
-    <p>
-        Unser Redaktionsteam wird das Lernpaket nach der Prüfung freigeben.
     </p>';
-$string['publish_stage_finish_button'] = 'Zum Lernpaket';
+$string['publish_stage_finish_button'] = 'Continue to course';
 $string['publisher'] = 'Anbieter';
 $string['publisher_logo'] = 'Logo';
 $string['rating'] = 'Bewertung';
@@ -350,8 +347,8 @@ $string['relevance:stage_0'] = 'Möglicherweise relevant';
 $string['relevance:stage_1'] = 'Weniger relevant';
 $string['relevance:stage_2'] = 'Relevant';
 $string['relevance:stage_3'] = 'Sehr relevant';
-$string['removal:title'] = 'Paket entfernen';
-$string['removal:text'] = 'Wollen Sie das Paket #{$a->id} {$a->title} wirklich entfernen?';
+$string['removal:title'] = 'Ressource löschen';
+$string['removal:text'] = 'Wollen Sie diese Ressource #{$a->id} {$a->title} wirklich löschen?';
 $string['remove_everything'] = 'Wollen Sie wirklich alle Pakete dieser Moodle-Instanz entfernen? (Kurse werden ebenfalls gelöscht!)';
 $string['removed_everything'] = 'Alle Pakete entfernt';
 $string['removed_package'] = 'Paket #{$a->id} {$a->title} entfernt';

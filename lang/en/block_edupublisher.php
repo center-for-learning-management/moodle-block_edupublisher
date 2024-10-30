@@ -76,7 +76,7 @@ $string['commercial_shoplink_help'] = 'Required only if licence validation is se
 $string['commercial_validateexternal'] = 'external: Licence will be validated on an external site.';
 $string['commercial_validateinternal'] = 'internal: Licence must exist before import.';
 $string['commercial_validation'] = 'Licence validation';
-$string['commercial_validation_help'] = '<strong>External validation:</strong> Content can always be imported to courses. Learning ressources remain on an external site. Validation of licence is done on the external site.<br /><strong>Internal:</strong> Content can be imported only if a licence has been stored in eduvidual (User-, Course-, oder Schoolcontext)';
+$string['commercial_validation_help'] = '<strong>External validation:</strong> Content can always be imported to courses. Learning resources remain on an external site. Validation of licence is done on the external site.<br /><strong>Internal:</strong> Content can be imported only if a licence has been stored in eduvidual (User-, Course-, oder Schoolcontext)';
 
 $string['default__mailsubject'] = 'eduPublisher-item handed in for inspection';
 $string['default_header'] = 'eduvidual';
@@ -165,7 +165,7 @@ $string['eduthek_type'] = 'Type';
 $string['eduthekneu_fetchchannel'] = 'Fetch eduthek.new channel';
 $string['eduthekneu_header'] = 'eduthek.neu';
 $string['eduthekneu_kompetenzen'] = 'Competencies';
-$string['eduthekneu_kompetenzen_help'] = '<p class="alert alert-warning">The linking of resources from the moodle course with competencies is essential, when you want to publish a ressource.</p>';
+$string['eduthekneu_kompetenzen_help'] = '<p class="alert alert-warning">The linking of resources from the moodle course with competencies is essential, when you want to publish a resource.</p>';
 //  Please use either the Moodle competencies or exacomp
 $string['eduthekneu_kompetenzen_missing'] = 'Please add competencies to activities and resources';
 $string['eduthekneu_lticartridge'] = 'LTI cartridge';
@@ -206,7 +206,7 @@ $string['etapas_trigger_active'] = 'Check this box to make eTapa active!';
 $string['etapas_type'] = 'Type';
 $string['etapas_voraussetzungen'] = 'Prerequisites';
 $string['etapas_vorkenntnisse'] = 'Prior knowledge';
-$string['etapas_vorkenntnisse_help'] = 'Geben Sie an, welche Lehrinhalte Schüler:innen bereits erlernt haben müssen, um mit dieser Ressource arbeiten zu können';
+$string['etapas_vorkenntnisse_help'] = 'Geben Sie an, welche Lehrinhalte Schüler:innen bereits erlernt haben müssen, um mit dieser Resource arbeiten zu können';
 $string['etapas_zeitbedarf'] = 'Duration';
 
 $string['exception:channelexport:multiplechannels'] = 'Export without timestamp only allows one channel';
@@ -354,14 +354,11 @@ $string['publish_stage_import'] = 'Select resources';
 $string['publish_stage_metadata'] = 'Enter metadata';
 $string['publish_stage_finish'] = 'Finish';
 $string['publish_stage_finish_text'] = '
-    <h3>Publication finished</h3>
+    <h3>Ressource created</h3>
     <p>
         Thank you very much for publishing this as open educational resource!
-    </p>
-    <p>
-        Our editorial team will have a look and publish this learning package soon.
     </p>';
-$string['publish_stage_finish_button'] = 'Zum Lernpaket';
+$string['publish_stage_finish_button'] = 'Weiter zum Kurs';
 $string['publisher'] = 'Publisher';
 $string['publisher_logo'] = 'Logo';
 $string['rating'] = 'Rating';
@@ -369,12 +366,12 @@ $string['relevance:stage_0'] = 'Possibly relevant';
 $string['relevance:stage_1'] = 'Less relevant';
 $string['relevance:stage_2'] = 'Relevant';
 $string['relevance:stage_3'] = 'Very relevant';
-$string['removal:title'] = 'Remove package';
-$string['removal:text'] = 'Do you really want to remove package #{$a->id} {$a->title}?';
+$string['removal:title'] = 'Remove resource';
+$string['removal:text'] = 'Do you really want to remove the resource #{$a->id} {$a->title}?';
 $string['remove_everything'] = 'Do you really want to remove all packages on this Moodle-Instance? (Courses are removed as well)';
 $string['removed_everything'] = 'Removed all packages';
 $string['removed_package'] = 'Removed package #{$a->id} {$a->title}';
-$string['removing_package_course'] = 'Removing course of ressource #{$a->id} {$a->title}';
+$string['removing_package_course'] = 'Removing course of resource #{$a->id} {$a->title}';
 $string['reply'] = 'Reply';
 $string['resource_catalogue'] = 'Resource catalogue';
 $string['search'] = 'Search';

@@ -1,4 +1,3 @@
-{{#can_edit}}
 <div style="position: relative;">
     <a href="{{wwwroot}}/blocks/edupublisher/pages/list.php" class="btn btn-secondary" id="ressourcen-verwalten-button">Meine Einreichungen verwalten</a>
 </div>
@@ -15,7 +14,6 @@
         }
     }
 </style>
-{{/can_edit}}
 
 <div class="row">
     {{#get_preview_image_url}}
@@ -237,8 +235,10 @@
         {{/etapas_publishas}}
     {{/default_publishas}}
     {{^default_publishas}}
-        Noch nicht zur Veröffentlichung an das Redaktionsteam weitergegeben.<br/>
-        <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&act=submit_package" class="btn btn-primary mt-2">An das Redaktionsteam weiterleiten</a>
+        Noch nicht zur Veröffentlichung an das Redaktionsteam weitergeleitet.<br/>
+        <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&act=submit_package" class="btn btn-primary mt-2"
+            onclick="return confirm('Möchten Sie die Ressouce zur Veröffentlichung an das Redaktionsteam weiterleiten? Danach kann der Inhalt nicht mehr bearbeitet werden!');"
+        >An das Redaktionsteam weiterleiten</a>
     {{/default_publishas}}
 </div>
 

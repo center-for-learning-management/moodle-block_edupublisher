@@ -21,11 +21,9 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
     protected function define_table_configs() {
         global $USER;
 
-        $category = get_config('block_edupublisher', 'category');
-        $context = context_coursecat::instance($category);
+        $is_maintainer = \block_edupublisher\permissions::is_maintainer();
 
-        $maintainer_default = has_capability('block/edupublisher:managedefault', $context);
-        if ($maintainer_default) {
+        if ($is_maintainer) {
             // can manage all
             $where = '';
         } else {
@@ -51,12 +49,12 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
             'id' => 'id',
             'image' => !$this->is_downloading() ? '' : null,
             'title' => get_string('title', 'block_edupublisher'),
-            'user' => $maintainer_default ? 'Benutzer' : null,
+            'user' => $is_maintainer ? 'Benutzer' : null,
             'state' => 'Status',
-            // 'channel_default' => $maintainer_default ? 'eduvidual' : null,
-            // 'channel_eduthekneu' => $maintainer_default ? 'eduthek.neu' : null,
-            'channel_etapas' => $maintainer_default ? 'eTapa' : null,
-            // 'channel_eduthek' => $maintainer_default ? 'eduthek' : null,
+            // 'channel_default' => $is_maintainer ? 'eduvidual' : null,
+            // 'channel_eduthekneu' => $is_maintainer ? 'eduthek.neu' : null,
+            'channel_etapas' => $is_maintainer ? 'eTapa' : null,
+            // 'channel_eduthek' => $is_maintainer ? 'eduthek' : null,
             'default_published' => 'Veröffentlicht',
         ], fn($col) => $col !== null);
 
@@ -88,7 +86,7 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
             $this->add_row_action('package_delete.php?id={id}', 'delete');
         }
 
-        if ($maintainer_default) {
+        if ($is_maintainer) {
             $this->is_downloadable(true, 'Edupublisher Ressourcen');
         }
     }

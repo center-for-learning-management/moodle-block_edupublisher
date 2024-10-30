@@ -101,13 +101,14 @@ class package {
         if (count($withdetails) == 0 || in_array('internal', $withdetails)) {
             $category = get_config('block_edupublisher', 'category');
             $context = \context_coursecat::instance($category);
-            $this->set(\block_edupublisher\permissions::is_admin(), 'candelete');
-            $canedit = \block_edupublisher\permissions::is_admin()
+            $this->set(permissions::is_admin() || permissions::is_maintainer(), 'candelete');
+            $canedit = permissions::is_admin()
                 || $this->is_author_editing()
-                || (!empty($this->get('publishas', 'default')) && has_capability('block/edupublisher:managedefault', $context))
-                || (!empty($this->get('publishas', 'etapas')) && has_capability('block/edupublisher:manageetapas', $context))
-                || (!empty($this->get('publishas', 'eduthekneu')) && has_capability('block/edupublisher:manageeduthekneu', $context))
-                || (!empty($this->get('publishas', 'eduthek')) && has_capability('block/edupublisher:manageeduthek', $context));
+                || permissions::is_maintainer();
+                // || (!empty($this->get('publishas', 'default')) && has_capability('block/edupublisher:managedefault', $context))
+                // || (!empty($this->get('publishas', 'etapas')) && has_capability('block/edupublisher:manageetapas', $context))
+                // || (!empty($this->get('publishas', 'eduthekneu')) && has_capability('block/edupublisher:manageeduthekneu', $context))
+                // || (!empty($this->get('publishas', 'eduthek')) && has_capability('block/edupublisher:manageeduthek', $context));
             $this->set($canedit, 'canedit');
             $this->set(has_capability('block/edupublisher:managedefault', $context), 'cantriggeractive', 'default');
             $this->set(has_capability('block/edupublisher:manageeduthek', $context), 'cantriggeractive', 'eduthek');
@@ -1286,7 +1287,7 @@ class package {
         $package->set_v2('active', 0);
         $package->set_v2('course', $course->id);
 
-        \block_edupublisher\permissions::role_assign($package->courseid, $package->userid, 'course_role_package_viewing');
+        \block_edupublisher\permissions::role_assign($package->courseid, $package->userid, 'defaultroleteacher');
 
         $package->store_package($data);
 

@@ -90,16 +90,11 @@ class package_edit_form extends \moodleform {
         $package = $this->get_package();
 
         $stringman = get_string_manager();
-        foreach ($channels as $channel => $fields) {
-            if ($channel != 'etapas' && $channel != 'eduthekneu') {
-                $label = $this->get_label($channels, $channel, 'publish_as', ucfirst($channel), $stringman);
-                $mform->addElement('header', $channel . '_publish_as', $label);
-                $mform->setExpanded($channel . '_publish_as');
-                if ($this->has_channel_description($channel, $stringman)) {
-                    $mform->addElement('html', '<p>' . get_string($channel . '__description', 'block_edupublisher') . '</p>');
-                }
-            }
 
+        $mform->addElement('header', 'details_header', get_string('details', 'block_edupublisher'));
+        $mform->setExpanded('details_header');
+
+        foreach ($channels as $channel => $fields) {
             foreach ($fields as $_field => $field) {
                 if ($_field == 'publishas') {
                     continue;
@@ -618,7 +613,8 @@ class package_edit_form extends \moodleform {
                         });
                     }
 
-                    $('#fitem_id_filling_mode_expert_help').toggleClass('hidden', !isExpertFillingMode);
+                    // the hidden class is also applied to the text, so remove it there
+                    $('#fitem_id_filling_mode_expert_help, #fitem_id_filling_mode_expert_help .hidden').toggleClass('hidden', !isExpertFillingMode);
                 }
 
                 $(function () {
