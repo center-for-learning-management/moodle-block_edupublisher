@@ -122,10 +122,20 @@ ul.text-divider.comma li:not(:last-child):after {
     }
 }
 
-.block_edupublisher.card {
-    border: 0;
+#block-region-content-upper .block_edupublisher.card {
+    .card-text {
+        padding: 0;
+    }
 
-    & > .card-body {
-        padding: 0 !important;
+    #ressourcen-verwalten-button {
+        margin-bottom: 20px;
+    }
+
+    @media (min-width: 800px) {
+        #ressourcen-verwalten-button {
+            position: absolute;
+            top: -20px;
+            right: 0;
+        }
     }
 }

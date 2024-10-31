@@ -99,7 +99,7 @@ if ($form->is_cancelled()) {
         echo $OUTPUT->header();
 
         echo get_string('publish_stage_finish_text', 'block_edupublisher');
-        $url = new \moodle_url('/blocks/edupublisher/pages/package.php', ['id' => $package->id]);
+        $url = new \moodle_url('/course/view.php', ['id' => $package->courseid]);
         $label = get_string('publish_stage_finish_button', 'block_edupublisher');
         echo "<div style=\"text-align: center;\"><a href=\"$url\" class=\"btn btn-primary\">$label</a></div>\n";
 
