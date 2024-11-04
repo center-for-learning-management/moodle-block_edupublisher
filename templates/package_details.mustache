@@ -223,16 +223,15 @@
         {{/etapas_publishas}}
     {{/default_publishas}}
     {{^default_publishas}}
-        Noch nicht zur Veröffentlichung an das Redaktionsteam weitergeleitet.<br/>
+        Noch nicht zur Veröffentlichung an das Redaktionsteam weitergeleitet.
+    {{/default_publishas}}
+    <div>
         <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&act=submit_package" class="btn btn-primary mt-2"
             onclick="return confirm('Möchten Sie die Ressouce zur Veröffentlichung an das Redaktionsteam weiterleiten? Danach kann der Inhalt nicht mehr bearbeitet werden!');"
         >An das Redaktionsteam weiterleiten</a>
-    {{/default_publishas}}
+    </div>
 </div>
 
-{{/can_edit}}
-
-{{#can_edit}}
 <div class="mx-2 mt-3"><b>Eingabemodus:</b>
     {{#is_filling_mode_simple}}Einfacher Modus{{/is_filling_mode_simple}}
     {{^is_filling_mode_simple}}Expert/innen Modus{{/is_filling_mode_simple}}

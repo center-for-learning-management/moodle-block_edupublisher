@@ -410,27 +410,20 @@ class package {
         $exacomptitles = array();
         $flagfound = array();
 
-        // 1. Moodle competencies
-        // old: competencies from modules
-        // $sql = "SELECT c.id,c.*
-        //             FROM {competency} c
-        //             JOIN {competency_modulecomp} mc, {course_modules} cm
-        //             WHERE cm.course=? AND cm.id=mc.cmid AND mc.competencyid=c.id
-        //         ";
-
         $competenciesByParent = [];
         if (class_exists(\local_komettranslator\locallib::class)) {
-            // new: competencies from course
-            $sql = "SELECT c.id, c.*
+            // competencies from modules
+            $sql = "SELECT DISTINCT c.id, c.*
                     FROM {competency} c
-                    JOIN {competency_coursecomp} cc ON cc.competencyid=c.id
-                    WHERE cc.courseid=?
+                    JOIN {competency_modulecomp} mc ON mc.competencyid=c.id
+                    JOIN {course_modules} cm ON cm.id=mc.cmid
+                    WHERE cm.course=?
                 ";
-            $competencies = $DB->get_records_sql($sql, [$this->courseid, $this->courseid]);
+            $competencies = $DB->get_records_sql($sql, [$this->courseid]);
 
             foreach ($competencies as $competence) {
                 // Try mapping to exacomp.
-                $mapping = \local_komettranslator\api::get_copmetency_mapping('descriptor', $competence->id);
+                $mapping = \local_komettranslator\api::get_copmetency_mapping($competence->id, 'descriptor');
                 if (!empty($mapping->id) && empty($flagfound[$mapping->sourceid . '_' . $mapping->itemid])) {
                     $title = \local_komettranslator\api::get_competency_longname($competence);
                     $exacomptitles[] = $title;
@@ -1181,6 +1174,7 @@ class package {
                     'packageid' => $this->id,
                     'description' => $content_item_data['description'],
                     'link' => $content_item_data['link'],
+                    'competencies' => $content_item_data['competencies'],
                     'didaktische_hinweise' => $content_item_data['didaktische_hinweise'],
                     'sorting' => $sorting++,
                 ];

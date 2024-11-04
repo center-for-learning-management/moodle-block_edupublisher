@@ -108,39 +108,16 @@ class package_edit_form extends \moodleform {
 
                 $label = $field['label'] ?? $this->get_label($channels, $channel, $_field, $_field, $stringman, $required);
 
-                if ($_field == 'kompetenzen') {
-                    if (!$package) {
-                        // is required
-                        $label = $field['label'] ?? $this->get_label($channels, $channel, $_field, $_field, $stringman, true);
-
-                        // $value = 'Bitte speichern Sie zuerst, bevor Kompetenzen ausgewählt werden können';
-                        $value = \local_displace\competencylib::render_competency_selector(0, 0);
-
-                        $mform->addElement('hidden', 'session_competencies');
-                        $mform->setType('session_competencies', PARAM_TEXT);
-
-                        $mform->addElement($field['type'], 'kompetenzen_output', $label, $value);
-                        continue;
-                    } else {
-                        $frameworkid = 0;
-
-
-                        ob_start();
-                        echo output::render_competencylist($package, true);
-
-                        ?>
-                        <a class="btn btn-secondary btn-select-competencies" target="_blank"
-                           href="<?= (new \moodle_url('/local/displace/competency/coursecompetenciesadd.php?courseid=' . $package->courseid . '&frameworkid=' . $frameworkid, ['courseid' => $package->courseid]))->out() ?>">
-                            Kompetenzen ändern
-                        </a>
-                        <?php
-                        $value = ob_get_clean();
-
-                        $value .= \local_displace\competencylib::render_competency_selector($package->courseid, 0, true);
-                        $mform->addElement($field['type'], 'kompetenzen_output', $label, $value);
-                        continue;
-                    }
-                }
+                // if ($_field == 'kompetenzen') {
+                //     if (!$package) {
+                //         // don't print Kompetenzen output
+                //         continue;
+                //     } else {
+                //         $value = output::render_competencylist($package, true);
+                //         $mform->addElement($field['type'], 'kompetenzen_output', $label, $value);
+                //         continue;
+                //     }
+                // }
 
                 $addedfield = null;
                 switch ($field['type']) {
@@ -334,6 +311,14 @@ class package_edit_form extends \moodleform {
                 'maxfiles' => 10,
                 'accepted_types' => ['image', 'document', '.h5p'],
             ]);
+
+            // $element = $mform->addElement('text', , 'Kompetenzen' . $required_info);
+            // var_dump(get_class($element));
+            // exit;
+
+            $element = new \local_displace\competencies_form_element("content_items[$content_i][competencies]");
+            $mform->addElement($element);
+            $mform->setType("content_items[$content_i][competencies]", PARAM_TEXT);
 
             $mform->addElement('textarea', "content_items[$content_i][didaktische_hinweise]", 'Didaktische Hinweise');
             $mform->setType("content_items[$content_i][didaktische_hinweise]", PARAM_TEXT);

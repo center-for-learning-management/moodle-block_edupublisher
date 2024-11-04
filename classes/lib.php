@@ -64,6 +64,36 @@ class lib {
     }
 
     /**
+     * Ensures that within a context an instance of block_exacomp exists.
+     * @param
+     **/
+    public static function add_exacomp_to_context($context, $region = null) {
+        global $CFG, $DB;
+        $blocks = $DB->get_records('block_instances', array('blockname' => 'exacomp', 'parentcontextid' => $context->id));
+        if (!$blocks) {
+            // Create edupublisher-block in targetcourse.
+            $blockdata = (object)array(
+                'blockname' => 'exacomp',
+                'parentcontextid' => $context->id,
+                'showinsubcontexts' => 1,
+                'requiredbytheme' => 0,
+                'pagetypepattern' => 'course-view-*',
+                'defaultregion' => $region ?: 'side-post',
+                'defaultweight' => -10,
+                'configdata' => '',
+                'timecreated' => time(),
+                'timemodified' => time(),
+            );
+            $DB->insert_record('block_instances', $blockdata);
+        }
+
+        require_once $CFG->dirroot . '/blocks/exacomp/lib/lib.php';
+        $settings = block_exacomp_get_settings_by_course($context->instanceid);
+        $settings->uses_activities = 1;
+        block_exacomp_save_coursesettings($context->instanceid, $settings);
+    }
+
+    /**
      * Determines whether or not the user can create groups.
      * @return boolean
      */
@@ -294,7 +324,7 @@ class lib {
                         'other' => get_string('default_subjectarea_other', 'block_edupublisher'),
                     ),
                 ),
-                'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_RAW, 'required' => 0, 'searchable' => 1),
+                // 'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_RAW, 'required' => 0, 'searchable' => 1),
                 'tags' => array('type' => 'tags', 'datatype' => PARAM_TEXT, 'multiple' => 1, 'tagparams' => array('itemtype' => 'packages', 'component' => 'block_edupublisher'), 'searchable' => 1),
                 // Hidden elements
                 'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
@@ -947,6 +977,7 @@ class lib {
 
         // block einfügen
         static::add_to_context($package->get_context(), 'content-upper');
+        static::add_exacomp_to_context($package->get_context());
 
         if ($package->get('filling_mode', 'default') == package::FILLING_MODE_EXPERT) {
             // bei expert modus nicht syncen
@@ -958,29 +989,33 @@ class lib {
         $content_items = array_values($DB->get_records('block_edupublisher_pkg_items', ['packageid' => $package->id], 'sorting'));
         $course = get_course($package->courseid);
 
+
         $course_sections = $DB->get_records('course_sections', ['course' => $package->courseid], 'section');
+        $course_modules =$DB->get_records('course_modules', ['course' => $package->courseid]);
+        $course_modules_to_delete = $course_modules;
+
         $make_section = function($data) use ($course, &$course_sections, $package) {
             $section = array_shift($course_sections);
             if (!$section) {
                 $section = course_create_section($package->courseid);
             } else {
                 // clean section
-                $modinfo = get_fast_modinfo($course->id);
-
-                // Step 3: Get all course modules (activities/resources) in the specified section
-                $sections = $modinfo->get_sections();
-                if (isset($sections[$section->section])) {
-                    $moduleIds = $sections[$section->section]; // Get module IDs in the section
-
-                    // Step 4: Loop through all module IDs in the section and delete each one
-                    foreach ($moduleIds as $cmid) {
-                        $cm = $modinfo->get_cm($cmid); // Get the course module object
-                        if ($cm && !$cm->deletioninprogress) {
-                            // Delete the module
-                            course_delete_module($cm->id);
-                        }
-                    }
-                }
+                // $modinfo = get_fast_modinfo($course->id);
+                //
+                // // Step 3: Get all course modules (activities/resources) in the specified section
+                // $sections = $modinfo->get_sections();
+                // if (isset($sections[$section->section])) {
+                //     $moduleIds = $sections[$section->section]; // Get module IDs in the section
+                //
+                //     // Step 4: Loop through all module IDs in the section and delete each one
+                //     foreach ($moduleIds as $cmid) {
+                //         $cm = $modinfo->get_cm($cmid); // Get the course module object
+                //         if ($cm && !$cm->deletioninprogress) {
+                //             // Delete the module
+                //             course_delete_module($cm->id);
+                //         }
+                //     }
+                // }
             }
 
             course_update_section($package->courseid, $section, array_merge(['availability' => null], $data));
@@ -1019,16 +1054,16 @@ class lib {
         //
         //
         // if ($exameta = $DB->get_field('modules', 'id', array('name' => 'exameta'))) {
-        //     $moduleInfo = new \stdClass();
-        //     $moduleInfo->module = $exameta;
-        //     $moduleInfo->modulename = 'exameta';
-        //     $moduleInfo->section = $section->section;
-        //     $moduleInfo->display = 1;
-        //     $moduleInfo->visible = 1;
-        //     $moduleInfo->name = 'Zusammenfassung';
-        //     $moduleInfo->intro = '';
-        //     $moduleInfo->introformat = FORMAT_HTML;
-        //     $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+        //     $moduleinfo = new \stdClass();
+        //     $moduleinfo->module = $exameta;
+        //     $moduleinfo->modulename = 'exameta';
+        //     $moduleinfo->section = $section->section;
+        //     $moduleinfo->display = 1;
+        //     $moduleinfo->visible = 1;
+        //     $moduleinfo->name = 'Zusammenfassung';
+        //     $moduleinfo->intro = '';
+        //     $moduleinfo->introformat = FORMAT_HTML;
+        //     $moduleinfo = \add_moduleinfo($moduleinfo, $course);
         // }
 
         foreach ($content_items as $i => $content_item) {
@@ -1037,18 +1072,63 @@ class lib {
                 'summary' => nl2br(clean_param($content_item->description, PARAM_TEXT)),
             ]);
 
+            $create_or_update_module = function($moduleinfo) use ($course, $content_item, &$section, &$course_modules_to_delete) {
+                global $DB;
+                $idnumber = "block_edupublisher-content_item-{$content_item->id}-{$moduleinfo->modulename}";
+
+                $moduleinfo->module ??= $DB->get_field('modules', 'id', array('name' => $moduleinfo->modulename));
+                $moduleinfo->section = $section->section;
+
+                // does not work, set it anyway:
+                $moduleinfo->idnumber = $idnumber;
+                // does work:
+                $moduleinfo->cmidnumber = $idnumber;
+
+                $moduleinfo->display = 1;
+                $moduleinfo->visible = 1;
+                $moduleinfo->intro ??= '';
+                $moduleinfo->introformat ??= FORMAT_HTML;
+
+                // check if exists
+                $existingCmRecord = $DB->get_record('course_modules', ['module' => $moduleinfo->module, 'idnumber' => $idnumber]);
+                if (!$existingCmRecord) {
+                    $moduleinfo = \add_moduleinfo($moduleinfo, $course);
+                } else {
+                    // needed for update, and also for return value
+                    $moduleinfo = (object)array_merge((array)$existingCmRecord, (array)$moduleinfo);
+                    $moduleinfo->coursemodule = $existingCmRecord->id;
+
+                    // needed for update
+                    $moduleinfo->introeditor = [
+                        'itemid' => 999999999,
+                        'text' => $moduleinfo->intro,
+                        'format' => $moduleinfo->introformat,
+                    ];
+                    $moduleinfo->files = 999999; // for mod_folder
+                    $moduleinfo->revision = 0; // for mod_folder
+
+                    $moduleinfo = \update_module($moduleinfo);
+
+                    // section is not updated, so update it here:
+                    $cm = get_coursemodule_from_id('', $moduleinfo->coursemodule, 0, false, MUST_EXIST);
+                    // moveto_module already checks if the section is different
+                    moveto_module($cm, $section);
+
+                    unset($course_modules_to_delete[$moduleinfo->coursemodule]);
+                }
+
+                $competencyIds = $content_item->competencies ? explode(',', $content_item->competencies) : [];
+                static::update_module_competencies($course->id, $moduleinfo->coursemodule, $competencyIds);
+
+                return $moduleinfo;
+            };
+
             if ($link = trim($content_item->link)) {
-                $moduleInfo = new \stdClass();
-                $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'url'));
-                $moduleInfo->modulename = 'url';
-                $moduleInfo->section = $section->section;
-                $moduleInfo->display = 1;
-                $moduleInfo->visible = 1;
-                $moduleInfo->name = $link;
-                $moduleInfo->intro = '';
-                $moduleInfo->introformat = FORMAT_HTML;
-                $moduleInfo->externalurl = $link;
-                $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+                $moduleinfo = new \stdClass();
+                $moduleinfo->modulename = 'url';
+                $moduleinfo->name = $link;
+                $moduleinfo->externalurl = $link;
+                $create_or_update_module($moduleinfo);
             }
 
             $files = $fs->get_area_files($context->id, 'block_edupublisher', 'pkg_item_files', $content_item->id, 'itemid, filepath, filename', false);
@@ -1062,19 +1142,16 @@ class lib {
             }
 
             if ($files) {
-                $moduleInfo = new \stdClass();
-                $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'folder'));
-                $moduleInfo->modulename = 'folder';
-                $moduleInfo->section = $section->section;
-                $moduleInfo->display = 1;
-                $moduleInfo->visible = 1;
-                $moduleInfo->name = 'Dateien';
-                $moduleInfo->intro = '';
-                $moduleInfo->introformat = FORMAT_HTML;
-                $moduleInfo->files = []; // $files; // geht so nicht
-                $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+                $moduleinfo = new \stdClass();
+                $moduleinfo->modulename = 'folder';
+                $moduleinfo->name = 'Dateien';
+                $moduleinfo->files = []; // $files; // geht so nicht
+                $moduleinfo = $create_or_update_module($moduleinfo);
 
-                $mod_context = \context_module::instance($moduleInfo->coursemodule);
+                $mod_context = \context_module::instance($moduleinfo->coursemodule);
+                // delete old files
+                $fs->delete_area_files($mod_context->id, 'mod_folder', 'content');
+                // readd them
                 foreach ($files as $file) {
                     $fileinfo = array(
                         'contextid' => $mod_context->id,
@@ -1136,20 +1213,12 @@ class lib {
 
 
                 // working:
-                // $moduleInfo = new \stdClass();
-                // // $moduleInfo->course = $package->courseid;
-                // $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'resource'));
-                // $moduleInfo->modulename = 'resource';
-                // $moduleInfo->section = $section->section;
-                // $moduleInfo->display = 1;
-                // $moduleInfo->visible = 1;
-                // $moduleInfo->name = 'Dateien';
-                // $moduleInfo->intro = '';
-                // $moduleInfo->introformat = FORMAT_HTML;
-                // $moduleInfo->files = []; // $files;
-                // $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+                // $moduleinfo = new \stdClass();
+                // $moduleinfo->modulename = 'resource';
+                // $moduleinfo->name = 'Dateien';
+                // $moduleinfo = $create_or_update_module($moduleinfo);
                 //
-                // $mod_context = \context_module::instance($moduleInfo->coursemodule);
+                // $mod_context = \context_module::instance($moduleinfo->coursemodule);
                 // foreach ($files as $file) {
                 //     $fileinfo = array(
                 //         'contextid' => $mod_context->id,
@@ -1176,7 +1245,7 @@ class lib {
                 // $info = new \stdClass();
                 // $info->display = RESOURCELIB_DISPLAY_AUTO;
                 // $info->displayoptions = serialize($displayoptions);
-                // $info->id = $moduleInfo->id;
+                // $info->id = $moduleinfo->id;
                 // $DB->update_record('resource', $info);
                 //
                 // rebuild_course_cache($course->id, true);
@@ -1269,19 +1338,19 @@ class lib {
                 // }
 
                 foreach ($h5ps as $file) {
-                    $moduleInfo = new \stdClass();
-                    $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'label'));
-                    $moduleInfo->modulename = 'label';
-                    $moduleInfo->section = $section->section;
-                    $moduleInfo->display = 1;
-                    $moduleInfo->visible = 1;
-                    $moduleInfo->name = 'H5P';
-                    $moduleInfo->intro = '<div class="h5p-placeholder" contenteditable="false">@@PLUGINFILE@@/' . $file->get_filename() . '</div>';
-                    $moduleInfo->introformat = FORMAT_HTML;
-                    $moduleInfo->files = []; // $files; // geht so nicht
-                    $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+                    $moduleinfo = new \stdClass();
+                    $moduleinfo->modulename = 'label';
+                    $moduleinfo->name = 'H5P';
+                    $moduleinfo->intro = '<div class="h5p-placeholder" contenteditable="false">@@PLUGINFILE@@/' . $file->get_filename() . '</div>';
+                    $moduleinfo->introformat = FORMAT_HTML;
+                    $moduleinfo->files = []; // $files; // geht so nicht
+                    $moduleinfo = $create_or_update_module($moduleinfo);
 
-                    $mod_context = \context_module::instance($moduleInfo->coursemodule);
+                    $mod_context = \context_module::instance($moduleinfo->coursemodule);
+
+                    // delete old files
+                    $fs->delete_area_files($mod_context->id, 'mod_label', 'intro');
+                    // readd them
                     $fileinfo = array(
                         'contextid' => $mod_context->id,
                         'component' => 'mod_label',
@@ -1290,26 +1359,18 @@ class lib {
                         'filepath' => '/',
                         'filename' => $file->get_filename(),
                     );
-
                     $fs->create_file_from_storedfile($fileinfo, $file);
 
                     // $cm_id = create_hvp_activity($package->courseid, $activity_name, $h5p_file_path, $section_number);
                     // exit;
 
-                    // $moduleInfo = new \stdClass();
-                    // $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'h5pactivity'));
-                    // $moduleInfo->modulename = 'h5pactivity';
-                    // $moduleInfo->section = $section->section;
-                    // $moduleInfo->display = 1;
-                    // $moduleInfo->visible = 1;
-                    // $moduleInfo->name = $file->get_filename();
-                    // $moduleInfo->intro = '';
-                    // $moduleInfo->introformat = FORMAT_HTML;
-                    // $moduleInfo->files = []; // $files; // geht so nicht
-                    // $moduleInfo->grade = 0;
-                    // $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+                    // $moduleinfo = new \stdClass();
+                    // $moduleinfo->modulename = 'h5pactivity';
+                    // $moduleinfo->name = $file->get_filename();
+                    // $moduleinfo->grade = 0;
+                    // $moduleinfo = $create_or_update_module($moduleinfo);
                     //
-                    // $mod_context = \context_module::instance($moduleInfo->coursemodule);
+                    // $mod_context = \context_module::instance($moduleinfo->coursemodule);
                     // $fileinfo = array(
                     //     'contextid' => $mod_context->id,
                     //     'component' => 'mod_h5pactivity',
@@ -1335,19 +1396,15 @@ class lib {
                 ]);
 
                 if ($files) {
-                    $moduleInfo = new \stdClass();
-                    $moduleInfo->module = $DB->get_field('modules', 'id', array('name' => 'folder'));
-                    $moduleInfo->modulename = 'folder';
-                    $moduleInfo->section = $section->section;
-                    $moduleInfo->display = 1;
-                    $moduleInfo->visible = 1;
-                    $moduleInfo->name = 'Dateien';
-                    $moduleInfo->intro = '';
-                    $moduleInfo->introformat = FORMAT_HTML;
-                    $moduleInfo->files = []; // $files; // geht so nicht
-                    $moduleInfo = \add_moduleinfo($moduleInfo, $course);
+                    $moduleinfo = new \stdClass();
+                    $moduleinfo->modulename = 'folder';
+                    $moduleinfo->name = 'Dateien';
+                    $moduleinfo = $create_or_update_module($moduleinfo);
 
-                    $mod_context = \context_module::instance($moduleInfo->coursemodule);
+                    $mod_context = \context_module::instance($moduleinfo->coursemodule);
+                    // delete old files
+                    $fs->delete_area_files($mod_context->id, 'mod_folder', 'content');
+                    // readd them
                     foreach ($files as $file) {
                         $fileinfo = array(
                             'contextid' => $mod_context->id,
@@ -1362,15 +1419,128 @@ class lib {
                     }
                 }
             }
-
-            // $section->summary = $content_item->description;
-            // $DB->update_record('course_sections', $section);
         }
 
+        // delete old sections
         while ($section = array_shift($course_sections)) {
             course_delete_section($package->courseid, $section);
         }
 
+        // delete old modules
+        foreach ($course_modules_to_delete as $cm) {
+            try {
+                // schlägt im dev manchmal fehl, weil durch das testen die Aktivitäten nicht richtig angelegt wurden
+                course_delete_module($cm->id);
+            } catch (\moodle_exception $e) {
+                // echo $e->getMessage();
+            }
+        }
+
+        static::update_course_competencies($course->id);
+
+        // sync to exacomp
+        /*
+        // coursetopics
+        $courseCompetencies = \core_competency\api::list_course_competencies($course->id);
+        $currentCompetencyIds = array_map(fn($entry) => $entry['competency']->get('id'), $courseCompetencies);
+        $topicids = [];
+        foreach ($currentCompetencyIds as $id) {
+            while ($id && ($parent = $DB->get_record('competency', array('id' => $id)))) {
+                $mapping = \local_komettranslator\api::get_copmetency_mapping($parent->id);
+                if ($mapping && $mapping->type == 'topic') {
+                    $source = $DB->get_field('block_exacompdatasources', 'id', array('source' => $mapping->sourceid));
+                    if ($source) {
+                        $topicid = $DB->get_field("block_exacomptopics", "id", array("source" => $source, "sourceid" => $mapping->itemid));
+                        if ($topicid) {
+                            $topicids[] = $topicid;
+                        }
+                    }
+                    break;
+                }
+                $id = $parent->parentid;
+            }
+        }
+
+        $topicids = array_unique($topicids);
+
+        require_once $CFG->dirroot . '/blocks/exacomp/lib/lib.php';
+        block_exacomp_set_coursetopics($course->id, $topicids, true);
+
+        // activities
+
+        $topicCompetencyIds = [];
+        */
+
         rebuild_course_cache($course->id, true);
+    }
+
+    /**
+     * Updates the competencies for a specific module.
+     *
+     * @param int $courseId
+     * @param int $moduleId The module ID.
+     * @param array $competencyIds Array of competency IDs to associate with the module.
+     */
+    static function update_module_competencies($courseId, $moduleId, array $competencyIds) {
+        // Get current list of competencies linked to the module
+        $currentCompetencies = \core_competency\api::list_course_module_competencies($moduleId);
+        $currentCompetencyIds = array_map(fn($entry) => $entry['competency']->get('id'), $currentCompetencies);
+
+        // Unlink competencies not in the provided list
+        foreach ($currentCompetencyIds as $currentCompetencyId) {
+            if (!in_array($currentCompetencyId, $competencyIds)) {
+                \core_competency\api::remove_competency_from_course_module($moduleId, $currentCompetencyId);
+            }
+        }
+
+        // Link each competency to the module if it's not already linked
+        foreach ($competencyIds as $competencyId) {
+            if (!in_array($competencyId, $currentCompetencyIds)) {
+                // competency also needs to be added to course
+                // this function makes sure, the competency is only added once
+                \core_competency\api::add_competency_to_course($courseId, $competencyId);
+                \core_competency\api::add_competency_to_course_module($moduleId, $competencyId);
+            }
+        }
+    }
+
+    /**
+     * Sets the competencies for a course based on associated modules.
+     *
+     * @param int $courseId The course ID.
+     */
+    static function update_course_competencies($courseId) {
+        global $DB;
+
+        // Get all module IDs for the specified course
+        $moduleIds = $DB->get_fieldset_select('course_modules', 'id', 'course = ?', [$courseId]);
+
+        // Get all competencies linked to the provided modules
+        $usedCompetencyIds = [];
+        foreach ($moduleIds as $moduleId) {
+            $moduleCompetencies = \core_competency\api::list_course_module_competencies($moduleId);
+            $moduleCompetencyIds = array_map(fn($entry) => $entry['competency']->get('id'), $moduleCompetencies);
+            $usedCompetencyIds = array_merge($usedCompetencyIds, $moduleCompetencyIds);
+        }
+        $usedCompetencyIds = array_unique($usedCompetencyIds);
+
+        // Get current list of competencies linked to the course
+        $courseCompetencies = \core_competency\api::list_course_competencies($courseId);
+        $currentCompetencyIds = array_map(fn($entry) => $entry['competency']->get('id'), $courseCompetencies);
+
+        // Unlink competencies not used in the course
+        foreach ($currentCompetencyIds as $currentCompetencyId) {
+            if (!in_array($currentCompetencyId, $usedCompetencyIds)) {
+                \core_competency\api::remove_competency_from_course($courseId, $currentCompetencyId);
+            }
+        }
+
+        // not needed: each module competency has to be in the course in the first place!
+        // Link each competency to the course if it's used but not already linked
+        // foreach ($usedCompetencyIds as $competencyId) {
+        //     if (!in_array($competencyId, $currentCompetencyIds)) {
+        //         \core_competency\api::add_co($courseId, $competencyId);
+        //     }
+        // }
     }
 }

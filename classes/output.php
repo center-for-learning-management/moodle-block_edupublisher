@@ -89,6 +89,7 @@ class output {
         } elseif ($from_edit_form) {
             echo get_string('eduthekneu_kompetenzen_help', 'block_edupublisher');
         }
+
         return ob_get_clean();
     }
 }

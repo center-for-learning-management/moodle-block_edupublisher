@@ -1129,5 +1129,34 @@ function xmldb_block_edupublisher_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2024102801, 'edupublisher');
     }
 
+    if ($oldversion < 2024103000) {
+
+        // Define field competencies to be added to block_edupublisher_pkg_items.
+        $table = new xmldb_table('block_edupublisher_pkg_items');
+        $field = new xmldb_field('competencies', XMLDB_TYPE_TEXT, null, null, false, null, null, 'sorting');
+
+        // Conditionally launch add field competencies.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $DB->execute("UPDATE {block_edupublisher_pkg_items} SET competencies = ''");
+
+        $field = new xmldb_field('competencies', XMLDB_TYPE_TEXT, null, null, XMLDB_NOTNULL, null, null, 'sorting');
+        $dbman->change_field_notnull($table, $field);
+
+        // Define index idx_competencies (not unique) to be added to block_edupublisher_pkg_items.
+        $table = new xmldb_table('block_edupublisher_pkg_items');
+        $index = new xmldb_index('idx_competencies', XMLDB_INDEX_NOTUNIQUE, ['competencies']);
+
+        // Conditionally launch add index idx_competencies.
+        if (!$dbman->index_exists($table, $index)) {
+            $dbman->add_index($table, $index);
+        }
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2024103000, 'edupublisher');
+    }
+
     return true;
 }
