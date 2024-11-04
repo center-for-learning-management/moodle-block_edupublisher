@@ -87,10 +87,13 @@ class lib {
             $DB->insert_record('block_instances', $blockdata);
         }
 
+        // TODO: needs exacomp update
+        /*
         require_once $CFG->dirroot . '/blocks/exacomp/lib/lib.php';
         $settings = block_exacomp_get_settings_by_course($context->instanceid);
         $settings->uses_activities = 1;
         block_exacomp_save_coursesettings($context->instanceid, $settings);
+        */
     }
 
     /**
@@ -1438,7 +1441,7 @@ class lib {
 
         static::update_course_competencies($course->id);
 
-        // sync to exacomp
+        // TODO: sync to exacomp
         /*
         // coursetopics
         $courseCompetencies = \core_competency\api::list_course_competencies($course->id);

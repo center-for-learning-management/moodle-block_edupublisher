@@ -316,7 +316,7 @@ class package_edit_form extends \moodleform {
             // var_dump(get_class($element));
             // exit;
 
-            $element = new \local_displace\competencies_form_element("content_items[$content_i][competencies]");
+            $element = new \local_displace\competencies_form_element("content_items[$content_i][competencies]", 'Kompetenzen' . $required_info);
             $mform->addElement($element);
             $mform->setType("content_items[$content_i][competencies]", PARAM_TEXT);
 
@@ -497,6 +497,10 @@ class package_edit_form extends \moodleform {
 
                 if (!trim($content_item_data['description'])) {
                     $errors["content_items[$key][description]"] = get_string('required');
+                }
+
+                if (!trim($content_item_data['competencies'])) {
+                    $errors["content_items[$key][competencies]"] = get_string('required');
                 }
             }
         }
