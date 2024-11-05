@@ -557,7 +557,7 @@ class package_edit_form extends \moodleform {
                 display: none; /* hide content_items by default */
             }
 
-            .mform .form-inline input[type="text"].form-control {
+            .mform .felement input[type="text"].form-control {
                 width: 100%;
             }
 
