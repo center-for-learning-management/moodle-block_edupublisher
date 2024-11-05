@@ -130,6 +130,13 @@ if ($package) {
         'id' => 0,
         'delete' => 0,
     ];
+
+    $data->default_title = optional_param('title', '', PARAM_TEXT);
+    $data->default_summary = [
+        'text' => nl2br(optional_param('summary', '', PARAM_TEXT)),
+        'format' => FORMAT_HTML,
+    ];
+    $data->etapas_publishas = !!optional_param('eeducation_etapa_id', 0, PARAM_INT);
 }
 
 $form->set_data($data);
@@ -138,7 +145,7 @@ echo $OUTPUT->header();
 
 ?>
     <div>
-        <a href="<?=$returnurl?>" class="btn btn-secondary mb-2"><?= get_string('back') ?></a>
+        <a href="<?= $returnurl ?>" class="btn btn-secondary mb-2"><?= get_string('back') ?></a>
     </div>
 <?php
 

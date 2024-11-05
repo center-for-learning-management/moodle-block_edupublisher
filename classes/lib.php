@@ -284,7 +284,7 @@ class lib {
                 //     '0' => get_string('no'), '1' => get_string('yes'),
                 // ), 'donotstore' => 1),
                 'title' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1, 'searchable' => 1),
-                'summary' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1, 'searchable' => 1),
+                'summary' => array('type' => 'editor', 'datatype' => PARAM_CLEANHTML, 'required' => 1, 'searchable' => 1),
                 'licence' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
                     //'Public Domain' => 'Public Domain',
                     'cc-by' => 'cc-by',
@@ -401,8 +401,8 @@ class lib {
                 //         12 => 12, 13 => 13,
                 //     ),
                 // ),
-                // 'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_RAW, 'required' => 0, 'default' => get_string('etapas_kompetenzen_help', 'block_edupublisher'), 'searchable' => 1),
-                // 'stundenablauf' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => $required_value, 'searchable' => 1),
+                // 'kompetenzen' => array('type' => 'static', 'datatype' => PARAM_CLEANHTML, 'required' => 0, 'default' => get_string('etapas_kompetenzen_help', 'block_edupublisher'), 'searchable' => 1),
+                // 'stundenablauf' => array('type' => 'editor', 'datatype' => PARAM_CLEANHTML, 'required' => $required_value, 'searchable' => 1),
                 'zeitbedarf' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
                     '00:15' => '15 Minuten',
                     '00:30' => '30 Minuten',
@@ -413,8 +413,8 @@ class lib {
                     // '02:00' => '2 Std. (bitte nicht mehr verwenden)',
                     // '03:00' => '3 Std. (bitte nicht mehr verwenden)',
                 )),
-                'vorkenntnisse' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => $required_value, 'searchable' => 1),
-                'voraussetzungen' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => $required_value, 'searchable' => 1),
+                'vorkenntnisse' => array('type' => 'editor', 'datatype' => PARAM_CLEANHTML, 'required' => $required_value, 'searchable' => 1),
+                'voraussetzungen' => array('type' => 'editor', 'datatype' => PARAM_CLEANHTML, 'required' => $required_value, 'searchable' => 1),
             ),
             'eduthek' => array(
                 'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
@@ -423,7 +423,7 @@ class lib {
                 'ltiurl' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
                 'lticartridge' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
                 'ltisecret' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
-                'curriculum' => array('type' => 'editor', 'datatype' => PARAM_RAW, 'required' => 1),
+                'curriculum' => array('type' => 'editor', 'datatype' => PARAM_CLEANHTML, 'required' => 1),
                 'language' => array('type' => 'text', 'datatype' => PARAM_TEXT, 'required' => 1),
                 'type' => array('type' => 'select', 'datatype' => PARAM_TEXT,
                     'multiple' => 1, 'required' => 1, 'options' => array(
