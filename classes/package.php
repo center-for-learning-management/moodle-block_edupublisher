@@ -105,10 +105,10 @@ class package {
             $canedit = permissions::is_admin()
                 || $this->is_author_editing()
                 || permissions::is_maintainer();
-                // || (!empty($this->get('publishas', 'default')) && has_capability('block/edupublisher:managedefault', $context))
-                // || (!empty($this->get('publishas', 'etapas')) && has_capability('block/edupublisher:manageetapas', $context))
-                // || (!empty($this->get('publishas', 'eduthekneu')) && has_capability('block/edupublisher:manageeduthekneu', $context))
-                // || (!empty($this->get('publishas', 'eduthek')) && has_capability('block/edupublisher:manageeduthek', $context));
+            // || (!empty($this->get('publishas', 'default')) && has_capability('block/edupublisher:managedefault', $context))
+            // || (!empty($this->get('publishas', 'etapas')) && has_capability('block/edupublisher:manageetapas', $context))
+            // || (!empty($this->get('publishas', 'eduthekneu')) && has_capability('block/edupublisher:manageeduthekneu', $context))
+            // || (!empty($this->get('publishas', 'eduthek')) && has_capability('block/edupublisher:manageeduthek', $context));
             $this->set($canedit, 'canedit');
             $this->set(has_capability('block/edupublisher:managedefault', $context), 'cantriggeractive', 'default');
             $this->set(has_capability('block/edupublisher:manageeduthek', $context), 'cantriggeractive', 'eduthek');

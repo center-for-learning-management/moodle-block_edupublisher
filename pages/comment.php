@@ -52,7 +52,7 @@ if (!empty($comment->package)) {
     $packageid = required_param('packageid', PARAM_INT);
 }
 
-$package =\block_edupublisher\package::get_package($packageid, true);
+$package = \block_edupublisher\package::get_package($packageid, true);
 if (!$package) {
     // No such package exists.
     $PAGE->set_context(context_system::instance());

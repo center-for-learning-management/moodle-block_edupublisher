@@ -6,6 +6,7 @@ section.block_edupublisher.block {
             /* Moodle places an envelope-icon by itself */
             display: none;
         }
+
         i.fa {
             color: gray;
         }
@@ -22,7 +23,8 @@ section.block_edupublisher.block {
 
 .channel-block {
     max-width: 300px;
-    border-radius: 15px; border: 2px solid black;
+    border-radius: 15px;
+    border: 2px solid black;
     padding: 4px 20px;
     margin-bottom: 10px;
 }
@@ -30,16 +32,20 @@ section.block_edupublisher.block {
 .licence_object {
     border: 1px solid transparent;
 }
+
 .licence_object.active {
     border: 1px solid green;
 }
+
 .licence_package * {
-    box-sizing:content-box;
+    box-sizing: content-box;
     white-space: normal;
 }
+
 .licence_package tr * {
     text-align: justify;
 }
+
 .licence_package.active {
     background-color: rgba(120, 120, 100, 0.6);
 }
@@ -48,6 +54,7 @@ section.block.block_edupublisher {
     & .column:only-child {
         /* width: 100%; */
     }
+
     & .divider {
         border-bottom: 1px solid darkgray;
         font-weight: bold;
@@ -57,7 +64,8 @@ section.block.block_edupublisher {
 
 ul.text-divider {
     list-style-type: none;
-    &>li {
+
+    & > li {
         display: inline-block;
     }
 }
@@ -72,12 +80,14 @@ ul.text-divider.comma li:not(:last-child):after {
         display: grid;
         grid-template-columns: repeat(auto-fill, 50%);
     }
+
     .grid-eq-3 {
         display: grid;
         grid-template-columns: repeat(auto-fill, 33%);
     }
-    .grid-eq-2>*,
-    .grid-eq-3>* {
+
+    .grid-eq-2 > *,
+    .grid-eq-3 > * {
         width: calc(100% - 4px) !important;
         margin-left: 2px !important;
     }
@@ -88,12 +98,14 @@ ul.text-divider.comma li:not(:last-child):after {
         display: grid;
         grid-template-columns: repeat(auto-fill, 100%);
     }
+
     .grid-eq-3 {
         display: grid;
         grid-template-columns: repeat(auto-fill, 100%);
     }
-    .grid-eq-2>*,
-    .grid-eq-3>* {
+
+    .grid-eq-2 > *,
+    .grid-eq-3 > * {
         width: calc(100% - 4px) !important;
         margin: 2px !important;
     }

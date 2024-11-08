@@ -994,7 +994,7 @@ class lib {
 
 
         $course_sections = $DB->get_records('course_sections', ['course' => $package->courseid], 'section');
-        $course_modules =$DB->get_records('course_modules', ['course' => $package->courseid]);
+        $course_modules = $DB->get_records('course_modules', ['course' => $package->courseid]);
         $course_modules_to_delete = $course_modules;
 
         $make_section = function($data) use ($course, &$course_sections, $package) {

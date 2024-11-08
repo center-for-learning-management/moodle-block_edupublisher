@@ -56,7 +56,7 @@ $PAGE->navbar->add(
 \block_edupublisher\lib::check_requirements();
 
 block_edupublisher\permissions::require([
-    'can_delete' => $package->can_delete()
+    'can_delete' => $package->can_delete(),
 ]);
 
 echo $OUTPUT->header();
