@@ -73,6 +73,11 @@ switch ($act) {
             'canedit' => $package->can_edit(),
         ]);
 
+        $hasCompetencies = !!$package->exacompetencies();
+        if (!$hasCompetencies) {
+            redirect(new \moodle_url('/course/view.php?id=' . $package->courseid), 'Kursaktivitäten müssen zuerst mit Kompetenzen verknüpft werden, bevor die Ressource eingereicht werden kann.', null, \core\output\notification::NOTIFY_ERROR);
+        }
+
         $package->set_v2('publishas', 1, 'default');
         $package->store_package_db();
 
