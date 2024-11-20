@@ -1,7 +1,11 @@
-# pro-web Version 16.03.2023
+# .editorconfig: pro-web Version 08.11.2024
 
 # top-most EditorConfig file
 root = true
+
+# disable formatting for these files
+[{vendor/**,db/install.xml}]
+ij_formatter_enabled = false
 
 # Unix-style newlines with a newline ending every file
 [*]
@@ -19,7 +23,14 @@ indent_size = 2
 
 # JSON-Files
 [*.json]
-indent_style = tab
+indent_size = 2
+
+[composer.json]
+indent_size = 4
+
+# MD-Files
+[*.md]
+indent_size = 2
 
 # ReST-Files
 [*.rst]
