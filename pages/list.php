@@ -31,10 +31,21 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
             $where = 'AND resource.userid = ' . $USER->id;
         }
 
+
+        $state_text_sql = "
+            CASE
+                WHEN resource.active THEN 'Veröffentlicht'
+                WHEN def.published THEN 'Freigegeben'
+                WHEN def.publishas THEN 'Eingereicht'
+                ELSE 'Entwurf'
+            END
+        ";
+
         $sql = "
             SELECT resource.*
-                 , def.publishas AS default_publishas
-                 , def.published AS default_published
+                , $state_text_sql as state_text
+                , def.publishas AS default_publishas
+                , def.published AS default_published
                 , CONCAT(u.firstname, ' ', u.lastname, ' (', u.username, ')') AS user
             FROM {block_edupublisher_packages} resource
             JOIN {user} u ON resource.userid = u.id
@@ -50,11 +61,12 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
             'image' => !$this->is_downloading() ? '' : null,
             'title' => get_string('title', 'block_edupublisher'),
             'user' => $is_maintainer ? 'Benutzer' : null,
-            'state' => 'Status',
+            'state_text' => 'Status',
             // 'channel_default' => $is_maintainer ? 'eduvidual' : null,
             // 'channel_eduthekneu' => $is_maintainer ? 'eduthek.neu' : null,
             'channel_etapas' => $is_maintainer ? 'eTapa' : null,
             // 'channel_eduthek' => $is_maintainer ? 'eduthek' : null,
+            'time_submitted' => 'Eingereicht',
             'default_published' => 'Veröffentlicht',
         ], fn($col) => $col !== null);
 
@@ -64,8 +76,6 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
 
         $this->no_sorting('image');
         $this->no_filter('image');
-        $this->no_sorting('state');
-        $this->no_filter('state');
 
         $this->no_sorting('state');
         $this->no_filter('state');
@@ -108,18 +118,26 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
         return '<a href="' . new moodle_url('/user/profile.php', ['id' => $row->userid]) . '">' . $row->user . '</a>';
     }
 
-    function col_state($row) {
-        $package = $this->get_package($row->id);
-
-        if ($row->active) {
-            return '<span class="badge badge-success">Veröffentlicht</span>';
-        } elseif ($row->default_published) {
-            return 'Freigegeben';
-        } elseif ($row->default_publishas) {
-            return '<span class="badge badge-warning">Eingereicht</span>';
+    function col_state_text($row) {
+        if ($row->state_text == 'Veröffentlicht') {
+            $class = 'badge badge-success';
+        } elseif ($row->state_text == '') {
+            $class = 'badge badge-warning';
         } else {
-            return 'Entwurf';
+            $class = '';
         }
+
+        return '<span class="' . $class . '">' . $row->state_text . '</span>';
+
+        // if ($row->active) {
+        //     return '<span class="badge badge-success">Veröffentlicht</span>';
+        // } elseif ($row->default_published) {
+        //     return 'Freigegeben';
+        // } elseif ($row->default_publishas) {
+        //     return '<span class="badge badge-warning">Eingereicht</span>';
+        // } else {
+        //     return 'Entwurf';
+        // }
     }
 
     function get_package($id): \block_edupublisher\package {

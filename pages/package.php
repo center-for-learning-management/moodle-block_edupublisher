@@ -78,6 +78,7 @@ switch ($act) {
             redirect(new \moodle_url('/course/view.php?id=' . $package->courseid), 'Kursaktivitäten müssen zuerst mit Kompetenzen verknüpft werden, bevor die Ressource eingereicht werden kann.', null, \core\output\notification::NOTIFY_ERROR);
         }
 
+        $package->set_v2('time_submitted', time());
         $package->set_v2('publishas', 1, 'default');
         $package->store_package_db();
 

@@ -1158,5 +1158,20 @@ function xmldb_block_edupublisher_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2024103000, 'edupublisher');
     }
 
+    if ($oldversion < 2024112800) {
+
+        // Define field time_submitted to be added to block_edupublisher_packages.
+        $table = new xmldb_table('block_edupublisher_packages');
+        $field = new xmldb_field('time_submitted', XMLDB_TYPE_INTEGER, '7', null, XMLDB_NOTNULL, null, '0', 'active');
+
+        // Conditionally launch add field time_submitted.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2024112800, 'edupublisher');
+    }
+
     return true;
 }
