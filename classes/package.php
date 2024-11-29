@@ -447,7 +447,7 @@ class package {
         // $this->set_v2('coursecompetencies', $exacomptitles, 'default');
 
         // 2. Exacomp competencies
-        $sql = "SELECT ecd.id id,ecd.title title, ecd.sourceid sourceid, ecd.source sourceexacomptitles
+        $sql = "SELECT DISTINCT ecd.id id,ecd.title title, ecd.sourceid sourceid, ecd.source source
                     FROM {block_exacompdescriptors} ecd,
                          {block_exacompdescrexamp_mm} ecde,
                          {block_exacompexamples} ecex
@@ -465,8 +465,8 @@ class package {
                 $exacomptitles[] = $competence->title;
                 $flagfound[$source->source . '_' . $competence->sourceid] = true;
 
-                if (!isset($competenciesByParent[$parentName])) {
-                    $competenciesByParent[$parentName] = [];
+                if (!isset($competenciesByParent['Kompetenzraster'])) {
+                    $competenciesByParent['Kompetenzraster'] = [];
                 }
                 $competenciesByParent['Kompetenzraster'][] = $competence->title;
             }
