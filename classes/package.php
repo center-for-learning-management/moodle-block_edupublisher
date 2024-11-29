@@ -319,11 +319,11 @@ class package {
             SimpleXMLElement::copyElement($item->default_schoollevels, $item, 'default_schoollevel');
             $item->default_schoollevel->addAttribute('deprecated', 'use default_schoollevels');
 
-            SimpleXMLElement::copyElement($item->default_contenttypes, $item, 'default_contenttype');
-            $item->default_contenttype->addAttribute('deprecated', 'use default_contenttypes');
+            SimpleXMLElement::copyElement($item->eduthekneu_contenttypes, $item, 'eduthekneu_contenttype');
+            $item->eduthekneu_contenttype->addAttribute('deprecated', 'use eduthekneu_contenttypes');
 
-            SimpleXMLElement::copyElement($item->default_purposes, $item, 'default_purpose');
-            $item->default_purpose->addAttribute('deprecated', 'use default_purposes');
+            SimpleXMLElement::copyElement($item->eduthekneu_purposes, $item, 'eduthekneu_purpose');
+            $item->eduthekneu_purpose->addAttribute('deprecated', 'use eduthekneu_purposes');
 
             SimpleXMLElement::copyElement($item->default_licence, $item, 'default_license');
             $item->default_licence->addAttribute('deprecated', 'use default_license');
