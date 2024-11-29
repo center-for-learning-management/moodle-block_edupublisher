@@ -35,21 +35,31 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
         $state_text_sql = "
             CASE
                 WHEN resource.active THEN 'Veröffentlicht'
-                WHEN def.published THEN 'Freigegeben'
-                WHEN def.publishas THEN 'Eingereicht'
+                WHEN channel_default.published THEN 'Freigegeben'
+                WHEN channel_default.publishas THEN 'Eingereicht'
                 ELSE 'Entwurf'
+            END
+        ";
+
+        $etapas_state_text_sql = "
+            CASE
+                WHEN channel_etapas.published THEN 'Freigegeben'
+                WHEN channel_etapas.publishas THEN 'Eingereicht'
+                ELSE '-'
             END
         ";
 
         $sql = "
             SELECT resource.*
                 , $state_text_sql as state_text
-                , def.publishas AS default_publishas
-                , def.published AS default_published
+                , $etapas_state_text_sql as channel_etapas_state_text
+                , channel_default.publishas AS default_publishas
+                , channel_default.published AS default_published
                 , CONCAT(u.firstname, ' ', u.lastname, ' (', u.username, ')') AS user
             FROM {block_edupublisher_packages} resource
             JOIN {user} u ON resource.userid = u.id
-            JOIN {block_edupublisher_md_def} def ON resource.id = def.package
+            JOIN {block_edupublisher_md_def} channel_default ON resource.id = channel_default.package
+            LEFT JOIN {block_edupublisher_md_eta} channel_etapas ON resource.id = channel_etapas.package
             WHERE resource.deleted = 0
             $where
         ";
@@ -64,7 +74,7 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
             'state_text' => 'Status',
             // 'channel_default' => $is_maintainer ? 'eduvidual' : null,
             // 'channel_eduthekneu' => $is_maintainer ? 'eduthek.neu' : null,
-            'channel_etapas' => $is_maintainer ? 'eTapa' : null,
+            'channel_etapas_state_text' => $is_maintainer ? 'eTapa' : null,
             // 'channel_eduthek' => $is_maintainer ? 'eduthek' : null,
             'time_submitted' => 'Eingereicht',
             'default_published' => 'Veröffentlicht',
@@ -72,24 +82,15 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
 
         $this->set_table_columns($cols);
 
-        $this->sortable(true, 'title', SORT_ASC);
+        $this->sortable(true, 'time_submitted', SORT_DESC);
 
         $this->no_sorting('image');
         $this->no_filter('image');
 
-        $this->no_sorting('state');
-        $this->no_filter('state');
-        $this->no_sorting('channel_default');
-        $this->no_filter('channel_default');
-        $this->no_sorting('channel_etapas');
-        $this->no_filter('channel_etapas');
-        // $this->no_sorting('channel_eduthek');
-        // $this->no_filter('channel_eduthek');
-        // $this->no_sorting('channel_eduthekneu');
-        // $this->no_filter('channel_eduthekneu');
-
         $this->set_column_options('id', visible: false);
+        $this->set_column_options('time_submitted', data_type: static::PARAM_TIMESTAMP);
         $this->set_column_options('default_published', data_type: static::PARAM_TIMESTAMP);
+
 
         $this->add_row_action('package_edit.php?action=edit&id={id}&returnurl=' . urlencode((new moodle_url(qualified_me()))->out_as_local_url(false)), 'edit');
         if (\block_edupublisher\permissions::is_admin()) {
@@ -121,7 +122,7 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
     function col_state_text($row) {
         if ($row->state_text == 'Veröffentlicht') {
             $class = 'badge badge-success';
-        } elseif ($row->state_text == '') {
+        } elseif ($row->state_text == 'Eingereicht') {
             $class = 'badge badge-warning';
         } else {
             $class = '';
@@ -140,6 +141,32 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
         // }
     }
 
+    function col_channel_etapas_state_text($row) {
+        if ($row->channel_etapas_state_text == 'Freigegeben') {
+            $class = 'badge badge-success';
+        } elseif ($row->channel_etapas_state_text == 'Eingereicht') {
+            $class = 'badge badge-warning';
+        } else {
+            $class = '';
+        }
+
+        return '<span class="' . $class . '">' . $row->channel_etapas_state_text . '</span>';
+
+        // $package = $this->get_package($row->id);
+        //
+        // $channel = 'etapas';
+        // $published = $package->get('published', $channel);
+        // $publishas = $package->get('publishas', $channel);
+        //
+        // if ($published) {
+        //     return '<span class="badge badge-success">Veröffentlicht</span>';
+        // } elseif ($publishas) {
+        //     return '<span class="badge badge-warning">Todo</span>';
+        // } else {
+        //     return '-';
+        // }
+    }
+
     function get_package($id): \block_edupublisher\package {
         static $packages = [];
 
@@ -149,26 +176,6 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
     function get_row_actions(object $row, array $row_actions): ?array {
         $row_actions[0]->disabled = !$this->get_package($row->id)->can_edit();
         return $row_actions;
-    }
-
-    function other_cols($column, $row) {
-        $package = $this->get_package($row->id);
-
-        if (preg_match('!^channel_(.*)$!', $column, $matches)) {
-            $channel = $matches[1];
-            $published = $package->get('published', $channel);
-            $publishas = $package->get('publishas', $channel);
-
-            if ($published) {
-                return '<span class="badge badge-success">Veröffentlicht</span>';
-            } elseif ($publishas) {
-                return '<span class="badge badge-warning">Todo</span>';
-            } else {
-                return '-';
-            }
-        }
-
-        return parent::other_cols($column, $row);
     }
 }
 
