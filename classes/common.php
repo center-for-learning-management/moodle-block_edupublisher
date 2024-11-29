@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-// Version: 2024092000
+// common.php / version: 2024112900
 
 // common namespace of current plugin
 namespace block_edupublisher\common;
@@ -122,6 +122,25 @@ class db {
         }, $columns);
 
         return join(', ', $columns);
+    }
+
+    public static function find_in_set($needle, $haystack) {
+        global $DB;
+
+        // Determine the database family (mysql, pgsql, etc.)
+        $dbfamily = $DB->get_dbfamily();
+
+        // MySQL version
+        if ($dbfamily === 'mysql') {
+            return "FIND_IN_SET($needle, $haystack)";
+        } // PostgreSQL version
+        elseif ($dbfamily === 'postgres') {
+            // PostgreSQL doesn't have FIND_IN_SET, use string matching.
+            return "$needle = ANY (string_to_array($haystack, ','))";
+        }
+
+        // Default case (just in case we want to extend it to other databases)
+        throw new \coding_exception('Unsupported database type for find_in_set');
     }
 }
 

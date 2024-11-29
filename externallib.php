@@ -532,13 +532,13 @@ class block_edupublisher_external extends external_api {
 
         if ($params['schoollevels']) {
             $filter_params = array_merge($filter_params, $params['schoollevels']);
-            $subfilter = array_map(fn() => \block_edupublisher\locallib::db_find_in_set('?', "mdef.schoollevels"), $params['schoollevels']);
+            $subfilter = array_map(fn() => \block_edupublisher\db::find_in_set('?', "mdef.schoollevels"), $params['schoollevels']);
             $filters[] = join(' OR ', $subfilter);
         }
 
         if ($params['subjectareas']) {
             $filter_params = array_merge($filter_params, $params['subjectareas']);
-            $subfilter = array_map(fn() => \block_edupublisher\locallib::db_find_in_set('?', "mdef.subjectareas"), $params['subjectareas']);
+            $subfilter = array_map(fn() => \block_edupublisher\db::find_in_set('?', "mdef.subjectareas"), $params['subjectareas']);
             $filters[] = join(' OR ', $subfilter);
         }
 
