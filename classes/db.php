@@ -16,10 +16,6 @@
 
 namespace block_edupublisher;
 
-use local_leseguetesiegel\event\db_record_created;
-use local_leseguetesiegel\event\db_record_deleted;
-use local_leseguetesiegel\event\db_record_updated;
-
 require_once __DIR__ . '/common.php';
 
 class db extends \block_edupublisher\common\db {
