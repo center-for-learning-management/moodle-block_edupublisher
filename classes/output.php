@@ -69,13 +69,26 @@ class output {
     // }
 
     public static function render_competencylist(package $package, bool $from_edit_form): string {
-        $competenciesByParent = $package->exacompetencies();
-
         ob_start();
 
-        if ($competenciesByParent) {
+        if ($competenciesByParent = $package->exacompetencies()) {
             if (!$from_edit_form) {
                 echo '<h3 style="font-size: 130%; margin-top: 20px;">Kompetenzen:</h3>';
+            }
+
+            foreach ($competenciesByParent as $parentName => $competencies) {
+                ?>
+                <div style="font-weight: bold; margin: 12px 0 4px 0"><?= $parentName ?>:</div>
+                <ul>
+                    <?= join('', array_map(fn($k) => "<li>{$k}</li>", $competencies)) ?>
+                </ul>
+                <?php
+            }
+        } elseif ($competenciesByParent = $package->get_course_competencies()) {
+            // Frage: auch auf $package->is_filling_mode_expert() prüfen?
+
+            if (!$from_edit_form) {
+                echo '<h3 style="font-size: 130%; margin-top: 20px;">Kurskompetenzen:</h3>';
             }
 
             foreach ($competenciesByParent as $parentName => $competencies) {

@@ -20,6 +20,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_edupublisher\lib;
+
 require_once('../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
@@ -73,8 +75,17 @@ switch ($act) {
             'canedit' => $package->can_edit(),
         ]);
 
-        $hasCompetencies = !!$package->exacompetencies();
-        if (!$hasCompetencies) {
+        $hasAktivityCompetencies = !!$package->exacompetencies();
+        $hasCourseCompetencies = !!$package->get_course_competencies();
+
+        if (!$hasAktivityCompetencies && $hasCourseCompetencies) {
+            // Fallback: alle Aktivitäten mit den Kurskompetenzen verknüpfen
+            lib::sync_course_competencies_to_all_activities($package->courseid);
+
+            $hasAktivityCompetencies = !!$package->exacompetencies();
+        }
+
+        if (!$hasAktivityCompetencies) {
             redirect(new \moodle_url('/course/view.php?id=' . $package->courseid), 'Kursaktivitäten müssen zuerst mit Kompetenzen verknüpft werden, bevor die Ressource eingereicht werden kann.', null, \core\output\notification::NOTIFY_ERROR);
         }
 

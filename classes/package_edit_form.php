@@ -614,7 +614,7 @@ class package_edit_form extends \moodleform {
 
                     rerender();
 
-                    <?php if ($package && $package->get('filling_mode', 'default') == package::FILLING_MODE_EXPERT): ?>
+                    <?php if ($package && $package->is_filling_mode_expert()): ?>
                     $(':radio[name="default_filling_mode"][value="<?=package::FILLING_MODE_SIMPLE?>"]').change(function () {
                         alert('Achtung: durch den Wechsel auf den einfachen Modus werden die Kursinhalte überschrieben!');
                     })

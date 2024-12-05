@@ -257,6 +257,9 @@ class package {
                     if (in_array($field, $exclude)) {
                         continue;
                     }
+                    if ($channel != 'default' && in_array($field, ['published'])) {
+                        continue;
+                    }
                     if (!empty($fieldparams['multiple']) && !empty($fieldparams['options']) && !empty($fieldparams['splitcols'])) {
                         $values = [];
                         foreach ($fieldparams['options'] as $option => $optionlabel) {
@@ -476,6 +479,58 @@ class package {
         $this->set(nl2br(implode("\n", $exacomptitles)), 'kompetenzen', 'eduthekneu');
         $this->set($exacompdatasources, 'exacompdatasources', 'default');
         $this->set($exacompsourceids, 'exacompsourceids', 'default');
+
+        return $competenciesByParent;
+    }
+
+    public function get_course_competencies() {
+        global $DB;
+        // Get competencies.
+        $exacompdatasources = array();
+        $exacompsourceids = array();
+        $exacomptitles = array();
+        $flagfound = array();
+
+        // 1. Moodle competencies
+        // old: competencies from modules
+        // $sql = "SELECT c.id,c.*
+        //             FROM {competency} c
+        //             JOIN {competency_modulecomp} mc, {course_modules} cm
+        //             WHERE cm.course=? AND cm.id=mc.cmid AND mc.competencyid=c.id
+        //         ";
+
+        $competenciesByParent = [];
+        if (class_exists(\local_komettranslator\locallib::class)) {
+            // new: competencies from course
+            $sql = "SELECT c.id, c.*
+                    FROM {competency} c
+                    JOIN {competency_coursecomp} cc ON cc.competencyid=c.id
+                    WHERE cc.courseid=?
+                ";
+            $competencies = $DB->get_records_sql($sql, [$this->courseid]);
+
+            foreach ($competencies as $competence) {
+                // Try mapping to exacomp.
+                $mapping = \local_komettranslator\api::get_copmetency_mapping($competence->id, 'descriptor');
+                if (!empty($mapping->id) && empty($flagfound[$mapping->sourceid . '_' . $mapping->itemid])) {
+                    $title = \local_komettranslator\api::get_competency_longname($competence);
+                    $exacomptitles[] = $title;
+                    $exacompdatasources[] = $mapping->sourceid;
+                    $exacompsourceids[] = $mapping->itemid;
+                    $flagfound[$mapping->sourceid . '_' . $mapping->itemid] = true;
+
+                    $parentName = '';
+                    $parent = $competence;
+                    while ($parent = $DB->get_record('competency', array('id' => $parent->parentid))) {
+                        $parentName = $parent->shortname . ($parentName ? ' / ' . $parentName : '');
+                    }
+                    if (!isset($competenciesByParent[$parentName])) {
+                        $competenciesByParent[$parentName] = [];
+                    }
+                    $competenciesByParent[$parentName][] = $title;
+                }
+            }
+        }
 
         return $competenciesByParent;
     }
@@ -1483,5 +1538,9 @@ class package {
 
     public function is_filling_mode_simple(): bool {
         return $this->get('filling_mode', 'default') == package::FILLING_MODE_SIMPLE;
+    }
+
+    public function is_filling_mode_expert(): bool {
+        return $this->get('filling_mode', 'default') == package::FILLING_MODE_EXPERT;
     }
 }

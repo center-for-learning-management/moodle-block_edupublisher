@@ -982,7 +982,7 @@ class lib {
         static::add_to_context($package->get_context(), 'content-upper');
         static::add_exacomp_to_context($package->get_context());
 
-        if ($package->get('filling_mode', 'default') == package::FILLING_MODE_EXPERT) {
+        if ($package->is_filling_mode_expert()) {
             // bei expert modus nicht syncen
             return;
         }
@@ -1480,7 +1480,7 @@ class lib {
     /**
      * Updates the competencies for a specific module.
      *
-     * @param int $courseId
+     * @param int $courseId actually this should not be needed, the courseid can be read from the $moduleId
      * @param int $moduleId The module ID.
      * @param array $competencyIds Array of competency IDs to associate with the module.
      */
@@ -1545,5 +1545,26 @@ class lib {
         //         \core_competency\api::add_co($courseId, $competencyId);
         //     }
         // }
+    }
+
+    static function sync_course_competencies_to_all_activities(int $courseId) {
+        global $DB;
+
+        $sql = "SELECT c.id, c.id AS val
+                    FROM {competency} c
+                    JOIN {competency_coursecomp} cc ON cc.competencyid=c.id
+                    WHERE cc.courseid=?
+                ";
+        $competencyIds = $DB->get_records_sql_menu($sql, [$courseId]);
+
+        $course_modules = $DB->get_records_sql('
+            SELECT course_modules.*, modules.name AS modulename
+            FROM {course_modules} course_modules
+            JOIN {modules} modules ON course_modules.module=modules.id
+            WHERE course_modules.course=?', [$courseId]);
+
+        foreach ($course_modules as $course_module) {
+            static::update_module_competencies($courseId, $course_module->id, $competencyIds);
+        }
     }
 }
