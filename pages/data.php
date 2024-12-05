@@ -44,8 +44,16 @@ foreach ($_channels as $channel) {
 }
 
 if (!$allow_access) {
-    echo 'No valid token';
-    die();
+    header("HTTP/1.0 401 Unauthorized");
+    $data = [
+        'type' => 'error',
+        'error' => 'invalid token',
+    ];
+
+    echo json_encode($data, JSON_UNESCAPED_SLASHES
+        | (optional_param('pretty', false, PARAM_BOOL) ? JSON_PRETTY_PRINT : 0));
+
+    exit;
 }
 
 $sql = "SELECT id, id as val
