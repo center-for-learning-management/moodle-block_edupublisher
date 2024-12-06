@@ -1424,11 +1424,6 @@ class lib {
             }
         }
 
-        // delete old sections
-        while ($section = array_shift($course_sections)) {
-            course_delete_section($package->courseid, $section);
-        }
-
         // delete old modules
         foreach ($course_modules_to_delete as $cm) {
             try {
@@ -1437,6 +1432,11 @@ class lib {
             } catch (\moodle_exception $e) {
                 // echo $e->getMessage();
             }
+        }
+
+        // delete old sections
+        while ($section = array_shift($course_sections)) {
+            course_delete_section($package->courseid, $section);
         }
 
         static::update_course_competencies($course->id);
@@ -1521,9 +1521,15 @@ class lib {
         // Get all competencies linked to the provided modules
         $usedCompetencyIds = [];
         foreach ($moduleIds as $moduleId) {
-            $moduleCompetencies = \core_competency\api::list_course_module_competencies($moduleId);
-            $moduleCompetencyIds = array_map(fn($entry) => $entry['competency']->get('id'), $moduleCompetencies);
-            $usedCompetencyIds = array_merge($usedCompetencyIds, $moduleCompetencyIds);
+            try {
+                $moduleCompetencies = \core_competency\api::list_course_module_competencies($moduleId);
+                $moduleCompetencyIds = array_map(fn($entry) => $entry['competency']->get('id'), $moduleCompetencies);
+                $usedCompetencyIds = array_merge($usedCompetencyIds, $moduleCompetencyIds);
+            } catch (\dml_missing_record_exception $e) {
+                // Error in dev:
+                // course module not configured properly and throws an error
+                // ignore it
+            }
         }
         $usedCompetencyIds = array_unique($usedCompetencyIds);
 
@@ -1550,12 +1556,12 @@ class lib {
     static function sync_course_competencies_to_all_activities(int $courseId) {
         global $DB;
 
-        $sql = "SELECT c.id, c.id AS val
+        $sql = "SELECT c.id
                     FROM {competency} c
                     JOIN {competency_coursecomp} cc ON cc.competencyid=c.id
                     WHERE cc.courseid=?
                 ";
-        $competencyIds = $DB->get_records_sql_menu($sql, [$courseId]);
+        $competencyIds = $DB->get_fieldset_sql($sql, [$courseId]);
 
         $course_modules = $DB->get_records_sql('
             SELECT course_modules.*, modules.name AS modulename
