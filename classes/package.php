@@ -405,8 +405,9 @@ class package {
     /**
      * Load exacomp competencies for this package.
      */
-    public function exacompetencies() {
+    public function exacompetencies($for_export = false) {
         global $CFG, $DB;
+
         // Get competencies.
         $exacompdatasources = array();
         $exacompsourceids = array();
@@ -414,6 +415,7 @@ class package {
         $flagfound = array();
 
         $competenciesByParent = [];
+
         if (class_exists(\local_komettranslator\locallib::class)) {
             // competencies from modules
             $sql = "SELECT DISTINCT c.id, c.*
@@ -427,21 +429,32 @@ class package {
             foreach ($competencies as $competence) {
                 // Try mapping to exacomp.
                 $mapping = \local_komettranslator\api::get_copmetency_mapping($competence->id, 'descriptor');
-                if (!empty($mapping->id) && empty($flagfound[$mapping->sourceid . '_' . $mapping->itemid])) {
-                    $title = \local_komettranslator\api::get_competency_longname($competence);
-                    $exacomptitles[] = $title;
-                    $exacompdatasources[] = $mapping->sourceid;
-                    $exacompsourceids[] = $mapping->itemid;
-                    $flagfound[$mapping->sourceid . '_' . $mapping->itemid] = true;
 
-                    $parentName = '';
-                    $parent = $competence;
-                    while ($parent = $DB->get_record('competency', array('id' => $parent->parentid))) {
-                        $parentName = $parent->shortname . ($parentName ? ' / ' . $parentName : '');
-                    }
-                    if (!isset($competenciesByParent[$parentName])) {
-                        $competenciesByParent[$parentName] = [];
-                    }
+                if (empty($mapping->id) || !empty($flagfound[$mapping->sourceid . '_' . $mapping->itemid])) {
+                    continue;
+                }
+
+                $title = \local_komettranslator\api::get_competency_longname($competence);
+                $exacomptitles[] = $title;
+                $exacompdatasources[] = $mapping->sourceid;
+                $exacompsourceids[] = $mapping->itemid;
+                $flagfound[$mapping->sourceid . '_' . $mapping->itemid] = true;
+
+                $parentName = '';
+                $parent = $competence;
+                while ($parent = $DB->get_record('competency', array('id' => $parent->parentid))) {
+                    $parentName = $parent->shortname . ($parentName ? ' / ' . $parentName : '');
+                }
+                if (!isset($competenciesByParent[$parentName])) {
+                    $competenciesByParent[$parentName] = [];
+                }
+
+                if ($for_export) {
+                    $competenciesByParent[$parentName][] = [
+                        'id' => $mapping->sourceid,
+                        'title' => $title,
+                    ];
+                } else {
                     $competenciesByParent[$parentName][] = $title;
                 }
             }
@@ -449,31 +462,72 @@ class package {
 
         // $this->set_v2('coursecompetencies', $exacomptitles, 'default');
 
-        // 2. Exacomp competencies
-        $sql = "SELECT DISTINCT ecd.id id,ecd.title title, ecd.sourceid sourceid, ecd.source source
-                    FROM {block_exacompdescriptors} ecd,
-                         {block_exacompdescrexamp_mm} ecde,
-                         {block_exacompexamples} ecex
-                    WHERE ecex.courseid=?
-                        AND ecex.id=ecde.exampid
-                        AND ecde.descrid=ecd.id
-                    ORDER BY ecd.title ASC";
-        $competencies = $DB->get_records_sql($sql, array($this->courseid));
+        if (class_exists(\block_exacomp\api::class)) {
+            require_once $CFG->dirroot . '/blocks/exacomp/inc.php';
 
-        foreach ($competencies as $competence) {
-            $source = $DB->get_record('block_exacompdatasources', array('id' => $competence->source));
-            if (!empty($source->id) && empty($flagfound[$source->source . '_' . $competence->sourceid])) {
+            // 2. Exacomp competencies
+            $sql = "
+                SELECT d.id, d.title AS title, d.sourceid, d.source
+                    , MAX(CONCAT(schooltype.title, ' / ', subject.title, ' / ', topic.title)) as parent_title
+                FROM {" . BLOCK_EXACOMP_DB_EXAMPLES . "} ex
+                JOIN {" . BLOCK_EXACOMP_DB_DESCEXAMP . "} dex ON ex.id = dex.exampid
+                JOIN {" . BLOCK_EXACOMP_DB_DESCRIPTORS . "} d ON d.id = dex.descrid
+                JOIN {" . BLOCK_EXACOMP_DB_DESCTOPICS . "} det ON dex.descrid = det.descrid
+                JOIN {" . BLOCK_EXACOMP_DB_COURSETOPICS . "} ct ON det.topicid = ct.topicid
+                JOIN {" . BLOCK_EXACOMP_DB_TOPICS . "} topic ON ct.topicid = topic.id
+                JOIN {" . BLOCK_EXACOMP_DB_SUBJECTS . "} subject ON subject.id = topic.subjid
+                JOIN {" . BLOCK_EXACOMP_DB_SCHOOLTYPES . "} schooltype ON subject.stid = schooltype.id
+                WHERE ct.courseid = ? AND ex.courseid = ?
+                GROUP BY d.id, d.title, d.sourceid, d.source
+
+                UNION
+
+                -- child descriptors
+                SELECT DISTINCT d.id, d2.title AS title, d.sourceid, d.source
+                    , MAX(CONCAT(schooltype.title, ' / ', subject.title, ' / ', topic.title, ' / ', d2.title)) as parent_title
+                FROM {" . BLOCK_EXACOMP_DB_EXAMPLES . "} ex
+                JOIN {" . BLOCK_EXACOMP_DB_DESCEXAMP . "} dex ON ex.id = dex.exampid
+                JOIN {" . BLOCK_EXACOMP_DB_DESCRIPTORS . "} d ON d.id = dex.descrid AND d.parentid > 0
+                JOIN {" . BLOCK_EXACOMP_DB_DESCRIPTORS . "} d2 ON d2.id = d.parentid
+                JOIN {" . BLOCK_EXACOMP_DB_DESCTOPICS . "} det ON det.descrid = d2.id
+                JOIN {" . BLOCK_EXACOMP_DB_COURSETOPICS . "} ct ON det.topicid = ct.topicid
+                JOIN {" . BLOCK_EXACOMP_DB_TOPICS . "} topic ON ct.topicid = topic.id
+                JOIN {" . BLOCK_EXACOMP_DB_SUBJECTS . "} subject ON subject.id = topic.subjid
+                JOIN {" . BLOCK_EXACOMP_DB_SCHOOLTYPES . "} schooltype ON subject.stid = schooltype.id
+                WHERE ct.courseid = ? AND ex.courseid = ?
+                GROUP BY d.id, d.title, d.sourceid, d.source
+            ";
+
+            $competencies = $DB->get_records_sql($sql, [$this->courseid, $this->courseid, $this->courseid, $this->courseid]);
+
+            foreach ($competencies as $competence) {
+                $source = $DB->get_record('block_exacompdatasources', array('id' => $competence->source));
+
+                if (empty($source->id) || !empty($flagfound[$source->source . '_' . $competence->sourceid])) {
+                    continue;
+                }
+
                 $exacompdatasources[] = $source->source;
                 $exacompsourceids[] = $competence->sourceid;
                 $exacomptitles[] = $competence->title;
                 $flagfound[$source->source . '_' . $competence->sourceid] = true;
 
-                if (!isset($competenciesByParent['Kompetenzraster'])) {
-                    $competenciesByParent['Kompetenzraster'] = [];
+                if (!isset($competenciesByParent[$competence->parent_title])) {
+                    $competenciesByParent[$competence->parent_title] = [];
                 }
-                $competenciesByParent['Kompetenzraster'][] = $competence->title;
+
+                if ($for_export) {
+                    $competenciesByParent[$competence->parent_title][$competence->sourceid] = [
+                        'id' => $competence->sourceid,
+                        'title' => $competence->title,
+                    ];
+                } else {
+                    $competenciesByParent[$competence->parent_title][$competence->sourceid] = $competence->title;
+                }
             }
         }
+
+        ksort($competenciesByParent);
 
         $this->set(nl2br(implode("\n", $exacomptitles)), 'kompetenzen', 'etapas');
         $this->set(nl2br(implode("\n", $exacomptitles)), 'kompetenzen', 'eduthekneu');

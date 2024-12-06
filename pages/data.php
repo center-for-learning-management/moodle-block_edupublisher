@@ -56,10 +56,10 @@ if (!$allow_access) {
     exit;
 }
 
-$sql = "SELECT id, id as val
+$sql = "SELECT id
                 FROM {block_edupublisher_packages} p
                 WHERE modified > ?";
-$packageids = $DB->get_records_sql_menu($sql, array($modified));
+$packageids = $DB->get_fieldset_sql($sql, array($modified));
 
 // auch inaktivte und gelöschte mitübertragen, damit sie bei den anderen System gelöscht werden können
 
@@ -84,10 +84,21 @@ foreach ($packageids as $packageid) {
         continue;
     }
 
-    $items[] = [
+    $competency_groups = [];
+    if ($competenciesByParent = $package->exacompetencies(true)) {
+        foreach ($competenciesByParent as $parentName => $competencies) {
+            $competency_groups[] = [
+                'name' => $parentName,
+                'competencies' => $competencies,
+            ];
+        }
+    }
+
+        $items[] = [
         ...$base_data,
 
         // 'courseid' => (int)$package->courseid,
+        'is_etapa' => (bool)$package->get('published', 'etapas'),
         'summary' => $package->get('summary', 'default'),
         'image_url' => ($image_url = $package->get_preview_image_url()) ? $image_url->out(false) : null,
 
@@ -106,18 +117,9 @@ foreach ($packageids as $packageid) {
         'ratingaverage' => (float)$package->get('ratingaverage', 'default'),
         'ratingcount' => (int)$package->get('ratingcount', 'default'),
 
-        /*
-<default_image>http://localhost/moodle/pluginfile.php/601/block_edupublisher/default_image/5/7-eleven-brand.svg.png</default_image>
-<default_imageurl/>
-*/
+        'competency_groups' => $competency_groups,
     ];
 }
-
-// if (optional_param('pretty', false, PARAM_BOOL)) {
-//     echo $items->asPrettyXML();
-// } else {
-//     echo $items->asXML();
-// }
 
 header("Content-Type: application/json");
 
