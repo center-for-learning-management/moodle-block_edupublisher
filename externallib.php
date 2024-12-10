@@ -556,6 +556,8 @@ class block_edupublisher_external extends external_api {
         }
 
         $filters_search = [];
+        // filter unwanted characters
+        $params['search'] = preg_replace('![\'"\-?]+!', '', $params['search']);
         $params['search'] = trim($params['search']);
         if (!empty($params['search'])) {
             $needles = explode(' ', $params['search']);
@@ -592,7 +594,8 @@ class block_edupublisher_external extends external_api {
                                 $filters_search_sub[] = "{$table}.{$field}_{$option} LIKE '%$s%'";
                             }
                         } else {
-                            $filters_search_sub[] = "{$table}.{$field} LIKE '%$s%'";
+                            $filters_search_sub[] = "{$table}.{$field} LIKE ?";
+                            $filter_params[] = "%$s%";
                         }
                     }
                 }
