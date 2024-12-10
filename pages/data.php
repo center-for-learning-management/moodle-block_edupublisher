@@ -94,10 +94,11 @@ foreach ($packageids as $packageid) {
         }
     }
 
-        $items[] = [
+    $items[] = [
         ...$base_data,
 
-        // 'courseid' => (int)$package->courseid,
+        // courseid wird für die Verlinkung verwendet
+        'courseid' => (int)$package->courseid,
         'is_etapa' => (bool)$package->get('published', 'etapas'),
         'summary' => $package->get('summary', 'default'),
         'image_url' => ($image_url = $package->get_preview_image_url()) ? $image_url->out(false) : null,
