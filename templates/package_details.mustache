@@ -39,17 +39,18 @@
         {{/get_rating_data}}
     </div>
 </div>
-{{#canviewuser}}
 <div class="row">
     <div class="col-sm-4 col-lg-3">
         {{#str}} default_authorname, block_edupublisher {{/str}}:
     </div>
     <div class="col-sm-8 col-lg-9">
-        <a href="{{wwwroot}}/user/profile.php?id={{userid}}" target="_blank">{{default_authorname}}</a>
-        <a href="mailto:{{default_authormail}}">Email</a>
+        {{default_authorname}}
+        {{#canviewuser}}
+            <a href="{{wwwroot}}/user/profile.php?id={{userid}}" target="_blank">Profil</a>
+            <a href="mailto:{{user_email}}">Email</a>
+        {{/canviewuser}}
     </div>
 </div>
-{{/canviewuser}}
 
 <div class="row">
     <div class="col-sm-4 col-lg-3">

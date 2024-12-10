@@ -32,10 +32,13 @@ class output {
 
         // $data = $package->get_flattened();
 
+        $user = \core_user::get_user($package->userid);
+
         // return $OUTPUT->render_from_template('block_edupublisher/package_details', $data);
         return $OUTPUT->render_from_template('block_edupublisher/package_details', new template_resolver($package, [
             'competencylist' => static::render_competencylist($package, false),
             'returnurl' => urlencode((new \moodle_url(qualified_me()))->out_as_local_url(false)),
+            'user_email' => $user ? $user->email : '',
             // 'display_package_detail_page' => $type === 'package_detail_page',
             // 'display_course_content' => $type === 'course_content',
             // 'can_see_evaluation' => $package->get('can_see_evaluation') ?: false,
