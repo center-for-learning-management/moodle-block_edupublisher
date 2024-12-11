@@ -323,7 +323,7 @@ class lib {
                         'mathematics' => get_string('default_subjectarea_mathematics', 'block_edupublisher'),
                         'naturalsciences' => get_string('default_subjectarea_naturalsciences', 'block_edupublisher'),
                         'philosophy' => get_string('default_subjectarea_philosophy', 'block_edupublisher'),
-                        'physic leducation' => get_string('default_subjectarea_physicaleducation', 'block_edupublisher'),
+                        'physicaleducation' => get_string('default_subjectarea_physicaleducation', 'block_edupublisher'),
                         'other' => get_string('default_subjectarea_other', 'block_edupublisher'),
                     ),
                 ),
