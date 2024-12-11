@@ -995,7 +995,7 @@ function xmldb_block_edupublisher_upgrade($oldversion = 0) {
         $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',mathematics') WHERE subjectarea_mathematics = 1");
         $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',naturalsciences') WHERE subjectarea_naturalsciences = 1");
         $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',philosophy') WHERE subjectarea_philosophy = 1");
-        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',physic leducation') WHERE subjectarea_physicaleducation = 1");
+        $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',physicaleducation') WHERE subjectarea_physicaleducation = 1");
         $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = CONCAT(subjectareas, ',other') WHERE subjectarea_other = 1");
         $DB->execute("UPDATE {block_edupublisher_md_def} SET subjectareas = TRIM(BOTH ',' FROM subjectareas)");
 
