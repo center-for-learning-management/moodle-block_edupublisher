@@ -16,21 +16,17 @@
 
 /**
  * @package    block_edupublisher
- * @copyright  2018-2019 Digital Education Society (http://www.dibig.at)
- *             2020 onwards Center for Learning Management (http://www.lernmanagement.at)
+ * @copyright  2020 Center for Learningmanagement (www.lernmanagement.at)
  * @author     Robert Schrenk
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2024121100;
-$plugin->requires = 2014051200;
-$plugin->component = 'block_edupublisher';
-$plugin->release = '2.2';
-$plugin->maturity = MATURITY_STABLE;
-
-$plugin->dependencies = array(
-    'block_enrolcode' => 2021111801,
-    'block_exacomp' => 2020091000,
-);
+$callbacks = [
+    [
+        'hook' => \core\hook\output\before_standard_head_html_generation::class,
+        'callback' => [\block_edupublisher\hook_callbacks::class, 'before_standard_head_html_generation'],
+        'priority' => 500,
+    ],
+];
