@@ -245,35 +245,33 @@ if (!$restore->is_independent()) {
             // Determine if sectionid is the first in course.
             if (!empty($sectionid)) {
                 // We got a sectionid, so we want the contents in a specific area of the course!
-                // Get the section number based on sectionid.
-                $section = $DB->get_record('course_sections', array('course' => $course->id, 'id' => $sectionid));
-                $sectionnr = intval($section->section);
-                // NEW BEHAVIOUR: move sections instead of move modules.
-                // new sections should be moved AFTER $section
-                $sections_old = $DB->get_records('course_sections', array('course' => $course->id));
-                // Store the current number of the section we want to add everything AFTER.
 
+                $sections_old = $DB->get_records('course_sections', array('course' => $course->id));
+
+                // Store the current number of the section we want to add everything AFTER.
                 $moveaftersectionnumber = $sections_old[$sectionid]->section;
 
-                $oldsectionids_beforeimport = array();
-
+                $sectionids_before_import_position = array();
                 foreach ($sections_old as $section_old) {
                     if ($section_old->section <= $moveaftersectionnumber) {
-                        $oldsectionids_beforeimport[] = $section_old->id;
+                        $sectionids_before_import_position[] = $section_old->id;
                     }
                 }
 
-                // 1.) We have to create empty sections at the beginning of the course,
-                //     where the new contents can be imported to.
+                // $restore->execute() imports the content at the beginning of the course
+                // => Create empty sections at the beginning of the course,
+                // where the new contents can be imported to.
                 $sections_import = array_values($DB->get_records('course_sections', array('course' => $package->courseid)));
                 $createdsectionids = array();
 
+                // move sections back
                 $sql = "UPDATE {course_sections}
                             SET section=section+?
                             WHERE course=?
                             ORDER BY section DESC";
+                $DB->execute($sql, [count($sections_import), $course->id]);
 
-                $DB->execute($sql, array(count($sections_import), $course->id));
+                // insert new sections as placeholders in the front
                 for ($a = 0; $a < count($sections_import); $a++) {
                     $seco = (object)array(
                         'course' => $course->id,
@@ -286,41 +284,43 @@ if (!$restore->is_independent()) {
                         'sequence' => '',
                         'visible' => $sections_import[$a]->visible,
                         'availability' => $sections_import[$a]->availability,
-                        'timemodified' => time(),
+                        'timemodified' => 9999, // set to constant 9999, so we can delete it later if nothing was imported.
                     );
                     $createdsectionids[] = $DB->insert_record('course_sections', $seco);
                 }
                 rebuild_course_cache($course->id, true);
 
-                // 2.) Do the restore.
+                // do the restore (this imports the content into the placeholders)
                 $restore->execute();
 
-                // 3.) Now we delete created sections if they have an empty sequence (nothing was imported).
-                /*
+                // delete created sections, if they have timemodified 9999 nothing was imported.
+                [$sql, $params] = $DB->get_in_or_equal($createdsectionids);
                 $sql = "DELETE FROM {course_sections}
                             WHERE course=?
-                                AND id IN (?)
-                                AND (name IS NULL OR name = '')
-                                AND (sequence IS NULL OR sequence = '')
-                                AND (summary IS NULL or summary = '')";
-                */
+                                AND id $sql
+                                AND timemodified = 9999";
+                $DB->execute($sql, [$course->id, ...$params]);
 
-                // 4.) Re-order all sections.
+                // Re-order all sections.
                 $sections_new = $DB->get_records('course_sections', array('course' => $course->id), 'section ASC');
-                //     Increment section numbering, so that we have no problem with re-ordering.
+
+                // courseid + sectionid has a unique index!
+                // so Increment section numbers, so that there is no collision when re-ordering
                 $sql = "UPDATE {course_sections}
-                            SET section=section+?
+                            SET section=section+10000
                             WHERE course=?
                             ORDER BY section DESC";
-                $DB->execute($sql, array(count($sections_new), $course->id));
-                //     Start re-ordering with our old sections that are BEFORE the new content.
+                $DB->execute($sql, [$course->id]);
+
+                // Start re-ordering with the sections that are BEFORE the new content.
                 $newposition = 0;
-                foreach ($oldsectionids_beforeimport as $s) {
+                foreach ($sectionids_before_import_position as $s) {
                     $DB->set_field('course_sections', 'section', $newposition++, array('id' => $s));
                 }
 
+                // then add the new content
                 foreach ($sections_new as $snew) {
-                    if (!in_array($snew->id, $oldsectionids_beforeimport)) {
+                    if (!in_array($snew->id, $sectionids_before_import_position)) {
                         $DB->set_field('course_sections', 'section', $newposition++, array('id' => $snew->id));
                     }
                 }
@@ -332,7 +332,7 @@ if (!$restore->is_independent()) {
             }
             fulldelete($CFG->backuptempdir . '/' . $filepath);
 
-            // Log that we cloned a package.
+            // Log that the package was cloned
             require_once($CFG->dirroot . '/blocks/edupublisher/locallib.php');
             \block_edupublisher\lib::log_user_visit($package->id, 'cloned');
 
