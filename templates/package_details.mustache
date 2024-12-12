@@ -129,18 +129,18 @@
 
 </div>
 
-<div class="d-flex mt-2">
-    <a class="d-inline-block m-2 mx-4" href="{{wwwroot}}/blocks/edupublisher/pages/comment.php?packageid={{id}}">
-        <i class="fa fa-comments icon"></i>
-        {{#str}} comments {{/str}}
-    </a>
-
+<div class="d-flex mt-4 mx-n2">
     {{#can_import}}
-        <a class="d-inline-block m-2 mx-4" href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportSelection({{id}}, 0, {{allow_subcourses}}); }); return false;">
+        <a class="btn btn-primary ml-3 mr-4" href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportSelection({{id}}, 0, {{allow_subcourses}}); }); return false;">
             <i class="fa fa-file-import icon"></i>
            {{#str}} initialize_import, block_edupublisher {{/str}}
         </a>
     {{/can_import}}
+
+    <a class="d-inline-block m-2 mx-4" href="{{wwwroot}}/blocks/edupublisher/pages/comment.php?packageid={{id}}">
+        <i class="fa fa-comments icon"></i>
+        {{#str}} comments {{/str}}
+    </a>
 
     {{#can_see_evaluation}}
         <a class="d-inline-block m-2 mx-4" href="{{wwwroot}}/blocks/edupublisher/pages/evaluation.php?packageid={{id}}">
@@ -162,7 +162,7 @@
 </div>
 
 {{#can_edit}}
-<div class="d-flex mt-2">
+<div class="d-flex mt-2 mx-n2">
     <a class="d-inline-block m-2 mx-4" href="{{wwwroot}}/blocks/edupublisher/pages/package_edit.php?id={{id}}&returnurl={{returnurl}}">
         <i class="fa fa-pen icon"></i>
         {{#str}} edit {{/str}}
