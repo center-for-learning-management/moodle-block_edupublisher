@@ -23,7 +23,7 @@
 
 namespace block_edupublisher;
 
-use core_cache\cache;
+use cache;
 
 class hook_callbacks {
     public static function before_standard_head_html_generation($hook): void {
