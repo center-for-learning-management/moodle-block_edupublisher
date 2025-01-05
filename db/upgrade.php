@@ -1173,5 +1173,25 @@ function xmldb_block_edupublisher_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2024112800, 'edupublisher');
     }
 
+    if ($oldversion < 2025010500) {
+
+        // Define field tstamp to be added to block_edupublisher_packages.
+        $table = new xmldb_table('block_edupublisher_packages');
+        $field = new xmldb_field('tstamp', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0', 'created');
+
+        // Conditionally launch add field tstamp.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        $DB->execute('UPDATE {block_edupublisher_packages} SET tstamp = modified');
+
+        $field = new xmldb_field('tstamp', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, null, 'created');
+        $dbman->change_field_default($table, $field);
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2025010500, 'edupublisher');
+    }
+
     return true;
 }

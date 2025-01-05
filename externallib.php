@@ -462,6 +462,8 @@ class block_edupublisher_external extends external_api {
             }
         }
 
+        $package->update_tstamp();
+
         $sql = "SELECT AVG(rating) avg, COUNT(rating) cnt
                     FROM {block_edupublisher_rating}
                     WHERE package=?";

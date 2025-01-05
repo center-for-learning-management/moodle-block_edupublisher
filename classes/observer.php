@@ -27,9 +27,11 @@ defined('MOODLE_INTERNAL') || die;
 
 class observer {
     public static function coursechanged($event) {
-        global $DB;
-
         $entry = (object)$event->get_data();
-        $DB->set_field('block_edupublisher_packages', 'modified', time(), array('course' => $entry->courseid));
+
+        $package = lib::get_package_by_courseid($entry->courseid, IGNORE_MISSING);
+        if ($package) {
+            $package->update_timemodified();
+        }
     }
 }

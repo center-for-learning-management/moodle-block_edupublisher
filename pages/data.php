@@ -26,6 +26,7 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
 $user_token = required_param('token', PARAM_TEXT);
 $modified = optional_param('modified', 0, PARAM_INT);
+$tstamp = optional_param('tstamp', 0, PARAM_INT);
 
 $_channels = \block_edupublisher\lib::channels();
 $channel = array();
@@ -56,10 +57,14 @@ if (!$allow_access) {
     exit;
 }
 
+if ($modified) {
+    throw new \moodle_exception('modified parameter not supported anymore, use tstamp instead');
+}
+
 $sql = "SELECT id
-                FROM {block_edupublisher_packages} p
-                WHERE modified > ?";
-$packageids = $DB->get_fieldset_sql($sql, array($modified));
+        FROM {block_edupublisher_packages} p
+        WHERE tstamp >= ?";
+$packageids = $DB->get_fieldset_sql($sql, [$tstamp]);
 
 // auch inaktivte und gelöschte mitübertragen, damit sie bei den anderen System gelöscht werden können
 
@@ -70,6 +75,7 @@ foreach ($packageids as $packageid) {
     $base_data = [
         'id' => (int)$packageid,
         // 'created' => $package->get('created'),
+        'tstamp' => (int)$package->get('tstamp'),
         'modified' => (int)$package->get('modified'),
         'deleted' => (bool)$package->get('deleted'),
         'published' => (bool)$package->get('active'),
@@ -84,18 +90,22 @@ foreach ($packageids as $packageid) {
         continue;
     }
 
-    $competency_groups = [];
-    if ($competenciesByParent = $package->exacompetencies(true)) {
-        foreach ($competenciesByParent as $parentName => $competencies) {
-            $competency_groups[] = [
-                'name' => $parentName,
-                'competencies' => $competencies,
-            ];
-        }
-    }
+    // $competency_groups = [];
+    // if ($competenciesByParent = $package->exacompetencies(true)) {
+    //     foreach ($competenciesByParent as $parentName => $competencies) {
+    //         $competency_groups[] = [
+    //             'name' => $parentName,
+    //             'competencies' => $competencies,
+    //         ];
+    //     }
+    // }
+
+    $competencies = $package->exacompetencies(true);
 
     $items[] = [
         ...$base_data,
+
+        'url' => $package->courseid ? (new \moodle_url('/course/view.php', ['id' => $package->courseid]))->out(false) : null,
 
         // courseid wird für die Verlinkung verwendet
         'courseid' => (int)$package->courseid,
@@ -118,7 +128,8 @@ foreach ($packageids as $packageid) {
         'ratingaverage' => (float)$package->get('ratingaverage', 'default'),
         'ratingcount' => (int)$package->get('ratingcount', 'default'),
 
-        'competency_groups' => $competency_groups,
+        // 'competency_groups' => $competency_groups,
+        'competencies' => $competencies,
     ];
 }
 

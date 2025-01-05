@@ -68,6 +68,7 @@ class package {
             'title' => '',
             'userid' => $USER->id,
             'created' => time(),
+            'tstamp' => time(),
             'modified' => time(),
             'deleted' => 0,
             'active' => 0,
@@ -129,7 +130,7 @@ class package {
             $haslti = (!empty($this->get('channel', 'etapas')) || !empty($this->get('channel', 'eduthek')) || !empty($this->get('channel', 'eduthekneu')));
             $this->set($haslti, 'haslti');
             $this->set_v2('canviewuser', $this->canviewuser());
-            if ($this->courseid) {
+            if ($this->courseid && $this->get_context()) {
                 $authoreditingpermission = user_has_role_assignment($this->userid, get_config('block_edupublisher', 'defaultroleteacher'), $this->get_context()->id);
                 $this->set($authoreditingpermission, 'authoreditingpermission');
             }
@@ -221,7 +222,7 @@ class package {
 
         $exclude = ['channels', 'sourcecourse', 'wwwroot', 'filling_mode'];
         $include = [
-            'id', 'course', 'title', 'created', 'modified', 'deleted', 'active',
+            'id', 'course', 'title', 'created', 'tstamp', 'modified', 'deleted', 'active',
             'rating', 'ratingaverage', 'ratingcount',
         ];
         if (!$this->deleted && (in_array('etapas', $includechannels) || in_array('eduthekneu', $includechannels))) {
@@ -410,11 +411,12 @@ class package {
 
         // Get competencies.
         $exacompdatasources = array();
-        $exacompsourceids = array();
+        $kometCompetencyIds = array();
         $exacomptitles = array();
         $flagfound = array();
 
         $competenciesByParent = [];
+        $kometCompetencies = [];
 
         if (class_exists(\local_komettranslator\locallib::class)) {
             // competencies from modules
@@ -437,24 +439,25 @@ class package {
                 $title = \local_komettranslator\api::get_competency_longname($competence);
                 $exacomptitles[] = $title;
                 $exacompdatasources[] = $mapping->sourceid;
-                $exacompsourceids[] = $mapping->itemid;
+                $kometCompetencyIds[] = $mapping->itemid;
                 $flagfound[$mapping->sourceid . '_' . $mapping->itemid] = true;
 
-                $parentName = '';
-                $parent = $competence;
-                while ($parent = $DB->get_record('competency', array('id' => $parent->parentid))) {
-                    $parentName = $parent->shortname . ($parentName ? ' / ' . $parentName : '');
-                }
-                if (!isset($competenciesByParent[$parentName])) {
-                    $competenciesByParent[$parentName] = [];
-                }
-
                 if ($for_export) {
-                    $competenciesByParent[$parentName][] = [
-                        'id' => $mapping->sourceid,
+                    $kometCompetencies[] = [
+                        'id' => $mapping->itemid,
+                        'source' => $mapping->sourceid,
                         'title' => $title,
                     ];
                 } else {
+                    $parentName = '';
+                    $parent = $competence;
+                    while ($parent = $DB->get_record('competency', array('id' => $parent->parentid))) {
+                        $parentName = $parent->shortname . ($parentName ? ' / ' . $parentName : '');
+                    }
+                    if (!isset($competenciesByParent[$parentName])) {
+                        $competenciesByParent[$parentName] = [];
+                    }
+
                     $competenciesByParent[$parentName][] = $title;
                 }
             }
@@ -508,20 +511,21 @@ class package {
                 }
 
                 $exacompdatasources[] = $source->source;
-                $exacompsourceids[] = $competence->sourceid;
+                $kometCompetencyIds[] = $competence->sourceid;
                 $exacomptitles[] = $competence->title;
                 $flagfound[$source->source . '_' . $competence->sourceid] = true;
 
-                if (!isset($competenciesByParent[$competence->parent_title])) {
-                    $competenciesByParent[$competence->parent_title] = [];
-                }
-
                 if ($for_export) {
-                    $competenciesByParent[$competence->parent_title][$competence->sourceid] = [
+                    $kometCompetencies[] = [
                         'id' => $competence->sourceid,
+                        'source' => $source->source,
                         'title' => $competence->title,
                     ];
                 } else {
+                    if (!isset($competenciesByParent[$competence->parent_title])) {
+                        $competenciesByParent[$competence->parent_title] = [];
+                    }
+
                     $competenciesByParent[$competence->parent_title][$competence->sourceid] = $competence->title;
                 }
             }
@@ -532,16 +536,20 @@ class package {
         $this->set(nl2br(implode("\n", $exacomptitles)), 'kompetenzen', 'etapas');
         $this->set(nl2br(implode("\n", $exacomptitles)), 'kompetenzen', 'eduthekneu');
         $this->set($exacompdatasources, 'exacompdatasources', 'default');
-        $this->set($exacompsourceids, 'exacompsourceids', 'default');
+        $this->set($kometCompetencyIds, 'exacompsourceids', 'default');
 
-        return $competenciesByParent;
+        if ($for_export) {
+            return $kometCompetencies;
+        } else {
+            return $competenciesByParent;
+        }
     }
 
     public function get_course_competencies() {
         global $DB;
         // Get competencies.
         $exacompdatasources = array();
-        $exacompsourceids = array();
+        $kometCompetencyIds = array();
         $exacomptitles = array();
         $flagfound = array();
 
@@ -570,7 +578,7 @@ class package {
                     $title = \local_komettranslator\api::get_competency_longname($competence);
                     $exacomptitles[] = $title;
                     $exacompdatasources[] = $mapping->sourceid;
-                    $exacompsourceids[] = $mapping->itemid;
+                    $kometCompetencyIds[] = $mapping->itemid;
                     $flagfound[$mapping->sourceid . '_' . $mapping->itemid] = true;
 
                     $parentName = '';
@@ -1402,7 +1410,7 @@ class package {
      */
     public function store_package_db() {
         global $DB;
-        $this->set(time(), 'modified');
+        $this->update_modified();
         $DB->update_record('block_edupublisher_packages', $this->get_channel('_', true));
         $channels = [
             'com' => 'commercial',
@@ -1428,7 +1436,7 @@ class package {
         }
 
         $exacompdatasources = $this->get('exacompdatasources');
-        $exacompsourceids = $this->get('exacompsourceids');
+        $kometCompetencyIds = $this->get('exacompsourceids');
         $exacomptitles = $this->get('exacomptitles');
 
         if (!empty($exacompdatasources)) {
@@ -1436,7 +1444,7 @@ class package {
                 $params = [
                     'package' => $this->id,
                     'datasource' => $exacompdatasources[$a],
-                    'sourceid' => $exacompsourceids[$a],
+                    'sourceid' => $kometCompetencyIds[$a],
                 ];
 
                 $rec = $DB->get_record('block_edupublisher_md_exa', $params);
@@ -1494,14 +1502,23 @@ class package {
         if ($this->deleted) {
             // deleted package has no course anymore
             return null;
+        } elseif (!$this->courseid) {
+            // there should always be a course, currently only when the resource is deleted, then the courseid is unset
+            return null;
         } else {
-            return \context_course::instance($this->courseid);
+            return \context_course::instance($this->courseid, IGNORE_MISSING) ?: null;
         }
     }
 
     public function get_preview_image(): ?\stored_file {
+        $context = $this->get_context();
+
+        if (!$context) {
+            return null;
+        }
+
         $fs = get_file_storage();
-        return current($fs->get_area_files($this->get_context()->id, 'block_edupublisher', 'default_image', $this->id, '', false)) ?: null;
+        return current($fs->get_area_files($context->id, 'block_edupublisher', 'default_image', $this->id, '', false)) ?: null;
     }
 
     public function get_preview_image_url(): ?\moodle_url {
@@ -1596,5 +1613,25 @@ class package {
 
     public function is_filling_mode_expert(): bool {
         return $this->get('filling_mode', 'default') == package::FILLING_MODE_EXPERT;
+    }
+
+    public function update_modified() {
+        global $DB;
+
+        $time = time();
+        $this->set_v2('modified', $time);
+        $DB->set_field('block_edupublisher_packages', 'modified', $time, ['id' => $this->id]);
+
+        // modified also updates the tstamp
+        $this->update_tstamp();
+    }
+
+
+    public function update_tstamp() {
+        global $DB;
+
+        $time = time();
+        $this->set_v2('tstamp', $time);
+        $DB->set_field('block_edupublisher_packages', 'tstamp', $time, ['id' => $this->id]);
     }
 }
