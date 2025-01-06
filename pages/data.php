@@ -76,8 +76,9 @@ foreach ($packageids as $packageid) {
         'id' => (int)$packageid,
         // 'created' => $package->get('created'),
         'tstamp' => (int)$package->get('tstamp'),
-        'modified' => (int)$package->get('modified'),
-        'deleted' => (bool)$package->get('deleted'),
+        'timecreated' => (int)$package->get('created'),
+        'timemodified' => (int)$package->get('modified'),
+        'timedeleted' => (int)$package->get('deleted'),
         'published' => (bool)$package->get('active'),
         'title' => $package->title,
         // 'title' => $package->get('title', 'default'),
@@ -105,9 +106,9 @@ foreach ($packageids as $packageid) {
     $items[] = [
         ...$base_data,
 
-        'url' => $package->courseid ? (new \moodle_url('/course/view.php', ['id' => $package->courseid]))->out(false) : null,
+        // 'url' => $package->courseid ? (new \moodle_url('/course/view.php', ['id' => $package->courseid]))->out(false) : null,
 
-        // courseid wird für die Verlinkung verwendet
+        // courseid wird für die Verlinkung verwendet (sso auth)
         'courseid' => (int)$package->courseid,
         'is_etapa' => (bool)$package->get('published', 'etapas'),
         'summary' => $package->get('summary', 'default'),
