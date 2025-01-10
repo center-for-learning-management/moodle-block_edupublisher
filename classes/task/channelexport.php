@@ -37,6 +37,8 @@ class channelexport extends \core\task\scheduled_task {
     public function execute() {
         global $DB;
 
+        throw new \moodle_exception('cronjob not available anymore');
+
         $channels = \block_edupublisher\lib::channels();
         $filters = [
             'default' => ['default'],

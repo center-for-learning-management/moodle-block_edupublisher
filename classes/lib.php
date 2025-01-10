@@ -704,7 +704,6 @@ class lib {
      * @param courseid the courseid.
      * @param strictness by default MUST_EXIST
      * @param createifmissing if no package is found for this course, create package?
-     * @return object of type \block_edupublisher\package or null
      */
     public static function get_package_by_courseid($courseid, $strictness = MUST_EXIST, $createifmissing = false): ?package {
         global $DB;

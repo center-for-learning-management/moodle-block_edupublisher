@@ -24,15 +24,15 @@
 defined('MOODLE_INTERNAL') || die;
 
 $tasks = array(
-    array(
-        'classname' => 'block_edupublisher\task\channelexport',
-        'blocking' => 0,
-        'minute' => '15',
-        'hour' => '22',
-        'day' => '*',
-        'dayofweek' => '*',
-        'month' => '*',
-    ),
+    // array(
+    //     'classname' => 'block_edupublisher\task\channelexport',
+    //     'blocking' => 0,
+    //     'minute' => '15',
+    //     'hour' => '22',
+    //     'day' => '*',
+    //     'dayofweek' => '*',
+    //     'month' => '*',
+    // ),
     array(
         'classname' => 'block_edupublisher\task\block_edupublisher_coursebackup',
         'blocking' => 0,
