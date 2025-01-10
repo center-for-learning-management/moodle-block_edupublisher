@@ -31,7 +31,7 @@ class observer {
 
         $package = lib::get_package_by_courseid($entry->courseid, IGNORE_MISSING);
         if ($package) {
-            $package->update_timemodified();
+            $package->update_modified();
         }
     }
 }
