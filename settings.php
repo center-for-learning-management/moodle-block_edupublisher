@@ -42,11 +42,9 @@ if ($hassiteconfig) {
         $settings->add(new admin_settings_coursecat_select('block_edupublisher/category', get_string('category', 'block_edupublisher'),
             get_string('category_help', 'block_edupublisher'), ''));
 
-        require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
-        $definition = \block_edupublisher\lib::get_channel_definition();
-        $channels = array_keys($definition);
-        foreach ($channels as $channel) {
-            $settings->add(new admin_setting_configtext('block_edupublisher/channelkey_' . $channel, get_string($channel . '_fetchchannel', 'block_edupublisher'), '', md5(time() . rand(0, 1000)), PARAM_TEXT, 32));
+        for ($i = 1; $i <= 5; $i++) {
+            $settings->add(new admin_setting_configtext("block_edupublisher/apikey{$i}_name", "API Key {$i} Name", '', ''));
+            $settings->add(new admin_setting_configtext("block_edupublisher/apikey{$i}", "API Key {$i}", '', md5(time() . rand(0, 1000)), PARAM_TEXT, 32));
         }
 
         $roles = $DB->get_records_sql('SELECT r.* FROM {role} AS r, {role_context_levels} AS rcl WHERE r.id=rcl.roleid  AND rcl.contextlevel = 50 ORDER BY r.name ASC', array());

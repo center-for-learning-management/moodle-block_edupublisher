@@ -28,17 +28,15 @@ $user_token = required_param('token', PARAM_TEXT);
 $modified = optional_param('modified', 0, PARAM_INT);
 $tstamp = optional_param('tstamp', 0, PARAM_INT);
 
-$_channels = \block_edupublisher\lib::channels();
-$channel = array();
-$channels = [];
-
 $allow_access = false;
-foreach ($_channels as $channel) {
-    $token = get_config('block_edupublisher', 'channelkey_' . $channel);
-    if (empty($token)) {
+for ($i = 1; $i <= 5; $i++) {
+    $token = get_config('block_edupublisher', "apikey{$i}");
+
+    if (!trim($token)) {
         continue;
     }
-    if ($token == $user_token) {
+
+    if ($token === $user_token) {
         $allow_access = true;
         break;
     }
@@ -63,7 +61,8 @@ if ($modified) {
 
 $sql = "SELECT id
         FROM {block_edupublisher_packages} p
-        WHERE tstamp >= ?";
+        WHERE tstamp >= ?
+        ORDER BY tstamp";
 $packageids = $DB->get_fieldset_sql($sql, [$tstamp]);
 
 // auch inaktivte und gelöschte mitübertragen, damit sie bei den anderen System gelöscht werden können
