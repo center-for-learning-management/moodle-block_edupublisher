@@ -31,6 +31,7 @@ defined('MOODLE_INTERNAL') || die;
  * @property int $courseid
  * @property int $userid
  * @property string $title
+ * @property bool $active
  */
 class package {
 
@@ -1093,10 +1094,10 @@ class package {
 
                 $data = (object)[
                     'packageid' => $this->id,
-                    'description' => $content_item_data['description'],
-                    'link' => $content_item_data['link'],
+                    'description' => $content_item_data['description'] ?? '',
+                    'link' => $content_item_data['link'] ?? '',
                     'competencies' => $content_item_data['competencies'],
-                    'didaktische_hinweise' => $content_item_data['didaktische_hinweise'],
+                    'didaktische_hinweise' => $content_item_data['didaktische_hinweise'] ?? '',
                     'sorting' => $sorting++,
                 ];
 
@@ -1288,6 +1289,8 @@ class package {
     private function __get_internal(string $name, bool $isset) {
         if (in_array($name, ['id', 'userid', 'deleted'])) {
             return (int)$this->get($name);
+        } elseif (in_array($name, ['active'])) {
+            return (bool)$this->get($name);
         } elseif (in_array($name, ['title'])) {
             return $this->get($name);
         } elseif (preg_match('!^(default|etapas|eduthekneu|eduthek)_(.*)$!', $name, $matches)) {
