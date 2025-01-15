@@ -34,24 +34,31 @@ class package_edit_form extends \moodleform {
     static $maxfiles = 1;
     static $subdirs = 0;
 
-    function __construct(private ?package $package, private array $content_items_old) {
+    function __construct(private ?package $package, private array $content_items_old, private string $type = '') {
         parent::__construct($_SERVER['REQUEST_URI']);
     }
 
     function get_channel_definition() {
         $channels = \block_edupublisher\lib::get_channel_definition();
 
-        $ALLOW_COMMERCIAL = \block_edupublisher\permissions::is_publisher();
-        if (!$ALLOW_COMMERCIAL) {
-            unset($channels['commercial']);
-        }
+        // $ALLOW_COMMERCIAL = \block_edupublisher\permissions::is_publisher();
+        // if (!$ALLOW_COMMERCIAL) {
+        //     unset($channels['commercial']);
+        // }
 
         $package = $this->package;
-        if (!$package || !$package->get('publishas', 'commercial')) {
-            unset($channels['commercial']);
-        }
+        // if (!$package || !$package->get('publishas', 'commercial')) {
+        //     unset($channels['commercial']);
+        // }
         if (!$package || !$package->get('publishas', 'eduthek')) {
             unset($channels['eduthek']);
+        }
+
+        if ($this->type == 'etapa_vorschlag') {
+            $channels['default'] = array_intersect_key($channels['default'], array_flip(['title', 'summary', 'authorname', 'schoollevels', 'subjectareas']));
+            unset($channels['eduthekneu']);
+            unset($channels['etapas']['vorkenntnisse']);
+            unset($channels['etapas']['voraussetzungen']);
         }
 
         return $channels;
@@ -81,6 +88,11 @@ class package_edit_form extends \moodleform {
         $mform->setType('sourcecourse', PARAM_INT);
         $mform->addElement('hidden', 'userid', 0);
         $mform->setType('userid', PARAM_INT);
+
+        if ($this->type == 'etapa_vorschlag') {
+            $mform->addElement('hidden', 'default_filling_mode', 0);
+            $mform->setType('default_filling_mode', PARAM_INT);
+        }
         /*
         $mform->addElement('hidden', '__possible_origins', '');
         $mform->setType('__possible_origins', PARAM_RAW);
@@ -242,35 +254,38 @@ class package_edit_form extends \moodleform {
                 }
             }
 
-            if ($channel == 'etapas') {
-                // nach etapas die Channelauswahl einfügen
-                $mform->addElement('hidden', 'clonecourse', get_string('clonecourse_attention', 'block_edupublisher'));
-                $mform->setType('clonecourse', PARAM_BOOL);
-                $mform->setDefault('clonecourse', 1);
-
-                $boxes = array();
-                // foreach ($channels as $_channel => $fields) {
-                $freigabe_channels = [];
-                if ($package) {
-                    $freigabe_channels[] = 'default';
-                }
-                $freigabe_channels[] = 'etapas';
-                foreach ($freigabe_channels as $_channel) {
-                    // if ($_channel == 'default')
-                    //     continue;
-                    $label = $this->get_label($channels, $_channel, 'publish_as', ucfirst($_channel), $stringman);
-                    $boxes[] = $mform->createElement('advcheckbox', $_channel . '_publishas', $label, NULL, array(
-                        // disable onclick:
-                        // 'onclick' => 'var inp = this; require(["jquery"], function($) { $("#id_' . $_channel . '_publish_as").css("display", $(inp).is(":checked") ? "block" : "none"); });'
-                    ), array(0, 1));
-                    //$mform->setType($_channel . '_publishas', PARAM_INT);
-                }
-                $mform->addGroup($boxes, 'publishings', get_string('channels', 'block_edupublisher'), array(' '), false);
-            }
+            // if ($channel == 'etapas') {
+            //     // nach etapas die Channelauswahl einfügen
+            //     $mform->addElement('hidden', 'clonecourse', get_string('clonecourse_attention', 'block_edupublisher'));
+            //     $mform->setType('clonecourse', PARAM_BOOL);
+            //     $mform->setDefault('clonecourse', 1);
+            //
+            //     $boxes = array();
+            //     // foreach ($channels as $_channel => $fields) {
+            //     $freigabe_channels = [];
+            //     if ($package) {
+            //         $freigabe_channels[] = 'default';
+            //     }
+            //     $freigabe_channels[] = 'etapas';
+            //     foreach ($freigabe_channels as $_channel) {
+            //         // if ($_channel == 'default')
+            //         //     continue;
+            //         $label = $this->get_label($channels, $_channel, 'publish_as', ucfirst($_channel), $stringman);
+            //         $boxes[] = $mform->createElement('advcheckbox', $_channel . '_publishas', $label, NULL, array(
+            //             // disable onclick:
+            //             // 'onclick' => 'var inp = this; require(["jquery"], function($) { $("#id_' . $_channel . '_publish_as").css("display", $(inp).is(":checked") ? "block" : "none"); });'
+            //         ), array(0, 1));
+            //         //$mform->setType($_channel . '_publishas', PARAM_INT);
+            //     }
+            //     $mform->addGroup($boxes, 'publishings', get_string('channels', 'block_edupublisher'), array(' '), false);
+            // }
         }
 
-        $el = $mform->removeElement('default_filling_mode');
-        $mform->addElement($el);
+        if ($mform->elementExists('default_filling_mode')) {
+            // existiert bei etapa_vorschlag nicht
+            $el = $mform->removeElement('default_filling_mode');
+            $mform->addElement($el);
+        }
 
         $el = $mform->addElement('static', 'filling_mode_expert_help', '', '<div style="font-weight: bold">
     Der Expert/innen-Modus adressiert erfahrene Benutzer/innen.
@@ -281,10 +296,16 @@ class package_edit_form extends \moodleform {
         // $mform->addElement('header', 'content_items_header', 'Aktivitäten/Ressourcen');
         // $mform->setExpanded('content_items_header');
 
-        $cnt = (isset($this->content_items_old) ? count($this->content_items_old) : 0) + 10;
+        if ($this->type === 'etapa_vorschlag') {
+            $cnt = 1;
+        } else {
+            $cnt = (isset($this->content_items_old) ? count($this->content_items_old) : 0) + 10;
+        }
         for ($content_i = 0; $content_i < $cnt; $content_i++) {
-            $mform->addElement('header', "content_item_$content_i", '<span class="num"></span>. Aktivität/Ressource');
-            $mform->setExpanded("content_item_$content_i");
+            if ($this->type !== 'etapa_vorschlag') {
+                $mform->addElement('header', "content_item_$content_i", '<span class="num"></span>. Aktivität/Ressource');
+                $mform->setExpanded("content_item_$content_i");
+            }
 
             $txtrequired = get_string('required');
             $required_info = '<span class="float-sm-right text-nowrap"><abbr class="initialism text-danger" title="' . $txtrequired . '"><i class="icon fa fa-exclamation-circle text-danger fa-fw " aria-hidden="true" title="' . $txtrequired . '" aria-label="' . $txtrequired . '"></i></abbr></span>';
@@ -300,17 +321,19 @@ class package_edit_form extends \moodleform {
             // das geht nicht?!?
             // $mform->setDefault("content_items[$content_i][delete]", 1);
 
-            $mform->addElement('textarea', "content_items[$content_i][description]", 'Beschreibung (Anweisung für Schüler:innen)' . $required_info);
-            $mform->setType("content_items[$content_i][description]", PARAM_TEXT);
+            if ($this->type !== 'etapa_vorschlag') {
+                $mform->addElement('textarea', "content_items[$content_i][description]", 'Beschreibung (Anweisung für Schüler:innen)' . $required_info);
+                $mform->setType("content_items[$content_i][description]", PARAM_TEXT);
 
-            $mform->addElement('text', "content_items[$content_i][link]", 'Link');
-            $mform->setType("content_items[$content_i][link]", PARAM_TEXT);
+                $mform->addElement('text', "content_items[$content_i][link]", 'Link');
+                $mform->setType("content_items[$content_i][link]", PARAM_TEXT);
 
-            $mform->addElement('filemanager', "content_items[$content_i][files]", 'Dateien (Bilder, Dokumente oder H5P Inhalte)', null, [
-                'subdirs' => 0,
-                'maxfiles' => 10,
-                'accepted_types' => ['image', 'document', '.h5p'],
-            ]);
+                $mform->addElement('filemanager', "content_items[$content_i][files]", 'Dateien (Bilder, Dokumente oder H5P Inhalte)', null, [
+                    'subdirs' => 0,
+                    'maxfiles' => 10,
+                    'accepted_types' => ['image', 'document', '.h5p'],
+                ]);
+            }
 
             // $element = $mform->addElement('text', , 'Kompetenzen' . $required_info);
             // var_dump(get_class($element));
@@ -320,36 +343,41 @@ class package_edit_form extends \moodleform {
             $mform->addElement($element);
             $mform->setType("content_items[$content_i][competencies]", PARAM_TEXT);
 
-            $mform->addElement('textarea', "content_items[$content_i][didaktische_hinweise]", 'Didaktische Hinweise');
-            $mform->setType("content_items[$content_i][didaktische_hinweise]", PARAM_TEXT);
 
-            $mform->addElement('filemanager', "content_items[$content_i][dh_files]", 'Dateien (für Lehrkraft)', null, [
-                'subdirs' => 0,
-                'maxfiles' => 10,
-                'accepted_types' => ['image', 'document', '.h5p'],
-            ]);
+            if ($this->type !== 'etapa_vorschlag') {
+                $mform->addElement('textarea', "content_items[$content_i][didaktische_hinweise]", 'Didaktische Hinweise');
+                $mform->setType("content_items[$content_i][didaktische_hinweise]", PARAM_TEXT);
 
-            ob_start();
-            ?>
-            <div style="text-align: right; padding-bottom: 20px;">
-                <button class="list-manager-delete-button btn btn-secondary" type="button">Aktivität/Ressource löschen</button>
-            </div>
-            <?php
-            $mform->addElement('html', ob_get_clean());
+                $mform->addElement('filemanager', "content_items[$content_i][dh_files]", 'Dateien (für Lehrkraft)', null, [
+                    'subdirs' => 0,
+                    'maxfiles' => 10,
+                    'accepted_types' => ['image', 'document', '.h5p'],
+                ]);
+
+                ob_start();
+                ?>
+                <div style="text-align: right; padding-bottom: 20px;">
+                    <button class="list-manager-delete-button btn btn-secondary" type="button">Aktivität/Ressource löschen</button>
+                </div>
+                <?php
+                $mform->addElement('html', ob_get_clean());
+            }
         }
 
         $mform->addElement('header', 'content_item_list_buttons', '');
         $mform->setExpanded('content_item_list_buttons');
 
-        ob_start();
-        ?>
-        <div style="margin-bottom: 25px">
-            <button class="list-manager-add-button btn btn-secondary" type="button">
-                Aktivität/Ressource hinzufügen
-            </button>
-        </div>
-        <?php
-        $mform->addElement('html', ob_get_clean());
+        if ($this->type !== 'etapa_vorschlag') {
+            ob_start();
+            ?>
+            <div style="margin-bottom: 25px">
+                <button class="list-manager-add-button btn btn-secondary" type="button">
+                    Aktivität/Ressource hinzufügen
+                </button>
+            </div>
+            <?php
+            $mform->addElement('html', ob_get_clean());
+        }
 
         // $mform->hideIf('etapas_status', 'cantriggeractiveetapas', 'neq', '1');
 
@@ -495,8 +523,10 @@ class package_edit_form extends \moodleform {
                     continue;
                 }
 
-                if (!trim($content_item_data['description'])) {
-                    $errors["content_items[$key][description]"] = get_string('required');
+                if ($this->type !== 'etapa_vorschlag') {
+                    if (!trim($content_item_data['description'])) {
+                        $errors["content_items[$key][description]"] = get_string('required');
+                    }
                 }
 
                 if (!trim($content_item_data['competencies'])) {

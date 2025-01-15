@@ -85,7 +85,7 @@ class block_edupublisher extends block_base {
         $package = $DB->get_record('block_edupublisher_packages', array('course' => $COURSE->id), '*', IGNORE_MULTIPLE);
 
         if ($package) {
-            $package = new \block_edupublisher\package($package->id, true);
+            $package = \block_edupublisher\package::get_package($package->id, true);
 
             if ($package->get('licence', 'default') == 'other') {
                 $package->set(get_string('default_licenceother', 'block_edupublisher'), 'licence', 'default');

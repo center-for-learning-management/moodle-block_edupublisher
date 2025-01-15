@@ -65,7 +65,13 @@ if ($package) {
 }
 
 $package?->load_origins();
-$form = new \block_edupublisher\package_edit_form($package, $content_items_old);
+
+$type = optional_param('type', '', PARAM_TEXT);
+if ($type && $type != 'etapa_vorschlag') {
+    throw new \moodle_exception('wrong type');
+}
+
+$form = new \block_edupublisher\package_edit_form($package, $content_items_old, $type);
 
 if ($form->is_cancelled()) {
     redirect($returnurl);
@@ -98,10 +104,22 @@ if ($form->is_cancelled()) {
 
         echo $OUTPUT->header();
 
-        echo get_string('publish_stage_finish_text', 'block_edupublisher');
-        $url = new \moodle_url('/course/view.php', ['id' => $package->courseid]);
-        $label = get_string('publish_stage_finish_button', 'block_edupublisher');
-        echo "<div style=\"text-align: center;\"><a href=\"$url\" class=\"btn btn-primary\">$label</a></div>\n";
+        if ($type == 'etapa_vorschlag') {
+            ?>
+            <h3>Vorschlag für eTapa wurde erstellt!</h3>
+            <p>
+                Vielen Dank, nach einer Durchsicht setzen wir uns mit Ihnen in Verbindung!
+            </p>
+            <?php
+            $url = new \moodle_url('/blocks/edupublisher/pages/list.php');
+            $label = 'Zurück';
+            echo "<div style=\"text-align: center;\"><a href=\"$url\" class=\"btn btn-primary\">$label</a></div>\n";
+        } else {
+            echo get_string('publish_stage_finish_text', 'block_edupublisher');
+            $url = new \moodle_url('/course/view.php', ['id' => $package->courseid]);
+            $label = get_string('publish_stage_finish_button', 'block_edupublisher');
+            echo "<div style=\"text-align: center;\"><a href=\"$url\" class=\"btn btn-primary\">$label</a></div>\n";
+        }
 
         echo $OUTPUT->footer();
         exit;
