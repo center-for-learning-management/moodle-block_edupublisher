@@ -568,17 +568,17 @@ class lib {
                     ),
                 ),
             ),
-            'commercial' => array(
-                'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
-                'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL, 'default' => 1),
-                'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
-                'publisher' => array('type' => 'select', 'datatype' => PARAM_INT),
-                'shoplink' => array('type' => 'url', 'datatype' => PARAM_TEXT),
-                'validation' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
-                    'external' => get_string('commercial_validateexternal', 'block_edupublisher'),
-                    'internal' => get_string('commercial_validateinternal', 'block_edupublisher')),
-                ),
-            ),
+            // 'commercial' => array(
+            //     'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
+            //     'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL, 'default' => 1),
+            //     'published' => array('type' => 'hidden', 'datatype' => PARAM_INT, 'default' => 0),
+            //     'publisher' => array('type' => 'select', 'datatype' => PARAM_INT),
+            //     'shoplink' => array('type' => 'url', 'datatype' => PARAM_TEXT),
+            //     'validation' => array('type' => 'select', 'datatype' => PARAM_TEXT, 'options' => array(
+            //         'external' => get_string('commercial_validateexternal', 'block_edupublisher'),
+            //         'internal' => get_string('commercial_validateinternal', 'block_edupublisher')),
+            //     ),
+            // ),
         );
         global $CFG, $package, $MODE_SHOW_FORM;
         if (isset($package)) {
