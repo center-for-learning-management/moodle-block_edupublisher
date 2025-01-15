@@ -96,9 +96,11 @@ class block_edupublisher extends block_base {
 
             // Show use package-button
             $courses = \block_edupublisher\lib::get_courses(null, 'moodle/course:update');
-            if (count(array_keys($courses)) > 0) {
-                $package->set(true, 'can_import');
-                $package->set($allowsubcourses = \get_config('block_edupublisher', 'allowsubcourses') ? 1 : 0, 'allow_subcourses');
+            // nur wenn der user Lehrer in Kursen ist
+            // nur wenn das Paket veröffentlicht wurde
+            if (count(array_keys($courses)) > 0 && $package->active) {
+                $package->set_v2('can_import', true);
+                $package->set_v2('allow_subcourses', \get_config('block_edupublisher', 'allowsubcourses') ? 1 : 0);
             }
             $package->set((is_enrolled($context, null, 'block/edupublisher:canselfenrol')) ? 1 : 0, 'can_unenrol');
 
