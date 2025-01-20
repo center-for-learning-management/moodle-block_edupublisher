@@ -43,7 +43,7 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
 
         $etapas_state_text_sql = "
             CASE
-                WHEN channel_etapas.published THEN 'Freigegeben'
+                WHEN channel_etapas.published THEN 'Bestätigt'
                 WHEN channel_etapas.publishas THEN 'Eingereicht'
                 ELSE '-'
             END
@@ -125,7 +125,7 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
         } elseif ($row->state_text == 'Eingereicht') {
             $class = 'badge badge-warning';
         } else {
-            $class = '';
+            $class = 'badge badge-secondary';
         }
 
         return '<span class="' . $class . '">' . $row->state_text . '</span>';
@@ -142,7 +142,7 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
     }
 
     function col_channel_etapas_state_text($row) {
-        if ($row->channel_etapas_state_text == 'Freigegeben') {
+        if ($row->channel_etapas_state_text == 'Bestätigt') {
             $class = 'badge badge-success';
         } elseif ($row->channel_etapas_state_text == 'Eingereicht') {
             $class = 'badge badge-warning';
