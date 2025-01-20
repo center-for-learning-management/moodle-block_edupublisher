@@ -59,6 +59,11 @@ class package_edit_form extends \moodleform {
             unset($channels['eduthekneu']);
             unset($channels['etapas']['vorkenntnisse']);
             unset($channels['etapas']['voraussetzungen']);
+            // https://github.com/BiP-org/moodle-filter_eduthek/issues/123
+            $channels['etapas']['zeitbedarf']['options'] = [
+                '00:45' => '1 UE',
+                '01:30' => '2 UE',
+            ];
         }
 
         return $channels;
