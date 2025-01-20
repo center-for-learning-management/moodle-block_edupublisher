@@ -782,6 +782,8 @@ class lib {
      * Notifies maintainers of a specific channel about changes.
      * @param channel array of channels to select the maintainers for notification, if not set or empty use autodetection.
      **/
+    // alter code! notifications werden jetzt immer als Kommentar gespeichert und der Kommentar als notification versendet
+    /*
     public function notify_maintainers($channels = array()) {
         global $CFG, $OUTPUT;
         if (count($channels) == 0) {
@@ -830,6 +832,7 @@ class lib {
             }
         }
     }
+    */
 
     /**
      * Sets the capabilities of a course to allow course imports.
