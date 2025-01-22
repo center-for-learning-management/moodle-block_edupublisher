@@ -35,6 +35,10 @@ class package_edit_form extends \moodleform {
     static $subdirs = 0;
 
     function __construct(private ?package $package, private array $content_items_old, private string $type = '') {
+        if ($package && $package->get('is_vorschlag', 'etapas')) {
+            $this->type = package::TYPE_ETAPA_VORSCHLAG;
+        }
+
         parent::__construct($_SERVER['REQUEST_URI']);
     }
 
@@ -54,7 +58,7 @@ class package_edit_form extends \moodleform {
             unset($channels['eduthek']);
         }
 
-        if ($this->type == 'etapa_vorschlag') {
+        if ($this->type == \block_edupublisher\package::TYPE_ETAPA_VORSCHLAG) {
             $channels['default'] = array_intersect_key($channels['default'], array_flip(['title', 'summary', 'authorname', 'schoollevels', 'subjectareas']));
             unset($channels['eduthekneu']);
             unset($channels['etapas']['vorkenntnisse']);
@@ -94,7 +98,7 @@ class package_edit_form extends \moodleform {
         $mform->addElement('hidden', 'userid', 0);
         $mform->setType('userid', PARAM_INT);
 
-        if ($this->type == 'etapa_vorschlag') {
+        if ($this->type == \block_edupublisher\package::TYPE_ETAPA_VORSCHLAG) {
             $mform->addElement('hidden', 'default_filling_mode', 0);
             $mform->setType('default_filling_mode', PARAM_INT);
         }
@@ -113,6 +117,9 @@ class package_edit_form extends \moodleform {
 
         foreach ($channels as $channel => $fields) {
             foreach ($fields as $_field => $field) {
+                if ($field['type'] == 'internal') {
+                    continue;
+                }
                 if ($_field == 'publishas') {
                     continue;
                 }
@@ -301,13 +308,13 @@ class package_edit_form extends \moodleform {
         // $mform->addElement('header', 'content_items_header', 'Aktivitäten/Ressourcen');
         // $mform->setExpanded('content_items_header');
 
-        if ($this->type === 'etapa_vorschlag') {
+        if ($this->type === \block_edupublisher\package::TYPE_ETAPA_VORSCHLAG) {
             $cnt = 1;
         } else {
             $cnt = (isset($this->content_items_old) ? count($this->content_items_old) : 0) + 10;
         }
         for ($content_i = 0; $content_i < $cnt; $content_i++) {
-            if ($this->type !== 'etapa_vorschlag') {
+            if ($this->type !== \block_edupublisher\package::TYPE_ETAPA_VORSCHLAG) {
                 $mform->addElement('header', "content_item_$content_i", '<span class="num"></span>. Aktivität/Ressource');
                 $mform->setExpanded("content_item_$content_i");
             }
@@ -326,7 +333,7 @@ class package_edit_form extends \moodleform {
             // das geht nicht?!?
             // $mform->setDefault("content_items[$content_i][delete]", 1);
 
-            if ($this->type !== 'etapa_vorschlag') {
+            if ($this->type !== \block_edupublisher\package::TYPE_ETAPA_VORSCHLAG) {
                 $mform->addElement('textarea', "content_items[$content_i][description]", 'Beschreibung (Anweisung für Schüler:innen)' . $required_info);
                 $mform->setType("content_items[$content_i][description]", PARAM_TEXT);
 
@@ -349,7 +356,7 @@ class package_edit_form extends \moodleform {
             $mform->setType("content_items[$content_i][competencies]", PARAM_TEXT);
 
 
-            if ($this->type !== 'etapa_vorschlag') {
+            if ($this->type !== \block_edupublisher\package::TYPE_ETAPA_VORSCHLAG) {
                 $mform->addElement('textarea', "content_items[$content_i][didaktische_hinweise]", 'Didaktische Hinweise');
                 $mform->setType("content_items[$content_i][didaktische_hinweise]", PARAM_TEXT);
 
@@ -372,7 +379,7 @@ class package_edit_form extends \moodleform {
         $mform->addElement('header', 'content_item_list_buttons', '');
         $mform->setExpanded('content_item_list_buttons');
 
-        if ($this->type !== 'etapa_vorschlag') {
+        if ($this->type !== \block_edupublisher\package::TYPE_ETAPA_VORSCHLAG) {
             ob_start();
             ?>
             <div style="margin-bottom: 25px">
@@ -528,7 +535,7 @@ class package_edit_form extends \moodleform {
                     continue;
                 }
 
-                if ($this->type !== 'etapa_vorschlag') {
+                if ($this->type !== \block_edupublisher\package::TYPE_ETAPA_VORSCHLAG) {
                     if (!trim($content_item_data['description'])) {
                         $errors["content_items[$key][description]"] = get_string('required');
                     }

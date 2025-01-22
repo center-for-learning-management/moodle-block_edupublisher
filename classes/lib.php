@@ -370,6 +370,8 @@ class lib {
             'etapas' => array(
                 'active' => array('type' => 'hidden', 'datatype' => PARAM_BOOL),
                 'publishas' => array('type' => 'boolean', 'datatype' => PARAM_BOOL, 'default' => 1),
+                'is_vorschlag' => array('type' => 'internal', 'datatype' => PARAM_BOOL, 'default' => 0),
+                // 'vorschlag_eingereicht' => array('type' => 'internal', 'datatype' => PARAM_INT, 'default' => 0),
                 //'erprobungen' => array('type' => 'filemanager', 'multiple' => 1, 'hidden_on_init' => 1, 'maxfiles' => 20, 'accepted_types' => 'document'),
                 // 'ltiurl' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),
                 // 'lticartridge' => array('type' => 'hidden', 'datatype' => PARAM_TEXT),

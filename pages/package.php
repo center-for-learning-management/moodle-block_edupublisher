@@ -47,8 +47,8 @@ $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 
 \block_edupublisher\lib::check_requirements(false);
 
-$act = optional_param('act', '', PARAM_TEXT);
-switch ($act) {
+$action = optional_param('action', '', PARAM_TEXT);
+switch ($action) {
     case 'authoreditingpermission':
         \block_edupublisher\permissions::require([
             'canmoderate' => $package->get('canmoderate'),
@@ -96,9 +96,24 @@ switch ($act) {
         \block_edupublisher\permissions::role_assign($package->courseid, $package->userid, 'course_role_package_viewing');
         \block_edupublisher\permissions::role_unassign($package->courseid, $package->userid, 'defaultroleteacher');
 
+        $sendto = $package->get('publishas', 'etapas') ? ['etapas'] : ['allmaintainers'];
+        $package->store_comment('comment:template:package_submitted', $sendto, true, false);
+
         redirect(new \moodle_url('/course/view.php?id=' . $package->courseid), 'Ressource wurde an das Redaktionsteam weitergeleitet');
         break;
 
+    case 'confirm_etapa_vorschlag':
+        \block_edupublisher\permissions::require([
+            'canedit' => $package->can_edit(),
+        ]);
+
+        $package->set_v2('is_vorschlag', 0, 'etapas');
+        $package->store_package_db();
+
+        $package->store_comment('comment:template:etapa_vorschlag_confirmed', ['author'], true, false);
+
+        redirect(new \moodle_url('/course/view.php?id=' . $package->courseid), 'Vorschlag bestätigt');
+        break;
     case '';
         // is handled after the switch statement
         // redirect(new \moodle_url('/course/view.php?id=' . $package->courseid));

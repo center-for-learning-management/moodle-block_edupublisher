@@ -1193,5 +1193,20 @@ function xmldb_block_edupublisher_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2025010500, 'edupublisher');
     }
 
+    if ($oldversion < 2025012300) {
+
+        // Define field is_vorschlag to be added to block_edupublisher_md_eta.
+        $table = new xmldb_table('block_edupublisher_md_eta');
+        $field = new xmldb_field('is_vorschlag', XMLDB_TYPE_INTEGER, '4', null, XMLDB_NOTNULL, null, '0', 'ltiurl');
+
+        // Conditionally launch add field is_vorschlag.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2025012300, 'edupublisher');
+    }
+
     return true;
 }

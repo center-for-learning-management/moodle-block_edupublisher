@@ -1,5 +1,7 @@
 <?php
 
+use block_edupublisher\package;
+
 require __DIR__ . '/../inc.php';
 
 require_once("$CFG->libdir/formslib.php");
@@ -23,14 +25,7 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
 
         $is_maintainer = \block_edupublisher\permissions::is_maintainer();
 
-        if ($is_maintainer) {
-            // can manage all
-            $where = '';
-        } else {
-            // can only edit own
-            $where = 'AND resource.userid = ' . $USER->id;
-        }
-
+        $params = [];
 
         $state_text_sql = "
             CASE
@@ -43,11 +38,24 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
 
         $etapas_state_text_sql = "
             CASE
-                WHEN channel_etapas.published THEN 'Bestätigt'
-                WHEN channel_etapas.publishas THEN 'Eingereicht'
+                WHEN channel_etapas.publishas AND resource.active THEN 'Veröffentlicht'
+                WHEN channel_etapas.publishas AND channel_etapas.is_vorschlag THEN 'Vorschlag Eingereicht'
+                WHEN channel_etapas.publishas AND channel_default.publishas THEN 'Eingereicht'
+                WHEN channel_etapas.publishas THEN 'Vorschlag bestätigt'
                 ELSE '-'
             END
         ";
+        $params[] = package::TYPE_ETAPA_VORSCHLAG;
+
+        if ($is_maintainer) {
+            // can manage all
+            $where = '';
+        } else {
+            // can only edit own
+            $where = 'AND resource.userid=?';
+            $params[] = $USER->id;
+        }
+
 
         $sql = "
             SELECT resource.*
@@ -63,7 +71,7 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
             WHERE resource.deleted = 0
             $where
         ";
-        $this->set_sql_query($sql);
+        $this->set_sql_query($sql, $params);
 
         // Define headers and columns.
         $cols = array_filter([
@@ -142,12 +150,14 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
     }
 
     function col_channel_etapas_state_text($row) {
-        if ($row->channel_etapas_state_text == 'Bestätigt') {
+        if ($row->channel_etapas_state_text == 'Veröffentlicht') {
             $class = 'badge badge-success';
-        } elseif ($row->channel_etapas_state_text == 'Eingereicht') {
+        } elseif ($row->channel_etapas_state_text == 'Eingereicht' || $row->channel_etapas_state_text == 'Vorschlag Eingereicht') {
             $class = 'badge badge-warning';
-        } else {
+        } elseif ($row->channel_etapas_state_text == '-') {
             $class = '';
+        } else {
+            $class = 'badge badge-secondary';
         }
 
         return '<span class="' . $class . '">' . $row->channel_etapas_state_text . '</span>';

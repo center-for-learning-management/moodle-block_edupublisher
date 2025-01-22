@@ -1,5 +1,5 @@
 <div style="text-align: right; padding-bottom: 5px;">
-    <a href="{{wwwroot}}/blocks/edupublisher/pages/list.php" class="btn btn-secondary">Meine Einreichungen verwalten</a>
+    <a href="{{wwwroot}}/blocks/edupublisher/pages/list.php" class="btn btn-secondary">Einreichungen verwalten</a>
 </div>
 
 <div class="row">
@@ -169,7 +169,7 @@
     </a>
 
     {{#can_moderate}}
-        <a class="d-inline-block m-2 mx-4" href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&act=authoreditingpermission&grant=0{{^authoreditingpermission}}1{{/authoreditingpermission}}">
+        <a class="d-inline-block m-2 mx-4" href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&action=authoreditingpermission&grant=0{{^authoreditingpermission}}1{{/authoreditingpermission}}">
             {{#authoreditingpermission}}
                 <i class="fa fa-circle-check icon"></i>
             {{/authoreditingpermission}}
@@ -190,34 +190,44 @@
 
 <div class="mx-2 mt-4">
     <b>Veröffentlichungsstatus:</b>
-    {{#default_publishas}}
-        <div id="channel-default" class="channel-block d-inline-block mx-2 {{^default_published}}channel-inactive{{/default_published}}">
-            {{#default_cantriggeractive}}
-            <input type="checkbox"{{#default_published}} checked="checked"{{/default_published}}
-                   onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'default', chkbox); } );"
-                   id="channel-default-active"/>
-            {{/default_cantriggeractive}}
-            in der Eduthek veröffentlicht
+    {{#etapas_is_vorschlag}}
+        eTapa Vorschlag
+        {{#etapas_cantriggeractive}}
+            <br/><a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&action=confirm_etapa_vorschlag" class="btn btn-primary mt-2"
+                onclick="return confirm('Möchten Sie den Vorschlag bestätigen?');"
+            >eTapa Vorschlag bestätigen</a>
+        {{/etapas_cantriggeractive}}
+    {{/etapas_is_vorschlag}}
+    {{^etapas_is_vorschlag}}
+        {{#default_publishas}}
+            <div id="channel-default" class="channel-block d-inline-block mx-2 {{^default_published}}channel-inactive{{/default_published}}">
+                {{#default_cantriggeractive}}
+                <input type="checkbox"{{#default_published}} checked="checked"{{/default_published}}
+                       onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'default', chkbox); } );"
+                       id="channel-default-active"/>
+                {{/default_cantriggeractive}}
+                in der Eduthek veröffentlicht
+            </div>
+            {{#etapas_publishas}}
+            <div id="channel-etapas" class="channel-block d-inline-block mx-2 {{^etapas_published}}channel-inactive{{/etapas_published}}">
+                {{#etapas_cantriggeractive}}
+                <input type="checkbox"{{#etapas_published}} checked="checked"{{/etapas_published}}
+                       onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'etapas', chkbox); } );"
+                       id="channel-etapas-active"/>
+                {{/etapas_cantriggeractive}}
+                als eTapa veröffentlicht
+            </div>
+            {{/etapas_publishas}}
+        {{/default_publishas}}
+        {{^default_publishas}}
+            Noch nicht zur Veröffentlichung an das Redaktionsteam weitergeleitet.
+        {{/default_publishas}}
+        <div>
+            <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&action=submit_package" class="btn btn-primary mt-2"
+                onclick="return confirm('Möchten Sie die Ressouce zur Veröffentlichung an das Redaktionsteam weiterleiten? Danach kann der Inhalt nicht mehr bearbeitet werden!');"
+            >An das Redaktionsteam weiterleiten</a>
         </div>
-        {{#etapas_publishas}}
-        <div id="channel-etapas" class="channel-block d-inline-block mx-2 {{^etapas_published}}channel-inactive{{/etapas_published}}">
-            {{#etapas_cantriggeractive}}
-            <input type="checkbox"{{#etapas_published}} checked="checked"{{/etapas_published}}
-                   onclick="var chkbox = this; require(['block_edupublisher/main'], function(MAIN) { MAIN.triggerActive({{id}}, 'etapas', chkbox); } );"
-                   id="channel-etapas-active"/>
-            {{/etapas_cantriggeractive}}
-            als eTapa veröffentlicht
-        </div>
-        {{/etapas_publishas}}
-    {{/default_publishas}}
-    {{^default_publishas}}
-        Noch nicht zur Veröffentlichung an das Redaktionsteam weitergeleitet.
-    {{/default_publishas}}
-    <div>
-        <a href="{{wwwroot}}/blocks/edupublisher/pages/package.php?id={{id}}&act=submit_package" class="btn btn-primary mt-2"
-            onclick="return confirm('Möchten Sie die Ressouce zur Veröffentlichung an das Redaktionsteam weiterleiten? Danach kann der Inhalt nicht mehr bearbeitet werden!');"
-        >An das Redaktionsteam weiterleiten</a>
-    </div>
+    {{/etapas_is_vorschlag}}
 </div>
 
 <div class="mx-2 mt-3"><b>Eingabemodus:</b>

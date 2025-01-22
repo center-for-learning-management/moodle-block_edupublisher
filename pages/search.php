@@ -77,7 +77,7 @@ echo $OUTPUT->header();
 
 ?>
     <div style="position: relative;">
-        <a href="list.php" class="btn btn-secondary" id="ressourcen-verwalten-button">Meine Einreichungen verwalten</a>
+        <a href="list.php" class="btn btn-secondary" id="ressourcen-verwalten-button">Einreichungen verwalten</a>
     </div>
     <style>
         #ressourcen-verwalten-button {

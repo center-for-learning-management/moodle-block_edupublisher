@@ -42,6 +42,8 @@ class package {
      */
     public const ARRAY_DELIMITER = ',';
 
+    public const TYPE_ETAPA_VORSCHLAG = 'etapa_vorschlag';
+
     const FILLING_MODE_SIMPLE = 0;
     const FILLING_MODE_EXPERT = 100;
 
@@ -410,6 +412,14 @@ class package {
      */
     public function get($field, $channel = '_') {
         return $this->metadata->$channel->$field ?? null;
+    }
+
+    public function template_get($field) {
+        if (preg_match('!^(default|etapas|eduthekneu)_(.*)$!', $field, $matches)) {
+            return $this->get($matches[2], $matches[1]);
+        }
+
+        return null;
     }
 
     /**
@@ -986,6 +996,14 @@ class package {
                             $values = $data->{$dbfield};
                         }
 
+                        if ($field == 'tags') {
+                            // add etapas tag to etapas and remove it from all others
+                            $values = array_filter($values, fn($value) => !in_array(strtolower($value), ['etapas', 'etapa']));
+                            if ($this->get('publishas', 'etapas')) {
+                                $values[] = 'eTapas';
+                            }
+                        }
+
                         // Multiple without separate columns in table!
                         $this->set_v2($field, implode(self::ARRAY_DELIMITER, $values), $channel);
                     }
@@ -1152,8 +1170,8 @@ class package {
         }
     }
 
-    public static function create(object $data): static {
-        global $CFG, $DB;
+    public static function create(object $data, string $type = ''): static {
+        global $CFG;
 
         $category = \get_config('block_edupublisher', 'category');
 
@@ -1203,6 +1221,11 @@ class package {
         $package->set_v2('active', 0);
         $package->set_v2('course', $course->id);
 
+        if ($type == static::TYPE_ETAPA_VORSCHLAG) {
+            $package->set_v2('publishas', 1, 'etapas');
+            $package->set_v2('is_vorschlag', 1, 'etapas');
+        }
+
         \block_edupublisher\permissions::role_assign($package->courseid, $package->userid, 'defaultroleteacher');
 
         $package->store_package($data);
@@ -1218,9 +1241,9 @@ class package {
         $this->update_modified();
         $DB->update_record('block_edupublisher_packages', $this->get_channel('_', true));
         $channels = [
-            'com' => 'commercial',
+            // 'com' => 'commercial',
             'def' => 'default',
-            'edu' => 'eduthek',
+            // 'edu' => 'eduthek',
             'eduneu' => 'eduthekneu',
             'eta' => 'etapas',
         ];

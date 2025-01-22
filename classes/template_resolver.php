@@ -56,6 +56,10 @@ class template_resolver {
             return true;
         }
 
+        if (method_exists($this->parentObject, 'template_get')) {
+            return $this->parentObject->template_get($name) !== null;
+        }
+
         if (method_exists($this->parentObject, 'get')) {
             return $this->parentObject->get($name) !== null;
         }
@@ -113,6 +117,10 @@ class template_resolver {
 
         if (isset($this->parentObject->{$name})) {
             return $this->parentObject->{$name};
+        }
+
+        if (method_exists($this->parentObject, 'template_get')) {
+            return $this->parentObject->template_get($name);
         }
 
         if (method_exists($this->parentObject, 'get')) {

@@ -20,6 +20,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use block_edupublisher\package;
+
 require_once('../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
@@ -67,8 +69,11 @@ if ($package) {
 $package?->load_origins();
 
 $type = optional_param('type', '', PARAM_TEXT);
-if ($type && $type != 'etapa_vorschlag') {
+if ($type && $type != \block_edupublisher\package::TYPE_ETAPA_VORSCHLAG) {
     throw new \moodle_exception('wrong type');
+}
+if ($package && $type) {
+    throw new \moodle_exception('type allowed only for new packages');
 }
 
 $form = new \block_edupublisher\package_edit_form($package, $content_items_old, $type);
@@ -80,9 +85,10 @@ if ($form->is_cancelled()) {
         $package->store_package($data);
         $package_created = false;
     } else {
-        $package = \block_edupublisher\package::create($data);
+        $package = \block_edupublisher\package::create($data, $type);
         $package_created = true;
 
+        /*
         $session_competencies = $_REQUEST['session_competencies'] ?? '';
         if ($session_competencies) {
             $session_competencies = explode(',', $session_competencies);
@@ -90,13 +96,18 @@ if ($form->is_cancelled()) {
                 \core_competency\api::add_competency_to_course($package->courseid, $competencyid);
             }
         }
+        */
     }
 
     \block_edupublisher\lib::sync_package_to_course($package);
 
     if (empty($package->get('suppresscomment', 'default'))) {
         $sendto = array('allmaintainers');
-        $package->store_comment('comment:template:package_updated', $sendto, true, false);
+        if ($package_created && $type == package::TYPE_ETAPA_VORSCHLAG) {
+            $package->store_comment('comment:template:etapa_vorschlag_created', $sendto, true, false);
+        } else {
+            $package->store_comment('comment:template:package_updated', $sendto, true, false);
+        }
     }
 
     if ($package_created) {
@@ -104,7 +115,7 @@ if ($form->is_cancelled()) {
 
         echo $OUTPUT->header();
 
-        if ($type == 'etapa_vorschlag') {
+        if ($type == \block_edupublisher\package::TYPE_ETAPA_VORSCHLAG) {
             ?>
             <h3>Vorschlag für eTapa wurde erstellt!</h3>
             <p>
@@ -149,12 +160,12 @@ if ($package) {
         'delete' => 0,
     ];
 
-    $data->default_title = optional_param('title', '', PARAM_TEXT);
-    $data->default_summary = [
-        'text' => nl2br(optional_param('summary', '', PARAM_TEXT)),
-        'format' => FORMAT_HTML,
-    ];
-    $data->etapas_publishas = !!optional_param('eeducation_etapa_id', 0, PARAM_INT);
+    // $data->default_title = optional_param('title', '', PARAM_TEXT);
+    // $data->default_summary = [
+    //     'text' => nl2br(optional_param('summary', '', PARAM_TEXT)),
+    //     'format' => FORMAT_HTML,
+    // ];
+    // $data->etapas_publishas = !!optional_param('eeducation_etapa_id', 0, PARAM_INT);
 }
 
 $form->set_data($data);
