@@ -44,7 +44,7 @@ if ($hassiteconfig) {
 
         for ($i = 1; $i <= 5; $i++) {
             $settings->add(new admin_setting_configtext("block_edupublisher/apikey{$i}_name", "API Key {$i} Name", '', ''));
-            $settings->add(new admin_setting_configtext("block_edupublisher/apikey{$i}", "API Key {$i}", '', md5(time() . rand(0, 1000)), PARAM_TEXT, 32));
+            $settings->add(new admin_setting_configtext("block_edupublisher/apikey{$i}", "API Key {$i}", '', '', PARAM_TEXT, 32));
         }
 
         $roles = $DB->get_records_sql('SELECT r.* FROM {role} AS r, {role_context_levels} AS rcl WHERE r.id=rcl.roleid  AND rcl.contextlevel = 50 ORDER BY r.name ASC', array());
