@@ -54,12 +54,12 @@ class permissions {
      * require_login(), but additionally no guests are allowed
      * @return void
      */
-    public static function require_login() {
+    public static function require_login($courseorid = null, $allow_guests = false): void {
         global $SESSION;
 
-        require_login();
+        require_login($courseorid);
 
-        if (isguestuser()) {
+        if (!$allow_guests && isguestuser()) {
             $SESSION->wantsurl = qualified_me();
             redirect(get_login_url());
         }

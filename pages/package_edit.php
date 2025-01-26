@@ -40,7 +40,7 @@ if (!$id) {
 
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/package_edit.php?id=' . $id);
-require_login($package ? $package->courseid : null);
+\block_edupublisher\permissions::require_login($package?->courseid);
 
 $PAGE->set_context(\context_system::instance());
 
