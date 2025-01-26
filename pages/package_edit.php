@@ -32,14 +32,19 @@ $returnurl = new moodle_url(optional_param('returnurl', '/blocks/edupublisher/pa
 // check for local url
 $returnurl->out_as_local_url();
 
+$type = optional_param('type', '', PARAM_TEXT);
+
 if (!$id) {
     $package = null;
 } else {
     $package = new \block_edupublisher\package($id, true);
 }
 
-// Must pass login
-$PAGE->set_url('/blocks/edupublisher/pages/package_edit.php?id=' . $id);
+$PAGE->set_url('/blocks/edupublisher/pages/package_edit.php', [
+    'id' => $id,
+    'type' => $type,
+]);
+
 \block_edupublisher\permissions::require_login($package?->courseid);
 
 $PAGE->set_context(\context_system::instance());
@@ -68,7 +73,6 @@ if ($package) {
 
 $package?->load_origins();
 
-$type = optional_param('type', '', PARAM_TEXT);
 if ($type && $type != \block_edupublisher\package::TYPE_ETAPA_VORSCHLAG) {
     throw new \moodle_exception('wrong type');
 }
