@@ -14,7 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-// common.php / version: 2024112900
+// common.php / version: 2025031500
 
 // common namespace of current plugin
 namespace block_edupublisher\common;
@@ -178,7 +178,7 @@ class lang {
         $manager = get_string_manager();
 
         if ($component === null) {
-            $component = static::_plugin_name();
+            $component = helper::plugin_name();
         }
 
         if ($manager->string_exists($identifier, $component)) {
@@ -242,7 +242,7 @@ class lang {
         $lang = current_language();
 
         $manager = get_string_manager();
-        $component = static::_plugin_name();
+        $component = helper::plugin_name();
 
         // try with $identifier from args
         if ($identifier && $manager->string_exists($identifier, $component)) {
@@ -266,10 +266,6 @@ class lang {
         } else {
             throw new \moodle_exception("language string '{$origArgs[0]}' not found, did you forget to prefix a language? 'en:{$origArgs[0]}'");
         }
-    }
-
-    static protected function _plugin_name() {
-        return preg_replace('!\\\\.*$!', '', __NAMESPACE__); // the \\\\ syntax matches a \ (backslash)!
     }
 
     static protected function _check_identifier($string) {
@@ -315,8 +311,8 @@ class moodle_exception extends \moodle_exception {
 
         // try to get local error message (use namespace as $component)
         if (empty($module)) {
-            if (get_string_manager()->string_exists($errorcode, _plugin_name())) {
-                $module = _plugin_name();
+            if (get_string_manager()->string_exists($errorcode, helper::plugin_name())) {
+                $module = helper::plugin_name();
             }
         }
 
@@ -588,5 +584,139 @@ class url extends \moodle_url {
         global $CFG;
 
         return new static(preg_replace('!^' . preg_quote(parse_url($CFG->wwwroot)['path'], '!') . '!', '', $_SERVER['REQUEST_URI']));
+    }
+}
+
+class helper {
+    static function plugin_name() {
+        return preg_replace('!\\\\.*$!', '', __NAMESPACE__); // The \\\\ syntax matches a \ (backslash)!
+    }
+}
+
+class cachelib {
+    private static $caches = [];
+    private static ?bool $cacheDisabled = null;
+
+    private static function area(string $area) {
+        if (!empty(static::$caches[$area])) {
+            // already created?
+            return static::$caches[$area];
+        }
+
+        $cache = \cache::make(helper::plugin_name(), $area);
+        static::$caches[$area] = $cache;
+
+        return $cache;
+    }
+
+    /**
+     * Getter for caches.
+     * @param string $area either application or session.
+     * @param mixed $key used to get a certain key from the cache.
+     * @param ?int $ttl null forttl, > 0 for a specific ttl in seconds
+     * @return mixed the cached value, or null if no cache! (this differs to moodle, which returns false on cache on no cache
+     */
+    public static function get(string $area, mixed $key, ?int $ttl = null) {
+        if (!($ttl === null || $ttl > 0)) {
+            throw new \moodle_exception('wrong ttl');
+        }
+
+        $data = static::getInternal($area, $key);
+
+        if (!$data) {
+            return null;
+        } elseif ($ttl && $data->timestamp <= time() - $ttl) {
+            // check ttl
+            return null;
+        } else {
+            return $data->value;
+        }
+    }
+
+    private static function getInternal(string $area, mixed $key) {
+        if (static::$cacheDisabled === null) {
+            static::$cacheDisabled = $_SESSION['eduportalcachedisabled'] ?? false;
+        }
+        if (static::$cacheDisabled) {
+            return null;
+        }
+
+        $key = static::stringKey($key);
+        $ret = static::area($area)->get($key);
+
+        if (!$ret) {
+            return null;
+        } else {
+            return $ret;
+        }
+    }
+
+    /**
+     * Method used as setter for caches.
+     * @param string $area either application or session.
+     * @param mixed $key used to get a certain key from the cache.
+     * @param mixed $value used to set a value for a certain key in the cache.
+     */
+    public static function set(string $area, mixed $key, mixed $value) {
+        $key = static::stringKey($key);
+
+        static::area($area)->set($key, (object)[
+            'timestamp' => time(),
+            'value' => $value,
+        ]);
+    }
+
+    /**
+     * This disables or enables the caching.
+     * Used by local_bipidp to disable cache while syncing. This prevents errors,
+     * as new items may not be cached and hence are created repeatedly.
+     * @param bool $enabled by default true.
+     */
+    public static function set_enabled(bool $enabled = true) {
+        static::$cacheDisabled = !$enabled;
+    }
+
+    /**
+     * Delete cache entry
+     * @param string $area either application or session.
+     * @param mixed $key used to get a certain key from the cache.
+     */
+    public static function delete(string $area, mixed $key) {
+        $key = static::stringKey($key);
+        static::area($area)->delete($key);
+    }
+
+    private static function stringKey($key): string {
+        if (!is_scalar($key)) {
+            return json_encode($key);
+            // return join('-', $key);
+        } else {
+            return $key;
+        }
+    }
+
+    public static function purge(string $area) {
+        static::area($area)->purge();
+    }
+
+    public static function callbackWithBypassCache(string $area, mixed $key, bool $bypasscache, callable $callback, ?int $ttl = null) {
+        if (!$bypasscache) {
+            $ret = static::get($area, $key, $ttl);
+            if ($ret !== null) {
+                return $ret;
+            }
+        }
+
+        $ret = $callback();
+
+        if ($ret !== null) {
+            static::set($area, $key, $ret);
+        }
+
+        return $ret;
+    }
+
+    public static function callback(string $area, mixed $key, callable $callback, ?int $ttl = null) {
+        return static::callbackWithBypassCache($area, $key, false, $callback, $ttl);
     }
 }
