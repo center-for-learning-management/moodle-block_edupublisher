@@ -1079,9 +1079,12 @@ class lib {
                 'summary' => nl2br(clean_param($content_item->description, PARAM_TEXT)),
             ]);
 
-            $create_or_update_module = function($moduleinfo) use ($course, $content_item, &$section, &$course_modules_to_delete) {
+            $create_or_update_module = function($moduleinfo, $sub_identifier = '') use ($course, $content_item, &$section, &$course_modules_to_delete) {
                 global $DB;
-                $idnumber = "block_edupublisher-content_item-{$content_item->id}-{$moduleinfo->modulename}";
+
+                $idnumber = "block_edupublisher-content_item-{$content_item->id}" .
+                    ($sub_identifier ? '-' . $sub_identifier : '') .
+                    "-{$moduleinfo->modulename}";
 
                 $moduleinfo->module ??= $DB->get_field('modules', 'id', array('name' => $moduleinfo->modulename));
                 $moduleinfo->section = $section->section;
@@ -1406,7 +1409,7 @@ class lib {
                     $moduleinfo = new \stdClass();
                     $moduleinfo->modulename = 'folder';
                     $moduleinfo->name = 'Dateien';
-                    $moduleinfo = $create_or_update_module($moduleinfo);
+                    $moduleinfo = $create_or_update_module($moduleinfo, 'didaktische_hinweise');
 
                     $mod_context = \context_module::instance($moduleinfo->coursemodule);
                     // delete old files
