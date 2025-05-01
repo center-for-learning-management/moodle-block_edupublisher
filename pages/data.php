@@ -112,6 +112,7 @@ foreach ($packageids as $packageid) {
         'is_etapa' => (bool)$package->get('published', 'etapas'),
         'summary' => $package->get('summary', 'default'),
         'image_url' => ($image_url = $package->get_preview_image_url()) ? $image_url->out(false) : null,
+        'image_timemodified' => ($image = $package->get_preview_image()) ? (int)$image->get_timemodified() : null,
 
         'authorname' => $package->get('authorname', 'default'),
         'schoollevels' => $package->get('schoollevels', 'default'),
