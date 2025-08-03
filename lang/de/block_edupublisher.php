@@ -80,7 +80,7 @@ $string['default_fetchchannel'] = 'Default-Kanal abrufen';
 $string['default_origins'] = 'Abgeleitetes Werk von';
 $string['default_image'] = 'Bild';
 $string['default_image_help'] = 'Vorschaubild für Anzeige';
-$string['default_image_label'] = 'Bitte wählen Sie ein aussagekräftiges Bild für Ihren Inhalt. Beachten Sie das Urheberrecht! Wir empfehlen <a href="http://www.pixabay.com" target="_blank">pixabay.com</a> als Quelle für Bilder.';
+$string['default_image_label'] = 'Bitte wählen Sie ein aussagekräftiges Bild für Ihren Inhalt. Beachten Sie das Urheberrecht! Wir empfehlen <a href="https://commons.wikimedia.org/wiki/Main_Page" target="_blank">Wikimedia Commons</a> als Quelle für Bilder.';
 $string['default_licence'] = 'Lizenz';
 $string['default_licence_missing'] = 'Sie müssen sich für eine Lizenz entscheiden!';
 $string['default_licenceother'] = 'Sonstige Lizenz';
