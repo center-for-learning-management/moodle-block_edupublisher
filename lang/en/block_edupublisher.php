@@ -94,7 +94,7 @@ $string['default_fetchchannel'] = 'Fetch default-channel';
 $string['default_origins'] = 'Origins';
 $string['default_image'] = 'Image';
 $string['default_image_help'] = 'Preview image to be shown.';
-$string['default_image_label'] = 'Please choose an image that represents the topic of your package. Be aware of copyright! We recommend <a href="http://www.pixabay.com" target="_blank">pixabay.com</a> as source for images.';
+$string['default_image_label'] = 'Please select an image that represents the topic of your package. Be aware of copyright! We recommend <a href="https://commons.wikimedia.org/wiki/Main_Page" target="_blank">Wikimedia Commons</a> as source for images.';
 $string['default_licence'] = 'Licence';
 $string['default_licence_missing'] = 'You have to choose a licence';
 $string['default_licenceother'] = 'Other licence';
