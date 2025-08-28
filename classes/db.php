@@ -16,6 +16,8 @@
 
 namespace block_edupublisher;
 
+defined('MOODLE_INTERNAL') || die;
+
 require_once __DIR__ . '/common.php';
 
 class db extends \block_edupublisher\common\db {
