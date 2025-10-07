@@ -416,3 +416,4 @@ $string['feedback'] = 'Feedback für den/die Autor/in';
 $string['evaluations'] = 'Evaluierungen';
 $string['evaluation_general'] = 'Allgemeine Einschätzung';
 $string['evaluate'] = 'Evaluieren';
+$string['edit_metadata'] = 'Metadaten bearbeiten';

@@ -438,3 +438,4 @@ $string['feedback'] = 'Feedback to the author';
 $string['evaluations'] = 'Evaluations';
 $string['evaluation_general'] = 'General estimation';
 $string['evaluate'] = 'Evaluate';
+$string['edit_metadata'] = 'Edit metadata';
