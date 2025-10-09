@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="blocks/edupublisher/db" VERSION="20250123" COMMENT="XMLDB file for Moodle blocks/edupublisher"
+<XMLDB PATH="blocks/edupublisher/db" VERSION="20251008" COMMENT="XMLDB file for Moodle blocks/edupublisher"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -413,7 +413,6 @@
       </KEYS>
       <INDEXES>
         <INDEX NAME="idx_packageid" UNIQUE="false" FIELDS="packageid"/>
-        <INDEX NAME="idx_competencies" UNIQUE="false" FIELDS="competencies"/>
       </INDEXES>
     </TABLE>
   </TABLES>

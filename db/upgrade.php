@@ -1208,5 +1208,20 @@ function xmldb_block_edupublisher_upgrade($oldversion = 0) {
         upgrade_block_savepoint(true, 2025012300, 'edupublisher');
     }
 
+    if ($oldversion < 2025100800) {
+
+        // Define index idx_competencies (not unique) to be dropped form block_edupublisher_pkg_items.
+        $table = new xmldb_table('block_edupublisher_pkg_items');
+        $index = new xmldb_index('idx_competencies', XMLDB_INDEX_NOTUNIQUE, ['competencies']);
+
+        // Conditionally launch drop index idx_competencies.
+        if ($dbman->index_exists($table, $index)) {
+            $dbman->drop_index($table, $index);
+        }
+
+        // Edupublisher savepoint reached.
+        upgrade_block_savepoint(true, 2025100800, 'edupublisher');
+    }
+
     return true;
 }
