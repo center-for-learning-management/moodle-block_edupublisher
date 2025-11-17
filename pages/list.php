@@ -100,7 +100,7 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
         $this->set_column_options('default_published', data_type: static::PARAM_TIMESTAMP);
 
 
-        $this->add_row_action('package_edit.php?action=edit&id={id}&returnurl=' . urlencode((new moodle_url(qualified_me()))->out_as_local_url(false)), 'edit');
+        $this->add_row_action('package_edit.php?action=edit&id={id}&returnurl=' . urlencode((new moodle_url(qualified_me()))->out_as_local_url(false)), 'edit', id: 'edit');
         if (\block_edupublisher\permissions::is_admin()) {
             $this->add_row_action('package_delete.php?id={id}', 'delete');
         }
@@ -183,8 +183,9 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
         return $packages[$id] ??= \block_edupublisher\package::get_package($id, true);
     }
 
-    function get_row_actions(object $row, array $row_actions): ?array {
-        $row_actions[0]->disabled = !$this->get_package($row->id)->can_edit();
+    function get_row_actions(object $row): array {
+        $row_actions = parent::get_row_actions($row);
+        $row_actions['edit']->disabled = !$this->get_package($row->id)->can_edit();
         return $row_actions;
     }
 }

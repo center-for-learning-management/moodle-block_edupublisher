@@ -24,7 +24,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version = 2025100800;
+$plugin->version = 2025110800;
 $plugin->requires = 2014051200;
 $plugin->component = 'block_edupublisher';
 $plugin->release = '2.2';
@@ -33,4 +33,5 @@ $plugin->maturity = MATURITY_STABLE;
 $plugin->dependencies = array(
     'block_enrolcode' => 2021111801,
     'block_exacomp' => 2020091000,
+    'local_table_sql' => 2025110800,
 );
