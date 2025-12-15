@@ -188,6 +188,17 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
         $row_actions['edit']->disabled = !$this->get_package($row->id)->can_edit();
         return $row_actions;
     }
+
+    function wrap_html_start() {
+        ?>
+        <style>
+            .local_table_sql-column-title {
+                white-space: wrap;
+                min-width: 200px;
+            }
+        </style>
+        <?php
+    }
 }
 
 $resources_table = new block_edupublisher_resources_table();
