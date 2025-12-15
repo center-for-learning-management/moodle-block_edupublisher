@@ -14,7 +14,7 @@
 </div>
 
 <div class="d-flex align-items-start position-relative">
-    <a role="button" data-toggle="collapse" href="#block_edupublisher_collapse" aria-expanded="false" aria-controls="block_edupublisher_collapse" class="btn btn-icon mr-1 icons-collapse-expand collapsed justify-content-center stretched-link" aria-label="Details">
+    <a role="button" data-toggle="collapse" href="#block_edupublisher_collapse" aria-expanded="{{#details_expanded}}true{{/details_expanded}}{{^details_expanded}}false{{/details_expanded}}" aria-controls="block_edupublisher_collapse" class="btn btn-icon mr-1 icons-collapse-expand{{^details_expanded}} collapsed{{/details_expanded}} justify-content-center stretched-link" aria-label="Details">
         <span class="expanded-icon icon-no-margin p-2" title="Einklappen">
             <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
         </span>
@@ -27,7 +27,7 @@
     </h4>
 </div>
 
-<div id="block_edupublisher_collapse" class="content course-content-item-content collapse mb-4">
+<div id="block_edupublisher_collapse" class="content course-content-item-content collapse{{#details_expanded}} show{{/details_expanded}} mb-4">
 
 <div class="row">
     <div class="col-sm-4 col-lg-3">
@@ -129,6 +129,7 @@
 
 </div>
 
+{{#is_loggedin}}
 <div class="d-flex mt-4 mx-n2">
     {{#can_import}}
         <a class="btn btn-primary ml-3 mr-4" href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportSelection({{id}}, 0, {{allow_subcourses}}); }); return false;">
@@ -160,6 +161,7 @@
         </a>
     {{/can_unenrol}}
 </div>
+{{/is_loggedin}}
 
 {{#can_edit}}
 <div class="d-flex mt-2 mx-n2">
