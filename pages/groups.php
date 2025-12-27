@@ -29,7 +29,7 @@ $package = new \block_edupublisher\package($id, true);
 $context = \context_course::instance($package->courseid);
 // Must pass login
 $PAGE->set_url(new \moodle_url('/blocks/edupublisher/pages/groups.php', ['id' => $id]));
-require_login($package->courseid);
+\block_edupublisher\permissions::require_login($package->courseid);
 
 if (!empty(optional_param('switchaccount', 0, PARAM_INT))) {
     require_logout();

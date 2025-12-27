@@ -31,7 +31,7 @@ $package = new \block_edupublisher\package($id, true);
 
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/package.php?id=' . $id);
-require_login();
+\block_edupublisher\permissions::require_login();
 
 $PAGE->set_context(\context_system::instance());
 

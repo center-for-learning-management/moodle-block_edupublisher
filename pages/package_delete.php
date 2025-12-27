@@ -32,7 +32,7 @@ $package = new \block_edupublisher\package($id, true);
 $context = context_course::instance($package->courseid);
 // Must pass login
 $PAGE->set_url('/blocks/edupublisher/pages/package_delete.php?id=' . $id);
-require_login($package->courseid);
+\block_edupublisher\permissions::require_login($package->courseid);
 $PAGE->set_context($context);
 $PAGE->set_title($package->get('title'));
 $PAGE->set_heading($package->get('title'));

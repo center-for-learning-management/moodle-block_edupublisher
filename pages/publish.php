@@ -33,7 +33,7 @@ require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 // in admin settings.
 raise_memory_limit(MEMORY_EXTRA);
 
-require_login();
+\block_edupublisher\permissions::require_login();
 
 $sourcecourseid = optional_param('sourcecourseid', 0, PARAM_INT);
 $targetcourseid = optional_param('targetcourseid', 0, PARAM_INT);

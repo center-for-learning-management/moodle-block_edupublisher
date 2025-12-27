@@ -24,7 +24,7 @@ require_once('../../../config.php');
 require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->dirroot . '/blocks/edupublisher/block_edupublisher.php');
 
-require_login();
+\block_edupublisher\permissions::require_login();
 $PAGE->set_context(context_system::instance());
 $PAGE->set_pagelayout('admin');
 $PAGE->set_url('/blocks/edupublisher/pages/reset.php', array());

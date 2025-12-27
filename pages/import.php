@@ -46,7 +46,7 @@ $package = new \block_edupublisher\package($packageid, false);
 
 $targetcourse = $DB->get_record('course', array('id' => $targetcourseid), '*', MUST_EXIST);
 $targetcontext = \context_course::instance($targetcourse->id);
-require_login($targetcourse);
+\block_edupublisher\permissions::require_login($targetcourse);
 
 $sourcecontext = \context_course::instance($package->courseid);
 

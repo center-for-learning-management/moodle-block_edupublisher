@@ -46,12 +46,7 @@ $PAGE->requires->css('/blocks/edupublisher/style/ui.css');
 $PAGE->set_heading($package->get('title'));
 $PAGE->navbar->add(get_string('self_enrol', 'block_edupublisher'), $PAGE->url);
 
-require_login($courseid);
-if (!isloggedin() || isguestuser()) {
-    $SESSION->wantsurl = $PAGE->url->__toString();
-    $login = new \moodle_url('/login/index.php');
-    redirect($login);
-}
+\block_edupublisher\permissions::require_login($courseid);
 require_capability('block/edupublisher:canselfenrol', $context);
 
 

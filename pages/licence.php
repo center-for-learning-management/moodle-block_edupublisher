@@ -30,7 +30,7 @@ $context = context_system::instance();
 
 // Must pass login
 $PAGE->set_url(new moodle_url('/blocks/edupublisher/pages/licence.php', array('publisherid' => $publisherid)));
-require_login();
+\block_edupublisher\permissions::require_login();
 $PAGE->set_context($context);
 $PAGE->set_title((!empty($publisher->id) ? $publisher->name . ' - ' : '') . get_string('licence', 'block_edupublisher'));
 $PAGE->set_heading((!empty($publisher->id) ? $publisher->name . ' - ' : '') . get_string('licence', 'block_edupublisher'));

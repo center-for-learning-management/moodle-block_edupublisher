@@ -41,6 +41,8 @@ $PAGE->set_title($title);
 $PAGE->set_heading($title);
 $PAGE->set_pagelayout('incourse');
 
+\block_edupublisher\permissions::require_login();
+
 $PAGE->navbar->add(
     get_string('resource_catalogue', 'block_edupublisher'),
     new moodle_url(

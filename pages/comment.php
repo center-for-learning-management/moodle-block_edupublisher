@@ -74,7 +74,7 @@ if (!$package) {
 
 // Attention! Guest access will only be active, if the package was published by a moderator!
 $PAGE->set_context($package->get_context());
-require_login($package->courseid);
+\block_edupublisher\permissions::require_login($package->courseid);
 $PAGE->navbar->add($package->get('title', 'default'), new moodle_url('/course/view.php', array('id' => $package->courseid)));
 $PAGE->navbar->add(get_string('details', 'block_edupublisher'), new moodle_url('/blocks/edupublisher/pages/package.php', array('id' => $package->id)));
 $PAGE->navbar->add(get_string('comments'), $PAGE->url);
