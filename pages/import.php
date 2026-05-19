@@ -123,6 +123,7 @@ if ($file) {
         $subcourse->fullname = get_string('subcourse', 'block_eduvidual', array('fullname' => $subcourse->fullname));
         $subcourse->shortname = '[' . $USER->id . '-' . date('YmdHis') . ']';
         $subcourse->idnumber = '';
+        $subcourse->newsitems = 0;
         $subcourse = \create_course($subcourse);
 
         // Manually enrol teacher.

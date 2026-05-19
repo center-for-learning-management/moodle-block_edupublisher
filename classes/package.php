@@ -1195,7 +1195,7 @@ class package {
         $course->idnumber = 'block_edupublisher-' . round((microtime(true) - 1600000000) * 1000);
         // $course->format = $courseconfig->format;
         $course->visible = 0;
-        // $course->newsitems = $courseconfig->newsitems;
+        $course->newsitems = 0;
         // $course->showgrades = $courseconfig->showgrades;
         // $course->showreports = $courseconfig->showreports;
         // $course->maxbytes = $courseconfig->maxbytes;
@@ -1358,7 +1358,20 @@ class package {
 
     public function canrate(): bool {
         global $USER;
-        return ($this->userid != $USER->id);
+        if (!isloggedin() || isguestuser()) {
+            return false;
+        }
+        if ($this->userid == $USER->id) {
+            return false;
+        }
+        // Nur Lehrer/innen bzw. Schul-Manager/innen dürfen bewerten — Schüler/innen und EZB nicht.
+        if (lib::uses_eduvidual()) {
+            $highestrole = \local_eduvidual\locallib::get_highest_role();
+            if ($highestrole != \local_eduvidual\locallib::ROLE_MANAGER && $highestrole != \local_eduvidual\locallib::ROLE_TEACHER) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public function canviewuser(): bool {
