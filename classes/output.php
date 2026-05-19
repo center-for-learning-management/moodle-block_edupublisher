@@ -42,12 +42,10 @@ class output {
             'user_email' => $user ? $user->email : '',
             'isloggedin' => $isloggedin,
             'details_expanded' => !$isloggedin,
-            // 'display_package_detail_page' => $type === 'package_detail_page',
-            // 'display_course_content' => $type === 'course_content',
-            // 'can_see_evaluation' => $package->get('can_see_evaluation') ?: false,
-            // 'can_import' => $package->get('can_import') ?: false,
-            // 'allow_subcourses' => $package->get('allow_subcourses') ?: false,
-            // 'can_unenrol' => $package->get('can_unenrol') ?: false,
+            'can_see_evaluation' => $package->get('can_see_evaluation') ?: false,
+            'can_import' => $package->get('can_import') ?: false,
+            'allow_subcourses' => $package->get('allow_subcourses') ?: false,
+            'can_unenrol' => $package->get('can_unenrol') ?: false,
         ]));
     }
 
