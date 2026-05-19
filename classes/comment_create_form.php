@@ -40,7 +40,7 @@ class comment_create_form extends \moodleform {
         $mform->addElement('editor', 'content', get_string('comment', 'block_edupublisher'), $editoroptions);
         $mform->setType('content', PARAM_RAW);
         $mform->addElement('selectyesno', 'ispublic', get_string('public', 'block_edupublisher'));
-        $mform->setDefault('ispublic', 1);
+        $mform->setDefault('ispublic', 0);
         $mform->setType('ispublic', PARAM_INT);
         $this->add_action_buttons();
     }
