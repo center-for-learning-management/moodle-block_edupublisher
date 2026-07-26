@@ -75,24 +75,22 @@ class output {
     public static function render_competencylist(package $package, bool $from_edit_form): string {
         ob_start();
 
-        if ($competenciesByParent = $package->exacompetencies()) {
+        // Kompetenzen können sowohl über Aktivitäten/den exacomp-Block (exacompetencies)
+        // als auch direkt auf Kursebene (get_course_competencies) zugeordnet werden.
+        // Beide Quellen müssen zusammengeführt werden, sonst verschwinden Kurskompetenzen
+        // sobald irgendeine Aktivitäts-Kompetenz existiert.
+        $competenciesByParent = $package->exacompetencies();
+        foreach ($package->get_course_competencies() as $parentName => $competencies) {
+            $competenciesByParent[$parentName] = array_unique(array_merge(
+                array_values($competenciesByParent[$parentName] ?? []),
+                array_values($competencies)
+            ));
+        }
+        ksort($competenciesByParent);
+
+        if ($competenciesByParent) {
             if (!$from_edit_form) {
                 echo '<h3 style="font-size: 130%; margin-top: 20px;">Kompetenzen:</h3>';
-            }
-
-            foreach ($competenciesByParent as $parentName => $competencies) {
-                ?>
-                <div style="font-weight: bold; margin: 12px 0 4px 0"><?= $parentName ?>:</div>
-                <ul>
-                    <?= join('', array_map(fn($k) => "<li>{$k}</li>", $competencies)) ?>
-                </ul>
-                <?php
-            }
-        } elseif ($competenciesByParent = $package->get_course_competencies()) {
-            // Frage: auch auf $package->is_filling_mode_expert() prüfen?
-
-            if (!$from_edit_form) {
-                echo '<h3 style="font-size: 130%; margin-top: 20px;">Kurskompetenzen:</h3>';
             }
 
             foreach ($competenciesByParent as $parentName => $competencies) {
