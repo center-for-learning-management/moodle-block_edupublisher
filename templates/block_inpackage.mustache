@@ -44,14 +44,16 @@
         </a>
     </div>
 </div>
-<div class="row">
-    <div class="col-md-12">
-        <a href="{{wwwroot}}/blocks/edupublisher/pages/comment.php?packageid={{id}}">
-            <i class="fa fa-comments icon"></i>
-            {{#str}} comments {{/str}}
-        </a>
+{{#can_comment}}
+    <div class="row">
+        <div class="col-md-12">
+            <a href="{{wwwroot}}/blocks/edupublisher/pages/comment.php?packageid={{id}}">
+                <i class="fa fa-comments icon"></i>
+                {{#str}} comments {{/str}}
+            </a>
+        </div>
     </div>
-</div>
+{{/can_comment}}
 {{#show_star_rating}}
     <div class="row">
         <div class="col-md-12">

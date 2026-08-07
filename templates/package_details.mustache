@@ -134,10 +134,12 @@
         </a>
     {{/can_import}}
 
-    <a class="d-inline-block m-2 mx-4" href="{{wwwroot}}/blocks/edupublisher/pages/comment.php?packageid={{id}}">
-        <i class="fa fa-comments icon"></i>
-        {{#str}} comments {{/str}}
-    </a>
+    {{#can_comment}}
+        <a class="d-inline-block m-2 mx-4" href="{{wwwroot}}/blocks/edupublisher/pages/comment.php?packageid={{id}}">
+            <i class="fa fa-comments icon"></i>
+            {{#str}} comments {{/str}}
+        </a>
+    {{/can_comment}}
 
     {{#can_see_evaluation}}
         <a class="d-inline-block m-2 mx-4" href="{{wwwroot}}/blocks/edupublisher/pages/evaluation.php?packageid={{id}}">

@@ -130,6 +130,7 @@ class package {
             $this->set($cantriggeractive, 'cantriggeractive');
 
             $this->set($this->canrate(), 'canrate');
+            $this->set($this->can_comment(), 'can_comment');
             $haslti = (!empty($this->get('channel', 'etapas')) || !empty($this->get('channel', 'eduthek')) || !empty($this->get('channel', 'eduthekneu')));
             $this->set($haslti, 'haslti');
             $this->set_v2('canviewuser', $this->canviewuser());
@@ -1376,6 +1377,25 @@ class package {
 
     public function canviewuser(): bool {
         return permissions::is_admin() || permissions::is_maintainer();
+    }
+
+    public function can_comment(): bool {
+        global $USER;
+        if (!isloggedin() || isguestuser()) {
+            return false;
+        }
+        // Autor/in und Maintainer brauchen die Kommentare für den Redaktionsprozess (Auto-Kommentare).
+        if ($this->userid == $USER->id || permissions::is_maintainer()) {
+            return true;
+        }
+        // Kommentare dürfen nur Lehrer/innen bzw. Schul-Manager/innen sehen und verfassen — Schüler/innen und EZB nicht.
+        if (lib::uses_eduvidual()) {
+            $highestrole = \local_eduvidual\locallib::get_highest_role();
+            if ($highestrole != \local_eduvidual\locallib::ROLE_MANAGER && $highestrole != \local_eduvidual\locallib::ROLE_TEACHER) {
+                return false;
+            }
+        }
+        return true;
     }
 
     public function get_rating_data(): object {
