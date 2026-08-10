@@ -183,7 +183,7 @@ jobs:
       - name: ESLint --fix
         run: |
           cd ${{ github.workspace }}/moodle
-          ./node_modules/.bin/eslint --fix public/local/experience/
+          ./node_modules/.bin/eslint --fix public/
 
       # Copy the fixed files from the Moodle installation back to the plugin folder
       - name: Copy changes to repository
