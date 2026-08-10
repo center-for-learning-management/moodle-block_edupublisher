@@ -1,121 +1,237 @@
 name: Moodle Plugin CI
+on: [push]
 
-on: [ push, pull_request, workflow_dispatch ]
+permissions:
+  contents: write          # required to create a branch and PR
+  pull-requests: write     # required to create a PR
+  security-events: write   # required to upload SARIF to code scanning
 
 jobs:
   test:
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: write
-      pull-requests: write
-      repository-projects: write
+    runs-on: ubuntu-24.04
 
     services:
       postgres:
-        image: postgres:13
+        image: ${{ matrix.database == 'pgsql' && 'postgres:17' || '' }}
         env:
           POSTGRES_USER: 'postgres'
           POSTGRES_HOST_AUTH_METHOD: 'trust'
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
       mariadb:
-        image: mariadb:10.6.10
+        image: ${{ matrix.database == 'mariadb' && 'mariadb:11' || '' }}
         env:
-          MYSQL_USER: 'root'
-          MYSQL_ALLOW_EMPTY_PASSWORD: "true"
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
+          MYSQL_CHARACTER_SET_SERVER: "utf8mb4"
+          MYSQL_COLLATION_SERVER: "utf8mb4_unicode_ci"
         ports:
           - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval 10s --health-timeout 5s --health-retries 3
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval 10s --health-timeout 5s --health-retries 3
 
     strategy:
       fail-fast: false
       matrix:
-        include:
-          - php: '8.1'
-            moodle-branch: 'MOODLE_405_STABLE'
-            database: pgsql
-          - php: '8.1'
-            moodle-branch: 'MOODLE_405_STABLE'
-            database: mariadb
+        php: ['8.3']
+        moodle-branch: ['MOODLE_502_STABLE']
+        database: [mariadb]
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v6
         with:
           path: plugin
+          persist-credentials: false
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
-          ini-values: max_input_vars=5000
+          ini-values: max_input_vars=5000, opcache.enable_cli=1
+          # If you are not using code coverage, keep "none". Otherwise, use "pcov" (Moodle 3.10 and up) or "xdebug".
+          # If you try to use code coverage with "none", it will fallback to phpdbg (which has known problems).
           coverage: none
 
       - name: Initialise moodle-plugin-ci
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.github_token}}"} }'
         run: |
-          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
-          echo $(cd ci/bin; pwd) >> $GITHUB_PATH
-          echo $(cd ci/vendor/bin; pwd) >> $GITHUB_PATH
+          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
+          echo "$(cd ci/bin; pwd)" >> "$GITHUB_PATH"
+          echo "$(cd ci/vendor/bin; pwd)" >> "$GITHUB_PATH"
           sudo locale-gen en_AU.UTF-8
-          echo "NVM_DIR=$HOME/.nvm" >> $GITHUB_ENV
+          echo "NVM_DIR=$HOME/.nvm" >> "$GITHUB_ENV"
 
       - name: Install moodle-plugin-ci
-        run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1
+        run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1 # DevSkim: ignore DS162092
         env:
           DB: ${{ matrix.database }}
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
-          MUSTACHE_IGNORE_NAMES: 'mobile_*.mustache'
+          # Uncomment this to run Behat tests using the Moodle App.
+          # MOODLE_APP: 'true'
 
       - name: PHP Lint
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         run: moodle-plugin-ci phplint
 
       - name: PHP Copy/Paste Detector
-        continue-on-error: true # This step will show errors but will not fail
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpcpd
 
       - name: PHP Mess Detector
-        continue-on-error: true # This step will show errors but will not fail
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         run: moodle-plugin-ci phpmd
 
       - name: Moodle Code Checker
-        if: ${{ always() }}
-        run: moodle-plugin-ci codechecker --max-warnings 0
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpcs
 
       - name: Moodle PHPDoc Checker
-        if: ${{ always() }}
-        run: moodle-plugin-ci phpdoc
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpdoc --max-warnings 0
 
       - name: Validating
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         run: moodle-plugin-ci validate
 
       - name: Check upgrade savepoints
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         run: moodle-plugin-ci savepoints
 
       - name: Mustache Lint
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         run: moodle-plugin-ci mustache
 
       - name: Grunt
-        if: ${{ always() }}
+        if: ${{ !cancelled() }}
         run: moodle-plugin-ci grunt --max-lint-warnings 0
 
       - name: PHPUnit tests
-        if: ${{ always() }}
-        run: |
-          moodle-plugin-ci phpunit
-          cd moodle
-          if [ -f vendor/bin/phpunit ]; then
-              vendor/bin/phpunit --fail-on-risky --disallow-test-output --filter tool_dataprivacy_metadata_registry_testcase
-              vendor/bin/phpunit --fail-on-risky --disallow-test-output --filter core_externallib_testcase
-              vendor/bin/phpunit --fail-on-risky --disallow-test-output --testsuite core_privacy_testsuite --filter provider_testcase
-          fi
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci phpunit --fail-on-warning
 
       - name: Behat features
-        if: ${{ always() }}
-        run: moodle-plugin-ci behat --profile chrome
+        id: behat
+        if: ${{ !cancelled() }}
+        run: moodle-plugin-ci behat --profile chrome --scss-deprecations
+
+      - name: Upload Behat Faildump
+        if: ${{ failure() && steps.behat.outcome == 'failure' }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: Behat Faildump
+          path: ${{ github.workspace }}/moodledata/behat_dump
+          retention-days: 7
+          if-no-files-found: ignore
+
+      - name: Mark cancelled jobs as failed.
+        if: ${{ cancelled() }}
+        run: exit 1
+
+  # Runs ONCE (no matrix) after all test legs finish: applies auto-fixers,
+  fix-and-pr:
+    needs: test
+    if: ${{ always() }}
+    runs-on: ubuntu-24.04
+
+    services:
+      mariadb:
+        image: mariadb:11
+        env:
+          MARIADB_ALLOW_EMPTY_ROOT_PASSWORD: '1'
+          MYSQL_CHARACTER_SET_SERVER: "utf8mb4"
+          MYSQL_COLLATION_SERVER: "utf8mb4_unicode_ci"
+        ports:
+          - 3306:3306
+        options: --health-cmd="healthcheck.sh --connect --innodb_initialized" --health-interval 10s --health-timeout 5s --health-retries 3
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v6
+        with:
+          path: plugin
+          persist-credentials: false
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          ini-values: max_input_vars=5000, opcache.enable_cli=1
+          coverage: none
+
+      - name: Initialise moodle-plugin-ci
+        env:
+          COMPOSER_AUTH: '{"github-oauth": {"github.com": "${{secrets.github_token}}"} }'
+        run: |
+          composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^4
+          echo "$(cd ci/bin; pwd)" >> "$GITHUB_PATH"
+          echo "$(cd ci/vendor/bin; pwd)" >> "$GITHUB_PATH"
+          sudo locale-gen en_AU.UTF-8
+          echo "NVM_DIR=$HOME/.nvm" >> "$GITHUB_ENV"
+
+      - name: Install moodle-plugin-ci
+        run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1 # DevSkim: ignore DS162092
+        env:
+          DB: mariadb
+          MOODLE_BRANCH: MOODLE_502_STABLE
+
+      # --- Fixers ---
+      - name: Moodle Code Beautifier and Fixer
+        run: moodle-plugin-ci phpcbf
+
+      - name: ESLint --fix
+        run: |
+          cd ${{ github.workspace }}/moodle
+          ./node_modules/.bin/eslint --fix public/local/experience/
+
+      # Copy the fixed files from the Moodle installation back to the plugin folder
+      - name: Copy changes to repository
+        run: |
+          echo "Copying changed files from ${{ github.workspace }}/moodle/public/$(echo "${GITHUB_REPOSITORY}" | cut -d/ -f2 | sed 's/^moodle-//' | tr _ /)/. to ${{ github.workspace }}/plugin/."
+          rsync -av "${{ github.workspace }}/moodle/public/$(echo "${GITHUB_REPOSITORY}" | cut -d/ -f2 | sed 's/^moodle-//' | tr _ /)/." "${{ github.workspace }}/plugin/." --exclude='.git'
+
+      # Detect if any files were modified by the fixers
+      - name: Check for changes
+        id: check
+        run: |
+          cd plugin
+          git add -A
+          if git diff --cached --quiet; then
+            echo "changes=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "changes=true" >> "$GITHUB_OUTPUT"
+            git diff --cached --name-only > ../changed_files.txt
+            echo "Modified files:"
+            cat ../changed_files.txt
+          fi
+
+      # Prepare the pull request body with the list of changed files
+      - name: Prepare PR body
+        if: ${{ !cancelled() && steps.check.outputs.changes == 'true' }}
+        run: |
+          {
+            echo "PR_BODY<<EOF"
+            echo "Moodle CI Fixes"
+            echo ""
+            echo "The following files were modified by the CI process:"
+            echo '```'
+            cat changed_files.txt
+            echo '```'
+            echo "EOF"
+          } >> "$GITHUB_ENV"
+
+      # Create pull request only if changes exist
+      - name: Create Pull Request
+        if: ${{ !cancelled() && steps.check.outputs.changes == 'true' }}
+        uses: peter-evans/create-pull-request@v8
+        with:
+          commit-message: CI Fixes
+          title: Moodle CI Fixes
+          body: ${{ env.PR_BODY }}
+          branch: moodle-ci-fixes
+          path: plugin
+
+      - name: Fail workflow if tests failed
+        if: ${{ needs.test.result == 'failure' }}
+        run: exit 1
