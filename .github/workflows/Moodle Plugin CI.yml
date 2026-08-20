@@ -1,5 +1,17 @@
 name: Moodle Plugin CI
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - moodle-ci-fixes**
+
+  workflow_dispatch:
+    inputs:
+      dependencies_override:
+        description: >
+          Override plugin dependencies for this run (one per line: "owner/repo [BRANCH]"
+          or "CLONE_URL [BRANCH]"). Leave empty to use .github/moodle-ci/dependencies as-is.
+        required: false
+        type: string
 
 permissions:
   contents: write          # required to create a branch and PR
@@ -39,10 +51,11 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: plugin
           persist-credentials: false
+
 
       - name: Setup PHP ${{ matrix.php }}
         uses: shivammathur/setup-php@v2
@@ -63,6 +76,54 @@ jobs:
           sudo locale-gen en_AU.UTF-8
           echo "NVM_DIR=$HOME/.nvm" >> "$GITHUB_ENV"
 
+      - name: Add plugin dependencies
+        env:
+          DEPENDENCIES_OVERRIDE: ${{ github.event.inputs.dependencies_override }}
+        run: |
+          depsfile="./plugin/.github/moodle-ci/dependencies"
+
+          if [ -n "$DEPENDENCIES_OVERRIDE" ]; then
+            echo "Using workflow_dispatch dependencies_override input."
+            deps_source="$(mktemp)"
+            printf '%s\n' "$DEPENDENCIES_OVERRIDE" > "$deps_source"
+          elif [ -f "$depsfile" ]; then
+            echo "Using dependencies file: $depsfile"
+            deps_source="$depsfile"
+          else
+            echo "No $depsfile found and no override given, skipping."
+            deps_source=""
+          fi
+
+          if [ -n "$deps_source" ]; then
+            while IFS= read -r line || [ -n "$line" ]; do
+              trimmed="$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+              [ -z "$trimmed" ] && continue
+              case "$trimmed" in
+                '#'*) continue ;;
+              esac
+
+              spec="$(echo "$trimmed" | awk '{print $1}')"
+              branch="$(echo "$trimmed" | awk '{print $2}')"
+
+              args=()
+              if [ -n "$branch" ]; then
+                args+=(--branch "$branch")
+              fi
+
+              case "$spec" in
+                *://*|*.git|git@*)
+                  args+=(--clone "$spec")
+                  ;;
+                *)
+                  args+=("$spec")
+                  ;;
+              esac
+
+              echo "Running: moodle-plugin-ci add-plugin ${args[*]}"
+              moodle-plugin-ci add-plugin "${args[@]}"
+            done < "$deps_source"
+          fi
+
       - name: Install moodle-plugin-ci
         run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1 # DevSkim: ignore DS162092
         env:
@@ -70,6 +131,23 @@ jobs:
           MOODLE_BRANCH: ${{ matrix.moodle-branch }}
           # Uncomment this to run Behat tests using the Moodle App.
           # MOODLE_APP: 'true'
+
+      - name: Add custom config .github/moodle-ci/extra-config.php
+        run: |
+          configfile="./plugin/.github/moodle-ci/extra-config.php"
+          if [ -f "$configfile" ]; then
+            while IFS= read -r line || [ -n "$line" ]; do
+              trimmed="$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+              [ -z "$trimmed" ] && continue
+              case "$trimmed" in
+                '<?php'*|'#'*|'//'*) continue ;;
+              esac
+              echo "Adding config: $trimmed"
+              moodle-plugin-ci add-config "$trimmed"
+            done < "$configfile"
+          else
+            echo "No $configfile found, skipping extra config."
+          fi
 
       - name: PHP Lint
         if: ${{ !cancelled() }}
@@ -81,11 +159,27 @@ jobs:
 
       - name: PHP Mess Detector
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpmd
+        run: |
+          rulesfile="$(pwd)/plugin/.github/moodle-ci/phpmd-exclusions.xml"
+          if [ -f "$rulesfile" ]; then
+            echo "Using custom phpmd ruleset: $rulesfile"
+            moodle-plugin-ci phpmd --rules="$rulesfile"
+          else
+            echo "No custom phpmd ruleset found, using default moodle ruleset."
+            moodle-plugin-ci phpmd
+          fi
 
       - name: Moodle Code Checker
         if: ${{ !cancelled() }}
-        run: moodle-plugin-ci phpcs
+        run: |
+          standardfile="$(pwd)/plugin/.github/moodle-ci/phpcs-exclusions.xml"
+          if [ -f "$standardfile" ]; then
+            echo "Using custom phpcs standard: $standardfile"
+            moodle-plugin-ci phpcs --standard="$standardfile" --max-warnings 0
+          else
+            echo "No custom phpcs standard found, using default moodle standard."
+            moodle-plugin-ci phpcs --max-warnings 0
+          fi
 
       - name: Moodle PHPDoc Checker
         if: ${{ !cancelled() }}
@@ -148,10 +242,17 @@ jobs:
 
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           path: plugin
           persist-credentials: false
+
+      - name: Configure git identity
+        run: |
+          cd plugin
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          echo "BASE_SHA=$(git rev-parse HEAD)" >> "$GITHUB_ENV"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -170,6 +271,54 @@ jobs:
           sudo locale-gen en_AU.UTF-8
           echo "NVM_DIR=$HOME/.nvm" >> "$GITHUB_ENV"
 
+      - name: Add plugin dependencies
+        env:
+          DEPENDENCIES_OVERRIDE: ${{ github.event.inputs.dependencies_override }}
+        run: |
+          depsfile="./plugin/.github/moodle-ci/dependencies"
+
+          if [ -n "$DEPENDENCIES_OVERRIDE" ]; then
+            echo "Using workflow_dispatch dependencies_override input."
+            deps_source="$(mktemp)"
+            printf '%s\n' "$DEPENDENCIES_OVERRIDE" > "$deps_source"
+          elif [ -f "$depsfile" ]; then
+            echo "Using dependencies file: $depsfile"
+            deps_source="$depsfile"
+          else
+            echo "No $depsfile found and no override given, skipping."
+            deps_source=""
+          fi
+
+          if [ -n "$deps_source" ]; then
+            while IFS= read -r line || [ -n "$line" ]; do
+              trimmed="$(echo "$line" | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')"
+              [ -z "$trimmed" ] && continue
+              case "$trimmed" in
+                '#'*) continue ;;
+              esac
+
+              spec="$(echo "$trimmed" | awk '{print $1}')"
+              branch="$(echo "$trimmed" | awk '{print $2}')"
+
+              args=()
+              if [ -n "$branch" ]; then
+                args+=(--branch "$branch")
+              fi
+
+              case "$spec" in
+                *://*|*.git|git@*)
+                  args+=(--clone "$spec")
+                  ;;
+                *)
+                  args+=("$spec")
+                  ;;
+              esac
+
+              echo "Running: moodle-plugin-ci add-plugin ${args[*]}"
+              moodle-plugin-ci add-plugin "${args[@]}"
+            done < "$deps_source"
+          fi
+
       - name: Install moodle-plugin-ci
         run: moodle-plugin-ci install --plugin ./plugin --db-host=127.0.0.1 # DevSkim: ignore DS162092
         env:
@@ -177,31 +326,90 @@ jobs:
           MOODLE_BRANCH: MOODLE_502_STABLE
 
       # --- Fixers ---
+      # Each fixer commits its own changes (if any) immediately, so the resulting
+      # PR contains separate, individually cherry-pickable commits per tool.
       - name: Moodle Code Beautifier and Fixer
-        run: moodle-plugin-ci phpcbf
+        if: ${{ !cancelled() }}
+        run: |
+          standardfile="$(pwd)/plugin/.github/moodle-ci/phpcs-exclusions.xml"
+          if [ -f "$standardfile" ]; then
+            echo "Using custom phpcs standard: $standardfile"
+            moodle-plugin-ci phpcbf --standard="$standardfile"
+          else
+            echo "No custom phpcs standard found, using default moodle standard."
+            moodle-plugin-ci phpcbf
+          fi
+
+          cd plugin
+          git add -A
+          if git diff --cached --quiet; then
+            echo "phpcbf made no changes, skipping commit."
+          else
+            git commit -m "phpcbf: automated code style fixes"
+          fi
 
       - name: ESLint --fix
+        if: ${{ !cancelled() }}
         run: |
           cd ${{ github.workspace }}/moodle
+          set +e
           ./node_modules/.bin/eslint --fix public/
+          eslint_exit=$?
+          set -e
 
-      # Copy the fixed files from the Moodle installation back to the plugin folder
-      - name: Copy changes to repository
+          if [ -z "$(git status --porcelain public/)" ]; then
+            echo "ESLint --fix made no changes; propagating its exit code ($eslint_exit)."
+            exit $eslint_exit
+          fi
+          echo "ESLint --fix modified files; ignoring its exit code ($eslint_exit)."
+
+          plugindir="$(echo "${GITHUB_REPOSITORY}" | cut -d/ -f2 | sed 's/^moodle-//' | tr _ /)"
+          rsync -av "${{ github.workspace }}/moodle/public/${plugindir}/." "${{ github.workspace }}/plugin/." --exclude='.git'
+
+          cd ${{ github.workspace }}/plugin
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No plugin-relevant ESLint changes, skipping commit."
+          else
+            git commit -m "eslint --fix: automated JS lint fixes"
+          fi
+
+      - name: Stylelint --fix
+        if: ${{ !cancelled() }}
         run: |
-          echo "Copying changed files from ${{ github.workspace }}/moodle/public/$(echo "${GITHUB_REPOSITORY}" | cut -d/ -f2 | sed 's/^moodle-//' | tr _ /)/. to ${{ github.workspace }}/plugin/."
-          rsync -av "${{ github.workspace }}/moodle/public/$(echo "${GITHUB_REPOSITORY}" | cut -d/ -f2 | sed 's/^moodle-//' | tr _ /)/." "${{ github.workspace }}/plugin/." --exclude='.git'
+          cd ${{ github.workspace }}/moodle
+          set +e
+          ./node_modules/.bin/stylelint --fix "public/**/*.scss"
+          stylelint_exit=$?
+          set -e
 
-      # Detect if any files were modified by the fixers
+          if [ -z "$(git status --porcelain public/)" ]; then
+            echo "Stylelint --fix made no changes; propagating its exit code ($stylelint_exit)."
+            exit $stylelint_exit
+          fi
+          echo "Stylelint --fix modified files; ignoring its exit code ($stylelint_exit)."
+
+          plugindir="$(echo "${GITHUB_REPOSITORY}" | cut -d/ -f2 | sed 's/^moodle-//' | tr _ /)"
+          rsync -av "${{ github.workspace }}/moodle/public/${plugindir}/." "${{ github.workspace }}/plugin/." --exclude='.git'
+
+          cd ${{ github.workspace }}/plugin
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No plugin-relevant Stylelint changes, skipping commit."
+          else
+            git commit -m "stylelint --fix: automated SCSS lint fixes"
+          fi
+
+      # Detect if any of the fixers above produced commits
       - name: Check for changes
         id: check
         run: |
           cd plugin
-          git add -A
-          if git diff --cached --quiet; then
+          if [ "$(git rev-parse HEAD)" = "$BASE_SHA" ]; then
             echo "changes=false" >> "$GITHUB_OUTPUT"
           else
             echo "changes=true" >> "$GITHUB_OUTPUT"
-            git diff --cached --name-only > ../changed_files.txt
+            git diff --name-only "$BASE_SHA" HEAD > ../changed_files.txt
             echo "Modified files:"
             cat ../changed_files.txt
           fi
