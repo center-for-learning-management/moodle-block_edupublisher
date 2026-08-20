@@ -129,21 +129,21 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
 
     function col_state_text($row) {
         if ($row->state_text == 'Veröffentlicht') {
-            $class = 'badge badge-success';
+            $class = 'badge bg-success text-white';
         } elseif ($row->state_text == 'Eingereicht') {
-            $class = 'badge badge-warning';
+            $class = 'badge bg-warning text-dark';
         } else {
-            $class = 'badge badge-secondary';
+            $class = 'badge bg-secondary text-dark';
         }
 
         return '<span class="' . $class . '">' . $row->state_text . '</span>';
 
         // if ($row->active) {
-        //     return '<span class="badge badge-success">Veröffentlicht</span>';
+        //     return '<span class="badge bg-success text-white">Veröffentlicht</span>';
         // } elseif ($row->default_published) {
         //     return 'Freigegeben';
         // } elseif ($row->default_publishas) {
-        //     return '<span class="badge badge-warning">Eingereicht</span>';
+        //     return '<span class="badge bg-warning text-dark">Eingereicht</span>';
         // } else {
         //     return 'Entwurf';
         // }
@@ -151,13 +151,13 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
 
     function col_channel_etapas_state_text($row) {
         if ($row->channel_etapas_state_text == 'Veröffentlicht') {
-            $class = 'badge badge-success';
+            $class = 'badge bg-success text-white';
         } elseif ($row->channel_etapas_state_text == 'Eingereicht' || $row->channel_etapas_state_text == 'Vorschlag Eingereicht') {
-            $class = 'badge badge-warning';
+            $class = 'badge bg-warning text-dark';
         } elseif ($row->channel_etapas_state_text == '-') {
             $class = '';
         } else {
-            $class = 'badge badge-secondary';
+            $class = 'badge bg-secondary text-dark';
         }
 
         return '<span class="' . $class . '">' . $row->channel_etapas_state_text . '</span>';
@@ -169,9 +169,9 @@ class block_edupublisher_resources_table extends \local_table_sql\table_sql {
         // $publishas = $package->get('publishas', $channel);
         //
         // if ($published) {
-        //     return '<span class="badge badge-success">Veröffentlicht</span>';
+        //     return '<span class="badge bg-success text-white">Veröffentlicht</span>';
         // } elseif ($publishas) {
-        //     return '<span class="badge badge-warning">Todo</span>';
+        //     return '<span class="badge bg-warning text-dark">Todo</span>';
         // } else {
         //     return '-';
         // }

@@ -10,7 +10,7 @@
 </div>
 
 <div class="d-flex align-items-start position-relative">
-    <a role="button" data-toggle="collapse" href="#block_edupublisher_collapse" aria-expanded="{{#details_expanded}}true{{/details_expanded}}{{^details_expanded}}false{{/details_expanded}}" aria-controls="block_edupublisher_collapse" class="btn btn-icon mr-1 icons-collapse-expand{{^details_expanded}} collapsed{{/details_expanded}} justify-content-center stretched-link" aria-label="Details">
+    <a role="button" data-bs-toggle="collapse" href="#block_edupublisher_collapse" aria-expanded="{{#details_expanded}}true{{/details_expanded}}{{^details_expanded}}false{{/details_expanded}}" aria-controls="block_edupublisher_collapse" class="btn btn-icon me-1 icons-collapse-expand{{^details_expanded}} collapsed{{/details_expanded}} justify-content-center stretched-link" aria-label="Details">
         <span class="expanded-icon icon-no-margin p-2" title="Einklappen">
             <i class="icon fa fa-chevron-down fa-fw " aria-hidden="true"></i>
         </span>
@@ -128,7 +128,7 @@
 {{#isloggedin}}
 <div class="d-flex mt-4 mx-n2">
     {{#can_import}}
-        <a class="btn btn-primary ml-3 mr-4" href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportSelection({{id}}, 0, {{allow_subcourses}}); }); return false;">
+        <a class="btn btn-primary ms-3 me-4" href="#" onclick="require(['block_edupublisher/main'], function(MAIN) { MAIN.initImportSelection({{id}}, 0, {{allow_subcourses}}); }); return false;">
             <i class="fa fa-file-import icon"></i>
            {{#str}} initialize_import, block_edupublisher {{/str}}
         </a>
