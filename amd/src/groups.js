@@ -1,6 +1,6 @@
 define(
-  ['jquery', 'core/ajax', 'core/notification', 'core/str', 'core/templates', 'core/url', 'core/modal_factory'],
-  function ($, Ajax, Notification, Str, Templates, Url, ModalFactory) {
+  ['jquery', 'core/ajax', 'core/notification', 'core/str', 'core/templates', 'core/url', 'core/modal'],
+  function ($, Ajax, Notification, Str, Templates, Url, Modal) {
     return {
       /**
        * Enlarge a QR-Code.
@@ -8,12 +8,12 @@ define(
        */
       enlargeQR: function (a) {
         var qr = $(a).html();
-        ModalFactory.create({
+        Modal.create({
           title: 'QR Code',
           body: $(qr).css('width', '450px').css('height', '450px'),
           footer: '',
-        }).done(function (modal) {
-          modal.show();
+          show: true,
+        }).then(function (modal) {
           $(modal.getRoot()).css('text-align', 'center');
         });
       },

@@ -104,9 +104,9 @@ define(
         }]);
       },
       /**
-       * Request the type of a licence and show an appropriate modal.
+       * Request the type of license and show an appropriate modal.
        * @param {string} uniqid of template.
-       * @param {string} targetid (optional) to redeem licence.
+       * @param {string} targetid (optional) to redeem license.
        */
       redeem: function (uniqid, targetid) {
         if (typeof targetid === 'undefined') {
@@ -129,14 +129,12 @@ define(
                 top.location.href = top.location.href;
               } else if (typeof result.options !== 'undefined') {
                 result.myuniqid = uniqid;
-                require(['core/modal_factory', 'core/modal_events'], function (ModalFactory, ModalEvents) {
-                  ModalFactory.create({
-                    type: ModalFactory.types.SAVE_CANCEL,
+                require(['core/modal_save_cancel', 'core/modal_events'], function (ModalSaveCancel, ModalEvents) {
+                  ModalSaveCancel.create({
                     title: result.heading,
                     body: TEMPLATES.render('block_edupublisher/licence_redeem_options', result),
-                  }, undefined).done(function (modal) {
-                    // console.log(modal);
-                    modal.show();
+                    show: true,
+                  }).then(function (modal) {
                     var root = modal.getRoot();
                     root.on(ModalEvents.save, function () {
                       var targetid = $('#targetid-' + uniqid).val();

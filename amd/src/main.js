@@ -1,6 +1,6 @@
 define(
-  ['jquery', 'core/ajax', 'core/notification', 'core/str', 'core/templates', 'core/url', 'core/modal_factory'],
-  function ($, AJAX, NOTIFICATION, STR, TEMPLATES, URL, ModalFactory) {
+  ['jquery', 'core/ajax', 'core/notification', 'core/str', 'core/templates', 'core/url', 'core/modal'],
+  function ($, AJAX, NOTIFICATION, STR, TEMPLATES, URL, Modal) {
     return {
       searchid: 0, // Ensures that only the last search is shown.
       loadpositions: {},
@@ -69,14 +69,13 @@ define(
         STR.get_strings([
           {'key': 'import', component: 'core'},
         ]).done(function (s) {
-            ModalFactory.create({
+            Modal.create({
               title: s[0],
               body: TEMPLATES.render(
                 'block_edupublisher/init_import_selection',
                 {packageid: packageid, courseid: courseid, allowsubcourses: allowsubcourses}
               ),
-            }).done(function (modal) {
-              modal.show();
+              show: true,
             });
           }
         ).fail(NOTIFICATION.exception);
